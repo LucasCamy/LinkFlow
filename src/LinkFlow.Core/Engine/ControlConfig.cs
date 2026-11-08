@@ -232,17 +232,20 @@ public static class FanPresets
 
     public static readonly IReadOnlyList<FanPreset> All = new FanPreset[]
     {
-        new(Silent, "Silencioso", "", "40% • GPU automática", c => Fixed(c, 40, gpuAuto: true, gpu: 50)),
-        new(Balanced, "Equilibrado", "", "55% • GPU automática", c => Fixed(c, 55, gpuAuto: true, gpu: 50)),
-        new(Performance, "Desempenho", "", "75% • GPU 65%", c => Fixed(c, 75, gpuAuto: false, gpu: 65)),
-        new(Max, "Máximo", "", "100% • GPU 100%", c => Fixed(c, 100, gpuAuto: false, gpu: 100)),
-        new(Auto, "Curva inteligente", "", "Segue a temperatura", c =>
+        new(Silent, "Silencioso", Glyph(0xE74F), "40% • GPU automática", c => Fixed(c, 40, gpuAuto: true, gpu: 50)),
+        new(Balanced, "Equilibrado", Glyph(0xEC49), "55% • GPU automática", c => Fixed(c, 55, gpuAuto: true, gpu: 50)),
+        new(Performance, "Desempenho", Glyph(0xEC4A), "75% • GPU 65%", c => Fixed(c, 75, gpuAuto: false, gpu: 65)),
+        new(Max, "Máximo", Glyph(0xE945), "100% • GPU 100%", c => Fixed(c, 100, gpuAuto: false, gpu: 100)),
+        new(Auto, "Curva inteligente", Glyph(0xE9D9), "Segue a temperatura", c =>
         {
             c.Mode = FanControlMode.Curve;
             c.GpuFanAuto = true;
             RelinkAll(c);
         }),
     };
+
+    /// <summary>Ícone da fonte Segoe Fluent Icons / MDL2 Assets.</summary>
+    private static string Glyph(int codePoint) => char.ConvertFromUtf32(codePoint);
 
     public static FanPreset? Find(string key) => All.FirstOrDefault(p => p.Key == key);
 

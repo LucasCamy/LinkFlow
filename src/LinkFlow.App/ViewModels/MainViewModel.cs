@@ -111,6 +111,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             foreach (var f in Fans) f.RefreshLinkedValue();
         }
 
+        OnSnapshotAppliedPartial(s);
         SnapshotApplied?.Invoke();
     }
 
@@ -138,6 +139,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     partial void OnFansStructureChangedPartial();
+    partial void OnSnapshotAppliedPartial(EngineSnapshot s);
     private void OnFansStructureChanged() => OnFansStructureChangedPartial();
 
     // ------------------------------------------------------------------ Telemetria exibida
@@ -236,6 +238,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public string ActivePreset => _activePreset;
 
+    /// <summary>Nome amigável do perfil ativo (ex.: "Curva inteligente" em vez da chave "Automático").</summary>
+    public string ActivePresetLabel => FanPresets.Find(_activePreset)?.Label ?? _activePreset;
+
     /// <summary>Velocidade que uma ventoinha vinculada recebe (exibição imediata, sem esperar o engine).</summary>
     public byte LinkedTargetFor(FanViewModel fan)
     {
@@ -245,14 +250,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public void ApplyPreset(string key)
     {
-        _engine.UpdateConfig(c => FanPresets.Apply(c, key));
-        LoadConfig(_engine.Config);
+        var label = FanPresets.Find(key)?.Label ?? key;
+        WithUndo($"Perfil \"{label}\" aplicado", () => _engine.UpdateConfig(c => FanPresets.Apply(c, key)));
+        RefreshPresetChips();
     }
 
     public void ApplyProfileByName(string name)
     {
-        _engine.UpdateConfig(c => c.Profiles.FirstOrDefault(p => p.Name == name)?.ApplyTo(c));
-        LoadConfig(_engine.Config);
+        WithUndo($"Perfil \"{name}\" aplicado",
+            () => _engine.UpdateConfig(c => c.Profiles.FirstOrDefault(p => p.Name == name)?.ApplyTo(c)));
+        RefreshPresetChips();
     }
 
     internal void OnFanOverrideChanged(FanViewModel fan)
@@ -411,7 +418,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_activePreset == preset) return;
         _activePreset = preset;
-        OnPropertyChanged(nameof(ActivePreset));
+        OnPropertiesChanged(nameof(ActivePreset), nameof(ActivePresetLabel));
         OnActivePresetChangedPartial();
     }
 

@@ -41,6 +41,8 @@ public sealed class SimulatedHub : IFanHub
     public SimulatedHub()
     {
         _devices = new List<ConnectedSubDevice>();
+        foreach (var s in (Environment.GetEnvironmentVariable("LINKFLOW_SIM_STOPPED") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+            if (int.TryParse(s, out var stopped)) StoppedChannels.Add(stopped);
         for (int ch = 1; ch <= 10; ch++)
         {
             _devices.Add(new ConnectedSubDevice
@@ -168,8 +170,8 @@ public sealed class SimulatedSensors : ISensorSource
             RamUsagePercent = 41.3f,
             RamUsedGb = 26.4f,
             RamTotalGb = 63.9f,
-            GpuFanRpm1 = GpuFanManual is { } p ? 600 + p * 22 : 0,
-            GpuFanRpm2 = GpuFanManual is { } p2 ? 610 + p2 * 22 : 0,
+            GpuFanRpm1 = GpuFanManual is { } p ? 600 + p * 22 : 1180,
+            GpuFanRpm2 = GpuFanManual is { } p2 ? 610 + p2 * 22 : 1192,
             GpuFanPercent = GpuFanManual
         };
     }

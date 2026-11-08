@@ -81,3 +81,49 @@ public sealed class EqualsConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
         value is true ? parameter : Binding.DoNothing;
 }
+
+public sealed class SeverityToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value switch
+    {
+        Core.AlertSeverity.Critical => Application.Current.Resources["DangerBrush"],
+        Core.AlertSeverity.Warning => Application.Current.Resources["WarningBrush"],
+        _ => Application.Current.Resources["AccentBrush"]
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
+public sealed class SeverityToSoftBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value switch
+    {
+        Core.AlertSeverity.Critical => Application.Current.Resources["DangerSoftBrush"],
+        Core.AlertSeverity.Warning => Application.Current.Resources["WarningSoftBrush"],
+        _ => Application.Current.Resources["AccentSoftBrush"]
+    };
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
+/// <summary>Visible quando o valor é igual ao parâmetro (troca de páginas).</summary>
+public sealed class EqualsToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        string.Equals(value?.ToString(), parameter?.ToString(), StringComparison.Ordinal) ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
+public sealed class NullToVisibilityConverter : IValueConverter
+{
+    public bool Invert { get; set; }
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        bool hasValue = value != null && !(value is string s && s.Length == 0);
+        return hasValue ^ Invert ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}

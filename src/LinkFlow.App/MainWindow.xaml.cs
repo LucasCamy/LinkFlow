@@ -1,15 +1,21 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
+using LinkFlow.App.Services;
 using LinkFlow.App.ViewModels;
 
 namespace LinkFlow.App;
 
 public partial class MainWindow : Window
 {
+    private const double CompactWidth = 980;
+
     private MiniWidgetWindow? _miniWidget;
     private bool _closingForExit;
     private bool _boundsRestored;
+    private HotkeyService? _hotkeys;
 
     public MainWindow(MainViewModel viewModel)
     {
@@ -17,17 +23,82 @@ public partial class MainWindow : Window
         ViewModel = viewModel;
         DataContext = viewModel;
         RestoreSavedBounds();
+
+        ViewModel.SelectedPage = Math.Clamp(App.Current.Settings.Current.SelectedPage, 0, MainViewModel.PageTitles.Length - 1);
+        ViewModel.PageChanged += p => App.Current.Settings.Update(s => s.SelectedPage = p);
+
         StateChanged += OnStateChanged;
+        SizeChanged += (_, e) => ViewModel.IsCompact = e.NewSize.Width < CompactWidth;
         IsVisibleChanged += (_, _) => UpdateViewActive();
+        SourceInitialized += (_, _) => SetupHotkeys();
+        PreviewKeyDown += OnPreviewKeyDown;
+        App.Current.Settings.Changed += () => _hotkeys?.SetEnabled(App.Current.Settings.Current.GlobalHotkeys);
     }
 
     public MainViewModel ViewModel { get; }
     public SettingsViewModel Settings => App.Current.SettingsVm;
     public bool IsMiniWidgetVisible => _miniWidget?.IsVisible == true;
 
+    // ------------------------------------------------------------------ Atalhos
+
+    private void SetupHotkeys()
+    {
+        if (App.Current.Options.ScreenshotPath != null) return;
+        var hwnd = new WindowInteropHelper(this).EnsureHandle();
+        _hotkeys = new HotkeyService(hwnd);
+        _hotkeys.PresetHotkey += index =>
+        {
+            ViewModel.ApplyPresetCommand.Execute(index.ToString());
+            App.Current.NotifyPresetChanged(ViewModel.ActivePreset);
+        };
+        _hotkeys.ShowHotkey += () =>
+        {
+            if (IsVisible && IsActive) HideToTray();
+            else ShowFromTray();
+        };
+        _hotkeys.MiniHotkey += () => ToggleMiniWidget(fromTray: true);
+        _hotkeys.SetEnabled(App.Current.Settings.Current.GlobalHotkeys);
+    }
+
+    private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        Core.Log.Debug($"Tecla {e.Key} ({Keyboard.Modifiers}) foco={Keyboard.FocusedElement?.GetType().Name ?? "nenhum"}");
+        bool ctrl = Keyboard.Modifiers == ModifierKeys.Control;
+        bool inText = Keyboard.FocusedElement is TextBox;
+
+        if (ctrl && e.Key == Key.M)
+        {
+            ToggleMiniWidget();
+            e.Handled = true;
+        }
+        else if (ctrl && e.Key == Key.Q)
+        {
+            App.Current.ExitApplication();
+            e.Handled = true;
+        }
+        else if (ctrl && e.Key == Key.W)
+        {
+            Close();
+            e.Handled = true;
+        }
+        else if (ctrl && e.Key == Key.A && !inText && ViewModel.SelectedPage == 1)
+        {
+            ViewModel.SelectAllCommand.Execute(null);
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Escape && !inText)
+        {
+            // Esc: primeiro fecha o aviso/limpa seleção; depois esconde na bandeja
+            if (ViewModel.ToastVisible) ViewModel.ToastVisible = false;
+            else if (ViewModel.SelectedPage == 1 && ViewModel.HasSelection) ViewModel.ClearSelectionCommand.Execute(null);
+            else Close();
+            e.Handled = true;
+        }
+    }
+
     // ------------------------------------------------------------------ Janela / bandeja
 
-    /// <summary>Inicia na bandeja: cria o handle (para atalhos globais) sem mostrar a janela.</summary>
+    /// <summary>Inicia na bandeja: cria o handle (atalhos globais) sem mostrar a janela.</summary>
     public void InitializeHidden()
     {
         new WindowInteropHelper(this).EnsureHandle();
@@ -55,6 +126,9 @@ public partial class MainWindow : Window
 
     private void OnStateChanged(object? sender, EventArgs e)
     {
+        MaxButton.Content = WindowState == WindowState.Maximized ? "" : "";
+        MaxButton.ToolTip = WindowState == WindowState.Maximized ? "Restaurar" : "Maximizar";
+
         if (WindowState == WindowState.Minimized && App.Current.Settings.Current.MinimizeToTray && !_closingForExit)
         {
             HideToTray();
@@ -71,20 +145,21 @@ public partial class MainWindow : Window
         ViewModel.IsViewActive = (IsVisible && WindowState != WindowState.Minimized) || IsMiniWidgetVisible;
     }
 
-    public void SelectPage(int index)
-    {
-        if (index >= 0 && index < MainTabs.Items.Count) MainTabs.SelectedIndex = index;
-    }
+    public void SelectPage(int index) => ViewModel.SelectedPage = index;
 
     public void CloseForExit()
     {
         _closingForExit = true;
         SaveBounds();
+        _hotkeys?.Dispose();
         _miniWidget?.CloseForExit();
         Close();
     }
 
     private void MinimizeButton_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void MaximizeButton_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 
@@ -172,38 +247,4 @@ public partial class MainWindow : Window
     }
 
     private void ToggleMiniWidget_Click(object sender, RoutedEventArgs e) => ToggleMiniWidget();
-
-    // ------------------------------------------------------------------ Ações
-
-    private void PresetSilent_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Silent);
-    private void PresetBalanced_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Balanced);
-    private void PresetPerformance_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Performance);
-    private void PresetMax_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Max);
-    private void PresetAuto_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Auto);
-
-    private void ColorCyan_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(0, 240, 255);
-    private void ColorPurple_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(168, 85, 247);
-    private void ColorGreen_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(16, 185, 129);
-    private void ColorRed_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(239, 68, 68);
-    private void ColorWhite_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(255, 255, 255);
-    private void ColorOrange_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(249, 115, 22);
-    private void ColorYellow_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(250, 204, 21);
-    private void ColorOff_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(0, 0, 0);
-
-    /// <summary>As cores já são aplicadas em tempo real; o botão força reconexão e reenvio a todos os dispositivos.</summary>
-    private void ApplyRgbSync_Click(object sender, RoutedEventArgs e) => ViewModel.Engine.NotifyResume();
-
-    private void SyncLcd_Click(object sender, RoutedEventArgs e) => ViewModel.TransmitLcdImmediately();
-
-    private void ExitApp_Click(object sender, RoutedEventArgs e) => App.Current.ExitApplication();
-
-    private void OpenLogs_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            System.IO.Directory.CreateDirectory(Core.AppPaths.LogsDir);
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Core.AppPaths.LogsDir) { UseShellExecute = true });
-        }
-        catch { }
-    }
 }

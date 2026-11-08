@@ -39,7 +39,7 @@ public partial class App : Application
             AppPaths.UserDir = Path.Combine(Path.GetTempPath(), "LinkFlow-sim", "user");
         }
 
-        Log.Configure("app");
+        Log.Configure("app", Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
 
         bool testRun = Options.ScreenshotPath != null;
         if (!testRun)
@@ -167,6 +167,13 @@ public partial class App : Application
     }
 
     public void ShowMainWindow() => MainView?.ShowFromTray();
+
+    /// <summary>Confirma na bandeja um perfil aplicado por atalho global (útil dentro de jogos).</summary>
+    public void NotifyPresetChanged(string preset)
+    {
+        if (MainView?.IsVisible == true && MainView.IsActive) return;
+        _tray?.ShowNotification("Perfil aplicado", preset);
+    }
 
     // ------------------------------------------------------------------ Energia e sessão
 

@@ -89,4 +89,19 @@ public sealed class SettingsViewModel : ObservableObject
     }
 
     public event Action? AutoStartChanged;
+
+    // ------------------------------------------------------------------ Serviço do Windows
+
+    public string ServiceStatusText => "Modo local";
+    public string ServiceDetailText => "O controle do hardware roda dentro deste aplicativo.";
+    public bool ServiceInstalled => false;
+    public bool ServiceCanInstall => false;
+
+    public string ExitHintText => App.Current.IsServiceMode
+        ? "Sair fecha só a interface: o serviço continua controlando ventoinhas, RGB e LCD."
+        : "Ao sair, o hub iCUE LINK volta ao modo hardware (curva interna) e a GPU volta à curva da vBIOS.";
+
+    public void InstallService() { }
+    public void UninstallService() { }
+    public void RestartService() { }
 }

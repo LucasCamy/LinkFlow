@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <UseWPF>true</UseWPF>
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LinkFlow.Core\LinkFlow.Core.csproj" />
+    <ProjectReference Include="..\..\src\LinkFlow.App\LinkFlow.App.csproj" />
   </ItemGroup>
 
 </Project>
