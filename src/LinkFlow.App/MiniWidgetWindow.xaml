@@ -37,13 +37,13 @@
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                 <TextBlock Text="RAM" Foreground="#94A3B8" FontSize="11" FontWeight="SemiBold"/>
                 <TextBlock Text="{Binding RamUsageFormatted}" Foreground="#A78BFA" FontSize="15" FontWeight="Bold"/>
-                <TextBlock Text="64GB DDR5" Foreground="#64748B" FontSize="10"/>
+                <TextBlock Text="{Binding RamDetail}" Foreground="#64748B" FontSize="10"/>
             </StackPanel>
 
             <!-- FANS -->
             <StackPanel Grid.Column="3" VerticalAlignment="Center">
                 <TextBlock Text="FANS" Foreground="#94A3B8" FontSize="11" FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding AverageFanRpm, StringFormat='{}{0} RPM'}" Foreground="#00F0FF" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="{Binding AverageFanRpmFormatted}" Foreground="#00F0FF" FontSize="14" FontWeight="Bold"/>
                 <TextBlock Text="{Binding GlobalSpeedFormatted, StringFormat='{}Potência: {0}'}" Foreground="#64748B" FontSize="10"/>
             </StackPanel>
 

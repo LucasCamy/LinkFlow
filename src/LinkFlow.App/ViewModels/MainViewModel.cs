@@ -1,707 +1,431 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using LinkFlow.Core;
 
 namespace LinkFlow.App.ViewModels;
 
-public class MainViewModel : INotifyPropertyChanged, IDisposable
+/// <summary>
+/// Estado da interface. Não acessa hardware: lê snapshots do engine (coalescidos na thread da UI)
+/// e envia alterações de configuração que o engine aplica em segundo plano ("último valor vence").
+/// </summary>
+public partial class MainViewModel : ObservableObject, IDisposable
 {
-    private readonly CorsairLinkHub _hub;
-    private readonly CorsairLinkLcd _lcd;
-    private readonly HardwareMonitor _hwMonitor;
-    private readonly AsusGpuRgb _gpuRgb;
-    private readonly MsiMotherboardRgb _motherboardRgb;
-    private readonly CancellationTokenSource _cts = new();
+    private readonly IEngineClient _engine;
+    private readonly Dispatcher _dispatcher;
+    private EngineSnapshot? _pendingSnapshot;
+    private int _snapshotQueued;
+    private bool _loadingConfig;
 
-    private bool _isConnected;
-    private string _connectionStatus = "Conectando ao iCUE LINK Hub...";
-    private string _firmwareVersion = "0.0.0";
-    private float _cpuTemp = 42.0f;
-    private float _cpuLoad = 10.0f;
-    private float _gpuTemp = 36.0f;
-    private float _gpuLoad = 5.0f;
-    private float _ramUsage = 38.0f;
-    private float _coolantTemp = 41.5f;
-    private byte _globalSpeedPercent = 50;
-    private string _activePreset = "Equilibrado";
-    private bool _isAutoCurve;
+    // Configuração espelhada
+    private byte _globalSpeedPercent;
+    private FanControlMode _mode;
+    private string _activePreset = string.Empty;
+    private bool _isGpuFanAuto;
+    private byte _gpuFanPercent;
+    private byte _rgbR, _rgbG, _rgbB, _rgbBrightness;
+    private bool _syncHub, _syncLcd, _syncGpu, _syncMotherboard;
+    private bool _isLcdAutoStream;
 
-    // GPU Fan Controls
-    private int _gpuFanRpm1 = 1000;
-    private int _gpuFanRpm2 = 1000;
-    private byte _gpuFanPercent = 35;
-    private bool _isGpuFanAuto = true;
+    public MainViewModel(IEngineClient engine, Dispatcher? dispatcher = null)
+    {
+        _engine = engine;
+        _dispatcher = dispatcher ?? Application.Current.Dispatcher;
 
-    // LCD Properties
-    private bool _isLcdConnected;
-    private string _lcdStatus = "Detectando módulo LCD (0x0C4E)...";
-    private bool _isLcdAutoStream = true;
+        LoadConfig(engine.Config);
 
-    // RGB Properties
-    private byte _rgbR = 0;
-    private byte _rgbG = 240;
-    private byte _rgbB = 255;
-    private byte _rgbBrightness = 100;
-    private string _currentRgbHex = "#00F0FF";
-    private string _rgbSyncStatus = "Pronto para sincronizar";
-    private bool _syncFans = true;
-    private bool _syncPump = true;
-    private bool _syncLcd = true;
-    private bool _syncGpu = true;
-    private bool _syncMotherboard = true;
-    private bool _syncRam = true;
-    private string _gpuRgbStatus = "ASUS Aura Sync (Pronto)";
-    private string _motherboardRgbStatus = "MSI Mystic Light (Pronto)";
+        _engine.SnapshotUpdated += OnSnapshot;
+        _engine.ConfigChanged += c => _dispatcher.BeginInvoke(() => LoadConfig(c));
+        _engine.AlertRaised += a => _dispatcher.BeginInvoke(() => AlertRaised?.Invoke(a));
+
+        InitializeCommands();
+        if (engine.Snapshot is { } s) ApplySnapshot(s);
+    }
+
+    public IEngineClient Engine => _engine;
+    public event Action<EngineAlert>? AlertRaised;
+    public event Action? SnapshotApplied;
 
     public ObservableCollection<FanViewModel> Fans { get; } = new();
+    public EngineSnapshot Snapshot { get; private set; } = new();
 
-    public bool IsConnected
+    // ------------------------------------------------------------------ Snapshot (engine → UI)
+
+    private void OnSnapshot(EngineSnapshot s)
     {
-        get => _isConnected;
-        set { _isConnected = value; OnPropertyChanged(); }
+        // Coalescência: se a UI estiver ocupada, só o snapshot mais recente é aplicado
+        _pendingSnapshot = s;
+        if (Interlocked.Exchange(ref _snapshotQueued, 1) == 1) return;
+        _dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
+        {
+            Interlocked.Exchange(ref _snapshotQueued, 0);
+            if (_pendingSnapshot is { } latest) ApplySnapshot(latest);
+        });
     }
 
-    public string ConnectionStatus
+    private void ApplySnapshot(EngineSnapshot s)
     {
-        get => _connectionStatus;
-        set { _connectionStatus = value; OnPropertyChanged(); }
+        Snapshot = s;
+        SyncFans(s.Fans);
+
+        OnPropertiesChanged(
+            nameof(Snapshot),
+            nameof(IsConnected), nameof(ConnectionStatus), nameof(HubStatusColor),
+            nameof(CpuName), nameof(GpuName),
+            nameof(CpuTempFormatted), nameof(CpuLoadFormatted), nameof(CpuSensorHint),
+            nameof(GpuTempFormatted), nameof(GpuLoadFormatted), nameof(GpuHotspotFormatted),
+            nameof(RamUsageFormatted), nameof(RamDetail),
+            nameof(CoolantTempFormatted),
+            nameof(AverageFanRpm), nameof(AverageFanRpmFormatted), nameof(PumpRpm), nameof(PumpRpmFormatted),
+            nameof(GpuFanRpmFormatted),
+            nameof(EffectiveGlobalPercent), nameof(GlobalSpeedFormatted), nameof(CurveStatus), nameof(IsFailSafeActive),
+            nameof(IsLcdConnected), nameof(LcdStatus),
+            nameof(GpuRgbStatus), nameof(MotherboardRgbStatus), nameof(RgbSyncStatus),
+            nameof(Alerts), nameof(HasAlerts), nameof(EngineModeLabel));
+
+        if (_mode == FanControlMode.Curve || s.FailSafeActive)
+        {
+            foreach (var f in Fans) f.RefreshLinkedValue();
+        }
+
+        SnapshotApplied?.Invoke();
     }
 
-    public string FirmwareVersion
+    private void SyncFans(List<FanState> states)
     {
-        get => _firmwareVersion;
-        set { _firmwareVersion = value; OnPropertyChanged(); }
+        var cfg = _engine.Config;
+        var byKey = Fans.ToDictionary(f => f.Key);
+        bool structureChanged = states.Count != Fans.Count || states.Any(s => !byKey.ContainsKey(s.Key));
+
+        if (structureChanged)
+        {
+            Fans.Clear();
+            foreach (var st in states.OrderBy(s => s.IsPump).ThenBy(s => s.Channel))
+            {
+                var vm = byKey.TryGetValue(st.Key, out var existing) ? existing : new FanViewModel(this, st);
+                vm.LoadOverride(cfg.GetFan(st.Key));
+                vm.UpdateFrom(st);
+                Fans.Add(vm);
+            }
+            OnFansStructureChanged();
+            return;
+        }
+
+        foreach (var st in states) byKey[st.Key].UpdateFrom(st);
     }
 
-    public float CpuTemp
-    {
-        get => _cpuTemp;
-        set { _cpuTemp = value; OnPropertyChanged(); OnPropertyChanged(nameof(CpuTempFormatted)); }
-    }
-    public string CpuTempFormatted => $"{_cpuTemp:F1}°C";
+    partial void OnFansStructureChangedPartial();
+    private void OnFansStructureChanged() => OnFansStructureChangedPartial();
 
-    public float CpuLoad
-    {
-        get => _cpuLoad;
-        set { _cpuLoad = value; OnPropertyChanged(); OnPropertyChanged(nameof(CpuLoadFormatted)); }
-    }
-    public string CpuLoadFormatted => $"{_cpuLoad:F0}%";
+    // ------------------------------------------------------------------ Telemetria exibida
 
-    public float GpuTemp
-    {
-        get => _gpuTemp;
-        set { _gpuTemp = value; OnPropertyChanged(); OnPropertyChanged(nameof(GpuTempFormatted)); }
-    }
-    public string GpuTempFormatted => $"{_gpuTemp:F1}°C";
+    public bool IsConnected => Snapshot.HubConnected;
+    public string ConnectionStatus => Snapshot.HubStatus;
+    public string HubStatusColor => Snapshot.HubConnected ? "#10B981" : "#F59E0B";
+    public string EngineModeLabel => _engine.IsRemote
+        ? (_engine.IsConnected ? "Serviço do Windows" : "Serviço desconectado")
+        : _engine.ModeDescription;
 
-    public float GpuLoad
-    {
-        get => _gpuLoad;
-        set { _gpuLoad = value; OnPropertyChanged(); OnPropertyChanged(nameof(GpuLoadFormatted)); }
-    }
-    public string GpuLoadFormatted => $"{_gpuLoad:F0}%";
+    public string CpuName => Snapshot.CpuName ?? "Processador";
+    public string GpuName => Snapshot.GpuName ?? "Placa de vídeo";
 
-    public float RamUsage
-    {
-        get => _ramUsage;
-        set { _ramUsage = value; OnPropertyChanged(); OnPropertyChanged(nameof(RamUsageFormatted)); }
-    }
-    public string RamUsageFormatted => $"{_ramUsage:F0}%";
+    public string CpuTempFormatted => Fmt.Temp(Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null);
+    public string CpuLoadFormatted => Fmt.Pct(Snapshot.CpuLoad);
+    public string? CpuSensorHint => Snapshot.SensorsReady && !Snapshot.CpuSensorAvailable
+        ? "Sensor de temperatura da CPU indisponível. Execute como administrador ou instale o serviço LinkFlow."
+        : null;
 
-    public float CoolantTemp
-    {
-        get => _coolantTemp;
-        set { _coolantTemp = value; OnPropertyChanged(); OnPropertyChanged(nameof(CoolantTempFormatted)); }
-    }
-    public string CoolantTempFormatted => $"{_coolantTemp:F1}°C";
+    public string GpuTempFormatted => Fmt.Temp(Snapshot.GpuTemp);
+    public string GpuLoadFormatted => Fmt.Pct(Snapshot.GpuLoad);
+    public string GpuHotspotFormatted => Fmt.Temp(Snapshot.GpuHotspot);
 
-    // GPU Fan Getters / Setters
-    public int GpuFanRpm1
-    {
-        get => _gpuFanRpm1;
-        set { _gpuFanRpm1 = value; OnPropertyChanged(); OnPropertyChanged(nameof(GpuFanRpmFormatted)); }
-    }
+    public string RamUsageFormatted => Fmt.Pct(Snapshot.RamUsage);
+    public string RamDetail => Snapshot.RamUsedGb is { } u && Snapshot.RamTotalGb is { } t
+        ? $"{u:0.0} de {t:0} GB"
+        : Fmt.Missing;
 
-    public int GpuFanRpm2
-    {
-        get => _gpuFanRpm2;
-        set { _gpuFanRpm2 = value; OnPropertyChanged(); OnPropertyChanged(nameof(GpuFanRpmFormatted)); }
-    }
+    public string CoolantTempFormatted => Fmt.Temp(Snapshot.CoolantTemp);
 
-    public string GpuFanRpmFormatted => $"Fan 1: {_gpuFanRpm1} RPM  |  Fan 2: {_gpuFanRpm2} RPM";
+    public int? AverageFanRpm => Snapshot.AverageFanRpm;
+    public string AverageFanRpmFormatted => Fmt.Rpm(Snapshot.AverageFanRpm);
+    public int? PumpRpm => Snapshot.PumpRpm;
+    public string PumpRpmFormatted => Fmt.Rpm(Snapshot.PumpRpm);
 
-    public byte GpuFanPercent
+    public string GpuFanRpmFormatted => Snapshot.GpuFanRpm1 is null && Snapshot.GpuFanRpm2 is null
+        ? "Rotação indisponível"
+        : $"Fan 1: {Snapshot.GpuFanRpm1 ?? 0:N0} RPM  •  Fan 2: {Snapshot.GpuFanRpm2 ?? 0:N0} RPM";
+
+    public bool IsFailSafeActive => Snapshot.FailSafeActive;
+    public IReadOnlyList<EngineAlert> Alerts => Snapshot.Alerts;
+    public bool HasAlerts => Snapshot.Alerts.Count > 0;
+
+    public bool IsLcdConnected => Snapshot.LcdConnected;
+    public string LcdStatus => Snapshot.LcdConnected
+        ? "Display 480x480 conectado"
+        : "Display LCD não encontrado • tentando reconectar";
+
+    public string GpuRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
+        Snapshot.GpuRgbAvailable ? $"Conectado • {Snapshot.GpuRgbName}" : "Não detectado";
+    public string MotherboardRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
+        Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
+    public string RgbSyncStatus => Snapshot.RgbStatus;
+
+    // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)
+
+    public byte GlobalSpeedPercent
     {
-        get => _gpuFanPercent;
+        get => _globalSpeedPercent;
         set
         {
-            if (_gpuFanPercent != value)
+            if (_globalSpeedPercent == value) return;
+            _globalSpeedPercent = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(GlobalSpeedFormatted));
+            if (_loadingConfig) return;
+
+            // Mexer no slider global sai da curva automática (antes os dois "brigavam")
+            bool leftCurve = _mode == FanControlMode.Curve;
+            if (leftCurve) SetModeLocal(FanControlMode.Fixed);
+            SetActivePresetLocal("Personalizado");
+            _engine.UpdateConfig(c =>
             {
-                _gpuFanPercent = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(GpuFanPercentFormatted));
-                if (!_isGpuFanAuto)
-                {
-                    Task.Run(() => _hwMonitor.SetGpuFanSpeed(value));
-                }
-            }
+                c.GlobalPercent = value;
+                c.Mode = FanControlMode.Fixed;
+                c.ActivePreset = "Personalizado";
+            });
+            foreach (var f in Fans) f.RefreshLinkedValue();
         }
     }
-    public string GpuFanPercentFormatted => $"{_gpuFanPercent}%";
+
+    public byte EffectiveGlobalPercent => _mode == FanControlMode.Curve || Snapshot.FailSafeActive
+        ? Snapshot.EffectiveGlobalPercent
+        : _globalSpeedPercent;
+
+    public string GlobalSpeedFormatted => $"{EffectiveGlobalPercent}%";
+
+    public FanControlMode Mode => _mode;
+    public bool IsCurveMode => _mode == FanControlMode.Curve;
+    public bool IsFixedMode => _mode == FanControlMode.Fixed;
+
+    public string CurveStatus => _mode == FanControlMode.Curve
+        ? $"Curva ativa • {(Snapshot.CurveInputTemp is { } t ? $"{t:0.0}°C" : "aguardando sensor")} → {Snapshot.EffectiveGlobalPercent}%"
+        : "Potência fixa";
+
+    public string ActivePreset => _activePreset;
+
+    /// <summary>Velocidade que uma ventoinha vinculada recebe (exibição imediata, sem esperar o engine).</summary>
+    public byte LinkedTargetFor(FanViewModel fan)
+    {
+        byte g = EffectiveGlobalPercent;
+        return fan.IsPump ? Math.Max((byte)FanLimits.PumpMinPercent, g) : g;
+    }
+
+    public void ApplyPreset(string key)
+    {
+        _engine.UpdateConfig(c => FanPresets.Apply(c, key));
+        LoadConfig(_engine.Config);
+    }
+
+    internal void OnFanOverrideChanged(FanViewModel fan)
+    {
+        if (_loadingConfig) return;
+        bool linked = fan.IsLinked;
+        byte pct = fan.ManualPercent;
+        _engine.UpdateConfig(c =>
+        {
+            var o = c.EditFan(fan.Key);
+            o.Linked = linked;
+            o.Percent = pct;
+        });
+    }
+
+    internal void OnFanRenamed(FanViewModel fan, string? name)
+    {
+        if (_loadingConfig) return;
+        _engine.UpdateConfig(c => c.EditFan(fan.Key).Name = name);
+    }
+
+    internal void OnSelectionChanged() => OnSelectionChangedPartial();
+    partial void OnSelectionChangedPartial();
 
     public bool IsGpuFanAuto
     {
         get => _isGpuFanAuto;
         set
         {
-            if (_isGpuFanAuto != value)
-            {
-                _isGpuFanAuto = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(GpuFanModeText));
-                Task.Run(() =>
-                {
-                    if (value)
-                    {
-                        _hwMonitor.SetGpuFanAuto();
-                    }
-                    else
-                    {
-                        _hwMonitor.SetGpuFanSpeed(_gpuFanPercent);
-                    }
-                });
-            }
+            if (!SetProperty(ref _isGpuFanAuto, value)) return;
+            OnPropertiesChanged(nameof(GpuFanModeText), nameof(IsGpuFanManual));
+            if (!_loadingConfig) _engine.UpdateConfig(c => c.GpuFanAuto = value);
         }
     }
-    public string GpuFanModeText => _isGpuFanAuto ? "Automático (Curva vBIOS ASUS)" : "Manual (Controle LinkFlow)";
 
-    // LCD Properties
-    public bool IsLcdConnected
-    {
-        get => _isLcdConnected;
-        set { _isLcdConnected = value; OnPropertyChanged(); }
-    }
+    public bool IsGpuFanManual => !_isGpuFanAuto;
+    public string GpuFanModeText => _isGpuFanAuto ? "Automático (curva da vBIOS)" : "Manual (controle LinkFlow)";
 
-    public string LcdStatus
+    public byte GpuFanPercent
     {
-        get => _lcdStatus;
-        set { _lcdStatus = value; OnPropertyChanged(); }
-    }
-
-    public bool IsLcdAutoStream
-    {
-        get => _isLcdAutoStream;
-        set { _isLcdAutoStream = value; OnPropertyChanged(); }
-    }
-
-    // Hub Fan Getters / Setters
-    public byte GlobalSpeedPercent
-    {
-        get => _globalSpeedPercent;
+        get => _gpuFanPercent;
         set
         {
-            if (_globalSpeedPercent != value)
-            {
-                _globalSpeedPercent = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(GlobalSpeedFormatted));
-                Task.Run(() => ApplyGlobalSpeed(value));
-            }
-        }
-    }
-    public string GlobalSpeedFormatted => $"{_globalSpeedPercent}%";
-
-    public string ActivePreset
-    {
-        get => _activePreset;
-        set { _activePreset = value; OnPropertyChanged(); }
-    }
-
-    public int AverageFanRpm
-    {
-        get
-        {
-            var fanList = Fans.Where(f => !f.IsPump && f.CurrentRpm > 0).ToList();
-            return fanList.Any() ? (int)fanList.Average(f => f.CurrentRpm) : 0;
+            if (!SetProperty(ref _gpuFanPercent, value)) return;
+            OnPropertyChanged(nameof(GpuFanPercentFormatted));
+            if (!_loadingConfig) _engine.UpdateConfig(c => c.GpuFanPercent = value);
         }
     }
 
-    public int PumpRpm
-    {
-        get
-        {
-            var pump = Fans.FirstOrDefault(f => f.IsPump);
-            return pump?.CurrentRpm ?? 2950;
-        }
-    }
+    public string GpuFanPercentFormatted => $"{_gpuFanPercent}%";
 
-    // RGB Getters/Setters
-    public byte RgbR
-    {
-        get => _rgbR;
-        set { _rgbR = value; OnPropertyChanged(); UpdateHexFromRgb(); }
-    }
-    public byte RgbG
-    {
-        get => _rgbG;
-        set { _rgbG = value; OnPropertyChanged(); UpdateHexFromRgb(); }
-    }
-    public byte RgbB
-    {
-        get => _rgbB;
-        set { _rgbB = value; OnPropertyChanged(); UpdateHexFromRgb(); }
-    }
+    // ------------------------------------------------------------------ RGB
+
+    public byte RgbR { get => _rgbR; set => SetRgb(ref _rgbR, value); }
+    public byte RgbG { get => _rgbG; set => SetRgb(ref _rgbG, value); }
+    public byte RgbB { get => _rgbB; set => SetRgb(ref _rgbB, value); }
+
     public byte RgbBrightness
     {
         get => _rgbBrightness;
-        set { _rgbBrightness = value; OnPropertyChanged(); OnPropertyChanged(nameof(RgbBrightnessFormatted)); }
+        set
+        {
+            if (!SetProperty(ref _rgbBrightness, value)) return;
+            OnPropertyChanged(nameof(RgbBrightnessFormatted));
+            PushRgb();
+        }
     }
+
     public string RgbBrightnessFormatted => $"{_rgbBrightness}%";
+    public string CurrentRgbHex => $"#{_rgbR:X2}{_rgbG:X2}{_rgbB:X2}";
 
-    public string CurrentRgbHex
+    private void SetRgb(ref byte field, byte value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
     {
-        get => _currentRgbHex;
-        set { _currentRgbHex = value; OnPropertyChanged(); }
-    }
-
-    public string RgbSyncStatus
-    {
-        get => _rgbSyncStatus;
-        set { _rgbSyncStatus = value; OnPropertyChanged(); }
+        if (field == value) return;
+        field = value;
+        OnPropertyChanged(name);
+        OnRgbColorChanged();
+        PushRgb();
     }
 
-    public bool SyncFans
+    private void OnRgbColorChanged()
     {
-        get => _syncFans;
-        set { _syncFans = value; OnPropertyChanged(); }
-    }
-    public bool SyncPump
-    {
-        get => _syncPump;
-        set { _syncPump = value; OnPropertyChanged(); }
-    }
-    public bool SyncLcd
-    {
-        get => _syncLcd;
-        set { _syncLcd = value; OnPropertyChanged(); }
-    }
-    public bool SyncGpu
-    {
-        get => _syncGpu;
-        set { _syncGpu = value; OnPropertyChanged(); }
-    }
-    public bool SyncRam
-    {
-        get => _syncRam;
-        set { _syncRam = value; OnPropertyChanged(); }
-    }
-    public bool SyncMotherboard
-    {
-        get => _syncMotherboard;
-        set { _syncMotherboard = value; OnPropertyChanged(); }
+        OnPropertyChanged(nameof(CurrentRgbHex));
+        OnRgbColorChangedPartial();
     }
 
-    public string GpuRgbStatus
-    {
-        get => _gpuRgbStatus;
-        set { _gpuRgbStatus = value; OnPropertyChanged(); }
-    }
-    public string MotherboardRgbStatus
-    {
-        get => _motherboardRgbStatus;
-        set { _motherboardRgbStatus = value; OnPropertyChanged(); }
-    }
+    partial void OnRgbColorChangedPartial();
 
-    public MainViewModel()
+    private void PushRgb()
     {
-        _hub = new CorsairLinkHub();
-        _lcd = new CorsairLinkLcd();
-        _hwMonitor = new HardwareMonitor();
-        _gpuRgb = new AsusGpuRgb();
-        _motherboardRgb = new MsiMotherboardRgb();
-
-        // Run hardware connection and loop in background (ZERO UI LAG!)
-        Task.Run(() => InitializeHardwareAndLoopAsync(_cts.Token));
-    }
-
-    private async Task InitializeHardwareAndLoopAsync(CancellationToken token)
-    {
-        bool hubConnected = false;
-        bool lcdConnected = false;
-
-        try
+        if (_loadingConfig) return;
+        byte r = _rgbR, g = _rgbG, b = _rgbB, br = _rgbBrightness;
+        _engine.UpdateConfig(c =>
         {
-            hubConnected = _hub.Connect();
-        }
-        catch { }
-
-        try
-        {
-            lcdConnected = _lcd.Connect();
-        }
-        catch { }
-
-        await Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            if (hubConnected)
-            {
-                IsConnected = true;
-                FirmwareVersion = _hub.FirmwareVersion;
-                ConnectionStatus = $"● Conectado (FW: {_hub.FirmwareVersion}) - {_hub.SubDevices.Count} dispositivos";
-
-                Fans.Clear();
-                foreach (var dev in _hub.SubDevices)
-                {
-                    Fans.Add(new FanViewModel
-                    {
-                        Channel = dev.Channel,
-                        Name = dev.Name,
-                        DeviceId = dev.DeviceId,
-                        IsPump = dev.IsPump,
-                        CurrentRpm = dev.CurrentRpm,
-                        TargetPowerPercent = dev.TargetPowerPercent
-                    });
-                }
-            }
-            else
-            {
-                IsConnected = false;
-                ConnectionStatus = "○ Desconectado (Verifique se outro software está bloqueando)";
-            }
-
-            IsLcdConnected = lcdConnected;
-            LcdStatus = lcdConnected
-                ? "● Display 480x480 IPS Conectado (Corsair 0x0C4E)"
-                : "○ Display LCD não encontrado (Verifique USB interno)";
-
-            if (_gpuRgb.IsAvailable)
-            {
-                GpuRgbStatus = $"● ASUS Aura RTX 4080 Conectado ({_gpuRgb.ControllerName} - {_gpuRgb.LedCount} LEDs)";
-            }
-            else
-            {
-                GpuRgbStatus = "○ GPU Aura RGB não detectada";
-            }
-
-            if (_motherboardRgb.IsAvailable)
-            {
-                MotherboardRgbStatus = $"● Placa-Mãe MSI & Saídas ARGB Conectadas ({_motherboardRgb.DeviceName})";
-            }
-            else
-            {
-                MotherboardRgbStatus = "○ Placa-Mãe Mystic Light não encontrada";
-            }
+            c.Rgb.R = r;
+            c.Rgb.G = g;
+            c.Rgb.B = b;
+            c.Rgb.Brightness = br;
         });
-
-        // Initial LCD Render Frame
-        if (lcdConnected)
-        {
-            UpdateLcdFrameSafe();
-        }
-
-        // Apply initial RGB sync
-        if (hubConnected)
-        {
-            _hub.SetGlobalRgb(_rgbR, _rgbG, _rgbB, _rgbBrightness);
-        }
-        if (_gpuRgb.IsAvailable)
-        {
-            _gpuRgb.SetColor(_rgbR, _rgbG, _rgbB);
-        }
-        if (_motherboardRgb.IsAvailable)
-        {
-            _motherboardRgb.SetColor(_rgbR, _rgbG, _rgbB, _rgbBrightness);
-        }
-
-        int frameCounter = 0;
-
-        // 100% Background Polling Loop (Async, zero hitching)
-        while (!token.IsCancellationRequested)
-        {
-            try
-            {
-                var t = _hwMonitor.GetTelemetry(_coolantTemp);
-                Dictionary<int, int>? speeds = null;
-                Dictionary<int, float>? temps = null;
-
-                if (_hub.IsConnected)
-                {
-                    speeds = _hub.ReadSpeeds();
-                    temps = _hub.ReadTemperatures();
-                }
-
-                // If LCD disconnected, retry connect occasionally
-                if (!_lcd.IsConnected && (frameCounter % 5 == 0))
-                {
-                    _lcd.Connect();
-                }
-
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    if (t.CpuTemperature > 0) CpuTemp = t.CpuTemperature;
-                    CpuLoad = t.CpuLoad;
-
-                    if (t.GpuTemperature > 0) GpuTemp = t.GpuTemperature;
-                    GpuLoad = t.GpuLoad;
-
-                    RamUsage = t.RamUsagePercent;
-
-                    if (t.GpuFanRpm1 > 0) GpuFanRpm1 = t.GpuFanRpm1;
-                    if (t.GpuFanRpm2 > 0) GpuFanRpm2 = t.GpuFanRpm2;
-
-                    if (temps != null && temps.Count > 0)
-                    {
-                        // Check coolant temp (Channel 14 or highest temp)
-                        var highest = temps.Values.Max();
-                        if (highest > 20 && highest < 80)
-                        {
-                            CoolantTemp = highest;
-                        }
-                    }
-
-                    if (speeds != null)
-                    {
-                        foreach (var fan in Fans)
-                        {
-                            if (speeds.TryGetValue(fan.Channel, out int rpm))
-                            {
-                                fan.CurrentRpm = rpm;
-                            }
-                        }
-                        OnPropertyChanged(nameof(AverageFanRpm));
-                        OnPropertyChanged(nameof(PumpRpm));
-                    }
-
-                    IsLcdConnected = _lcd.IsConnected;
-                    LcdStatus = _lcd.IsConnected
-                        ? "● Display 480x480 IPS Conectado (Corsair 0x0C4E)"
-                        : "○ Reconectando Display LCD...";
-
-                    // Auto Curve Logic
-                    if (_isAutoCurve)
-                    {
-                        float maxTemp = Math.Max(CpuTemp, GpuTemp);
-                        byte calculated = CalculateAutoSpeed(maxTemp);
-                        if (Math.Abs(calculated - _globalSpeedPercent) >= 3)
-                        {
-                            _globalSpeedPercent = calculated;
-                            OnPropertyChanged(nameof(GlobalSpeedPercent));
-                            OnPropertyChanged(nameof(GlobalSpeedFormatted));
-                            Task.Run(() => ApplyGlobalSpeed(calculated));
-                        }
-                    }
-                });
-
-                // Update LCD Display every second
-                if (_isLcdAutoStream && _lcd.IsConnected)
-                {
-                    UpdateLcdFrameSafe();
-                }
-
-                frameCounter++;
-                await Task.Delay(1000, token);
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch
-            {
-                await Task.Delay(2000, token);
-            }
-        }
-    }
-
-    private void UpdateLcdFrameSafe()
-    {
-        try
-        {
-            var jpeg = _lcd.RenderDashboardFrame(
-                CpuTemp,
-                GpuTemp,
-                PumpRpm,
-                _rgbR,
-                _rgbG,
-                _rgbB,
-                "OPERACIONAL"
-            );
-
-            _lcd.SendJpegFrame(jpeg);
-        }
-        catch { }
-    }
-
-    private static byte CalculateAutoSpeed(float temp)
-    {
-        if (temp <= 45) return 35;
-        if (temp >= 85) return 100;
-        float ratio = (temp - 45) / 40f;
-        return (byte)(35 + ratio * 65);
-    }
-
-    public void ApplyPreset(string preset)
-    {
-        ActivePreset = preset;
-        switch (preset)
-        {
-            case "Silencioso":
-                _isAutoCurve = false;
-                GlobalSpeedPercent = 40;
-                IsGpuFanAuto = true;
-                break;
-            case "Equilibrado":
-                _isAutoCurve = false;
-                GlobalSpeedPercent = 55;
-                IsGpuFanAuto = true;
-                break;
-            case "Desempenho":
-                _isAutoCurve = false;
-                GlobalSpeedPercent = 75;
-                IsGpuFanAuto = false;
-                GpuFanPercent = 65;
-                break;
-            case "Máximo":
-                _isAutoCurve = false;
-                GlobalSpeedPercent = 100;
-                IsGpuFanAuto = false;
-                GpuFanPercent = 100;
-                break;
-            case "Automático":
-                _isAutoCurve = true;
-                IsGpuFanAuto = true;
-                break;
-        }
-    }
-
-    public void ApplyGlobalSpeed(byte speed)
-    {
-        if (!_hub.IsConnected) return;
-
-        var dict = new Dictionary<int, byte>();
-        foreach (var fan in Fans)
-        {
-            if (fan.IsSyncedWithGlobal)
-            {
-                fan.TargetPowerPercent = fan.IsPump ? Math.Max((byte)60, speed) : speed;
-            }
-            dict[fan.Channel] = fan.TargetPowerPercent;
-        }
-
-        _hub.SetSpeedsPercent(dict);
-    }
-
-    public void ApplyIndividualSpeed(FanViewModel fan, byte speed)
-    {
-        if (!_hub.IsConnected) return;
-        fan.TargetPowerPercent = fan.IsPump ? Math.Max((byte)60, speed) : speed;
-        _hub.SetSpeedPercent(fan.Channel, fan.TargetPowerPercent);
-    }
-
-    // RGB Methods
-    private void UpdateHexFromRgb()
-    {
-        CurrentRgbHex = $"#{_rgbR:X2}{_rgbG:X2}{_rgbB:X2}";
     }
 
     public void SetColorPreset(byte r, byte g, byte b)
     {
-        _rgbR = r;
-        _rgbG = g;
-        _rgbB = b;
-        OnPropertyChanged(nameof(RgbR));
-        OnPropertyChanged(nameof(RgbG));
-        OnPropertyChanged(nameof(RgbB));
-        UpdateHexFromRgb();
-
-        ApplyRgbSync();
-    }
-
-    public void ApplyRgbSync()
-    {
-        Task.Run(() =>
+        _loadingConfig = true;
+        try
         {
-            bool hubOk = false;
-            if (_syncFans || _syncPump)
-            {
-                if (_hub.IsConnected)
-                {
-                    hubOk = _hub.SetGlobalRgb(_rgbR, _rgbG, _rgbB, _rgbBrightness);
-                }
-            }
-
-            bool gpuOk = false;
-            if (_syncGpu && _gpuRgb.IsAvailable)
-            {
-                gpuOk = _gpuRgb.SetColor(_rgbR, _rgbG, _rgbB);
-            }
-
-            bool mbOk = false;
-            if (_syncMotherboard && _motherboardRgb.IsAvailable)
-            {
-                mbOk = _motherboardRgb.SetColor(_rgbR, _rgbG, _rgbB, _rgbBrightness);
-            }
-
-            // Immediately send current color frame to LCD
-            if (_syncLcd && _lcd.IsConnected)
-            {
-                UpdateLcdFrameSafe();
-            }
-
-            Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                var synced = new List<string>();
-                if (hubOk) synced.Add("Fans/Bomba");
-                if (gpuOk) synced.Add("RTX 4080");
-                if (mbOk) synced.Add("Placa-Mãe/ARGB");
-                if (_syncLcd && _lcd.IsConnected) synced.Add("Display LCD");
-
-                string targetStr = synced.Count > 0 ? string.Join(", ", synced) : "Nenhum";
-                RgbSyncStatus = $"✨ {targetStr} sincronizados! ({CurrentRgbHex})";
-            });
-        });
-    }
-
-    public void TransmitLcdImmediately()
-    {
-        Task.Run(() =>
+            RgbR = r;
+            RgbG = g;
+            RgbB = b;
+        }
+        finally
         {
-            if (!_lcd.IsConnected)
-            {
-                _lcd.Connect();
-            }
-
-            UpdateLcdFrameSafe();
-
-            Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                LcdStatus = _lcd.IsConnected
-                    ? "✨ Quadro transmitido com sucesso ao display 480x480!"
-                    : "Falha ao conectar ao display LCD";
-            });
-        });
+            _loadingConfig = false;
+        }
+        PushRgb();
     }
+
+    public bool SyncHub { get => _syncHub; set => SetSync(ref _syncHub, value, (c, v) => c.Rgb.SyncHub = v); }
+    public bool SyncLcd { get => _syncLcd; set => SetSync(ref _syncLcd, value, (c, v) => c.Rgb.SyncLcd = v); }
+    public bool SyncGpu { get => _syncGpu; set => SetSync(ref _syncGpu, value, (c, v) => c.Rgb.SyncGpu = v); }
+    public bool SyncMotherboard { get => _syncMotherboard; set => SetSync(ref _syncMotherboard, value, (c, v) => c.Rgb.SyncMotherboard = v); }
+
+    private void SetSync(ref bool field, bool value, Action<ControlConfig, bool> apply, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+    {
+        if (field == value) return;
+        field = value;
+        OnPropertyChanged(name);
+        if (!_loadingConfig) _engine.UpdateConfig(c => apply(c, value));
+    }
+
+    // ------------------------------------------------------------------ LCD
+
+    public bool IsLcdAutoStream
+    {
+        get => _isLcdAutoStream;
+        set
+        {
+            if (!SetProperty(ref _isLcdAutoStream, value)) return;
+            if (!_loadingConfig) _engine.UpdateConfig(c => c.Lcd.AutoStream = value);
+        }
+    }
+
+    public void TransmitLcdImmediately() => _engine.RequestLcdFrame();
+
+    // ------------------------------------------------------------------ Configuração (engine → UI)
+
+    private void SetModeLocal(FanControlMode mode)
+    {
+        if (_mode == mode) return;
+        _mode = mode;
+        OnPropertiesChanged(nameof(Mode), nameof(IsCurveMode), nameof(IsFixedMode), nameof(CurveStatus),
+            nameof(EffectiveGlobalPercent), nameof(GlobalSpeedFormatted));
+    }
+
+    private void SetActivePresetLocal(string preset)
+    {
+        if (_activePreset == preset) return;
+        _activePreset = preset;
+        OnPropertyChanged(nameof(ActivePreset));
+        OnActivePresetChangedPartial();
+    }
+
+    partial void OnActivePresetChangedPartial();
+
+    public void LoadConfig(ControlConfig c)
+    {
+        _loadingConfig = true;
+        try
+        {
+            GlobalSpeedPercent = c.GlobalPercent;
+            SetModeLocal(c.Mode);
+            SetActivePresetLocal(c.ActivePreset);
+            IsGpuFanAuto = c.GpuFanAuto;
+            GpuFanPercent = c.GpuFanPercent;
+            RgbR = c.Rgb.R;
+            RgbG = c.Rgb.G;
+            RgbB = c.Rgb.B;
+            RgbBrightness = c.Rgb.Brightness;
+            SyncHub = c.Rgb.SyncHub;
+            SyncLcd = c.Rgb.SyncLcd;
+            SyncGpu = c.Rgb.SyncGpu;
+            SyncMotherboard = c.Rgb.SyncMotherboard;
+            IsLcdAutoStream = c.Lcd.AutoStream;
+            foreach (var f in Fans) f.LoadOverride(c.GetFan(f.Key));
+            LoadConfigPartial(c);
+        }
+        finally
+        {
+            _loadingConfig = false;
+        }
+        foreach (var f in Fans) f.RefreshLinkedValue();
+    }
+
+    partial void LoadConfigPartial(ControlConfig c);
+    partial void InitializeCommandsPartial();
+    private void InitializeCommands() => InitializeCommandsPartial();
+
+    protected bool IsLoadingConfig => _loadingConfig;
 
     public void Dispose()
     {
-        _cts.Cancel();
-        _hub.Dispose();
-        _lcd.Dispose();
-        _hwMonitor.Dispose();
-        _gpuRgb.Dispose();
-        _motherboardRgb.Dispose();
+        _engine.SnapshotUpdated -= OnSnapshot;
         GC.SuppressFinalize(this);
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

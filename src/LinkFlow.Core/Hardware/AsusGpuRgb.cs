@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LinkFlow.Core;
 
-public class AsusGpuRgb : IDisposable
+public sealed class AsusGpuRgb : IRgbDevice
 {
     [StructLayout(LayoutKind.Explicit, Size = 64)]
     private struct NvI2CInfo
@@ -43,12 +43,13 @@ public class AsusGpuRgb : IDisposable
     public string ControllerName { get; private set; } = string.Empty;
     public int LedCount { get; private set; } = 30;
 
+    public string Name => ControllerName;
+
     public AsusGpuRgb()
     {
-        Initialize();
     }
 
-    private void Initialize()
+    public void Initialize()
     {
         try
         {
@@ -195,7 +196,13 @@ public class AsusGpuRgb : IDisposable
         I2CWrite(0x01, new byte[] { value });
     }
 
-    public bool SetColor(byte r, byte g, byte b)
+    public bool SetColor(byte r, byte g, byte b, byte brightnessPercent)
+    {
+        float f = Math.Clamp(brightnessPercent / 100f, 0f, 1f);
+        return SetColorRaw((byte)(r * f), (byte)(g * f), (byte)(b * f));
+    }
+
+    private bool SetColorRaw(byte r, byte g, byte b)
     {
         if (!IsAvailable) return false;
 

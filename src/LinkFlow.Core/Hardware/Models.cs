@@ -35,13 +35,21 @@ public class ConnectedSubDevice
 
 public class HardwareTelemetry
 {
-    public float CpuTemperature { get; set; }
-    public float CpuLoad { get; set; }
-    public float GpuTemperature { get; set; }
-    public float GpuHotspotTemperature { get; set; }
-    public float GpuLoad { get; set; }
-    public float RamUsagePercent { get; set; }
-    public int GpuFanRpm1 { get; set; }
-    public int GpuFanRpm2 { get; set; }
-    public byte GpuFanPercent { get; set; } = 30;
+    public string? CpuName { get; set; }
+    public string? GpuName { get; set; }
+
+    /// <summary>False quando o sensor de temperatura da CPU não está acessível (ex.: sem privilégio de administrador).</summary>
+    public bool CpuSensorAvailable { get; set; }
+
+    public float? CpuTemperature { get; set; }
+    public float? CpuLoad { get; set; }
+    public float? GpuTemperature { get; set; }
+    public float? GpuHotspotTemperature { get; set; }
+    public float? GpuLoad { get; set; }
+    public float? RamUsagePercent { get; set; }
+    public float? RamUsedGb { get; set; }
+    public float? RamTotalGb { get; set; }
+    public int? GpuFanRpm1 { get; set; }
+    public int? GpuFanRpm2 { get; set; }
+    public float? GpuFanPercent { get; set; }
 }

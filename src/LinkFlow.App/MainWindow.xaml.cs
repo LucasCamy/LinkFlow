@@ -1,7 +1,5 @@
-using System;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using LinkFlow.App.ViewModels;
 
 namespace LinkFlow.App;
@@ -9,46 +7,47 @@ namespace LinkFlow.App;
 public partial class MainWindow : Window
 {
     private MiniWidgetWindow? _miniWidget;
+    private bool _closingForExit;
 
-    public MainWindow()
+    public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        ViewModel = viewModel;
+        DataContext = viewModel;
     }
 
-    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    public MainViewModel ViewModel { get; }
+
+    public void SelectPage(int index)
     {
-        if (e.LeftButton == MouseButtonState.Pressed)
-        {
-            try
-            {
-                DragMove();
-            }
-            catch { }
-        }
+        if (index >= 0 && index < MainTabs.Items.Count) MainTabs.SelectedIndex = index;
     }
 
-    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    public void CloseForExit()
     {
-        WindowState = WindowState.Minimized;
-    }
-
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
-    {
-        ViewModel.Dispose();
+        _closingForExit = true;
         _miniWidget?.Close();
-        Application.Current.Shutdown();
+        Close();
     }
 
-    private void ToggleMiniWidget_Click(object sender, RoutedEventArgs e)
-    {
-        if (_miniWidget == null)
-        {
-            _miniWidget = new MiniWidgetWindow(this)
-            {
-                DataContext = ViewModel
-            };
-        }
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
+    private void CloseButton_Click(object sender, RoutedEventArgs e) => App.Current.ExitApplication();
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (!_closingForExit)
+        {
+            // Alt+F4 / fechar pela barra de tarefas: encerra de forma controlada
+            e.Cancel = true;
+            Dispatcher.BeginInvoke(() => App.Current.ExitApplication());
+        }
+    }
+
+    public void ToggleMiniWidget()
+    {
+        _miniWidget ??= new MiniWidgetWindow(this) { DataContext = ViewModel };
         if (_miniWidget.IsVisible)
         {
             _miniWidget.Hide();
@@ -60,23 +59,16 @@ public partial class MainWindow : Window
         }
     }
 
-    // Fan Presets
-    private void PresetSilent_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset("Silencioso");
-    private void PresetBalanced_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset("Equilibrado");
-    private void PresetPerformance_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset("Desempenho");
-    private void PresetMax_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset("Máximo");
-    private void PresetAuto_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset("Automático");
+    private void ToggleMiniWidget_Click(object sender, RoutedEventArgs e) => ToggleMiniWidget();
 
-    private void IndividualSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (sender is Slider slider && slider.Tag is FanViewModel fan)
-        {
-            fan.IsSyncedWithGlobal = false;
-            ViewModel.ApplyIndividualSpeed(fan, (byte)e.NewValue);
-        }
-    }
+    // Perfis
+    private void PresetSilent_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Silent);
+    private void PresetBalanced_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Balanced);
+    private void PresetPerformance_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Performance);
+    private void PresetMax_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Max);
+    private void PresetAuto_Click(object sender, RoutedEventArgs e) => ViewModel.ApplyPreset(Core.FanPresets.Auto);
 
-    // RGB Preset Handlers
+    // Cores rápidas
     private void ColorCyan_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(0, 240, 255);
     private void ColorPurple_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(168, 85, 247);
     private void ColorGreen_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(16, 185, 129);
@@ -86,20 +78,11 @@ public partial class MainWindow : Window
     private void ColorYellow_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(250, 204, 21);
     private void ColorOff_Click(object sender, RoutedEventArgs e) => ViewModel.SetColorPreset(0, 0, 0);
 
+    /// <summary>As cores já são aplicadas em tempo real; o botão força reenvio a todos os dispositivos.</summary>
     private void ApplyRgbSync_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.ApplyRgbSync();
+        ViewModel.Engine.NotifyResume();
     }
 
-    private void SyncLcd_Click(object sender, RoutedEventArgs e)
-    {
-        ViewModel.TransmitLcdImmediately();
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        ViewModel.Dispose();
-        _miniWidget?.Close();
-        base.OnClosed(e);
-    }
+    private void SyncLcd_Click(object sender, RoutedEventArgs e) => ViewModel.TransmitLcdImmediately();
 }

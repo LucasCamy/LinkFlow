@@ -4,4 +4,7 @@
     <Project Path="src/LinkFlow.Cli/LinkFlow.Cli.csproj" />
     <Project Path="src/LinkFlow.Core/LinkFlow.Core.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LinkFlow.Tests/LinkFlow.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -5,7 +5,7 @@ using HidSharp;
 
 namespace LinkFlow.Core;
 
-public class MsiMotherboardRgb : IDisposable
+public sealed class MsiMotherboardRgb : IRgbDevice
 {
     private const int MSI_VID_1 = 0x0DB0;
     private const int MSI_VID_2 = 0x1462;
@@ -18,6 +18,7 @@ public class MsiMotherboardRgb : IDisposable
 
     public bool IsAvailable { get; private set; }
     public string DeviceName { get; private set; } = string.Empty;
+    public string Name => DeviceName;
 
     // Header & Zone offsets in the 185-byte report (0x52)
     private static readonly int[] ZoneOffsets = new int[]
@@ -35,10 +36,9 @@ public class MsiMotherboardRgb : IDisposable
 
     public MsiMotherboardRgb()
     {
-        Initialize();
     }
 
-    private void Initialize()
+    public void Initialize()
     {
         try
         {
