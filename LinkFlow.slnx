@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LinkFlow.App/LinkFlow.App.csproj" />
+    <Project Path="src/LinkFlow.Cli/LinkFlow.Cli.csproj" />
+    <Project Path="src/LinkFlow.Core/LinkFlow.Core.csproj" />
+  </Folder>
+</Solution>
