@@ -6,7 +6,8 @@
         Title="LinkFlow - Corsair iCUE LINK Hardware Suite" 
         Height="820" Width="1120" MinHeight="680" MinWidth="980"
         WindowStartupLocation="CenterScreen"
-        Background="#0F172A" Foreground="#F8FAFC">
+        Background="#0F172A" Foreground="#F8FAFC"
+        Icon="pack://application:,,,/Assets/linkflow.ico">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="64" ResizeBorderThickness="8" GlassFrameThickness="0" CornerRadius="0"/>
@@ -554,6 +555,43 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+                </TabItem>
+                <!-- TAB 4: CONFIGURAÇÕES -->
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="⚙ Configurações" Foreground="#F8FAFC" FontWeight="SemiBold" FontSize="13"/>
+                    </TabItem.Header>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
+                                  DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+                            <Border Background="#1E293B" CornerRadius="12" Padding="20" BorderBrush="#334155" BorderThickness="1" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="Segundo plano e bandeja" Foreground="#F8FAFC" FontWeight="Bold" FontSize="15" Margin="0,0,0,12"/>
+                                    <CheckBox Content="Iniciar com o Windows (abre direto na bandeja)" IsChecked="{Binding StartWithWindows}" Foreground="#F8FAFC" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding AutoStartMessage}" Foreground="#64748B" FontSize="11" Margin="24,0,0,10" TextWrapping="Wrap"/>
+                                    <CheckBox Content="Fechar (✕) mantém o LinkFlow rodando na bandeja" IsChecked="{Binding CloseToTray}" Foreground="#F8FAFC" Margin="0,0,0,8"/>
+                                    <CheckBox Content="Minimizar esconde na bandeja" IsChecked="{Binding MinimizeToTray}" Foreground="#F8FAFC" Margin="0,0,0,8"/>
+                                    <CheckBox Content="Mostrar temperatura da CPU no ícone da bandeja" IsChecked="{Binding ShowTrayTemperature}" Foreground="#F8FAFC" Margin="0,0,0,8"/>
+                                    <CheckBox Content="Notificações de alerta (ventoinha parada, temperatura crítica, bomba)" IsChecked="{Binding AlertNotifications}" Foreground="#F8FAFC"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#1E293B" CornerRadius="12" Padding="20" BorderBrush="#334155" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="Aplicativo" Foreground="#F8FAFC" FontWeight="Bold" FontSize="15" Margin="0,0,0,8"/>
+                                    <TextBlock Foreground="#94A3B8" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"
+                                               Text="Ao sair, o hub iCUE LINK volta ao modo hardware (curva interna) e a GPU volta à curva da vBIOS."/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="Abrir pasta de logs" Click="OpenLogs_Click" Padding="14,8" Margin="0,0,8,0"
+                                                Background="#0F172A" Foreground="#F8FAFC" BorderBrush="#334155"/>
+                                        <Button Content="Sair do LinkFlow" Click="ExitApp_Click" Padding="14,8"
+                                                Background="#0F172A" Foreground="#F43F5E" BorderBrush="#334155"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
 

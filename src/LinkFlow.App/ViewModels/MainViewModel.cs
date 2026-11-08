@@ -63,9 +63,32 @@ public partial class MainViewModel : ObservableObject, IDisposable
         });
     }
 
+    private bool _isViewActive = true;
+
+    /// <summary>
+    /// False quando nenhuma janela está visível (app na bandeja): os snapshots continuam chegando
+    /// (bandeja/alertas), mas a árvore visual não é atualizada, economizando CPU.
+    /// </summary>
+    public bool IsViewActive
+    {
+        get => _isViewActive;
+        set
+        {
+            if (_isViewActive == value) return;
+            _isViewActive = value;
+            if (value) ApplySnapshot(Snapshot);
+        }
+    }
+
     private void ApplySnapshot(EngineSnapshot s)
     {
         Snapshot = s;
+        if (!_isViewActive)
+        {
+            SnapshotApplied?.Invoke();
+            return;
+        }
+
         SyncFans(s.Fans);
 
         OnPropertiesChanged(
@@ -223,6 +246,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public void ApplyPreset(string key)
     {
         _engine.UpdateConfig(c => FanPresets.Apply(c, key));
+        LoadConfig(_engine.Config);
+    }
+
+    public void ApplyProfileByName(string name)
+    {
+        _engine.UpdateConfig(c => c.Profiles.FirstOrDefault(p => p.Name == name)?.ApplyTo(c));
         LoadConfig(_engine.Config);
     }
 

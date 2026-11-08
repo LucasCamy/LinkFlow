@@ -16,6 +16,9 @@ public sealed class StartupOptions
 
     public string? ServiceCommand { get; private set; }
 
+    /// <summary>Pede para a instância em execução encerrar de forma controlada (scripts de atualização).</summary>
+    public bool ExitRunning { get; private set; }
+
     public static StartupOptions Parse(string[] args)
     {
         var o = new StartupOptions();
@@ -28,6 +31,9 @@ public sealed class StartupOptions
                 case "--tray":
                 case "--minimized":
                     o.StartInTray = true;
+                    break;
+                case "--exit":
+                    o.ExitRunning = true;
                     break;
                 case "--simulate":
                     o.Simulate = true;

@@ -10,7 +10,26 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- WinForms apenas para o NotifyIcon (ícone da bandeja) -->
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\linkflow.ico</ApplicationIcon>
+    <AssemblyName>LinkFlow.App</AssemblyName>
+    <Product>LinkFlow</Product>
+    <Version>2.0.0</Version>
+    <Company>LinkFlow</Company>
+    <Description>LinkFlow - controle de ventoinhas, RGB e LCD para Corsair iCUE LINK</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Evita ambiguidades WPF x WinForms (Application, Button, Color...) -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\linkflow.ico" />
+    <Resource Include="Assets\linkflow.png" />
+  </ItemGroup>
 
 </Project>
