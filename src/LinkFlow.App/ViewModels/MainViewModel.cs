@@ -37,6 +37,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _engine.SnapshotUpdated += OnSnapshot;
         _engine.ConfigChanged += c => _dispatcher.BeginInvoke(() => LoadConfig(c));
         _engine.AlertRaised += a => _dispatcher.BeginInvoke(() => AlertRaised?.Invoke(a));
+        _engine.ConnectionChanged += connected => _dispatcher.BeginInvoke(() =>
+        {
+            OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected));
+            if (connected) LoadConfig(_engine.Config);
+        });
 
         InitializeCommands();
         if (engine.Snapshot is { } s) ApplySnapshot(s);
@@ -150,6 +155,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string EngineModeLabel => _engine.IsRemote
         ? (_engine.IsConnected ? "Serviço do Windows" : "Serviço desconectado")
         : _engine.ModeDescription;
+
+    public bool IsEngineDisconnected => _engine.IsRemote && !_engine.IsConnected;
 
     public string CpuName => Snapshot.CpuName ?? "Processador";
     public string GpuName => Snapshot.GpuName ?? "Placa de vídeo";

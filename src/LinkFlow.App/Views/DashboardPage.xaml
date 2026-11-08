@@ -19,13 +19,37 @@
                 </StackPanel>
             </Border>
 
-            <!-- Sensor da CPU indisponível -->
+            <!-- Serviço sem resposta -->
+            <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
+                    Visibility="{Binding IsEngineDisconnected, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}">
+                        <Run FontWeight="SemiBold" Text="O serviço LinkFlow não está respondendo."/>
+                        <Run Text="Os valores podem estar desatualizados. Reconectando automaticamente..."/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Modo limitado / sensor da CPU indisponível -->
             <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
                     Visibility="{Binding CpuSensorHint, Converter={StaticResource NullToVis}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource Icon}" Text="&#xE946;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
-                    <TextBlock Text="{Binding CpuSensorHint}" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE946;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="{Binding CpuSensorHint}" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"/>
+                        <WrapPanel Margin="0,8,0,0" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Visibility="{Binding IsLimitedLocal, Converter={StaticResource BoolToVis}}">
+                            <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço (recomendado)" Margin="0,0,8,0" Click="InstallService_Click"
+                                    Visibility="{Binding ServiceCanInstall, Converter={StaticResource BoolToVis}}"/>
+                            <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Click="RestartAsAdmin_Click"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <!-- Métricas -->

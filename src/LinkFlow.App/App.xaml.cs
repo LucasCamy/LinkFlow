@@ -39,7 +39,17 @@ public partial class App : Application
             AppPaths.UserDir = Path.Combine(Path.GetTempPath(), "LinkFlow-sim", "user");
         }
 
-        Log.Configure("app", Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
+        Log.Configure(Options.ServiceCommand != null ? "app-admin" : "app",
+            Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
+
+        if (Options.WaitPid is { } waitPid) WaitForProcessExit(waitPid);
+
+        // Processo auxiliar elevado: só executa o comando de serviço e sai
+        if (Options.ServiceCommand != null)
+        {
+            RunServiceCommand(Options.ServiceCommand);
+            return;
+        }
 
         bool testRun = Options.ScreenshotPath != null;
         if (!testRun)
@@ -84,6 +94,7 @@ public partial class App : Application
 
         _engine = CreateEngineClient();
         _engine.Start();
+        SettingsVm.AttachEngine(_engine);
 
         _vm = new MainViewModel(_engine);
         _vm.AlertRaised += OnAlert;
@@ -110,12 +121,131 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// Serviço do Windows rodando → a interface vira cliente (não toca no hardware).
+    /// Caso contrário, o engine roda dentro do próprio app (modo local).
+    /// </summary>
     private IEngineClient CreateEngineClient()
     {
+        bool tryService = !Options.Simulate || Environment.GetEnvironmentVariable("LINKFLOW_PIPE") != null;
+        if (tryService)
+        {
+            var remote = Core.Ipc.PipeEngineClient.TryConnect(TimeSpan.FromMilliseconds(700));
+            if (remote != null)
+            {
+                Log.Info("Conectado ao serviço LinkFlow (modo serviço).");
+                return remote;
+            }
+
+            if (!Options.Simulate && ServiceManager.Query() is ServiceState.Running or ServiceState.Starting)
+            {
+                // Serviço iniciando (ex.: logo após o boot): espera um pouco antes de cair para o modo local
+                remote = Core.Ipc.PipeEngineClient.TryConnect(TimeSpan.FromSeconds(8));
+                if (remote != null) return remote;
+                Log.Warn("Serviço instalado mas sem resposta; usando modo local.");
+            }
+        }
+
         IHardwareFactory factory = Options.Simulate ? new SimulatedHardwareFactory() : new RealHardwareFactory();
-        var engine = new LinkFlowEngine(factory, new EngineOptions { ConfigPath = AppPaths.ControlConfigFile });
+        var engine = new LinkFlowEngine(factory, new EngineOptions { ConfigPath = ResolveLocalConfigPath() });
+        Log.Info($"Modo local ({(AutoStartManager.IsElevated ? "administrador" : "sem privilégio de administrador")}).");
         return new LocalEngineClient(engine);
     }
+
+    /// <summary>
+    /// Modo local sem administrador: se o config compartilhado (criado pelo serviço/admin) não for gravável,
+    /// usa uma cópia em %AppData%\LinkFlow para não perder as alterações.
+    /// </summary>
+    private static string ResolveLocalConfigPath()
+    {
+        var shared = AppPaths.ControlConfigFile;
+        if (CanWrite(shared)) return shared;
+
+        var user = Path.Combine(AppPaths.UserDir, "config.json");
+        try
+        {
+            if (!File.Exists(user) && File.Exists(shared))
+            {
+                Directory.CreateDirectory(AppPaths.UserDir);
+                File.Copy(shared, user);
+            }
+        }
+        catch (Exception ex) { Log.Warn($"Não foi possível copiar a configuração: {ex.Message}"); }
+        Log.Info($"Configuração compartilhada somente leitura; usando {user}.");
+        return user;
+    }
+
+    private static bool CanWrite(string file)
+    {
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            if (File.Exists(file))
+            {
+                using var _ = new FileStream(file, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+            }
+            else
+            {
+                var probe = file + ".probe";
+                File.WriteAllText(probe, "");
+                File.Delete(probe);
+            }
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    // ------------------------------------------------------------------ Serviço / elevação
+
+    private static void WaitForProcessExit(int pid)
+    {
+        try
+        {
+            using var p = System.Diagnostics.Process.GetProcessById(pid);
+            p.WaitForExit(15000);
+        }
+        catch (ArgumentException) { /* já encerrou */ }
+        catch (Exception ex) { Log.Warn($"Falha aguardando processo {pid}: {ex.Message}"); }
+    }
+
+    private void RunServiceCommand(string command)
+    {
+        int code = ServiceManager.Execute(command);
+        if (code == 0 && command is "install-service" or "restart-service" or "start-service")
+        {
+            ServiceManager.WaitForPipe(TimeSpan.FromSeconds(15));
+        }
+        if (Options.LaunchUi) ServiceManager.LaunchUiAsUser();
+        Shutdown(code);
+    }
+
+    /// <summary>
+    /// Troca de modo que exige elevação: inicia o auxiliar elevado, que espera esta instância
+    /// fechar, executa o comando e reabre a interface.
+    /// </summary>
+    public bool SwitchMode(string serviceCommand)
+    {
+        string args = $"--{serviceCommand} --wait-pid {Environment.ProcessId} --launch-ui";
+        if (!ServiceManager.StartElevated(args, wait: false, out _)) return false;
+        Log.Info($"Trocando de modo ({serviceCommand}); a interface será reaberta.");
+        ExitApplication();
+        return true;
+    }
+
+    /// <summary>Reabre o LinkFlow como administrador (modo local completo).</summary>
+    public bool RestartElevated()
+    {
+        if (!ServiceManager.StartElevated($"--wait-pid {Environment.ProcessId}", wait: false, out _)) return false;
+        ExitApplication();
+        return true;
+    }
+
+    /// <summary>Comando que não exige reabrir a interface (ex.: reiniciar o serviço).</summary>
+    public Task<int?> RunElevatedCommandAsync(string serviceCommand) => Task.Run<int?>(() =>
+        ServiceManager.StartElevated($"--{serviceCommand}", wait: true, out var code) ? code : null);
 
     // ------------------------------------------------------------------ Bandeja
 
@@ -130,6 +260,7 @@ public partial class App : Application
         _tray.LcdStreamToggled += on => { if (_vm != null) _vm.IsLcdAutoStream = on; };
         _tray.AutoStartToggled += on => SettingsVm.SetStartWithWindows(on);
         _tray.MenuOpening += RefreshTrayMenu;
+        _tray.SetServiceMode(IsServiceMode);
         RefreshTrayMenu();
     }
 

@@ -3,6 +3,7 @@
     <Project Path="src/LinkFlow.App/LinkFlow.App.csproj" />
     <Project Path="src/LinkFlow.Cli/LinkFlow.Cli.csproj" />
     <Project Path="src/LinkFlow.Core/LinkFlow.Core.csproj" />
+    <Project Path="src/LinkFlow.Service/LinkFlow.Service.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/LinkFlow.Tests/LinkFlow.Tests.csproj" />

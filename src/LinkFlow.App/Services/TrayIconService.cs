@@ -20,6 +20,7 @@ public sealed class TrayIconService : IDisposable
     private readonly ToolStripMenuItem _miniItem;
     private readonly ToolStripMenuItem _lcdItem;
     private readonly ToolStripMenuItem _autostartItem;
+    private readonly ToolStripMenuItem _exitItem;
     private readonly Icon _baseIcon;
     private IntPtr _currentHIcon;
     private string _lastIconKey = string.Empty;
@@ -52,14 +53,14 @@ public sealed class TrayIconService : IDisposable
         _miniItem = new ToolStripMenuItem("Mini widget", null, (_, _) => MiniWidgetToggled?.Invoke());
         _lcdItem = new ToolStripMenuItem("Transmitir métricas no LCD", null, (_, _) => LcdStreamToggled?.Invoke(!_lcdItem!.Checked));
         _autostartItem = new ToolStripMenuItem("Iniciar com o Windows", null, (_, _) => AutoStartToggled?.Invoke(!_autostartItem!.Checked));
-        var exit = new ToolStripMenuItem("Sair do LinkFlow", null, (_, _) => ExitRequested?.Invoke());
+        _exitItem = new ToolStripMenuItem("Sair do LinkFlow", null, (_, _) => ExitRequested?.Invoke());
 
         _menu.Items.AddRange(new ToolStripItem[]
         {
             _header, new ToolStripSeparator(),
             open, _profilesMenu, _miniItem, _lcdItem, new ToolStripSeparator(),
             _autostartItem, new ToolStripSeparator(),
-            exit
+            _exitItem
         });
         _menu.Opening += (_, _) => MenuOpening?.Invoke();
 
@@ -127,6 +128,12 @@ public sealed class TrayIconService : IDisposable
         if (showTemperature && iconTemp is { } t) SetIcon(RenderTemperatureIcon((int)Math.Round(t), alert));
         else if (alert) SetIcon(RenderTemperatureIcon(null, true));
         else SetIcon(null);
+    }
+
+    /// <summary>No modo serviço, "Sair" fecha só a interface; o serviço continua controlando o hardware.</summary>
+    public void SetServiceMode(bool serviceMode)
+    {
+        _exitItem.Text = serviceMode ? "Fechar interface (o serviço continua)" : "Sair do LinkFlow";
     }
 
     public void ShowNotification(string title, string text, ToolTipIcon icon = ToolTipIcon.Info)

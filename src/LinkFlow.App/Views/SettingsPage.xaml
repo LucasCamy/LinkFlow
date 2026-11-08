@@ -150,6 +150,8 @@
                         <WrapPanel>
                             <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço" Margin="0,0,8,8" Click="InstallService_Click"
                                     Visibility="{Binding Settings.ServiceCanInstall, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
+                            <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Margin="0,0,8,8" Click="RestartAsAdmin_Click"
+                                    Visibility="{Binding Settings.CanRestartAsAdmin, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar serviço" Margin="0,0,8,8" Click="RestartService_Click"
                                     Visibility="{Binding Settings.ServiceInstalled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
                             <Button Style="{StaticResource DangerButton}" Content="Remover serviço" Margin="0,0,8,8" Click="UninstallService_Click"
@@ -163,7 +165,7 @@
                         <WrapPanel>
                             <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de logs" Margin="0,0,8,8" Click="OpenLogs_Click"/>
                             <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de configuração" Margin="0,0,8,8" Click="OpenConfig_Click"/>
-                            <Button Style="{StaticResource DangerButton}" Content="Sair do LinkFlow" Margin="0,0,8,8" Click="ExitApp_Click"/>
+                            <Button Style="{StaticResource DangerButton}" Content="{Binding Settings.ExitButtonText, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,8,8" Click="ExitApp_Click"/>
                         </WrapPanel>
                     </StackPanel>
                 </Border>

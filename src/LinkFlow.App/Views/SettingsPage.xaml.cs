@@ -23,11 +23,12 @@ public partial class SettingsPage : UserControl
         }
     }
 
-    private void OpenLogs_Click(object sender, RoutedEventArgs e) => OpenFolder(AppPaths.LogsDir);
+    private void OpenLogs_Click(object sender, RoutedEventArgs e) => OpenFolder(Log.CurrentLogDir);
     private void OpenConfig_Click(object sender, RoutedEventArgs e) => OpenFolder(AppPaths.SharedDir);
     private void ExitApp_Click(object sender, RoutedEventArgs e) => App.Current.ExitApplication();
 
     private void InstallService_Click(object sender, RoutedEventArgs e) => App.Current.SettingsVm.InstallService();
     private void UninstallService_Click(object sender, RoutedEventArgs e) => App.Current.SettingsVm.UninstallService();
     private void RestartService_Click(object sender, RoutedEventArgs e) => App.Current.SettingsVm.RestartService();
+    private void RestartAsAdmin_Click(object sender, RoutedEventArgs e) => App.Current.SettingsVm.RestartAsAdmin();
 }

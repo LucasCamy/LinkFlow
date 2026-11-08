@@ -19,6 +19,12 @@ public sealed class StartupOptions
     /// <summary>Pede para a instância em execução encerrar de forma controlada (scripts de atualização).</summary>
     public bool ExitRunning { get; private set; }
 
+    /// <summary>Espera este processo encerrar antes de iniciar (troca de modo / elevação).</summary>
+    public int? WaitPid { get; private set; }
+
+    /// <summary>Após o comando de serviço, reabre a interface como usuário comum.</summary>
+    public bool LaunchUi { get; private set; }
+
     public static StartupOptions Parse(string[] args)
     {
         var o = new StartupOptions();
@@ -31,6 +37,12 @@ public sealed class StartupOptions
                 case "--tray":
                 case "--minimized":
                     o.StartInTray = true;
+                    break;
+                case "--wait-pid":
+                    o.WaitPid = int.TryParse(Next(), out var pid) ? pid : null;
+                    break;
+                case "--launch-ui":
+                    o.LaunchUi = true;
                     break;
                 case "--exit":
                     o.ExitRunning = true;

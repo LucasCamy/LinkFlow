@@ -7,12 +7,15 @@ namespace LinkFlow.Core;
 
 public static class AppPaths
 {
+    /// <summary>LINKFLOW_DATA_DIR redireciona todos os dados (testes isolados).</summary>
+    private static readonly string? DataOverride = Environment.GetEnvironmentVariable("LINKFLOW_DATA_DIR");
+
     /// <summary>Configuração compartilhada entre app e serviço (%ProgramData%\LinkFlow).</summary>
-    public static string SharedDir { get; set; } =
+    public static string SharedDir { get; set; } = DataOverride ??
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LinkFlow");
 
     /// <summary>Preferências da interface por usuário (%AppData%\LinkFlow).</summary>
-    public static string UserDir { get; set; } =
+    public static string UserDir { get; set; } = DataOverride != null ? Path.Combine(DataOverride, "user") :
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LinkFlow");
 
     public static string ControlConfigFile => Path.Combine(SharedDir, "config.json");
@@ -122,16 +125,37 @@ public static class Log
         var line = $"{DateTime.Now:HH:mm:ss.fff} [{level,-5}] [{_source ?? "core"}#{Environment.ProcessId}] {msg}{Environment.NewLine}";
         lock (Lock)
         {
-            try
+            // Um arquivo por origem (app/serviço): o serviço roda como SYSTEM e a interface como usuário
+            var name = $"linkflow-{_source ?? "core"}-{DateTime.Now:yyyy-MM-dd}.log";
+            if (TryAppend(_logDir ??= AppPaths.LogsDir, name, line)) return;
+
+            // Sem permissão na pasta compartilhada: usa a pasta local do usuário
+            var fallback = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LinkFlow", "logs");
+            if (_logDir != fallback && TryAppend(fallback, name, line))
             {
-                Directory.CreateDirectory(AppPaths.LogsDir);
-                var file = Path.Combine(AppPaths.LogsDir, $"linkflow-{DateTime.Now:yyyy-MM-dd}.log");
-                File.AppendAllText(file, line);
+                _logDir = fallback;
+                return;
             }
-            catch
-            {
-                _fileDisabled = true; // sem permissão: segue só com Debug
-            }
+            _fileDisabled = true;
+        }
+    }
+
+    private static string? _logDir;
+
+    /// <summary>Pasta onde este processo está gravando o log.</summary>
+    public static string CurrentLogDir => _logDir ?? AppPaths.LogsDir;
+
+    private static bool TryAppend(string dir, string name, string line)
+    {
+        try
+        {
+            Directory.CreateDirectory(dir);
+            File.AppendAllText(Path.Combine(dir, name), line, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+            return true;
+        }
+        catch
+        {
+            return false;
         }
     }
 
@@ -149,13 +173,3 @@ public static class Log
     }
 }
 
-public static class Throttle
-{
-    public static bool Elapsed(ref long lastTicks, TimeSpan interval)
-    {
-        long now = Stopwatch.GetTimestamp();
-        if (Stopwatch.GetElapsedTime(lastTicks, now) < interval) return false;
-        lastTicks = now;
-        return true;
-    }
-}

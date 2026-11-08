@@ -25,7 +25,11 @@ public partial class MainWindow : Window
         RestoreSavedBounds();
 
         ViewModel.SelectedPage = Math.Clamp(App.Current.Settings.Current.SelectedPage, 0, MainViewModel.PageTitles.Length - 1);
-        ViewModel.PageChanged += p => App.Current.Settings.Update(s => s.SelectedPage = p);
+        ViewModel.PageChanged += p =>
+        {
+            App.Current.Settings.Update(s => s.SelectedPage = p);
+            if (p == 4) Settings.RefreshServiceState();
+        };
 
         StateChanged += OnStateChanged;
         SizeChanged += (_, e) => ViewModel.IsCompact = e.NewSize.Width < CompactWidth;
@@ -108,6 +112,7 @@ public partial class MainWindow : Window
 
     public void ShowFromTray()
     {
+        Core.Log.Debug($"ShowFromTray (visível={IsVisible}, estado={WindowState})");
         if (!IsVisible) Show();
         if (WindowState == WindowState.Minimized)
             WindowState = App.Current.Settings.Current.WindowMaximized ? WindowState.Maximized : WindowState.Normal;
@@ -119,6 +124,7 @@ public partial class MainWindow : Window
 
     public void HideToTray()
     {
+        Core.Log.Debug("HideToTray");
         SaveBounds();
         Hide();
         App.Current.NotifyHiddenToTray();
@@ -165,6 +171,7 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(CancelEventArgs e)
     {
+        Core.Log.Debug($"OnClosing (saindo={_closingForExit})");
         base.OnClosing(e);
         if (_closingForExit) return;
 
