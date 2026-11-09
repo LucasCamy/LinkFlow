@@ -63,6 +63,17 @@ public partial class MiniWidgetWindow : Window
         App.Current.Settings.Update(s => s.MiniVisible = false);
     }
 
+    private void Opacity_100_Click(object sender, RoutedEventArgs e) => SetOpacity(1.0);
+    private void Opacity_85_Click(object sender, RoutedEventArgs e) => SetOpacity(0.85);
+    private void Opacity_70_Click(object sender, RoutedEventArgs e) => SetOpacity(0.70);
+    private void Opacity_50_Click(object sender, RoutedEventArgs e) => SetOpacity(0.50);
+
+    private void SetOpacity(double val)
+    {
+        App.Current.Settings.Update(s => s.MiniOpacity = val);
+        if (DataContext is ViewModels.MainViewModel vm) vm.MiniOpacity = val;
+    }
+
     public void CloseForExit()
     {
         _closingForExit = true;

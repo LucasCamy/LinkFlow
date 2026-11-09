@@ -42,6 +42,8 @@ public sealed class LinkFlowEngine : IDisposable
     private readonly ILcdDisplay _lcd;
     private readonly IRgbDevice _gpuRgb;
     private readonly IRgbDevice _mbRgb;
+    private readonly IRgbDevice _ramRgb;
+    private readonly IRgbDevice _peripheralsRgb;
 
     private readonly CancellationTokenSource _cts = new();
     private readonly SemaphoreSlim _hubSignal = new(0, 1);
@@ -69,7 +71,7 @@ public sealed class LinkFlowEngine : IDisposable
     private float? _coolant;
     private bool _lcdConnected;
     private bool _rgbReady;
-    private bool? _rgbHubOk, _rgbGpuOk, _rgbMbOk, _rgbLcdOk;
+    private bool? _rgbHubOk, _rgbGpuOk, _rgbMbOk, _rgbRamOk, _rgbPeripheralsOk, _rgbLcdOk;
     private readonly Dictionary<string, EngineAlert> _alerts = new();
 
     // Controle (escritos pela fila de sensores, lidos pela fila do hub)
@@ -104,6 +106,8 @@ public sealed class LinkFlowEngine : IDisposable
         _lcd = factory.CreateLcd();
         _gpuRgb = factory.CreateGpuRgb();
         _mbRgb = factory.CreateMotherboardRgb();
+        _ramRgb = factory.CreateRamRgb();
+        _peripheralsRgb = factory.CreatePeripheralsRgb();
 
         _saveTimer = new Timer(_ => SaveNow(), null, Timeout.Infinite, Timeout.Infinite);
     }
@@ -274,6 +278,10 @@ public sealed class LinkFlowEngine : IDisposable
                 GpuRgbName = _gpuRgb.Name,
                 MotherboardRgbAvailable = _mbRgb.IsAvailable,
                 MotherboardRgbName = _mbRgb.Name,
+                RamRgbAvailable = _ramRgb.IsAvailable,
+                RamRgbName = _ramRgb.Name,
+                PeripheralsRgbAvailable = _peripheralsRgb.IsAvailable,
+                PeripheralsRgbName = _peripheralsRgb.Name,
                 RgbDevicesReady = _rgbReady,
                 RgbStatus = BuildRgbStatus(cfg.Rgb),
                 Alerts = _alerts.Values.OrderByDescending(a => a.Severity).ThenBy(a => a.Since).Select(a => new EngineAlert
@@ -682,8 +690,10 @@ public sealed class LinkFlowEngine : IDisposable
         await Task.Yield();
         SafeCall(() => { _gpuRgb.Initialize(); return true; });
         SafeCall(() => { _mbRgb.Initialize(); return true; });
+        SafeCall(() => { _ramRgb.Initialize(); return true; });
+        SafeCall(() => { _peripheralsRgb.Initialize(); return true; });
         lock (_stateLock) _rgbReady = true;
-        Log.Info($"RGB: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")}");
+        Log.Info($"RGB: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")} • RAM={(_ramRgb.IsAvailable ? _ramRgb.Name : "não detectada")} • Periféricos={(_peripheralsRgb.IsAvailable ? _peripheralsRgb.Name : "não detectados")}");
 
         using var composer = new LcdComposer();
         long appliedRgbVersion = -1, lastRgbApply = 0, nextFrame = 0, nextLcdReconnect = 0;
@@ -708,8 +718,10 @@ public sealed class LinkFlowEngine : IDisposable
                     // Reatualizar dispositivos: tenta detectar de novo o que não foi encontrado
                     if (!_gpuRgb.IsAvailable) SafeCall(() => { _gpuRgb.Initialize(); return true; });
                     if (!_mbRgb.IsAvailable) SafeCall(() => { _mbRgb.Initialize(); return true; });
+                    if (!_ramRgb.IsAvailable) SafeCall(() => { _ramRgb.Initialize(); return true; });
+                    if (!_peripheralsRgb.IsAvailable) SafeCall(() => { _peripheralsRgb.Initialize(); return true; });
                     Interlocked.Increment(ref _rgbVersion);
-                    Log.Info($"RGB redetectado: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")}");
+                    Log.Info($"RGB redetectado: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")} • RAM={(_ramRgb.IsAvailable ? _ramRgb.Name : "não detectada")} • Periféricos={(_peripheralsRgb.IsAvailable ? _peripheralsRgb.Name : "não detectados")}");
                 }
 
                 // Configuração do LCD mudou: novo quadro imediatamente e libera imagens que saíram da lista
@@ -729,10 +741,14 @@ public sealed class LinkFlowEngine : IDisposable
                     var rgb = cfg.Rgb;
                     bool? gpuOk = rgb.SyncGpu && _gpuRgb.IsAvailable ? SafeCall(() => _gpuRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
                     bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => _mbRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
+                    bool? ramOk = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => _ramRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
+                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => _peripheralsRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
                     lock (_stateLock)
                     {
                         _rgbGpuOk = gpuOk;
                         _rgbMbOk = mbOk;
+                        _rgbRamOk = ramOk;
+                        _rgbPeripheralsOk = periphOk;
                     }
                     if (rgb.SyncLcd) Interlocked.Exchange(ref _lcdRequested, 1);
                 }
@@ -787,6 +803,8 @@ public sealed class LinkFlowEngine : IDisposable
         Add(_rgbHubOk, "Fans/Bomba");
         Add(_rgbGpuOk, "GPU");
         Add(_rgbMbOk, "Placa-mãe");
+        Add(_rgbRamOk, "RAM DDR5");
+        Add(_rgbPeripheralsOk, "Periféricos");
         Add(_rgbLcdOk, "LCD");
         if (ok.Count == 0 && fail.Count == 0) return "Nenhum dispositivo sincronizado";
         var s = ok.Count > 0 ? $"Sincronizado: {string.Join(", ", ok)}" : string.Empty;
@@ -860,7 +878,7 @@ public sealed class LinkFlowEngine : IDisposable
             SafeCall(() => _sensors.SetGpuFanAuto());
         }
         SafeCall(() => { _hub.Disconnect(restoreHardwareMode); return true; });
-        foreach (var d in new IDisposable[] { _lcd, _gpuRgb, _mbRgb, _sensors })
+        foreach (var d in new IDisposable[] { _lcd, _gpuRgb, _mbRgb, _ramRgb, _peripheralsRgb, _sensors })
         {
             try { d.Dispose(); } catch { }
         }

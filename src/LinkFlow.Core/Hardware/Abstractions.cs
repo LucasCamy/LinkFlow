@@ -62,6 +62,8 @@ public interface IHardwareFactory
     ILcdDisplay CreateLcd();
     IRgbDevice CreateGpuRgb();
     IRgbDevice CreateMotherboardRgb();
+    IRgbDevice CreateRamRgb();
+    IRgbDevice CreatePeripheralsRgb();
 }
 
 public sealed class RealHardwareFactory : IHardwareFactory
@@ -72,4 +74,6 @@ public sealed class RealHardwareFactory : IHardwareFactory
     public ILcdDisplay CreateLcd() => new CorsairLinkLcd();
     public IRgbDevice CreateGpuRgb() => new AsusGpuRgb();
     public IRgbDevice CreateMotherboardRgb() => new MsiMotherboardRgb();
+    public IRgbDevice CreateRamRgb() => new CorsairDramRgb();
+    public IRgbDevice CreatePeripheralsRgb() => new LogitechPeripheralsRgb();
 }

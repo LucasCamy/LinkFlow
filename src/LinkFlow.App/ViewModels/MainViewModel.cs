@@ -24,7 +24,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private bool _isGpuFanAuto;
     private byte _gpuFanPercent;
     private byte _rgbR, _rgbG, _rgbB, _rgbBrightness;
-    private bool _syncHub, _syncLcd, _syncGpu, _syncMotherboard;
+    private bool _syncHub, _syncLcd, _syncGpu, _syncMotherboard, _syncRam, _syncPeripherals;
     private bool _isLcdAutoStream;
 
     public MainViewModel(IEngineClient engine, Dispatcher? dispatcher = null)
@@ -108,7 +108,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             nameof(GpuFanRpmFormatted),
             nameof(EffectiveGlobalPercent), nameof(GlobalSpeedFormatted), nameof(CurveStatus), nameof(IsFailSafeActive),
             nameof(IsLcdConnected), nameof(LcdStatus),
-            nameof(GpuRgbStatus), nameof(MotherboardRgbStatus), nameof(RgbSyncStatus),
+            nameof(GpuRgbStatus), nameof(MotherboardRgbStatus), nameof(RamRgbStatus), nameof(PeripheralsRgbStatus), nameof(RgbSyncStatus),
             nameof(Alerts), nameof(HasAlerts), nameof(EngineModeLabel));
 
         if (_mode == FanControlMode.Curve || s.FailSafeActive)
@@ -200,6 +200,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Snapshot.GpuRgbAvailable ? $"Conectado • {Snapshot.GpuRgbName}" : "Não detectado";
     public string MotherboardRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
+    public string RamRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
+        Snapshot.RamRgbAvailable ? $"Conectado • {Snapshot.RamRgbName}" : "Não detectado";
+    public string PeripheralsRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
+        Snapshot.PeripheralsRgbAvailable ? $"Conectado • {Snapshot.PeripheralsRgbName}" : "Não detectado";
     public string RgbSyncStatus => Snapshot.RgbStatus;
 
     // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)
@@ -388,6 +392,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public bool SyncLcd { get => _syncLcd; set => SetSync(ref _syncLcd, value, (c, v) => c.Rgb.SyncLcd = v); }
     public bool SyncGpu { get => _syncGpu; set => SetSync(ref _syncGpu, value, (c, v) => c.Rgb.SyncGpu = v); }
     public bool SyncMotherboard { get => _syncMotherboard; set => SetSync(ref _syncMotherboard, value, (c, v) => c.Rgb.SyncMotherboard = v); }
+    public bool SyncRam { get => _syncRam; set => SetSync(ref _syncRam, value, (c, v) => c.Rgb.SyncRam = v); }
+    public bool SyncPeripherals { get => _syncPeripherals; set => SetSync(ref _syncPeripherals, value, (c, v) => c.Rgb.SyncPeripherals = v); }
 
     private void SetSync(ref bool field, bool value, Action<ControlConfig, bool> apply, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
     {
@@ -395,6 +401,43 @@ public partial class MainViewModel : ObservableObject, IDisposable
         field = value;
         OnPropertyChanged(name);
         if (!_loadingConfig) _engine.UpdateConfig(c => apply(c, value));
+    }
+
+    // ------------------------------------------------------------------ Mini Widget
+    public bool MiniShowCpu
+    {
+        get => App.Current.Settings.Current.MiniShowCpu;
+        set { App.Current.Settings.Update(s => s.MiniShowCpu = value); OnPropertyChanged(); }
+    }
+    public bool MiniShowGpu
+    {
+        get => App.Current.Settings.Current.MiniShowGpu;
+        set { App.Current.Settings.Update(s => s.MiniShowGpu = value); OnPropertyChanged(); }
+    }
+    public bool MiniShowCoolant
+    {
+        get => App.Current.Settings.Current.MiniShowCoolant;
+        set { App.Current.Settings.Update(s => s.MiniShowCoolant = value); OnPropertyChanged(); }
+    }
+    public bool MiniShowFans
+    {
+        get => App.Current.Settings.Current.MiniShowFans;
+        set { App.Current.Settings.Update(s => s.MiniShowFans = value); OnPropertyChanged(); }
+    }
+    public bool MiniShowRam
+    {
+        get => App.Current.Settings.Current.MiniShowRam;
+        set { App.Current.Settings.Update(s => s.MiniShowRam = value); OnPropertyChanged(); }
+    }
+    public bool MiniShowPump
+    {
+        get => App.Current.Settings.Current.MiniShowPump;
+        set { App.Current.Settings.Update(s => s.MiniShowPump = value); OnPropertyChanged(); }
+    }
+    public double MiniOpacity
+    {
+        get => App.Current.Settings.Current.MiniOpacity;
+        set { App.Current.Settings.Update(s => s.MiniOpacity = value); OnPropertyChanged(); }
     }
 
     // ------------------------------------------------------------------ LCD
@@ -449,6 +492,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             SyncLcd = c.Rgb.SyncLcd;
             SyncGpu = c.Rgb.SyncGpu;
             SyncMotherboard = c.Rgb.SyncMotherboard;
+            SyncRam = c.Rgb.SyncRam;
+            SyncPeripherals = c.Rgb.SyncPeripherals;
             IsLcdAutoStream = c.Lcd.AutoStream;
             foreach (var f in Fans) f.LoadOverride(c.GetFan(f.Key));
             LoadConfigPartial(c);

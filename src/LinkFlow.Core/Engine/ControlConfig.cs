@@ -144,6 +144,8 @@ public sealed class RgbConfig
     public bool SyncLcd { get; set; } = true;
     public bool SyncGpu { get; set; } = true;
     public bool SyncMotherboard { get; set; } = true;
+    public bool SyncRam { get; set; } = true;
+    public bool SyncPeripherals { get; set; } = true;
 
     public List<string> RecentColors { get; set; } = new();
 
@@ -152,7 +154,8 @@ public sealed class RgbConfig
 
     public bool SameOutputAs(RgbConfig o) =>
         R == o.R && G == o.G && B == o.B && Brightness == o.Brightness &&
-        SyncHub == o.SyncHub && SyncLcd == o.SyncLcd && SyncGpu == o.SyncGpu && SyncMotherboard == o.SyncMotherboard;
+        SyncHub == o.SyncHub && SyncLcd == o.SyncLcd && SyncGpu == o.SyncGpu &&
+        SyncMotherboard == o.SyncMotherboard && SyncRam == o.SyncRam && SyncPeripherals == o.SyncPeripherals;
 }
 
 public enum LcdMode { Metrics, Media }

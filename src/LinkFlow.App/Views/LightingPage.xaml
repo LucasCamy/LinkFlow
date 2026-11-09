@@ -187,10 +187,16 @@
                                 <TextBlock Text="{Binding MotherboardRgbStatus}" Style="{StaticResource Caption}"/>
                             </StackPanel>
                         </CheckBox>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsEnabled="False">
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncRam}">
                             <StackPanel>
-                                <TextBlock Text="Memórias DDR5"/>
-                                <TextBlock Text="Ainda não suportado (proteção do barramento SPD/PMIC no AM5)" Style="{StaticResource Caption}"/>
+                                <TextBlock Text="Memórias DDR5 (Corsair Vengeance RGB)"/>
+                                <TextBlock Text="{Binding RamRgbStatus}" Style="{StaticResource Caption}"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncPeripherals}">
+                            <StackPanel>
+                                <TextBlock Text="Periféricos (Logitech G915 X / Mouse / Headset)"/>
+                                <TextBlock Text="{Binding PeripheralsRgbStatus}" Style="{StaticResource Caption}"/>
                             </StackPanel>
                         </CheckBox>
                     </StackPanel>

@@ -11,6 +11,8 @@ public sealed class SimulatedHardwareFactory : IHardwareFactory
     public SimulatedLcd Lcd { get; } = new();
     public SimulatedRgb GpuRgb { get; } = new("ASUS Aura (simulado)");
     public SimulatedRgb MotherboardRgb { get; } = new("MSI Mystic Light (simulado)");
+    public SimulatedRgb RamRgb { get; } = new("Corsair Vengeance DDR5 (simulado)");
+    public SimulatedRgb PeripheralsRgb { get; } = new("Logitech G Lightspeed (simulado)");
 
     public bool IsSimulated => true;
     public IFanHub CreateHub() => Hub;
@@ -18,6 +20,8 @@ public sealed class SimulatedHardwareFactory : IHardwareFactory
     public ILcdDisplay CreateLcd() => Lcd;
     public IRgbDevice CreateGpuRgb() => GpuRgb;
     public IRgbDevice CreateMotherboardRgb() => MotherboardRgb;
+    public IRgbDevice CreateRamRgb() => RamRgb;
+    public IRgbDevice CreatePeripheralsRgb() => PeripheralsRgb;
 }
 
 public sealed class SimulatedHub : IFanHub

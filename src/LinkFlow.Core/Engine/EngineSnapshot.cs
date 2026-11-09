@@ -79,6 +79,10 @@ public sealed class EngineSnapshot
     public string GpuRgbName { get; set; } = string.Empty;
     public bool MotherboardRgbAvailable { get; set; }
     public string MotherboardRgbName { get; set; } = string.Empty;
+    public bool RamRgbAvailable { get; set; }
+    public string RamRgbName { get; set; } = string.Empty;
+    public bool PeripheralsRgbAvailable { get; set; }
+    public string PeripheralsRgbName { get; set; } = string.Empty;
     public bool RgbDevicesReady { get; set; }
     public string RgbStatus { get; set; } = string.Empty;
 

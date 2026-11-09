@@ -35,6 +35,21 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Mini Widget -->
+                <Border Style="{StaticResource GridCard}">
+                    <StackPanel>
+                        <TextBlock Text="Mini Widget Flutuante" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Personalize quais métricas exibir no widget e sua transparência." Style="{StaticResource Caption}" Margin="0,0,0,10"/>
+
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MiniShowCpu}" Content="Processador (CPU - Temp e Carga)"/>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MiniShowGpu}" Content="Placa de Vídeo (GPU - Temp e Carga)"/>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MiniShowCoolant}" Content="Líquido do AIO"/>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MiniShowFans}" Content="Ventoinhas (RPM Médio)"/>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MiniShowRam}" Content="Uso de Memória RAM"/>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MiniShowPump}" Content="Bomba Titan (RPM)"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- Segurança -->
                 <Border Style="{StaticResource GridCard}">
                     <StackPanel>

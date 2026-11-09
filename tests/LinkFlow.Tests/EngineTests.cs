@@ -163,7 +163,9 @@ public class EngineTests
         EngineFixture.WaitUntil(() =>
             f.Hw.Hub.LastRgb == (255, 0, 10, 80) &&
             f.Hw.GpuRgb.Last == (255, 0, 10, 80) &&
-            f.Hw.MotherboardRgb.Last == (255, 0, 10, 80), because: "cor aplicada em hub, GPU e placa-mãe");
+            f.Hw.MotherboardRgb.Last == (255, 0, 10, 80) &&
+            f.Hw.RamRgb.Last == (255, 0, 10, 80) &&
+            f.Hw.PeripheralsRgb.Last == (255, 0, 10, 80), because: "cor aplicada em hub, GPU, placa-mãe, RAM e periféricos");
         EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames > 0, because: "LCD recebeu quadro");
     }
 

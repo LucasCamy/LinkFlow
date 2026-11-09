@@ -22,6 +22,13 @@ public sealed class UiSettings
     public double? MiniLeft { get; set; }
     public double? MiniTop { get; set; }
     public bool MiniVisible { get; set; }
+    public bool MiniShowCpu { get; set; } = true;
+    public bool MiniShowGpu { get; set; } = true;
+    public bool MiniShowCoolant { get; set; } = true;
+    public bool MiniShowFans { get; set; } = true;
+    public bool MiniShowRam { get; set; } = false;
+    public bool MiniShowPump { get; set; } = false;
+    public double MiniOpacity { get; set; } = 0.95;
 }
 
 public sealed class UiSettingsService
