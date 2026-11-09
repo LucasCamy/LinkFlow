@@ -136,12 +136,12 @@ public static class SensorCatalog
             int i = disk.Index;
             string name = disk.Name;
             DiskIoState? D(EngineSnapshot snap) => snap.Disks?.FirstOrDefault(x => x.Index == i);
-            list.Add(new($"disk:{i}:activity", Storage, $"{name} • atividade", $"Disco {i + 1}", "#FB923C", true, false,
+            list.Add(new($"disk:{i}:activity", Storage, $"Atividade • {name}", $"Disco {i + 1}", "#FB923C", true, false,
                 (snap, _) => Pct(D(snap)?.ActivityPercent), SensorDemand.DiskIo));
-            list.Add(new($"disk:{i}:rw", Storage, $"{name} • leitura/escrita", $"Disco {i + 1}", "#FB923C", false, true,
+            list.Add(new($"disk:{i}:rw", Storage, $"Leitura/escrita • {name}", $"Disco {i + 1}", "#FB923C", false, true,
                 (snap, _) => D(snap) is { } x && x.ReadBytesPerSec is { } r && x.WriteBytesPerSec is { } w
                     ? new($"L {Rate(r)} • E {Rate(w)}", null, true) : SensorReading.Missing, SensorDemand.DiskIo));
-            list.Add(new($"disk:{i}:temp", Storage, $"{name} • temperatura", $"Disco {i + 1}", "#F87171", false, true,
+            list.Add(new($"disk:{i}:temp", Storage, $"Temperatura • {name}", $"Disco {i + 1}", "#F87171", false, true,
                 (snap, _) => Temp(D(snap)?.Temperature, 80), SensorDemand.DiskIo));
         }
         return list;

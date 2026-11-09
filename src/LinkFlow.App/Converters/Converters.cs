@@ -137,3 +137,17 @@ public sealed class StringsEqualConverter : IMultiValueConverter
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
         targetTypes.Select(_ => Binding.DoNothing).ToArray();
 }
+
+/// <summary>Proporção (0–1) × largura disponível = largura da barra.</summary>
+public sealed class RatioToWidthConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        double ratio = values.Length > 0 && values[0] is double r ? Math.Clamp(r, 0, 1) : 0;
+        double width = values.Length > 1 && values[1] is double w ? w : 0;
+        return Math.Max(0, ratio * width);
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
+        targetTypes.Select(_ => Binding.DoNothing).ToArray();
+}

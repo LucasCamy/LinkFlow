@@ -32,6 +32,9 @@ public sealed class UiSettings
     public bool MiniShowRam { get; set; } = false;
     public bool MiniShowPump { get; set; } = false;
     public double MiniOpacity { get; set; } = 0.95;
+
+    /// <summary>Widget flutuante (null = migrar das opções antigas acima).</summary>
+    public WidgetSettings? Widget { get; set; }
 }
 
 public sealed class UiSettingsService

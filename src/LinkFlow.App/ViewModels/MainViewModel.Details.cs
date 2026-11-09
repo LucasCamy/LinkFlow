@@ -53,7 +53,7 @@ public partial class MainViewModel
     });
     public ICommand DetailActionCommand => _detailActionCommand ??= new RelayCommand(() =>
     {
-        var page = _detailKind == "fans" ? 1 : 4;
+        var page = _detailKind == "fans" ? 1 : 5;
         CloseDetail();
         SelectedPage = page;
     });
@@ -98,8 +98,8 @@ public partial class MainViewModel
         "coolant" => "",
         "fans" => "",
         "ram" => "",
-        "net" => "uE968",
-        "disk" => "uEDA2",
+        "net" => "",
+        "disk" => "",
         _ => ""
     };
 

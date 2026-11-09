@@ -51,6 +51,9 @@ public partial class MainViewModel
 
     public const int WidgetPageIndex = 4;
 
+    /// <summary>Último pedido enviado ao engine.</summary>
+    public SensorDemand CurrentSensorDemand => _sentDemand;
+
     private void RecordExtraHistory(EngineSnapshot s)
     {
         static double[]? Push(Queue<double> q, double? v)

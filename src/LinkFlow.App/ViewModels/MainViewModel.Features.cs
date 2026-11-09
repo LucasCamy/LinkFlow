@@ -129,7 +129,7 @@ public partial class MainViewModel
     private int _selectedPage;
     private bool _isCompact;
 
-    public static readonly string[] PageTitles = { "Painel", "Ventoinhas", "Iluminação", "Tela LCD", "Configurações" };
+    public static readonly string[] PageTitles = { "Painel", "Ventoinhas", "Iluminação", "Tela LCD", "Widget", "Configurações" };
 
     public int SelectedPage
     {

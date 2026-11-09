@@ -60,7 +60,7 @@ Manualmente (PowerShell como administrador):
 | F1 … F5 | Perfis: Silencioso, Equilibrado, Desempenho, Máximo, Curva |
 | Ctrl+Alt+1 … 5 | Perfis de qualquer lugar (globais) |
 | Ctrl+Alt+L / Ctrl+Alt+M | Abrir/esconder o LinkFlow / mini widget (globais) |
-| Ctrl+1 … 5 | Páginas |
+| Ctrl+1 … 6 | Páginas (Ctrl+5 = Widget, Ctrl+6 = Configurações) |
 | Ctrl+↑ / Ctrl+↓ | Potência global ±5% |
 | Ctrl+Z | Desfazer |
 | Ctrl+A / Esc | Selecionar todas / limpar seleção (Ventoinhas) |

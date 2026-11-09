@@ -48,6 +48,7 @@
     <conv:SeverityToSoftBrushConverter x:Key="SeverityToSoftBrush"/>
     <conv:EqualsToVisibilityConverter x:Key="EqualsToVis"/>
     <conv:StringsEqualConverter x:Key="StringsEqual"/>
+    <conv:RatioToWidthConverter x:Key="RatioToWidth"/>
     <conv:NullToVisibilityConverter x:Key="NullToVis"/>
     <conv:NullToVisibilityConverter x:Key="NullToVisInverse" Invert="True"/>
 

@@ -415,43 +415,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (!_loadingConfig) _engine.UpdateConfig(c => apply(c, value));
     }
 
-    // ------------------------------------------------------------------ Mini Widget
-    public bool MiniShowCpu
-    {
-        get => App.Current.Settings.Current.MiniShowCpu;
-        set { App.Current.Settings.Update(s => s.MiniShowCpu = value); OnPropertyChanged(); }
-    }
-    public bool MiniShowGpu
-    {
-        get => App.Current.Settings.Current.MiniShowGpu;
-        set { App.Current.Settings.Update(s => s.MiniShowGpu = value); OnPropertyChanged(); }
-    }
-    public bool MiniShowCoolant
-    {
-        get => App.Current.Settings.Current.MiniShowCoolant;
-        set { App.Current.Settings.Update(s => s.MiniShowCoolant = value); OnPropertyChanged(); }
-    }
-    public bool MiniShowFans
-    {
-        get => App.Current.Settings.Current.MiniShowFans;
-        set { App.Current.Settings.Update(s => s.MiniShowFans = value); OnPropertyChanged(); }
-    }
-    public bool MiniShowRam
-    {
-        get => App.Current.Settings.Current.MiniShowRam;
-        set { App.Current.Settings.Update(s => s.MiniShowRam = value); OnPropertyChanged(); }
-    }
-    public bool MiniShowPump
-    {
-        get => App.Current.Settings.Current.MiniShowPump;
-        set { App.Current.Settings.Update(s => s.MiniShowPump = value); OnPropertyChanged(); }
-    }
-    public double MiniOpacity
-    {
-        get => App.Current.Settings.Current.MiniOpacity;
-        set { App.Current.Settings.Update(s => s.MiniOpacity = value); OnPropertyChanged(); }
-    }
-
     // ------------------------------------------------------------------ LCD
 
     public bool IsLcdAutoStream

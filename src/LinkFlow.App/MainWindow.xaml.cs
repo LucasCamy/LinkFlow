@@ -27,10 +27,21 @@ public partial class MainWindow : Window
 
         ViewModel.SelectedPage = Math.Clamp(App.Current.Settings.Current.SelectedPage, 0, MainViewModel.PageTitles.Length - 1);
         _lcdPreview = new LcdPreviewService(viewModel, Dispatcher);
+        // Widget flutuante: configurações (migra as opções antigas) e atualização só quando visível
+        var ui = App.Current.Settings.Current;
+        ui.Widget ??= WidgetSettings.MigrateFrom(ui);
+        Widget = new WidgetViewModel(ui.Widget, () => App.Current.Settings.Update(_ => { }), viewModel);
+        ViewModel.SnapshotApplied += () =>
+        {
+            bool page = ViewModel.SelectedPage == MainViewModel.WidgetPageIndex && IsVisible;
+            if (IsMiniWidgetVisible || page) Widget.Update(ViewModel.Snapshot);
+            if (page) Widget.RefreshPicker();
+        };
+        ViewModel.SetWidgetDemandSource(() => IsMiniWidgetVisible ? Widget.Demand : Core.SensorDemand.None);
         ViewModel.PageChanged += p =>
         {
             App.Current.Settings.Update(s => s.SelectedPage = p);
-            if (p == 4) Settings.RefreshServiceState();
+            if (p == 5) Settings.RefreshServiceState();
             if (p == 2) ViewModel.RefreshDynamicLighting();
             UpdateViewActive();
             // Transição: a página que acabou de aparecer entra com fade + deslize
@@ -51,6 +62,7 @@ public partial class MainWindow : Window
     public MainViewModel ViewModel { get; }
     public SettingsViewModel Settings => App.Current.SettingsVm;
     public bool IsMiniWidgetVisible => _miniWidget?.IsVisible == true;
+    public WidgetViewModel Widget { get; }
 
     // ------------------------------------------------------------------ Atalhos
 
@@ -167,6 +179,7 @@ public partial class MainWindow : Window
         bool windowVisible = IsVisible && WindowState != WindowState.Minimized;
         ViewModel.IsViewActive = windowVisible || IsMiniWidgetVisible;
         // Na bandeja: depois de 4 s sem janela, devolve a memória da interface ao Windows
+        ViewModel.UpdateSensorDemand();
         if (windowVisible || IsMiniWidgetVisible) MemoryTrimmer.Cancel();
         else MemoryTrimmer.ScheduleTrim(TimeSpan.FromSeconds(4));
         // A prévia do LCD só renderiza com a página do LCD aberta
@@ -274,7 +287,8 @@ public partial class MainWindow : Window
     {
         if (_miniWidget == null)
         {
-            _miniWidget = new MiniWidgetWindow { DataContext = ViewModel };
+            _miniWidget = new MiniWidgetWindow(Widget);
+            _miniWidget.ConfigureRequested += () => { ShowFromTray(); SelectPage(MainViewModel.WidgetPageIndex); };
             _miniWidget.OpenMainRequested += ShowFromTray;
             _miniWidget.IsVisibleChanged += (_, _) => UpdateViewActive();
         }
@@ -284,4 +298,23 @@ public partial class MainWindow : Window
     }
 
     private void ToggleMiniWidget_Click(object sender, RoutedEventArgs e) => ToggleMiniWidget();
+
+    /// <summary>Aba Widget: liga/desliga sem esconder a janela principal.</summary>
+    public void SetWidgetVisible(bool visible)
+    {
+        if (visible) ShowMiniWidget();
+        else if (_miniWidget != null)
+        {
+            _miniWidget.Hide();
+            App.Current.Settings.Update(s => s.MiniVisible = false);
+        }
+        UpdateViewActive();
+    }
+
+    public void MoveWidgetToCorner(string corner)
+    {
+        if (!IsMiniWidgetVisible) ShowMiniWidget();
+        _miniWidget!.UpdateLayout();
+        _miniWidget.MoveToCorner(corner);
+    }
 }
