@@ -113,6 +113,8 @@ public partial class FansPage : UserControl
         }
     }
 
+    private void RunningApps_DropDownOpened(object sender, EventArgs e) => Vm?.RefreshAppsCommand.Execute(null);
+
     private void ProfileNameBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && Vm?.SaveProfileCommand.CanExecute(null) == true)

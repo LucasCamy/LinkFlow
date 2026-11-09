@@ -1,7 +1,8 @@
 <UserControl x:Class="LinkFlow.App.Views.FansPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:c="clr-namespace:LinkFlow.App.Controls">
+             xmlns:c="clr-namespace:LinkFlow.App.Controls"
+             xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="8,8,20,24">
             <Grid>
@@ -140,6 +141,83 @@
                 </StackPanel>
             </Border>
 
+            <!-- Automação: perfil por jogo/app e horário silencioso -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Perfil automático" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Troca de perfil sozinho ao abrir um jogo/app ou à noite; ao terminar, volta ao que você tinha. Se você mudar à mão, ele respeita."
+                                       Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,10"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Background="{StaticResource AccentSoftBrush}" CornerRadius="8" Padding="10,4" VerticalAlignment="Top" Margin="12,0,0,0"
+                                Visibility="{Binding HasAutomationStatus, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding AutomationStatus}" Foreground="{StaticResource AccentBrush}" FontSize="12"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Horário silencioso -->
+                    <WrapPanel VerticalAlignment="Center" Margin="0,0,0,6">
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding QuietEnabled}" Content="Horário silencioso das" Margin="0,0,8,8" VerticalAlignment="Center"/>
+                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietStart}" Width="70" Margin="0,0,8,8" ItemStringFormat="{}{0:00}h"/>
+                        <TextBlock Text="às" VerticalAlignment="Center" Margin="0,0,8,8" Foreground="{StaticResource TextMutedBrush}"/>
+                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietEnd}" Width="70" Margin="0,0,8,8" ItemStringFormat="{}{0:00}h"/>
+                        <TextBlock Text="usar" VerticalAlignment="Center" Margin="0,0,8,8" Foreground="{StaticResource TextMutedBrush}"/>
+                        <ComboBox ItemsSource="{Binding ProfileOptions}" SelectedValuePath="Key" DisplayMemberPath="Label" SelectedValue="{Binding QuietProfile}" Width="190" Margin="0,0,0,8"/>
+                    </WrapPanel>
+
+                    <!-- Regras por jogo/app -->
+                    <ItemsControl ItemsSource="{Binding AppRules}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,6,6,6" Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Regra ativa"/>
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                            <Run Text="Ao abrir "/><Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold"/>
+                                        </TextBlock>
+                                        <ComboBox Grid.Column="2" Width="190" Margin="8,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Label"
+                                                  ItemsSource="{Binding DataContext.ProfileOptions, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                  SelectedValue="{Binding Profile}"/>
+                                        <Button Grid.Column="3" Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="11" Content="&#xE711;" ToolTip="Remover regra"
+                                                Foreground="{StaticResource DangerBrush}"
+                                                Command="{Binding DataContext.RemoveRuleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid Margin="0,2,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MaxWidth="320"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox IsEditable="True" Text="{Binding NewRuleProcess, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RunningApps}"
+                                  DropDownOpened="RunningApps_DropDownOpened" ToolTip="Nome do programa (ex.: cs2, valorant, Cyberpunk2077) ou escolha um aberto"/>
+                        <TextBlock Text="Jogo ou app (abra a lista para escolher um aberto)..." IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSubtleBrush}" Visibility="{Binding NewRuleProcess, Converter={StaticResource NullToVisInverse}}"/>
+                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding AddRuleCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
+                                <TextBlock Text="Adicionar regra"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Potência global (modo fixo) -->
             <Border Style="{StaticResource Card}" Visibility="{Binding IsFixedMode, Converter={StaticResource BoolToVis}}">
                 <Grid>
@@ -159,7 +237,7 @@
             </Border>
 
             <!-- Curva (modo automático) -->
-            <Border Style="{StaticResource Card}" Visibility="{Binding IsCurveMode, Converter={StaticResource BoolToVis}}">
+            <Border Style="{StaticResource Card}" Visibility="{Binding ShowCurveCard, Converter={StaticResource BoolToVis}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -172,7 +250,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="Curva de temperatura" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="{Binding CurveTitle}" Style="{StaticResource SectionTitle}"/>
                             <TextBlock Text="{Binding CurveStatus}" Style="{StaticResource Caption}" Foreground="{StaticResource WarningBrush}"/>
                         </StackPanel>
                         <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="Restaurar padrão" Command="{Binding ResetCurveCommand}" VerticalAlignment="Top"/>
@@ -196,6 +274,55 @@
                         </StackPanel>
                     </c:AdaptiveUniformGrid>
                 </Grid>
+            </Border>
+
+            <!-- Curvas por grupo -->
+            <Border Style="{StaticResource Card}" Visibility="{Binding HasGroupCurves, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Curvas por grupo" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Um grupo pode seguir a própria curva e o próprio sensor (ex.: radiador pelo líquido, gabinete pela GPU). Funciona em qualquer modo."
+                                       Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,10"/>
+                        </StackPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding GroupCurves}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border x:Name="Row" Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,8" Margin="0,0,0,6" BorderThickness="1" BorderBrush="Transparent">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock FontWeight="SemiBold">
+                                                <Run Text="{Binding Name, Mode=OneWay}"/><Run Text="  •  " Foreground="{StaticResource TextSubtleBrush}"/><Run Text="{Binding Members, Mode=OneWay}" Foreground="{StaticResource TextMutedBrush}"/><Run Text=" dispositivo(s)" Foreground="{StaticResource TextMutedBrush}"/>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}"/>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HasOwnCurve}" Content="Curva própria"
+                                                  VerticalAlignment="Center" Margin="12,0"/>
+                                        <ComboBox Grid.Column="2" Width="240" VerticalAlignment="Center" IsEnabled="{Binding HasOwnCurve}"
+                                                  ItemsSource="{Binding DataContext.CurveSources, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                  SelectedValuePath="Value" DisplayMemberPath="Label" SelectedValue="{Binding Source}" ToolTip="Sensor que este grupo segue"/>
+                                        <Button Grid.Column="3" Style="{StaticResource SecondaryButton}" Content="Editar curva" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.EditCurveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding Name}"/>
+                                    </Grid>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="Row" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Content="← Voltar a editar a curva global" Command="{Binding EditCurveCommand}"
+                            CommandParameter="" Visibility="{Binding IsEditingGroupCurve, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
             </Border>
 
             <!-- GPU -->

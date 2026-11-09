@@ -69,5 +69,6 @@ public partial class MainViewModel
         DiskHistory = Push(_diskHist, s.Disks is { Count: > 0 } d ? d.Max(x => x.ActivityPercent ?? 0) : null);
         OnPropertiesChanged(nameof(NetHistory), nameof(DiskHistory), nameof(NetDownFormatted), nameof(NetUpFormatted), nameof(NetAdapter),
             nameof(DiskMainFormatted), nameof(DiskMainDetail), nameof(DiskActivityFormatted));
+        RefreshGroupStatus(s);
     }
 }

@@ -25,6 +25,7 @@ public partial class App : Application
     public SettingsViewModel SettingsVm { get; private set; } = null!;
     public bool IsServiceMode => _engine?.IsRemote == true;
     private PeripheralRgbBridge? _peripheralBridge;
+    private AutomationService? _automation;
 
     public static new App Current => (App)Application.Current;
 
@@ -107,6 +108,11 @@ public partial class App : Application
         _vm.AlertRaised += OnAlert;
         _vm.SnapshotApplied += OnSnapshotApplied;
         MainView = new MainWindow(_vm);
+        if (!testRun)
+        {
+            _automation = new AutomationService(_vm);
+            _automation.StatusChanged += () => _vm.AutomationStatus = _automation.Status;
+        }
 
         if (testRun)
         {
@@ -350,6 +356,7 @@ public partial class App : Application
             Settings?.Flush();
             _tray?.Dispose();
             _peripheralBridge?.Dispose();
+            _automation?.Dispose();
             _vm?.Dispose();
             _engine?.ShutdownAsync(restoreHardwareMode: true).Wait(TimeSpan.FromSeconds(6));
             _instance?.Dispose();

@@ -14,6 +14,12 @@ Controle de ventoinhas, bomba, RGB e display LCD para **Corsair iCUE LINK**, com
 - **Seletor de cor completo**: quadro de saturação × brilho com barra de matiz, código hex e ajuste fino RGB.
 - **LCD personalizável**: monte o quadro (informação principal, até 4 secundárias, título, anel, foto de fundo) ou mostre fotos e GIFs com apresentação de slides, rotação e informação sobreposta. A prévia usa o mesmo renderizador do display.
 - **Reatualizar dispositivos**: botão "Atualizar" em Ventoinhas procura de novo hub, ventoinhas, LCD e RGB.
+- **Widget flutuante configurável** (aba Widget): qualquer informação do catálogo (CPU, GPU, cada ventoinha, rede, discos, hora...), em % ou valor, em linha/coluna/grade, tamanho, opacidade, cores, fonte; sempre no topo, clique atravessa, some em jogos em tela cheia, gruda nas bordas.
+- **Rede e discos**: download/upload, espaço por volume e — só quando algo exibe — atividade, leitura/escrita e temperatura dos discos.
+- **Curvas por grupo**: um grupo pode seguir a própria curva e o próprio sensor (ex.: radiador pelo líquido).
+- **Perfil automático**: por jogo/app aberto e horário silencioso; volta sozinho ao perfil anterior.
+- **Periféricos Logitech G** pelo G HUB (a interface aplica a cor, pois o SDK só atende a sessão do usuário) e **cor viva nos LEDs** (correção de gama + brilho por dispositivo).
+- **Leve**: discos e prévias só leem quando visíveis; na bandeja a interface devolve a memória ao Windows; dispositivos USB reconectam na hora ao serem ligados.
 - **Backup**: exporte tudo (perfis, curva, nomes, iluminação, LCD com as imagens, limites, preferências) para um arquivo `.linkflow` e importe escolhendo as partes.
 
 ## Arquitetura

@@ -68,6 +68,24 @@ public sealed class CorsairLinkHub : IFanHub
         RefreshSubDevicesInternal();
     }
 
+    public bool RefreshSubDevices()
+    {
+        lock (_syncLock)
+        {
+            if (_stream == null) return false;
+            string Signature(IEnumerable<ConnectedSubDevice> d) => string.Join("|", d.Select(x => $"{x.Channel}:{x.DeviceId}:{x.Model}"));
+            var before = Signature(_subDevices);
+            var previous = _subDevices;
+            RefreshSubDevicesInternal();
+            if (_subDevices.Count == 0 && previous.Count > 0)
+            {
+                _subDevices = previous; // leitura falhou: mantém a lista anterior
+                return false;
+            }
+            return Signature(_subDevices) != before;
+        }
+    }
+
     private void RefreshSubDevicesInternal()
     {
         SendCommandInternal(LinkHubProtocol.CloseEndpoint, LinkHubProtocol.EndpointSubDevices);

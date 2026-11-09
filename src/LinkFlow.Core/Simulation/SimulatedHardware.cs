@@ -126,6 +126,25 @@ public sealed class SimulatedHub : IFanHub
         }
     }
 
+    /// <summary>Teste: simula conectar uma ventoinha nova na corrente do hub.</summary>
+    public void PlugFan(int channel)
+    {
+        lock (_lock)
+            _devices.Add(new ConnectedSubDevice { Channel = channel, DeviceId = $"SIMNEW{channel:D2}", Model = LinkDeviceModel.FanRxSeries, Name = $"RX Fan #{channel}" });
+        _pendingChange = true;
+    }
+
+    private bool _pendingChange;
+    public int RefreshCalls { get; private set; }
+
+    public bool RefreshSubDevices()
+    {
+        RefreshCalls++;
+        bool changed = _pendingChange;
+        _pendingChange = false;
+        return IsConnected && changed;
+    }
+
     public bool SetGlobalRgb(byte r, byte g, byte b, byte brightnessPercent)
     {
         lock (_lock)

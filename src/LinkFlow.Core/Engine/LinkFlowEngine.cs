@@ -6,7 +6,8 @@ public sealed class EngineOptions
 {
     public TimeSpan TelemetryInterval { get; set; } = TimeSpan.FromSeconds(1);
     public TimeSpan SnapshotInterval { get; set; } = TimeSpan.FromMilliseconds(500);
-    public TimeSpan ReconnectInterval { get; set; } = TimeSpan.FromSeconds(5);
+    public TimeSpan ReconnectInterval { get; set; } = TimeSpan.FromSeconds(10);
+    public TimeSpan SubDeviceCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
     public TimeSpan SpeedReassertInterval { get; set; } = TimeSpan.FromSeconds(30);
     public TimeSpan HubRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(60);
     public TimeSpan AuxRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(100);
@@ -156,6 +157,7 @@ public sealed class LinkFlowEngine : IDisposable
         _lanes.Add(RunLane("sensores", () => SensorLoopAsync(ct)));
         _lanes.Add(RunLane("periféricos", () => AuxLoopAsync(ct)));
         _lanes.Add(RunLane("snapshot", () => PublishLoopAsync(ct)));
+        if (!IsSimulated) WatchUsb();
         Log.Info($"Engine iniciado ({(IsSimulated ? "simulação" : "hardware real")}).");
     }
 
@@ -304,6 +306,7 @@ public sealed class LinkFlowEngine : IDisposable
                 Disks = _disks,
                 LcdStatus = _lcdStatus,
                 EffectiveGlobalPercent = EffectiveGlobal(cfg),
+                GroupOutputs = new Dictionary<string, int>(_groupOutputs),
                 CurveInputTemp = _curveInputTemp,
                 FailSafeActive = _failSafe,
                 Fans = _fans.Select(f => new FanState
@@ -335,6 +338,7 @@ public sealed class LinkFlowEngine : IDisposable
     private async Task HubLoopAsync(CancellationToken ct)
     {
         long nextRead = 0, nextReconnect = 0, lastSpeedApply = 0, lastRgbApply = 0;
+        long nextDeviceCheck = Stopwatch.GetTimestamp() + Ticks(_opt.SubDeviceCheckInterval);
         long appliedRgbVersion = -1;
         int failures = 0;
         Dictionary<int, byte>? lastSent = null;
@@ -351,6 +355,7 @@ public sealed class LinkFlowEngine : IDisposable
                     nextReconnect = 0;
                 }
 
+                if (Interlocked.Exchange(ref _usbChangedHub, 0) == 1 && !_hub.IsConnected) nextReconnect = 0;
                 if (!_hub.IsConnected && now >= nextReconnect)
                 {
                     bool ok = SafeCall(() => _hub.Connect());
@@ -394,6 +399,18 @@ public sealed class LinkFlowEngine : IDisposable
                         }
 
                         UpdateHubTelemetry(cfg, speeds, temps, zeroReads);
+
+                        // Ventoinha conectada/removida na corrente do hub (o USB do hub não muda)
+                        if (now >= nextDeviceCheck)
+                        {
+                            nextDeviceCheck = now + Ticks(_opt.SubDeviceCheckInterval);
+                            if (_hub.RefreshSubDevices())
+                            {
+                                Log.Info("Dispositivos do hub mudaram: atualizando a lista.");
+                                OnHubConnected();
+                                lastSent = null;
+                            }
+                        }
                     }
 
                     // 2. Velocidades (somente quando mudam, ou reafirmação periódica)
@@ -563,10 +580,13 @@ public sealed class LinkFlowEngine : IDisposable
         var result = new Dictionary<int, byte>();
         byte global = EffectiveGlobal(cfg);
         bool failSafe = _failSafe;
+        var groupOutputs = _groupOutputs;
         foreach (var dev in _hub.SubDevices)
         {
             var ov = cfg.GetFan(FanState.KeyFor(dev));
-            byte p = failSafe ? (byte)100 : ov.Linked ? global : ov.Percent;
+            // Vinculada: segue a curva do seu grupo (se houver) ou a potência global/curva global
+            byte linked = ov.Group != null && groupOutputs.TryGetValue(ov.Group, out var go) ? (byte)go : global;
+            byte p = failSafe ? (byte)100 : ov.Linked ? linked : ov.Percent;
             if (dev.IsPump) p = Math.Max((byte)FanLimits.PumpMinPercent, p);
             result[dev.Channel] = Math.Clamp(p, (byte)FanLimits.MinPercent, (byte)100);
         }
@@ -576,6 +596,63 @@ public sealed class LinkFlowEngine : IDisposable
     private static bool SameSpeeds(Dictionary<int, byte> a, Dictionary<int, byte> b) =>
         a.Count == b.Count && a.All(kv => b.TryGetValue(kv.Key, out var v) && v == kv.Value);
 
+
+
+    // ------------------------------------------------------------------ Conexão de dispositivos (USB)
+
+    private int _usbChangedHub, _usbChangedAux;
+
+    /// <summary>
+    /// Avisado pelo Windows quando algo USB/HID é conectado: hub/LCD reconectam na hora
+    /// em vez de esperar a próxima tentativa (que fica mais espaçada e consome menos).
+    /// </summary>
+    private void WatchUsb()
+    {
+        try
+        {
+            HidSharp.DeviceList.Local.Changed += (_, _) =>
+            {
+                Interlocked.Exchange(ref _usbChangedHub, 1);
+                Interlocked.Exchange(ref _usbChangedAux, 1);
+                Signal(_hubSignal);
+                Signal(_auxSignal);
+            };
+        }
+        catch (Exception ex)
+        {
+            Log.Debug($"Aviso de USB indisponível: {ex.Message}");
+        }
+    }
+    // ------------------------------------------------------------------ Curvas por grupo
+
+    private volatile Dictionary<string, int> _groupOutputs = new();
+
+    /// <summary>Cada grupo com curva própria tem seu controlador (suavização/histerese independentes).</summary>
+    private void EvaluateGroupCurves(ControlConfig cfg, Dictionary<string, (CurveController Controller, string Json)> controllers,
+        float? cpu, float? gpu, float? coolant, bool newSample)
+    {
+        var outputs = new Dictionary<string, int>();
+        foreach (var (group, curveCfg) in cfg.GroupCurves)
+        {
+            string json = System.Text.Json.JsonSerializer.Serialize(curveCfg, Json.Compact);
+            if (!controllers.TryGetValue(group, out var entry) || entry.Json != json)
+            {
+                entry = (new CurveController(), json); // curva editada: aplica sem esperar a histerese
+                controllers[group] = entry;
+            }
+            var temp = CurveController.SelectTemp(curveCfg.Source, cpu, gpu, coolant);
+            if (temp is { } t && (newSample || entry.Controller.Current == null)) outputs[group] = entry.Controller.Evaluate(curveCfg, t);
+            else if (entry.Controller.Current is { } cur) outputs[group] = cur;
+        }
+        foreach (var removed in controllers.Keys.Where(k => !cfg.GroupCurves.ContainsKey(k)).ToList()) controllers.Remove(removed);
+
+        var prev = _groupOutputs;
+        if (prev.Count != outputs.Count || outputs.Any(kv => !prev.TryGetValue(kv.Key, out var v) || v != kv.Value))
+        {
+            _groupOutputs = outputs;
+            Signal(_hubSignal);
+        }
+    }
     // ------------------------------------------------------------------ Fila de sensores
 
     private async Task SensorLoopAsync(CancellationToken ct)
@@ -586,6 +663,8 @@ public sealed class LinkFlowEngine : IDisposable
         lock (_stateLock) _sensorsReady = true;
 
         var curve = new CurveController();
+        var groupControllers = new Dictionary<string, (CurveController Controller, string Json)>();
+        float? lastCpu = null, lastGpu = null, lastCoolant = null;
         var lastMode = (FanControlMode)(-1);
         long appliedGpuVersion = -1;
         bool gpuFailSafeApplied = false;
@@ -618,8 +697,10 @@ public sealed class LinkFlowEngine : IDisposable
                         _disks = disks;
                         coolant = _coolant;
                     }
-                    lastTemp = CurveController.SelectTemp(cfg.Curve.Source,
-                        t.CpuSensorAvailable ? t.CpuTemperature : null, t.GpuTemperature, coolant);
+                    lastCpu = t.CpuSensorAvailable ? t.CpuTemperature : null;
+                    lastGpu = t.GpuTemperature;
+                    lastCoolant = coolant;
+                    lastTemp = CurveController.SelectTemp(cfg.Curve.Source, lastCpu, lastGpu, coolant);
                     EvaluateSafety(cfg, t, coolant);
                 }
 
@@ -641,6 +722,7 @@ public sealed class LinkFlowEngine : IDisposable
                 else if (lastTemp is { } temp && (newSample || curve.Current == null)) _curveOutput = curve.Evaluate(cfg.Curve, temp);
                 lock (_stateLock) _curveInputTemp = curve.SmoothedTemp ?? lastTemp;
                 if (previousOutput != _curveOutput) Signal(_hubSignal);
+                EvaluateGroupCurves(cfg, groupControllers, lastCpu, lastGpu, lastCoolant, newSample);
 
                 // Fan da GPU (LibreHardwareMonitor)
                 long gpuVersion = Interlocked.Read(ref _gpuFanVersion);
@@ -800,6 +882,7 @@ public sealed class LinkFlowEngine : IDisposable
                 }
 
                 // LCD
+                if (Interlocked.Exchange(ref _usbChangedAux, 0) == 1) nextLcdReconnect = 0; // algo foi conectado: tenta já
                 if (!_lcd.IsConnected && now >= nextLcdReconnect)
                 {
                     SafeCall(() => _lcd.Connect());

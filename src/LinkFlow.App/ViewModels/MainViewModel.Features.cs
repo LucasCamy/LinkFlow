@@ -106,7 +106,7 @@ public partial class MainViewModel
 
         SetModeCommand = new RelayCommand(p => SetMode(p?.ToString() == "Curve" ? FanControlMode.Curve : FanControlMode.Fixed));
         ResetCurveCommand = new RelayCommand(() => WithUndo("Curva restaurada para o padrão", () =>
-            _engine.UpdateConfig(c => c.Curve.Points = FanCurveConfig.DefaultPoints())));
+            _engine.UpdateConfig(c => TargetCurve(c).Points = FanCurveConfig.DefaultPoints())));
 
         ApplyColorCommand = new RelayCommand(p => { if (p is string hex) ApplyHex(hex, addRecent: true); });
         ResendRgbCommand = new RelayCommand(() => { _engine.NotifyResume(); ShowToast("Reenviando cor e velocidades para todos os dispositivos...", canUndo: false); });
@@ -331,6 +331,7 @@ public partial class MainViewModel
     partial void OnFansStructureChangedPartial()
     {
         RefreshGroups();
+        RefreshCurveTargets(_engine.Config);
         OnPropertiesChanged(nameof(FanCountLabel), nameof(SelectedCount), nameof(HasSelection), nameof(SelectionSummary));
     }
 
@@ -443,7 +444,7 @@ public partial class MainViewModel
         set
         {
             if (!SetProperty(ref _curveSource, value) || IsLoadingConfig) return;
-            _engine.UpdateConfig(c => c.Curve.Source = value);
+            _engine.UpdateConfig(c => TargetCurve(c).Source = value);
         }
     }
 
@@ -454,23 +455,27 @@ public partial class MainViewModel
         {
             if (!SetProperty(ref _curveHysteresis, value)) return;
             OnPropertyChanged(nameof(CurveHysteresisFormatted));
-            if (!IsLoadingConfig) _engine.UpdateConfig(c => c.Curve.Hysteresis = value);
+            if (!IsLoadingConfig) _engine.UpdateConfig(c => TargetCurve(c).Hysteresis = value);
         }
     }
 
     public string CurveHysteresisFormatted => $"{_curveHysteresis:0}°C";
 
-    public double? CurveCurrentTemp => Snapshot.CurveInputTemp;
-    public double? CurveCurrentOutput => IsCurveMode ? Snapshot.EffectiveGlobalPercent : null;
+    public double? CurveCurrentTemp => _curveTarget != null && _engine.Config.GroupCurves.TryGetValue(_curveTarget, out var gc)
+        ? CurveController.SelectTemp(gc.Source, Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null, Snapshot.GpuTemp, Snapshot.CoolantTemp)
+        : Snapshot.CurveInputTemp;
+    public double? CurveCurrentOutput => _curveTarget != null
+        ? Snapshot.GroupOutputs.TryGetValue(_curveTarget, out var go) ? go : null
+        : IsCurveMode ? Snapshot.EffectiveGlobalPercent : null;
 
     public void OnCurveEdited(List<CurvePoint> points, bool final)
     {
         _engine.UpdateConfig(c =>
         {
-            c.Curve.Points = points;
-            if (final && c.Mode == FanControlMode.Curve) c.ActivePreset = FanPresets.Auto;
+            TargetCurve(c).Points = points;
+            if (final && _curveTarget == null && c.Mode == FanControlMode.Curve) c.ActivePreset = FanPresets.Auto;
         });
-        if (final) CurvePoints = _engine.Config.Curve.Points;
+        if (final) CurvePoints = ShownCurve(_engine.Config).Points;
     }
 
     private void SetMode(FanControlMode mode)
@@ -669,9 +674,11 @@ public partial class MainViewModel
 
     partial void LoadConfigPartial(ControlConfig c)
     {
-        CurvePoints = c.Curve.Points;
-        CurveSourceValue = c.Curve.Source;
-        CurveHysteresis = c.Curve.Hysteresis;
+        var shown = ShownCurve(c);
+        CurvePoints = shown.Points;
+        CurveSourceValue = shown.Source;
+        CurveHysteresis = shown.Hysteresis;
+        RefreshCurveTargets(c);
 
         FailSafeEnabled = c.Safety.FailSafeEnabled;
         FanStopAlert = c.Safety.FanStopAlert;
@@ -700,6 +707,7 @@ public partial class MainViewModel
         RefreshPresetChips();
         LoadLcdConfig(c);
         LoadLightingExtras(c);
+        LoadAutomation(c);
         LcdConfigChanged?.Invoke();
         OnPropertiesChanged(nameof(FanCountLabel), nameof(CurveCurrentOutput));
     }

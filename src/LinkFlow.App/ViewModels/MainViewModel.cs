@@ -113,7 +113,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             nameof(GpuRgbStatus), nameof(MotherboardRgbStatus), nameof(RamRgbStatus), nameof(PeripheralsRgbStatus), nameof(RgbSyncStatus),
             nameof(Alerts), nameof(HasAlerts), nameof(EngineModeLabel));
 
-        if (_mode == FanControlMode.Curve || s.FailSafeActive)
+        if (_mode == FanControlMode.Curve || s.FailSafeActive || s.GroupOutputs.Count > 0)
         {
             foreach (var f in Fans) f.RefreshLinkedValue();
         }
@@ -267,7 +267,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Velocidade que uma ventoinha vinculada recebe (exibição imediata, sem esperar o engine).</summary>
     public byte LinkedTargetFor(FanViewModel fan)
     {
-        byte g = EffectiveGlobalPercent;
+        // Grupo com curva própria: mostra a potência do grupo
+        byte g = fan.Group != null && !Snapshot.FailSafeActive && Snapshot.GroupOutputs.TryGetValue(fan.Group, out var go) ? (byte)go : EffectiveGlobalPercent;
         return fan.IsPump ? Math.Max((byte)FanLimits.PumpMinPercent, g) : g;
     }
 
@@ -435,7 +436,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_mode == mode) return;
         _mode = mode;
-        OnPropertiesChanged(nameof(Mode), nameof(IsCurveMode), nameof(IsFixedMode), nameof(CurveStatus),
+        OnPropertiesChanged(nameof(Mode), nameof(IsCurveMode), nameof(IsFixedMode), nameof(CurveStatus), nameof(ShowCurveCard),
             nameof(EffectiveGlobalPercent), nameof(GlobalSpeedFormatted));
     }
 

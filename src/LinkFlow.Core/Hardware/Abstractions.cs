@@ -18,6 +18,9 @@ public interface IFanHub : IDisposable
 
     bool SetSpeedsPercent(IReadOnlyDictionary<int, byte> channelSpeeds);
     bool SetGlobalRgb(byte r, byte g, byte b, byte brightnessPercent);
+
+    /// <summary>Relê a lista de dispositivos ligados ao hub. True se mudou (ventoinha conectada/removida).</summary>
+    bool RefreshSubDevices();
 }
 
 /// <summary>Sensores do sistema (CPU, GPU, RAM) e controle da ventoinha da GPU.</summary>

@@ -180,6 +180,8 @@ public sealed class ConfigBackup
             target.Curve = src.Curve;
             target.GpuFanAuto = src.GpuFanAuto;
             target.GpuFanPercent = src.GpuFanPercent;
+            target.GroupCurves = src.GroupCurves;
+            target.Automation = src.Automation;
         }
 
         if (sections.HasFlag(BackupSections.Fans))

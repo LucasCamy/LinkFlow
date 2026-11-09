@@ -72,6 +72,9 @@ public sealed class EngineSnapshot
 
     // Controle
     public byte EffectiveGlobalPercent { get; set; }
+
+    /// <summary>Potência atual de cada grupo com curva própria.</summary>
+    public Dictionary<string, int> GroupOutputs { get; set; } = new();
     public float? CurveInputTemp { get; set; }
     public bool FailSafeActive { get; set; }
     public List<FanState> Fans { get; set; } = new();

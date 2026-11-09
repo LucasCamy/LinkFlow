@@ -28,6 +28,12 @@ public sealed class ControlConfig
     public SafetyConfig Safety { get; set; } = new();
     public List<FanProfile> Profiles { get; set; } = new();
 
+    /// <summary>Grupos com curva própria (ex.: radiador segue o líquido). Chave = nome do grupo.</summary>
+    public Dictionary<string, FanCurveConfig> GroupCurves { get; set; } = new();
+
+    /// <summary>Perfis automáticos por jogo/app e horário silencioso (aplicados pela interface).</summary>
+    public AutomationConfig Automation { get; set; } = new();
+
     public FanOverride GetFan(string key) => Fans.TryGetValue(key, out var f) ? f : new FanOverride();
 
     public FanOverride EditFan(string key)
@@ -54,6 +60,10 @@ public sealed class ControlConfig
         Lcd.Normalize();
         Safety ??= new SafetyConfig();
         Profiles ??= new();
+        GroupCurves ??= new();
+        foreach (var gc in GroupCurves.Values) gc.Normalize();
+        Automation ??= new();
+        Automation.Normalize();
     }
 }
 
@@ -278,6 +288,9 @@ public sealed class FanProfile
     /// <summary>Estado Linked/Percent por ventoinha no momento em que o perfil foi salvo.</summary>
     public Dictionary<string, FanOverride> Fans { get; set; } = new();
 
+    /// <summary>Curvas por grupo no momento em que o perfil foi salvo (null = perfil antigo, mantém as atuais).</summary>
+    public Dictionary<string, FanCurveConfig>? GroupCurves { get; set; }
+
     public static FanProfile Capture(string name, ControlConfig c) => new()
     {
         Name = name,
@@ -286,7 +299,8 @@ public sealed class FanProfile
         Curve = Json.Clone(c.Curve),
         GpuFanAuto = c.GpuFanAuto,
         GpuFanPercent = c.GpuFanPercent,
-        Fans = c.Fans.ToDictionary(kv => kv.Key, kv => new FanOverride { Linked = kv.Value.Linked, Percent = kv.Value.Percent })
+        Fans = c.Fans.ToDictionary(kv => kv.Key, kv => new FanOverride { Linked = kv.Value.Linked, Percent = kv.Value.Percent }),
+        GroupCurves = Json.Clone(c.GroupCurves)
     };
 
     public void ApplyTo(ControlConfig c)
@@ -296,6 +310,7 @@ public sealed class FanProfile
         c.Curve = Json.Clone(Curve);
         c.GpuFanAuto = GpuFanAuto;
         c.GpuFanPercent = GpuFanPercent;
+        if (GroupCurves != null) c.GroupCurves = Json.Clone(GroupCurves);
         foreach (var (key, f) in c.Fans)
         {
             if (Fans.TryGetValue(key, out var saved))
@@ -361,5 +376,44 @@ public static class FanPresets
     private static void RelinkAll(ControlConfig c)
     {
         foreach (var f in c.Fans.Values) f.Linked = true;
+    }
+}
+
+/// <summary>Regra: enquanto o programa estiver aberto (em primeiro plano ao começar), usa o perfil.</summary>
+public sealed class AppRule
+{
+    /// <summary>Nome do processo sem ".exe" (ex.: "cs2", "Cyberpunk2077").</summary>
+    public string Process { get; set; } = string.Empty;
+    /// <summary>Chave de perfil pronto (ex.: "Desempenho") ou nome de perfil salvo.</summary>
+    public string Profile { get; set; } = FanPresets.Performance;
+    public bool Enabled { get; set; } = true;
+}
+
+public sealed class QuietHours
+{
+    public bool Enabled { get; set; }
+    public int StartHour { get; set; } = 23;
+    public int EndHour { get; set; } = 7;
+    public string Profile { get; set; } = FanPresets.Silent;
+
+    /// <summary>Hora dentro da janela (aceita janelas que passam da meia-noite).</summary>
+    public bool Contains(DateTime now) => StartHour == EndHour ? Enabled
+        : StartHour < EndHour ? now.Hour >= StartHour && now.Hour < EndHour
+        : now.Hour >= StartHour || now.Hour < EndHour;
+}
+
+public sealed class AutomationConfig
+{
+    public List<AppRule> Rules { get; set; } = new();
+    public QuietHours Quiet { get; set; } = new();
+
+    public void Normalize()
+    {
+        Rules ??= new();
+        foreach (var r in Rules) r.Process = (r.Process ?? string.Empty).Trim().Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
+        Rules.RemoveAll(r => r.Process.Length == 0);
+        Quiet ??= new();
+        Quiet.StartHour = Math.Clamp(Quiet.StartHour, 0, 23);
+        Quiet.EndHour = Math.Clamp(Quiet.EndHour, 0, 23);
     }
 }
