@@ -62,4 +62,5 @@ public class HardwareTelemetry
     public float? GpuMemClockMhz { get; set; }
     public float? GpuVramUsedGb { get; set; }
     public float? GpuVramTotalGb { get; set; }
+    public float[]? CpuCoreLoads { get; set; }
 }

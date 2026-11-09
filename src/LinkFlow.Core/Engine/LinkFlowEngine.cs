@@ -83,6 +83,40 @@ public sealed class LinkFlowEngine : IDisposable
     private int _forceReconnectAux;
     private int _rescanRgb;
     private string? _lcdStatus;
+
+    // Rede/discos (fila de sensores) e quem está pedindo leitura dos discos
+    private readonly SystemStats _stats = new();
+    private NetworkState? _network;
+    private List<VolumeState> _volumes = new();
+    private List<DiskIoState>? _disks;
+    private readonly Dictionary<object, SensorDemand> _demands = new();
+    private long _lastDiskDemand;
+    private bool _storageOn;
+
+    /// <summary>Um cliente informa o que está exibindo. Discos só são lidos enquanto alguém pede.</summary>
+    public void SetSensorDemand(object client, SensorDemand demand)
+    {
+        lock (_demands)
+        {
+            if (demand == SensorDemand.None) _demands.Remove(client);
+            else _demands[client] = demand;
+        }
+        Signal(_sensorSignal);
+    }
+
+    private void UpdateStorageDemand()
+    {
+        bool wanted;
+        lock (_demands) wanted = _demands.Values.Any(d => d.HasFlag(SensorDemand.DiskIo));
+        long now = Stopwatch.GetTimestamp();
+        if (wanted) _lastDiskDemand = now;
+        // Desliga só 60 s depois do último pedido (evita liga/desliga ao trocar de tela)
+        bool on = wanted || (_storageOn && Stopwatch.GetElapsedTime(_lastDiskDemand, now) < TimeSpan.FromSeconds(60));
+        if (on == _storageOn) return;
+        _storageOn = on;
+        SafeCall(() => { _sensors.SetStorageEnabled(on); return true; });
+        if (!on) lock (_stateLock) _disks = null;
+    }
     private int _started;
     private int _stopped;
 
@@ -264,6 +298,10 @@ public sealed class LinkFlowEngine : IDisposable
                 GpuMemClockMhz = t.GpuMemClockMhz,
                 GpuVramUsedGb = t.GpuVramUsedGb,
                 GpuVramTotalGb = t.GpuVramTotalGb,
+                CpuCoreLoads = t.CpuCoreLoads,
+                Network = _network,
+                Volumes = _volumes,
+                Disks = _disks,
                 LcdStatus = _lcdStatus,
                 EffectiveGlobalPercent = EffectiveGlobal(cfg),
                 CurveInputTemp = _curveInputTemp,
@@ -567,10 +605,17 @@ public sealed class LinkFlowEngine : IDisposable
                 {
                     nextRead = Stopwatch.GetTimestamp() + Ticks(_opt.TelemetryInterval);
                     var t = _sensors.Read();
+                    var network = _stats.ReadNetwork();
+                    var volumes = _stats.ReadVolumes();
+                    UpdateStorageDemand();
+                    var disks = _sensors.ReadDisks();
                     float? coolant;
                     lock (_stateLock)
                     {
                         _telemetry = t;
+                        _network = network;
+                        _volumes = volumes;
+                        _disks = disks;
                         coolant = _coolant;
                     }
                     lastTemp = CurveController.SelectTemp(cfg.Curve.Source,

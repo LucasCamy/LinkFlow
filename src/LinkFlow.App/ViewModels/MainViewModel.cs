@@ -44,6 +44,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         });
 
         InitializeCommands();
+        UpdateSensorDemand();
         if (engine.Snapshot is { } s) ApplySnapshot(s);
     }
 
@@ -82,6 +83,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             if (_isViewActive == value) return;
             _isViewActive = value;
             if (value) ApplySnapshot(Snapshot);
+            UpdateSensorDemand();
         }
     }
 

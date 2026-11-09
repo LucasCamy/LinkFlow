@@ -201,7 +201,7 @@ public enum LcdFit { Cover, Contain }
 public enum LcdMetric
 {
     None, CpuTemp, CpuLoad, CpuPower, CpuClock, GpuTemp, GpuHotspot, GpuLoad, GpuPower,
-    CoolantTemp, PumpRpm, FanRpm, FanPower, RamUsage, Clock
+    CoolantTemp, PumpRpm, FanRpm, FanPower, RamUsage, Clock, NetDown, NetUp, DiskUsage, CpuCoreMax
 }
 
 public sealed class LcdMediaItem

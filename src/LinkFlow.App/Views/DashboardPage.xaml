@@ -54,7 +54,7 @@
 
             <!-- Métricas -->
             <!-- Métricas: clique abre os detalhes -->
-            <c:AdaptiveUniformGrid MinItemWidth="200" MaxColumns="5" Margin="0,0,-12,0">
+            <c:AdaptiveUniformGrid MinItemWidth="200" MaxColumns="4" Margin="0,0,-12,0">
                 <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="cpu"
                         ToolTip="Ver detalhes do processador" AutomationProperties.Name="Detalhes da CPU">
                     <StackPanel>
@@ -106,6 +106,29 @@
                         <TextBlock Text="{Binding RamUsageFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource RamBrush}" Margin="0,4,0,0"/>
                         <TextBlock Text="{Binding RamDetail}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
                         <c:Sparkline Values="{Binding RamHistory}" Stroke="{StaticResource RamBrush}" MinRange="10" Height="38" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="net"
+                        ToolTip="Ver detalhes da rede" AutomationProperties.Name="Detalhes da rede">
+                    <StackPanel>
+                        <TextBlock Text="REDE" Style="{StaticResource Label}"/>
+                        <TextBlock Style="{StaticResource Metric}" Foreground="#34D399" Margin="0,4,0,0" TextTrimming="CharacterEllipsis">
+                            <Run Text="↓ "/><Run Text="{Binding NetDownFormatted, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
+                            <Run Text="↑ "/><Run Text="{Binding NetUpFormatted, Mode=OneWay}"/><Run Text=" • "/><Run Text="{Binding NetAdapter, Mode=OneWay}"/>
+                        </TextBlock>
+                        <c:Sparkline Values="{Binding NetHistory}" Stroke="#34D399" MinRange="0.5" Height="38" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="disk"
+                        ToolTip="Ver detalhes dos discos" AutomationProperties.Name="Detalhes dos discos">
+                    <StackPanel>
+                        <TextBlock Text="DISCOS" Style="{StaticResource Label}"/>
+                        <TextBlock Text="{Binding DiskMainFormatted}" Style="{StaticResource Metric}" Foreground="#FBBF24" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding DiskMainDetail}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
+                        <c:Sparkline Values="{Binding DiskHistory}" Stroke="#FB923C" MinRange="10" Height="22" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding DiskActivityFormatted}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Button>
             </c:AdaptiveUniformGrid>

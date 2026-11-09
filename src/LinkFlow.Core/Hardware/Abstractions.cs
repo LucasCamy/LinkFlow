@@ -29,6 +29,10 @@ public interface ISensorSource : IDisposable
     void Open();
 
     HardwareTelemetry Read();
+
+    /// <summary>Liga a leitura dos discos só quando algo exibe (custa mais que os outros sensores).</summary>
+    void SetStorageEnabled(bool enabled);
+    List<DiskIoState>? ReadDisks();
     bool SetGpuFanSpeed(byte percent);
     bool SetGpuFanAuto();
 }

@@ -120,6 +120,9 @@ public sealed class PipeEngineServer : IAsyncDisposable
                     case PipeProtocol.Resume:
                         _engine.NotifyResume();
                         break;
+                    case PipeProtocol.Demand:
+                        if (PipeProtocol.Read<int>(payload) is var d) _engine.SetSensorDemand(conn, (SensorDemand)d);
+                        break;
                     case PipeProtocol.Rescan:
                         _engine.RescanDevices();
                         break;
@@ -138,6 +141,7 @@ public sealed class PipeEngineServer : IAsyncDisposable
         finally
         {
             lock (_lock) _clients.Remove(conn);
+            _engine.SetSensorDemand(conn, SensorDemand.None);
             conn.Dispose();
             try { await writer.ConfigureAwait(false); } catch { }
             Log.Info($"Interface desconectada ({ClientCount} cliente(s)).");

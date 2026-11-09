@@ -143,6 +143,10 @@ public partial class MainViewModel
         new LcdMetricOption(LcdMetric.FanPower, "Potência das ventoinhas (%)"),
         new LcdMetricOption(LcdMetric.RamUsage, "Uso da memória"),
         new LcdMetricOption(LcdMetric.Clock, "Relógio (hora e data)"),
+        new LcdMetricOption(LcdMetric.CpuCoreMax, "Núcleo da CPU mais ocupado"),
+        new LcdMetricOption(LcdMetric.NetDown, "Download da rede"),
+        new LcdMetricOption(LcdMetric.NetUp, "Upload da rede"),
+        new LcdMetricOption(LcdMetric.DiskUsage, "Espaço usado no disco"),
     };
 
     public ObservableCollection<LcdMetricChoice> LcdSecondaryChoices { get; } = new(
@@ -166,6 +170,10 @@ public partial class MainViewModel
         LcdMetric.FanPower => "Fans %",
         LcdMetric.RamUsage => "RAM",
         LcdMetric.Clock => "Relógio",
+        LcdMetric.CpuCoreMax => "Núcleo %",
+        LcdMetric.NetDown => "↓ Rede",
+        LcdMetric.NetUp => "↑ Rede",
+        LcdMetric.DiskUsage => "Disco %",
         _ => m.ToString()
     };
 

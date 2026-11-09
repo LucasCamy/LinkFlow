@@ -63,6 +63,12 @@ public sealed class EngineSnapshot
     public float? GpuMemClockMhz { get; set; }
     public float? GpuVramUsedGb { get; set; }
     public float? GpuVramTotalGb { get; set; }
+    public float[]? CpuCoreLoads { get; set; }
+
+    // Rede e discos
+    public NetworkState? Network { get; set; }
+    public List<VolumeState> Volumes { get; set; } = new();
+    public List<DiskIoState>? Disks { get; set; }
 
     // Controle
     public byte EffectiveGlobalPercent { get; set; }

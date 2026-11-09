@@ -133,7 +133,7 @@
                             </StackPanel>
 
                             <StackPanel Visibility="{Binding DetailHasFans, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Dispositivos" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding DetailListTitle}" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding DetailFans}" Focusable="False">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -163,7 +163,8 @@
                         </c:AdaptiveUniformGrid>
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                            <Button Style="{StaticResource SecondaryButton}" Content="{Binding DetailActionLabel}" Command="{Binding DetailActionCommand}" Margin="0,0,8,0"/>
+                            <Button Style="{StaticResource SecondaryButton}" Content="{Binding DetailActionLabel}" Command="{Binding DetailActionCommand}" Margin="0,0,8,0"
+                                    Visibility="{Binding DetailHasAction, Converter={StaticResource BoolToVis}}"/>
                             <Button Style="{StaticResource PrimaryButton}" Content="Fechar" Command="{Binding CloseDetailCommand}"/>
                         </StackPanel>
                     </StackPanel>

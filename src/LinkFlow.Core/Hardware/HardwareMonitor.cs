@@ -83,6 +83,10 @@ public sealed class HardwareMonitor : ISensorSource
                     var load = Find(_cpu, SensorType.Load, "Total");
                     if (load?.Value != null) t.CpuLoad = load.Value;
 
+                    var cores = _cpu.Sensors.Where(s => s.SensorType == SensorType.Load && s.Name.StartsWith("CPU Core #", StringComparison.OrdinalIgnoreCase))
+                        .OrderBy(s => s.Index).Select(s => s.Value ?? 0f).ToArray();
+                    if (cores.Length > 0) t.CpuCoreLoads = cores;
+
                     var power = Find(_cpu, SensorType.Power, "Package");
                     if (power?.Value is > 0) t.CpuPower = power.Value;
                     var clocks = _cpu.Sensors.Where(s => s.SensorType == SensorType.Clock && s.Name.StartsWith("Core", StringComparison.OrdinalIgnoreCase) && s.Value > 0).ToList();
@@ -145,6 +149,57 @@ public sealed class HardwareMonitor : ISensorSource
         }
 
         return t;
+    }
+
+    private bool _storageEnabled;
+    private int _storageTick;
+    private List<DiskIoState>? _lastDisks;
+
+    /// <summary>Liga/desliga a leitura dos discos (só quando algo na tela usa).</summary>
+    public void SetStorageEnabled(bool enabled)
+    {
+        lock (_lock)
+        {
+            if (_computer == null || _storageEnabled == enabled) return;
+            try
+            {
+                _computer.IsStorageEnabled = enabled;
+                _storageEnabled = enabled;
+                _lastDisks = null;
+                Log.Info(enabled ? "Leitura de discos ativada (há algo exibindo)." : "Leitura de discos desativada (ninguém exibindo).");
+            }
+            catch (Exception ex) { Log.Warn($"Discos indisponíveis: {ex.Message}"); }
+        }
+    }
+
+    /// <summary>Discos: atualizados a cada 2 leituras (~2 s) para não pesar.</summary>
+    public List<DiskIoState>? ReadDisks()
+    {
+        lock (_lock)
+        {
+            if (_computer == null || !_storageEnabled) return null;
+            if (_lastDisks != null && ++_storageTick % 2 != 0) return _lastDisks;
+            var list = new List<DiskIoState>();
+            int index = 0;
+            foreach (var hw in _computer.Hardware.Where(h => h.HardwareType == HardwareType.Storage))
+            {
+                try
+                {
+                    hw.Update();
+                    list.Add(new DiskIoState
+                    {
+                        Index = index++,
+                        Name = hw.Name,
+                        Temperature = Find(hw, SensorType.Temperature, "Temperature")?.Value,
+                        ActivityPercent = Find(hw, SensorType.Load, "Total Activity")?.Value,
+                        ReadBytesPerSec = Find(hw, SensorType.Throughput, "Read")?.Value,
+                        WriteBytesPerSec = Find(hw, SensorType.Throughput, "Write")?.Value
+                    });
+                }
+                catch (Exception ex) { Log.Debug($"Disco {hw.Name}: {ex.Message}"); }
+            }
+            return _lastDisks = list;
+        }
     }
 
     private static ISensor? Find(IHardware hw, SensorType type, string nameContains) =>

@@ -74,6 +74,8 @@ public partial class MainViewModel
         "coolant" => "Líquido e bomba",
         "fans" => "Ventoinhas",
         "ram" => "Memória",
+        "net" => "Rede",
+        "disk" => "Discos",
         _ => string.Empty
     };
 
@@ -84,6 +86,8 @@ public partial class MainViewModel
         "coolant" => Fans.FirstOrDefault(f => f.IsPump)?.Name ?? "Bomba do AIO",
         "fans" => $"{Fans.Count(f => !f.IsPump)} ventoinha(s) • perfil {ActivePresetLabel}",
         "ram" => RamDetail,
+        "net" => NetAdapter,
+        "disk" => $"{Snapshot.Volumes.Count} volume(s) • {Snapshot.Disks?.Count ?? 0} disco(s) físico(s)",
         _ => string.Empty
     };
 
@@ -94,6 +98,8 @@ public partial class MainViewModel
         "coolant" => "",
         "fans" => "",
         "ram" => "",
+        "net" => "uE968",
+        "disk" => "uEDA2",
         _ => ""
     };
 
@@ -106,17 +112,19 @@ public partial class MainViewModel
     public string DetailMax { get; private set; } = Fmt.Missing;
     public string DetailAvg { get; private set; } = Fmt.Missing;
     public string DetailSamples { get; private set; } = string.Empty;
-    public bool DetailHasFans => _detailKind == "fans" || _detailKind == "coolant";
+    public bool DetailHasFans => _detailKind is "fans" or "coolant" or "disk";
+    public string DetailListTitle => _detailKind == "disk" ? "Volumes e discos" : "Dispositivos";
     public string DetailActionLabel => _detailKind == "fans" ? "Abrir Ventoinhas" : "Ajustar limites de alerta";
+    public bool DetailHasAction => _detailKind is "cpu" or "gpu" or "coolant" or "fans";
 
     public void OpenDetail(string? kind)
     {
-        if (kind is not ("cpu" or "gpu" or "coolant" or "fans" or "ram")) return;
+        if (kind is not ("cpu" or "gpu" or "coolant" or "fans" or "ram" or "net" or "disk")) return;
         _detailKind = kind;
         _detailSeriesKey = SeriesFor(kind)[0].Key;
         RefreshDetail();
         OnPropertiesChanged(nameof(IsDetailOpen), nameof(DetailKind), nameof(DetailTitle), nameof(DetailIcon),
-            nameof(DetailSeriesOptions), nameof(DetailSeriesKey), nameof(DetailHasFans), nameof(DetailActionLabel));
+            nameof(DetailSeriesOptions), nameof(DetailSeriesKey), nameof(DetailHasFans), nameof(DetailListTitle), nameof(DetailActionLabel), nameof(DetailHasAction));
     }
 
     public bool CloseDetail()
@@ -159,6 +167,17 @@ public partial class MainViewModel
             new("ram.usage", "Uso", "%", "#A78BFA", 5, "0"),
             new("ram.used", "Usada", "GB", "#C084FC", 1),
         },
+        "net" => new DetailSeries[]
+        {
+            new("net.down", "Download", "MB/s", "#34D399", 1, "0.00"),
+            new("net.up", "Upload", "MB/s", "#F472B6", 1, "0.00"),
+        },
+        "disk" => new DetailSeries[]
+        {
+            new("disk.activity", "Atividade", "%", "#FB923C", 10, "0"),
+            new("disk.read", "Leitura", "MB/s", "#38BDF8", 5, "0.0"),
+            new("disk.write", "Escrita", "MB/s", "#F59E0B", 5, "0.0"),
+        },
         _ => Array.Empty<DetailSeries>()
     };
 
@@ -187,6 +206,11 @@ public partial class MainViewModel
         Push("fans.power", s.EffectiveGlobalPercent);
         Push("ram.usage", s.RamUsage);
         Push("ram.used", s.RamUsedGb);
+        Push("net.down", s.Network?.DownBytesPerSec / 1e6);
+        Push("net.up", s.Network?.UpBytesPerSec / 1e6);
+        Push("disk.activity", s.Disks is { Count: > 0 } da ? da.Max(x => x.ActivityPercent ?? 0) : null);
+        Push("disk.read", s.Disks is { Count: > 0 } dr ? dr.Sum(x => x.ReadBytesPerSec ?? 0) / 1e6 : null);
+        Push("disk.write", s.Disks is { Count: > 0 } dw ? dw.Sum(x => x.WriteBytesPerSec ?? 0) / 1e6 : null);
 
         if (_detailKind != null) RefreshDetail();
     }
@@ -277,6 +301,25 @@ public partial class MainViewModel
                 rows.Add(new("Usada", s.RamUsedGb is { } used ? $"{used.ToString("0.0", Pt)} GB" : Fmt.Missing));
                 rows.Add(new("Total", s.RamTotalGb is { } tot ? $"{tot:0} GB" : Fmt.Missing));
                 rows.Add(new("Livre", s.RamUsedGb is { } u2 && s.RamTotalGb is { } t2 ? $"{(t2 - u2).ToString("0.0", Pt)} GB" : Fmt.Missing));
+                break;
+            case "net":
+                var net = s.Network;
+                rows.Add(new("Adaptador", NetAdapter));
+                rows.Add(new("Download", NetDownFormatted));
+                rows.Add(new("Upload", NetUpFormatted));
+                rows.Add(new("Velocidade do link", net is { LinkBitsPerSec: > 0 } ? (net.LinkBitsPerSec >= 1_000_000_000 ? $"{net.LinkBitsPerSec / 1e9:0.#} Gbps" : $"{net.LinkBitsPerSec / 1e6:0} Mbps") : Fmt.Missing));
+                rows.Add(new("Desde que o LinkFlow abriu", net != null ? $"↓ {(net.SessionDownBytes / 1e9).ToString("0.00", Pt)} GB • ↑ {(net.SessionUpBytes / 1e9).ToString("0.00", Pt)} GB" : Fmt.Missing));
+                break;
+            case "disk":
+                foreach (var v in s.Volumes)
+                    fanRows.Add(new FanDetailRow($"{v.Letter} {v.Label}".Trim(), $"{v.FreeGb.ToString("0", Pt)} GB livres", $"{v.UsedPercent:0}%",
+                        v.UsedPercent >= 90 ? "#F43F5E" : v.UsedPercent >= 75 ? "#F59E0B" : "#10B981", $"de {v.TotalGb.ToString("0", Pt)} GB"));
+                foreach (var d in s.Disks ?? new())
+                {
+                    rows.Add(new(d.Name, d.ActivityPercent is { } a ? $"{a:0}% de atividade" : Fmt.Missing,
+                        $"{(d.Temperature is { } dt ? $"{dt:0}°C • " : "")}L {SensorCatalog.Rate(d.ReadBytesPerSec ?? 0)} • E {SensorCatalog.Rate(d.WriteBytesPerSec ?? 0)}"));
+                }
+                if (s.Disks == null) rows.Add(new("Discos físicos", "Lendo...", "A leitura de discos liga só com o painel aberto (economia)"));
                 break;
         }
 

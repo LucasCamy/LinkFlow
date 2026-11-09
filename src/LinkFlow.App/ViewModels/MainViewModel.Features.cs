@@ -139,6 +139,7 @@ public partial class MainViewModel
             if (value < 0 || value >= PageTitles.Length || !SetProperty(ref _selectedPage, value)) return;
             CloseDetail();
             OnPropertyChanged(nameof(PageTitle));
+            UpdateSensorDemand();
             PageChanged?.Invoke(value);
         }
     }
@@ -183,6 +184,7 @@ public partial class MainViewModel
         CoolantHistory = Push(_coolHist, s.CoolantTemp);
         FanHistory = Push(_fanHist, s.AverageFanRpm);
         RamHistory = Push(_ramHist, s.RamUsage);
+        RecordExtraHistory(s);
         OnPropertiesChanged(nameof(CpuHistory), nameof(GpuHistory), nameof(CoolantHistory), nameof(FanHistory), nameof(RamHistory),
             nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(TopAlert), nameof(FanCountLabel), nameof(LcdNowShowing));
         RecordHistory(s);

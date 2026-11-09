@@ -263,6 +263,10 @@ public sealed class LcdComposer : IDisposable
             LcdMetric.FanPower => new($"{s.EffectiveGlobalPercent}%", "FANS", s.EffectiveGlobalPercent / 100f),
             LcdMetric.RamUsage => new(P(s.RamUsage), "RAM", R(s.RamUsage, 0, 100)),
             LcdMetric.Clock => new(DateTime.Now.ToString("HH:mm", Pt), DateTime.Now.ToString("ddd dd/MM", Pt).ToUpperInvariant(), null),
+            LcdMetric.NetDown => new(s.Network is { } nd ? SensorCatalog.Rate(nd.DownBytesPerSec) : "--", "DOWNLOAD", s.Network is { } nr ? (float)Math.Clamp(nr.DownBytesPerSec / 12.5e6, 0, 1) : null),
+            LcdMetric.NetUp => new(s.Network is { } nu ? SensorCatalog.Rate(nu.UpBytesPerSec) : "--", "UPLOAD", null),
+            LcdMetric.DiskUsage => s.Volumes.FirstOrDefault() is { } v ? new($"{v.UsedPercent:0}%", $"DISCO {v.Letter}", (float)(v.UsedPercent / 100)) : new("--", "DISCO", null),
+            LcdMetric.CpuCoreMax => s.CpuCoreLoads is { Length: > 0 } cl ? new($"{cl.Max():0}%", "NÚCLEO", cl.Max() / 100f) : new("--", "NÚCLEO", null),
             _ => new(string.Empty, string.Empty, null)
         };
     }

@@ -117,6 +117,7 @@ public sealed class PipeEngineClient : IEngineClient
                     continue;
                 }
                 Log.Info("Reconectado ao serviço LinkFlow.");
+                if (_demand != SensorDemand.None) _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Demand, (int)_demand));
                 ConnectionChanged?.Invoke(true);
             }
 
@@ -240,6 +241,14 @@ public sealed class PipeEngineClient : IEngineClient
     public void RequestLcdFrame() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.LcdFrame, null));
     public void NotifyResume() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Resume, null));
     public void RescanDevices() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Rescan, null));
+
+    private SensorDemand _demand;
+
+    public void SetSensorDemand(SensorDemand demand)
+    {
+        _demand = demand;
+        _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Demand, (int)demand));
+    }
 
     /// <summary>Fecha só a conexão: o serviço continua controlando o hardware.</summary>
     public Task ShutdownAsync(bool restoreHardwareMode = true)

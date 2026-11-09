@@ -184,12 +184,27 @@ public sealed class SimulatedSensors : ISensorSource
             GpuClockMhz = 2205 + load * 3,
             GpuMemClockMhz = 11201,
             GpuVramUsedGb = 3.4f + load / 50f,
-            GpuVramTotalGb = 16f
+            GpuVramTotalGb = 16f,
+            CpuCoreLoads = Enumerable.Range(0, 12).Select(i => (float)Math.Clamp(load + 25 * Math.Sin(s / 4 + i), 1, 100)).ToArray()
         };
     }
 
     public bool SetGpuFanSpeed(byte percent) { GpuFanManual = percent; return true; }
     public bool SetGpuFanAuto() { GpuFanManual = null; return true; }
+
+    public bool StorageEnabled { get; private set; }
+    public void SetStorageEnabled(bool enabled) => StorageEnabled = enabled;
+
+    public List<DiskIoState>? ReadDisks()
+    {
+        if (!StorageEnabled) return null;
+        double s = (DateTime.Now - _start).TotalSeconds;
+        return new()
+        {
+            new DiskIoState { Index = 0, Name = "Samsung SSD 990 PRO 2TB (simulado)", Temperature = 41, ActivityPercent = (float)(8 + 6 * Math.Sin(s / 3)), ReadBytesPerSec = 52e6f, WriteBytesPerSec = 8e6f },
+            new DiskIoState { Index = 1, Name = "WD Black SN850X 4TB (simulado)", Temperature = 38, ActivityPercent = 1, ReadBytesPerSec = 1e6f, WriteBytesPerSec = 0 }
+        };
+    }
     public void Dispose() => IsOpen = false;
 }
 

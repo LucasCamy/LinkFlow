@@ -35,6 +35,9 @@ public interface IEngineClient : IDisposable
     /// <summary>Procura de novo ventoinhas, bomba, LCD e RGB.</summary>
     void RescanDevices();
 
+    /// <summary>Informa o que a interface está exibindo (ex.: discos), para o engine só ler o necessário.</summary>
+    void SetSensorDemand(SensorDemand demand);
+
     /// <param name="restoreHardwareMode">Somente cliente local: devolve o hub ao modo hardware.</param>
     Task ShutdownAsync(bool restoreHardwareMode = true);
 }
@@ -85,6 +88,7 @@ public sealed class LocalEngineClient : IEngineClient
     public void RequestLcdFrame() => _engine.RequestLcdFrame();
     public void NotifyResume() => _engine.NotifyResume();
     public void RescanDevices() => _engine.RescanDevices();
+    public void SetSensorDemand(SensorDemand demand) => _engine.SetSensorDemand(this, demand);
     public Task ShutdownAsync(bool restoreHardwareMode = true) => _engine.StopAsync(restoreHardwareMode);
     public void Dispose() => _engine.Dispose();
 }
