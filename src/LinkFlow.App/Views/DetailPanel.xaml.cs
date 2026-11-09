@@ -6,7 +6,11 @@ namespace LinkFlow.App.Views;
 
 public partial class DetailPanel : UserControl
 {
-    public DetailPanel() => InitializeComponent();
+    public DetailPanel()
+    {
+        InitializeComponent();
+        IsVisibleChanged += (_, e) => { if (e.NewValue is true) Services.Motion.DialogIn(Backdrop, Panel); };
+    }
 
     private void Backdrop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {

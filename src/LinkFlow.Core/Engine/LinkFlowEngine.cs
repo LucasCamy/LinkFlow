@@ -383,7 +383,8 @@ public sealed class LinkFlowEngine : IDisposable
                         lastRgbApply = Stopwatch.GetTimestamp();
                         if (cfg.Rgb.SyncHub)
                         {
-                            bool ok = _hub.SetGlobalRgb(cfg.Rgb.R, cfg.Rgb.G, cfg.Rgb.B, cfg.Rgb.Brightness);
+                            var o = cfg.Rgb.OutputFor(RgbTargets.Hub);
+                            bool ok = _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
                             lock (_stateLock) _rgbHubOk = ok;
                         }
                         else
@@ -739,10 +740,10 @@ public sealed class LinkFlowEngine : IDisposable
                     appliedRgbVersion = rgbVersion;
                     lastRgbApply = Stopwatch.GetTimestamp();
                     var rgb = cfg.Rgb;
-                    bool? gpuOk = rgb.SyncGpu && _gpuRgb.IsAvailable ? SafeCall(() => _gpuRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
-                    bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => _mbRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
-                    bool? ramOk = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => _ramRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
-                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => _peripheralsRgb.SetColor(rgb.R, rgb.G, rgb.B, rgb.Brightness)) : null;
+                    bool? gpuOk = rgb.SyncGpu && _gpuRgb.IsAvailable ? SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu)) : null;
+                    bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard)) : null;
+                    bool? ramOk = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => Apply(_ramRgb, rgb, RgbTargets.Ram)) : null;
+                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals)) : null;
                     lock (_stateLock)
                     {
                         _rgbGpuOk = gpuOk;
@@ -890,6 +891,12 @@ public sealed class LinkFlowEngine : IDisposable
         try { StopAsync().GetAwaiter().GetResult(); } catch { }
         _saveTimer.Dispose();
         _cts.Dispose();
+    }
+
+    private static bool Apply(IRgbDevice device, RgbConfig rgb, string target)
+    {
+        var o = rgb.OutputFor(target);
+        return device.SetColor(o.R, o.G, o.B, o.Brightness);
     }
 
     private static bool SafeCall(Func<bool> f)

@@ -697,6 +697,7 @@ public partial class MainViewModel
         RefreshGroups();
         RefreshPresetChips();
         LoadLcdConfig(c);
+        LoadLightingExtras(c);
         LcdConfigChanged?.Invoke();
         OnPropertiesChanged(nameof(FanCountLabel), nameof(CurveCurrentOutput));
     }

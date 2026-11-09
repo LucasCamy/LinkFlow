@@ -36,6 +36,7 @@ public sealed class PipeEngineClient : IEngineClient
 
     public event Action<EngineSnapshot>? SnapshotUpdated;
     public event Action<ControlConfig>? ConfigChanged;
+    public event Action<ControlConfig>? AnyConfigChanged;
     public event Action<EngineAlert>? AlertRaised;
     public event Action<bool>? ConnectionChanged;
 
@@ -197,7 +198,7 @@ public sealed class PipeEngineClient : IEngineClient
                 {
                     lock (_lock) _config = cfg;
                     _gotConfig = true;
-                    if (!initial) ConfigChanged?.Invoke(cfg);
+                    if (!initial) { ConfigChanged?.Invoke(cfg); AnyConfigChanged?.Invoke(cfg); }
                 }
                 break;
             case PipeProtocol.Snapshot:
@@ -224,6 +225,7 @@ public sealed class PipeEngineClient : IEngineClient
             _config = next;
         }
         _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.SetConfig, next));
+        AnyConfigChanged?.Invoke(next);
     }
 
     public void ReplaceConfig(ControlConfig config)
@@ -232,6 +234,7 @@ public sealed class PipeEngineClient : IEngineClient
         next.Normalize();
         lock (_lock) _config = next;
         _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.SetConfig, next));
+        AnyConfigChanged?.Invoke(next);
     }
 
     public void RequestLcdFrame() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.LcdFrame, null));

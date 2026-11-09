@@ -159,7 +159,7 @@ public class EngineTests
     public void Rgb_change_reaches_every_target()
     {
         using var f = new EngineFixture();
-        f.Engine.UpdateConfig(c => { c.Rgb.R = 255; c.Rgb.G = 0; c.Rgb.B = 10; c.Rgb.Brightness = 80; });
+        f.Engine.UpdateConfig(c => { c.Rgb.R = 255; c.Rgb.G = 0; c.Rgb.B = 10; c.Rgb.Brightness = 80; c.Rgb.LedGamma = 1; });
         EngineFixture.WaitUntil(() =>
             f.Hw.Hub.LastRgb == (255, 0, 10, 80) &&
             f.Hw.GpuRgb.Last == (255, 0, 10, 80) &&
@@ -172,7 +172,7 @@ public class EngineTests
     [Fact]
     public void Rgb_target_disabled_is_not_written()
     {
-        using var f = new EngineFixture(new ControlConfig { Rgb = new RgbConfig { SyncGpu = false } });
+        using var f = new EngineFixture(new ControlConfig { Rgb = new RgbConfig { SyncGpu = false, LedGamma = 1 } });
         f.Engine.UpdateConfig(c => c.Rgb.R = 1);
         EngineFixture.WaitUntil(() => f.Hw.Hub.LastRgb?.R == 1);
         Thread.Sleep(100);

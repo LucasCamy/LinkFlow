@@ -308,23 +308,40 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                            CornerRadius="{StaticResource CardRadius}" Padding="18,16">
-                        <Grid>
+                    <Grid>
+                        <Border x:Name="Bd" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="{StaticResource CardRadius}"/>
+                        <!-- Realce que acende suavemente ao passar o mouse -->
+                        <Border x:Name="Glow" CornerRadius="{StaticResource CardRadius}" BorderThickness="1" Opacity="0"
+                                Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource AccentDimBrush}"/>
+                        <Grid Margin="18,16">
                             <ContentPresenter HorizontalAlignment="Stretch"/>
                             <TextBlock x:Name="Chevron" Style="{StaticResource Icon}" Text="&#xE8A7;" FontSize="12" Opacity="0.35"
                                        HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="{StaticResource TextMutedBrush}"/>
                         </Grid>
-                    </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceAltBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentDimBrush}"/>
-                            <Setter TargetName="Chevron" Property="Opacity" Value="1"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="Chevron" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25"/>
+                                        <DoubleAnimation Storyboard.TargetName="Chevron" Storyboard.TargetProperty="Opacity" To="0.35" Duration="0:0:0.25"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                             <Setter TargetName="Chevron" Property="Foreground" Value="{StaticResource AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            <Setter TargetName="Glow" Property="Background" Value="{StaticResource AccentSoftBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

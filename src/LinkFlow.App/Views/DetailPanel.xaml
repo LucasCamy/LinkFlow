@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls">
     <!-- Fundo escurecido: clicar fora fecha -->
-    <Grid Background="#B3050913" MouseLeftButtonDown="Backdrop_MouseLeftButtonDown">
+    <Grid x:Name="Backdrop" Background="#B3050913" MouseLeftButtonDown="Backdrop_MouseLeftButtonDown">
         <Border x:Name="Panel" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                 CornerRadius="14" MaxWidth="920" Margin="24,20" VerticalAlignment="Center" MouseLeftButtonDown="Panel_MouseLeftButtonDown">
             <Border.Effect>

@@ -56,6 +56,17 @@ public sealed class SettingsViewModel : ObservableObject
         set { _settings.Update(s => s.AlertNotifications = value); OnPropertyChanged(); }
     }
 
+    public bool Animations
+    {
+        get => _settings.Current.Animations;
+        set
+        {
+            _settings.Update(s => s.Animations = value);
+            Services.Motion.UserEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool GlobalHotkeys
     {
         get => _settings.Current.GlobalHotkeys;

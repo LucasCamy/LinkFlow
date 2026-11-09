@@ -31,8 +31,14 @@ public partial class MainWindow : Window
         {
             App.Current.Settings.Update(s => s.SelectedPage = p);
             if (p == 4) Settings.RefreshServiceState();
+            if (p == 2) ViewModel.RefreshDynamicLighting();
             UpdateViewActive();
+            // Transição: a página que acabou de aparecer entra com fade + deslize
+            if (p >= 0 && p < PageHost.Children.Count) Motion.PageIn(PageHost.Children[p]);
         };
+        Toast.IsVisibleChanged += (_, e) => { if (e.NewValue is true) Motion.ToastIn(Toast); };
+        Motion.UserEnabled = App.Current.Settings.Current.Animations;
+        ViewModel.RefreshDynamicLighting();
 
         StateChanged += OnStateChanged;
         SizeChanged += (_, e) => ViewModel.IsCompact = e.NewSize.Width < CompactWidth;
@@ -160,6 +166,9 @@ public partial class MainWindow : Window
     {
         bool windowVisible = IsVisible && WindowState != WindowState.Minimized;
         ViewModel.IsViewActive = windowVisible || IsMiniWidgetVisible;
+        // Na bandeja: depois de 4 s sem janela, devolve a memória da interface ao Windows
+        if (windowVisible || IsMiniWidgetVisible) MemoryTrimmer.Cancel();
+        else MemoryTrimmer.ScheduleTrim(TimeSpan.FromSeconds(4));
         // A prévia do LCD só renderiza com a página do LCD aberta
         _lcdPreview.Active = windowVisible && ViewModel.SelectedPage == 3;
     }

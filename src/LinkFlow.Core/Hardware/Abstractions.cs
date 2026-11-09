@@ -75,5 +75,22 @@ public sealed class RealHardwareFactory : IHardwareFactory
     public IRgbDevice CreateGpuRgb() => new AsusGpuRgb();
     public IRgbDevice CreateMotherboardRgb() => new MsiMotherboardRgb();
     public IRgbDevice CreateRamRgb() => new CorsairDramRgb();
-    public IRgbDevice CreatePeripheralsRgb() => new LogitechPeripheralsRgb();
+    /// <summary>
+    /// O G HUB só aceita o SDK de iluminação de processos na sessão do usuário. Como serviço (sessão 0)
+    /// os periféricos ficam a cargo da interface (<c>PeripheralRgbBridge</c>).
+    /// </summary>
+    public IRgbDevice CreatePeripheralsRgb() => System.Diagnostics.Process.GetCurrentProcess().SessionId == 0
+        ? new UnavailableRgbDevice("Periféricos Logitech G (controlados pela interface)")
+        : new LogitechPeripheralsRgb();
+}
+
+/// <summary>Dispositivo que não pode ser controlado neste processo.</summary>
+public sealed class UnavailableRgbDevice : IRgbDevice
+{
+    public UnavailableRgbDevice(string name) => Name = name;
+    public string Name { get; }
+    public bool IsAvailable => false;
+    public void Initialize() { }
+    public bool SetColor(byte r, byte g, byte b, byte brightnessPercent) => false;
+    public void Dispose() { }
 }

@@ -40,6 +40,8 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                 }
 
                 bool ok = Native.LogiLedInit();
+                // Todos os tipos: monocromático, RGB por zona e RGB por tecla (G915 X)
+                if (ok) { try { Native.LogiLedSetTargetDevice(0x07); } catch { } }
                 if (ok)
                 {
                     _initialized = true;
@@ -113,10 +115,16 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
             name == "LogitechLed" && File.Exists(SdkPath) ? NativeLibrary.Load(SdkPath) : IntPtr.Zero;
 
         [DllImport("LogitechLed", CallingConvention = CallingConvention.Cdecl, EntryPoint = "LogiLedInit")]
+        [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool LogiLedInit();
 
         [DllImport("LogitechLed", CallingConvention = CallingConvention.Cdecl, EntryPoint = "LogiLedSetLighting")]
+        [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool LogiLedSetLighting(int redPercent, int greenPercent, int bluePercent);
+
+        [DllImport("LogitechLed", CallingConvention = CallingConvention.Cdecl, EntryPoint = "LogiLedSetTargetDevice")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        public static extern bool LogiLedSetTargetDevice(int targetDevice);
 
         [DllImport("LogitechLed", CallingConvention = CallingConvention.Cdecl, EntryPoint = "LogiLedShutdown")]
         public static extern void LogiLedShutdown();

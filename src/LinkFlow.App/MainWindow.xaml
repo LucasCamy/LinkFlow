@@ -183,7 +183,7 @@
                 </Border>
 
                 <!-- Páginas -->
-                <Grid Grid.Column="1">
+                <Grid x:Name="PageHost" Grid.Column="1">
                     <views:DashboardPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=0}"/>
                     <views:FansPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=1}"/>
                     <views:LightingPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=2}"/>
@@ -192,10 +192,10 @@
                 </Grid>
 
                 <!-- Detalhes de um cartão do painel -->
-                <views:DetailPanel Grid.Column="1" Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVis}}"/>
+                <views:DetailPanel x:Name="Detail" Grid.Column="1" Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVis}}"/>
 
                 <!-- Aviso com "Desfazer" -->
-                <Border Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="16,0,16,18"
+                <Border x:Name="Toast" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="16,0,16,18"
                         Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
                         CornerRadius="10" Padding="16,6,6,6"
                         Visibility="{Binding ToastVisible, Converter={StaticResource BoolToVis}}">

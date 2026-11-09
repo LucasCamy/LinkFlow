@@ -32,6 +32,12 @@
                                 <TextBlock Text="Ventoinha parada, bomba lenta, temperatura crítica" Style="{StaticResource Caption}"/>
                             </StackPanel>
                         </CheckBox>
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Animations}">
+                            <StackPanel>
+                                <TextBlock Text="Animações e transições"/>
+                                <TextBlock Text="Troca de telas suave; segue também os efeitos de animação do Windows" Style="{StaticResource Caption}"/>
+                            </StackPanel>
+                        </CheckBox>
                     </StackPanel>
                 </Border>
 

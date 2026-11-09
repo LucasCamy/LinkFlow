@@ -49,8 +49,7 @@ public sealed class ControlConfig
         Fans ??= new();
         foreach (var f in Fans.Values) f.Percent = Math.Clamp(f.Percent, (byte)FanLimits.MinPercent, (byte)100);
         Rgb ??= new RgbConfig();
-        Rgb.Brightness = Math.Min(Rgb.Brightness, (byte)100);
-        Rgb.RecentColors ??= new();
+        Rgb.Normalize();
         Lcd ??= new LcdConfig();
         Lcd.Normalize();
         Safety ??= new SafetyConfig();
@@ -149,13 +148,49 @@ public sealed class RgbConfig
 
     public List<string> RecentColors { get; set; } = new();
 
+    /// <summary>
+    /// Correção de gama para LEDs (1 = desligada). A cor da tela é codificada em gama; o LED é linear,
+    /// então sem correção os canais "secundários" acendem demais e a cor fica lavada/pastel.
+    /// </summary>
+    public float LedGamma { get; set; } = 2.0f;
+
+    /// <summary>Brilho extra por dispositivo (0–100), multiplicado pelo brilho geral. Chaves em <see cref="RgbTargets"/>.</summary>
+    public Dictionary<string, byte> DeviceBrightness { get; set; } = new();
+
     [System.Text.Json.Serialization.JsonIgnore]
     public string Hex => $"#{R:X2}{G:X2}{B:X2}";
 
     public bool SameOutputAs(RgbConfig o) =>
         R == o.R && G == o.G && B == o.B && Brightness == o.Brightness &&
         SyncHub == o.SyncHub && SyncLcd == o.SyncLcd && SyncGpu == o.SyncGpu &&
-        SyncMotherboard == o.SyncMotherboard && SyncRam == o.SyncRam && SyncPeripherals == o.SyncPeripherals;
+        SyncMotherboard == o.SyncMotherboard && SyncRam == o.SyncRam && SyncPeripherals == o.SyncPeripherals &&
+        Math.Abs(LedGamma - o.LedGamma) < 0.001f &&
+        DeviceBrightness.Count == o.DeviceBrightness.Count && DeviceBrightness.All(kv => o.DeviceBrightness.TryGetValue(kv.Key, out var v) && v == kv.Value);
+
+    /// <summary>Cor final para um dispositivo de LED: gama + brilho geral × brilho do dispositivo.</summary>
+    public (byte R, byte G, byte B, byte Brightness) OutputFor(string target)
+    {
+        float gamma = Math.Clamp(LedGamma, 1f, 3f);
+        byte Corr(byte v) => gamma <= 1.001f ? v : (byte)Math.Round(255 * Math.Pow(v / 255.0, gamma));
+        int device = DeviceBrightness.TryGetValue(target, out var d) ? d : 100;
+        byte brightness = (byte)Math.Clamp(Brightness * device / 100, 0, 100);
+        return (Corr(R), Corr(G), Corr(B), brightness);
+    }
+
+    public void Normalize()
+    {
+        Brightness = Math.Min(Brightness, (byte)100);
+        RecentColors ??= new();
+        DeviceBrightness ??= new();
+        foreach (var k in DeviceBrightness.Keys.ToList()) DeviceBrightness[k] = Math.Min(DeviceBrightness[k], (byte)100);
+        LedGamma = Math.Clamp(LedGamma, 1f, 3f);
+    }
+}
+
+/// <summary>Chaves dos dispositivos RGB (brilho por dispositivo).</summary>
+public static class RgbTargets
+{
+    public const string Hub = "hub", Gpu = "gpu", Motherboard = "mb", Ram = "ram", Peripherals = "peripherals";
 }
 
 public enum LcdMode { Metrics, Media }

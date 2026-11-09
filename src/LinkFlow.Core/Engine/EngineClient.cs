@@ -20,6 +20,9 @@ public interface IEngineClient : IDisposable
     /// <summary>Configuração alterada por outra origem (outro cliente/serviço). Não ecoa as próprias alterações.</summary>
     event Action<ControlConfig>? ConfigChanged;
 
+    /// <summary>Qualquer alteração de configuração, inclusive as feitas por este cliente (thread qualquer).</summary>
+    event Action<ControlConfig>? AnyConfigChanged;
+
     event Action<EngineAlert>? AlertRaised;
     event Action<bool>? ConnectionChanged;
 
@@ -52,6 +55,7 @@ public sealed class LocalEngineClient : IEngineClient
         {
             lock (_lock) _config = c;
             if (!ReferenceEquals(origin, this)) ConfigChanged?.Invoke(c);
+            AnyConfigChanged?.Invoke(c);
         };
     }
 
@@ -69,6 +73,7 @@ public sealed class LocalEngineClient : IEngineClient
 
     public event Action<EngineSnapshot>? SnapshotUpdated;
     public event Action<ControlConfig>? ConfigChanged;
+    public event Action<ControlConfig>? AnyConfigChanged;
     public event Action<EngineAlert>? AlertRaised;
 #pragma warning disable CS0067 // sempre conectado
     public event Action<bool>? ConnectionChanged;

@@ -24,6 +24,7 @@ public partial class App : Application
     public UiSettingsService Settings { get; private set; } = null!;
     public SettingsViewModel SettingsVm { get; private set; } = null!;
     public bool IsServiceMode => _engine?.IsRemote == true;
+    private PeripheralRgbBridge? _peripheralBridge;
 
     public static new App Current => (App)Application.Current;
 
@@ -97,6 +98,12 @@ public partial class App : Application
         SettingsVm.AttachEngine(_engine);
 
         _vm = new MainViewModel(_engine);
+        // Serviço em sessão 0: periféricos Logitech pela interface (sessão do usuário)
+        if (_engine.IsRemote && !_engine.IsSimulated)
+        {
+            _peripheralBridge = new PeripheralRgbBridge(_engine);
+            _peripheralBridge.StatusChanged += () => Dispatcher.BeginInvoke(() => _vm.ExternalPeripheralsStatus = _peripheralBridge.Status);
+        }
         _vm.AlertRaised += OnAlert;
         _vm.SnapshotApplied += OnSnapshotApplied;
         MainView = new MainWindow(_vm);
@@ -342,6 +349,7 @@ public partial class App : Application
             SystemEvents.PowerModeChanged -= OnPowerModeChanged;
             Settings?.Flush();
             _tray?.Dispose();
+            _peripheralBridge?.Dispose();
             _vm?.Dispose();
             _engine?.ShutdownAsync(restoreHardwareMode: true).Wait(TimeSpan.FromSeconds(6));
             _instance?.Dispose();

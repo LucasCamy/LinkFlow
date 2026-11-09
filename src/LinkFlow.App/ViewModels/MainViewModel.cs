@@ -202,8 +202,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
     public string RamRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.RamRgbAvailable ? $"Conectado • {Snapshot.RamRgbName}" : "Não detectado";
-    public string PeripheralsRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.PeripheralsRgbAvailable ? $"Conectado • {Snapshot.PeripheralsRgbName}" : "Não detectado";
+    public string PeripheralsRgbStatus => _externalPeripheralsStatus ?? (!Snapshot.RgbDevicesReady ? "Detectando..." :
+        Snapshot.PeripheralsRgbAvailable ? $"Conectado • {Snapshot.PeripheralsRgbName}"
+        : "G HUB não encontrado • abra o G HUB e ative \"Permitir que jogos e aplicativos controlem a iluminação\"");
+
+    private string? _externalPeripheralsStatus;
+
+    /// <summary>Status vindo da ponte da interface (modo serviço).</summary>
+    public string? ExternalPeripheralsStatus
+    {
+        get => _externalPeripheralsStatus;
+        set { _externalPeripheralsStatus = value; OnPropertyChanged(nameof(PeripheralsRgbStatus)); }
+    }
     public string RgbSyncStatus => Snapshot.RgbStatus;
 
     // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)

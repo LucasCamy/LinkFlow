@@ -12,6 +12,9 @@ public sealed class UiSettings
     public bool GlobalHotkeys { get; set; } = true;
     public bool TrayHintShown { get; set; }
 
+    /// <summary>Transições entre telas e diálogos (também respeita "Efeitos de animação" do Windows).</summary>
+    public bool Animations { get; set; } = true;
+
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
     public double? WindowWidth { get; set; }

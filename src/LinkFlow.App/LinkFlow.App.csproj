@@ -21,6 +21,9 @@
     <Version>2.0.0</Version>
     <Company>LinkFlow</Company>
     <Description>LinkFlow - controle de ventoinhas, RGB e LCD para Corsair iCUE LINK</Description>
+      <!-- Baixo consumo: sem GC em segundo plano (thread e memória extras) -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
   </PropertyGroup>
 
   <ItemGroup>

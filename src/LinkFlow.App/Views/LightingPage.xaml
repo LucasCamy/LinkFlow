@@ -196,12 +196,89 @@
                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncPeripherals}">
                             <StackPanel>
                                 <TextBlock Text="Periféricos (Logitech G915 X / Mouse / Headset)"/>
-                                <TextBlock Text="{Binding PeripheralsRgbStatus}" Style="{StaticResource Caption}"/>
+                                <TextBlock Text="{Binding PeripheralsRgbStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </CheckBox>
                     </StackPanel>
                 </Border>
             </c:AdaptiveUniformGrid>
+
+            <!-- Iluminação Dinâmica do Windows ligada: conflita com G HUB / iCUE -->
+            <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
+                    Visibility="{Binding IsDynamicLightingOn, Converter={StaticResource BoolToVis}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
+                        <Run FontWeight="SemiBold" Text="A Iluminação Dinâmica do Windows está ligada."/>
+                        <Run Text="Ela assume teclado e mouse compatíveis e briga com o G HUB e com o LinkFlow. Desligue &quot;Usar Iluminação Dinâmica nos meus dispositivos&quot;."/>
+                    </TextBlock>
+                    <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="Abrir configuração" Margin="12,0,0,0"
+                            Command="{Binding OpenDynamicLightingCommand}"/>
+                </Grid>
+            </Border>
+
+            <!-- Cor nos LEDs -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Cor nos LEDs" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,12"
+                               Text="LEDs não mostram a cor como a tela: sem correção, cores como roxo e laranja ficam lavadas. A correção deixa a cor viva e igual em todos os dispositivos; o brilho de cada um equilibra quem acende mais forte."/>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="76"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Cor viva (correção)" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding LedVividness, Delay=120}" IsSnapToTickEnabled="True" TickFrequency="5"
+                                ToolTip="0 = cor crua (como antes) • 83 = recomendado • 100 = máximo contraste"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LedVividnessText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                    </Grid>
+                    <TextBlock Text="Brilho por dispositivo" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                    <c:AdaptiveUniformGrid MinItemWidth="300" MaxColumns="3">
+                        <c:AdaptiveUniformGrid.Resources>
+                            <Style x:Key="DevRow" TargetType="Grid">
+                                <Setter Property="Margin" Value="0,2,20,2"/>
+                            </Style>
+                        </c:AdaptiveUniformGrid.Resources>
+                        <Grid Style="{StaticResource DevRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Fans e bomba" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding HubBrightness, Delay=120}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding HubBrightness, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource DevRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Placa de vídeo" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding GpuBrightness, Delay=120}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding GpuBrightness, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource DevRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Placa-mãe" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding MotherboardBrightness, Delay=120}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding MotherboardBrightness, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource DevRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Memórias" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding RamBrightness, Delay=120}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding RamBrightness, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource DevRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="Periféricos" VerticalAlignment="Center"/>
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding PeripheralsBrightness, Delay=120}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding PeripheralsBrightness, StringFormat={}{0}%}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                    </c:AdaptiveUniformGrid>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
