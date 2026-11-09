@@ -186,7 +186,7 @@ public partial class MainViewModel
         RamHistory = Push(_ramHist, s.RamUsage);
         RecordExtraHistory(s);
         OnPropertiesChanged(nameof(CpuHistory), nameof(GpuHistory), nameof(CoolantHistory), nameof(FanHistory), nameof(RamHistory),
-            nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(TopAlert), nameof(FanCountLabel), nameof(LcdNowShowing));
+            nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(TopAlert), nameof(FanCountLabel), nameof(LcdNowShowing), nameof(PreviewFanCount));
         RecordHistory(s);
     }
 
@@ -707,6 +707,7 @@ public partial class MainViewModel
         RefreshPresetChips();
         LoadLcdConfig(c);
         LoadLightingExtras(c);
+        LoadEffects(c);
         LoadAutomation(c);
         LcdConfigChanged?.Invoke();
         OnPropertiesChanged(nameof(FanCountLabel), nameof(CurveCurrentOutput));

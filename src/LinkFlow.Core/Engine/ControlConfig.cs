@@ -167,6 +167,21 @@ public sealed class RgbConfig
     /// <summary>Brilho extra por dispositivo (0–100), multiplicado pelo brilho geral. Chaves em <see cref="RgbTargets"/>.</summary>
     public Dictionary<string, byte> DeviceBrightness { get; set; } = new();
 
+    /// <summary>Efeito animado (calculado no PC; todos os dispositivos ficam no mesmo compasso).</summary>
+    public RgbEffect Effect { get; set; } = RgbEffect.Static;
+
+    /// <summary>Velocidade do efeito, 1 (lento) a 10 (rápido).</summary>
+    public byte EffectSpeed { get; set; } = 5;
+
+    /// <summary>Cores do efeito Paleta (#RRGGBB).</summary>
+    public List<string> Palette { get; set; } = new() { "#00F0FF", "#7C3AED", "#FF2D95" };
+
+    /// <summary>Espalha o efeito pelas ventoinhas (cada uma num ponto do ciclo) em vez de todas iguais.</summary>
+    public bool SpreadOnFans { get; set; } = true;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsAnimated => Effect != RgbEffect.Static;
+
     [System.Text.Json.Serialization.JsonIgnore]
     public string Hex => $"#{R:X2}{G:X2}{B:X2}";
 
@@ -175,16 +190,28 @@ public sealed class RgbConfig
         SyncHub == o.SyncHub && SyncLcd == o.SyncLcd && SyncGpu == o.SyncGpu &&
         SyncMotherboard == o.SyncMotherboard && SyncRam == o.SyncRam && SyncPeripherals == o.SyncPeripherals &&
         Math.Abs(LedGamma - o.LedGamma) < 0.001f &&
+        Effect == o.Effect && EffectSpeed == o.EffectSpeed && SpreadOnFans == o.SpreadOnFans &&
+        (Palette ?? new()).SequenceEqual(o.Palette ?? new()) &&
         DeviceBrightness.Count == o.DeviceBrightness.Count && DeviceBrightness.All(kv => o.DeviceBrightness.TryGetValue(kv.Key, out var v) && v == kv.Value);
 
-    /// <summary>Cor final para um dispositivo de LED: gama + brilho geral × brilho do dispositivo.</summary>
-    public (byte R, byte G, byte B, byte Brightness) OutputFor(string target)
+    /// <summary>Cor final agora (efeito incluído) para um dispositivo de LED.</summary>
+    public (byte R, byte G, byte B, byte Brightness) OutputFor(string target) => OutputFor(target, RgbEffects.Now, 0);
+
+    /// <summary>Cor final no instante <paramref name="timeMs"/> (relógio do sistema, igual em todos os processos).</summary>
+    public (byte R, byte G, byte B, byte Brightness) OutputFor(string target, long timeMs, double phase)
+    {
+        var (r, g, b, level) = RgbEffects.ColorAt(this, timeMs, phase);
+        return Finish(target, r, g, b, level);
+    }
+
+    /// <summary>Gama + brilho geral × brilho do dispositivo × nível do efeito (respirar).</summary>
+    public (byte R, byte G, byte B, byte Brightness) Finish(string target, byte r, byte g, byte b, double level = 1)
     {
         float gamma = Math.Clamp(LedGamma, 1f, 3f);
         byte Corr(byte v) => gamma <= 1.001f ? v : (byte)Math.Round(255 * Math.Pow(v / 255.0, gamma));
         int device = DeviceBrightness.TryGetValue(target, out var d) ? d : 100;
-        byte brightness = (byte)Math.Clamp(Brightness * device / 100, 0, 100);
-        return (Corr(R), Corr(G), Corr(B), brightness);
+        byte brightness = (byte)Math.Clamp(Math.Round(Brightness * device / 100.0 * Math.Clamp(level, 0, 1)), 0, 100);
+        return (Corr(r), Corr(g), Corr(b), brightness);
     }
 
     public void Normalize()
@@ -194,8 +221,15 @@ public sealed class RgbConfig
         DeviceBrightness ??= new();
         foreach (var k in DeviceBrightness.Keys.ToList()) DeviceBrightness[k] = Math.Min(DeviceBrightness[k], (byte)100);
         LedGamma = Math.Clamp(LedGamma, 1f, 3f);
+        EffectSpeed = Math.Clamp(EffectSpeed, (byte)1, (byte)10);
+        if (!Enum.IsDefined(Effect)) Effect = RgbEffect.Static;
+        Palette = (Palette ?? new()).Where(h => RgbEffects.TryParseHex(h, out _)).Take(RgbEffects.MaxPalette).ToList();
+        if (Palette.Count == 0) Palette = new() { Hex };
     }
 }
+
+/// <summary>Cor fixa, respirar, arco-íris, paleta (passa pelas cores escolhidas) e aleatório.</summary>
+public enum RgbEffect { Static, Breathing, Rainbow, Palette, Random }
 
 /// <summary>Chaves dos dispositivos RGB (brilho por dispositivo).</summary>
 public static class RgbTargets

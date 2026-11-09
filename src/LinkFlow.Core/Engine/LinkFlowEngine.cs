@@ -11,6 +11,7 @@ public sealed class EngineOptions
     public TimeSpan SpeedReassertInterval { get; set; } = TimeSpan.FromSeconds(30);
     public TimeSpan HubRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(60);
     public TimeSpan AuxRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(100);
+    public TimeSpan RamRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(200);
     public TimeSpan LcdFrameInterval { get; set; } = TimeSpan.FromSeconds(1);
     public TimeSpan SaveDebounce { get; set; } = TimeSpan.FromMilliseconds(800);
     public int HubFailuresBeforeReconnect { get; set; } = 3;
@@ -50,6 +51,7 @@ public sealed class LinkFlowEngine : IDisposable
     private readonly SemaphoreSlim _hubSignal = new(0, 1);
     private readonly SemaphoreSlim _sensorSignal = new(0, 1);
     private readonly SemaphoreSlim _auxSignal = new(0, 1);
+    private readonly SemaphoreSlim _ramSignal = new(0, 1);
     private readonly List<Task> _lanes = new();
     private readonly Timer _saveTimer;
 
@@ -156,6 +158,7 @@ public sealed class LinkFlowEngine : IDisposable
         _lanes.Add(RunLane("hub", () => HubLoopAsync(ct)));
         _lanes.Add(RunLane("sensores", () => SensorLoopAsync(ct)));
         _lanes.Add(RunLane("periféricos", () => AuxLoopAsync(ct)));
+        _lanes.Add(RunLane("memórias", () => RamLoopAsync(ct)));
         _lanes.Add(RunLane("snapshot", () => PublishLoopAsync(ct)));
         if (!IsSimulated) WatchUsb();
         Log.Info($"Engine iniciado ({(IsSimulated ? "simulação" : "hardware real")}).");
@@ -215,6 +218,7 @@ public sealed class LinkFlowEngine : IDisposable
         Signal(_hubSignal);
         Signal(_sensorSignal);
         Signal(_auxSignal);
+        Signal(_ramSignal);
         if (_store != null) _saveTimer.Change(_opt.SaveDebounce, Timeout.InfiniteTimeSpan);
 
         var handler = ConfigChanged;
@@ -229,6 +233,7 @@ public sealed class LinkFlowEngine : IDisposable
     {
         Interlocked.Exchange(ref _lcdRequested, 1);
         Signal(_auxSignal);
+        Signal(_ramSignal);
     }
 
     /// <summary>Força reconexão de todos os dispositivos (ex.: ao voltar da suspensão).</summary>
@@ -242,6 +247,7 @@ public sealed class LinkFlowEngine : IDisposable
         Signal(_hubSignal);
         Signal(_sensorSignal);
         Signal(_auxSignal);
+        Signal(_ramSignal);
     }
 
     /// <summary>
@@ -259,6 +265,7 @@ public sealed class LinkFlowEngine : IDisposable
         Signal(_hubSignal);
         Signal(_sensorSignal);
         Signal(_auxSignal);
+        Signal(_ramSignal);
     }
 
     public EngineSnapshot GetSnapshot()
@@ -430,17 +437,24 @@ public sealed class LinkFlowEngine : IDisposable
                         }
                     }
 
-                    // 3. RGB do hub (limitado a ~16 atualizações/s durante arrastes)
+                    // 3. RGB do hub (limitado a ~16 atualizações/s durante arrastes e efeitos)
                     long rgbVersion = Interlocked.Read(ref _rgbVersion);
-                    if (appliedRgbVersion != rgbVersion && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
+                    bool hubAnimated = cfg.Rgb.SyncHub && cfg.Rgb.IsAnimated;
+                    if ((appliedRgbVersion != rgbVersion || hubAnimated) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
                     {
+                        bool changed = appliedRgbVersion != rgbVersion;
                         appliedRgbVersion = rgbVersion;
                         lastRgbApply = Stopwatch.GetTimestamp();
                         if (cfg.Rgb.SyncHub)
                         {
-                            var o = cfg.Rgb.OutputFor(RgbTargets.Hub);
-                            bool ok = _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
-                            lock (_stateLock) _rgbHubOk = ok;
+                            bool ok;
+                            if (hubAnimated) ok = ApplyHubFrame(cfg.Rgb);
+                            else
+                            {
+                                var o = cfg.Rgb.OutputFor(RgbTargets.Hub);
+                                ok = _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
+                            }
+                            if (changed || _rgbHubOk != ok) lock (_stateLock) _rgbHubOk = ok;
                         }
                         else
                         {
@@ -462,6 +476,8 @@ public sealed class LinkFlowEngine : IDisposable
                 : Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextReconnect);
             if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion && _hub.IsConnected)
                 wait = Min(wait, _opt.HubRgbMinInterval);
+            if (_hub.IsConnected && CurrentRgb is { SyncHub: true, IsAnimated: true })
+                wait = Min(wait, _opt.HubRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply));
             await WaitAsync(_hubSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
     }
@@ -616,6 +632,7 @@ public sealed class LinkFlowEngine : IDisposable
                 Interlocked.Exchange(ref _usbChangedAux, 1);
                 Signal(_hubSignal);
                 Signal(_auxSignal);
+                Signal(_ramSignal);
             };
         }
         catch (Exception ex)
@@ -860,25 +877,26 @@ public sealed class LinkFlowEngine : IDisposable
                     nextFrame = 0;
                 }
 
-                // RGB da GPU e placa-mãe
+                // RGB da GPU, placa-mãe e periféricos (a RAM, lenta, tem fila própria)
                 long rgbVersion = Interlocked.Read(ref _rgbVersion);
-                if (appliedRgbVersion != rgbVersion && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
+                bool animated = cfg.Rgb.IsAnimated;
+                if ((appliedRgbVersion != rgbVersion || animated) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
                 {
+                    bool changed = appliedRgbVersion != rgbVersion;
                     appliedRgbVersion = rgbVersion;
                     lastRgbApply = Stopwatch.GetTimestamp();
                     var rgb = cfg.Rgb;
                     bool? gpuOk = rgb.SyncGpu && _gpuRgb.IsAvailable ? SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu)) : null;
                     bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard)) : null;
-                    bool? ramOk = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => Apply(_ramRgb, rgb, RgbTargets.Ram)) : null;
                     bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals)) : null;
                     lock (_stateLock)
                     {
                         _rgbGpuOk = gpuOk;
                         _rgbMbOk = mbOk;
-                        _rgbRamOk = ramOk;
                         _rgbPeripheralsOk = periphOk;
                     }
-                    if (rgb.SyncLcd) Interlocked.Exchange(ref _lcdRequested, 1);
+                    // O anel do LCD segue a cor; durante efeitos ele acompanha no ritmo normal dos quadros
+                    if (rgb.SyncLcd && changed) Interlocked.Exchange(ref _lcdRequested, 1);
                 }
 
                 // LCD
@@ -893,7 +911,7 @@ public sealed class LinkFlowEngine : IDisposable
                 bool requested = Interlocked.Exchange(ref _lcdRequested, 0) == 1;
                 if (_lcd.IsConnected && (requested || (cfg.Lcd.AutoStream && now >= nextFrame)))
                 {
-                    var (jpeg, next) = composer.ComposeJpeg(cfg.Lcd, GetSnapshot(), cfg.Rgb);
+                    var (jpeg, next) = composer.ComposeJpeg(cfg.Lcd, GetSnapshot(), RgbForLcd(cfg.Rgb));
                     // Métricas: 1 quadro/s (opção do engine); GIFs: o atraso do próprio quadro
                     bool fast = composer.IsAnimating || (cfg.Lcd.Mode == LcdMode.Media && cfg.Lcd.Media.Count > 1);
                     var interval = fast ? next : _opt.LcdFrameInterval;
@@ -920,8 +938,92 @@ public sealed class LinkFlowEngine : IDisposable
                 ? Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextFrame)
                 : _opt.TelemetryInterval;
             if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion) wait = Min(wait, _opt.AuxRgbMinInterval);
+            if (c2.Rgb.IsAnimated && (c2.Rgb.SyncGpu || c2.Rgb.SyncMotherboard || c2.Rgb.SyncPeripherals))
+                wait = Min(wait, _opt.AuxRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply));
             await WaitAsync(_auxSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
+    }
+
+    /// <summary>
+    /// Memórias DDR5: cada cor leva dezenas de escritas no SMBus (~100 ms). Numa fila própria, os efeitos
+    /// não atrasam os quadros do LCD; durante efeitos atualiza ~5x por segundo.
+    /// </summary>
+    private async Task RamLoopAsync(CancellationToken ct)
+    {
+        long applied = -1, lastApply = 0;
+        while (!ct.IsCancellationRequested)
+        {
+            ControlConfig cfg;
+            lock (_configLock) cfg = _config;
+            bool ready;
+            lock (_stateLock) ready = _rgbReady;
+            var rgb = cfg.Rgb;
+            long version = Interlocked.Read(ref _rgbVersion);
+            bool animated = rgb.IsAnimated && rgb.SyncRam && _ramRgb.IsAvailable;
+            try
+            {
+                if (ready && (applied != version || animated) && Stopwatch.GetElapsedTime(lastApply) >= _opt.RamRgbMinInterval)
+                {
+                    bool changed = applied != version;
+                    applied = version;
+                    lastApply = Stopwatch.GetTimestamp();
+                    bool? ok = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => Apply(_ramRgb, rgb, RgbTargets.Ram)) : null;
+                    if (changed || _rgbRamOk != ok) lock (_stateLock) _rgbRamOk = ok;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"RGB da RAM: {ex.Message}");
+            }
+
+            var wait = !ready ? TimeSpan.FromMilliseconds(200)
+                : animated || applied != Interlocked.Read(ref _rgbVersion) ? _opt.RamRgbMinInterval - Stopwatch.GetElapsedTime(lastApply)
+                : TimeSpan.FromSeconds(5);
+            try { await WaitAsync(_ramSignal, Clamp(wait), ct).ConfigureAwait(false); }
+            catch (OperationCanceledException) { break; }
+        }
+    }
+
+    private RgbConfig? CurrentRgb
+    {
+        get { lock (_configLock) return _config.Rgb; }
+    }
+
+    private byte[] _hubFrame = Array.Empty<byte>();
+
+    /// <summary>Um quadro do efeito nas ventoinhas: igual em todas, ou espalhado LED a LED pela corrente.</summary>
+    private bool ApplyHubFrame(RgbConfig rgb)
+    {
+        long now = RgbEffects.Now;
+        int devices = Math.Max(_hub.SubDevices.Count, 1);
+        int leds = Math.Max(devices * CorsairLinkHub.LedsPerDevice, 400);
+        if (_hubFrame.Length != leds * 3) _hubFrame = new byte[leds * 3];
+        var (_, _, _, brightness) = rgb.Finish(RgbTargets.Hub, 0, 0, 0);
+
+        if (!rgb.SpreadOnFans)
+        {
+            var o = rgb.OutputFor(RgbTargets.Hub, now, 0);
+            return _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
+        }
+
+        for (int i = 0; i < leds; i++)
+        {
+            double phase = RgbEffects.LedPhase(rgb.Effect, i, CorsairLinkHub.LedsPerDevice, devices);
+            var (r, g, b, level) = RgbEffects.ColorAt(rgb, now, phase);
+            var (cr, cg, cb, _) = rgb.Finish(RgbTargets.Hub, r, g, b);
+            _hubFrame[i * 3] = (byte)(cr * level);
+            _hubFrame[i * 3 + 1] = (byte)(cg * level);
+            _hubFrame[i * 3 + 2] = (byte)(cb * level);
+        }
+        return _hub.SetRgbLeds(_hubFrame, brightness);
+    }
+
+    /// <summary>O anel do LCD acompanha a cor do efeito no momento do quadro.</summary>
+    private static RgbConfig RgbForLcd(RgbConfig rgb)
+    {
+        if (!rgb.IsAnimated) return rgb;
+        var (r, g, b, _) = RgbEffects.ColorAt(rgb, RgbEffects.Now);
+        return new RgbConfig { R = r, G = g, B = b, Brightness = rgb.Brightness, SyncLcd = rgb.SyncLcd };
     }
 
     private string BuildRgbStatus(RgbConfig rgb)

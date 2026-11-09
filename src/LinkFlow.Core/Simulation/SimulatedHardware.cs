@@ -157,6 +157,21 @@ public sealed class SimulatedHub : IFanHub
         }
     }
 
+    public int SetLedsCalls { get; private set; }
+    public byte[]? LastLeds { get; private set; }
+
+    public bool SetRgbLeds(ReadOnlySpan<byte> colors, byte brightnessPercent)
+    {
+        lock (_lock)
+        {
+            if (!IsConnected) return false;
+            SetLedsCalls++;
+            LastLeds = colors.ToArray();
+            LastRgb = (colors.Length >= 3 ? colors[0] : (byte)0, colors.Length >= 3 ? colors[1] : (byte)0, colors.Length >= 3 ? colors[2] : (byte)0, brightnessPercent);
+            return true;
+        }
+    }
+
     public void Dispose() => Disconnect();
 }
 

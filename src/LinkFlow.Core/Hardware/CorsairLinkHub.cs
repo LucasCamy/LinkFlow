@@ -45,6 +45,7 @@ public sealed class CorsairLinkHub : IFanHub
             if (!_device.TryOpen(out var stream)) return false;
 
             _stream = stream;
+            _commandsSinceColor = int.MaxValue;
             _stream.ReadTimeout = IoTimeoutMs;
             _stream.WriteTimeout = IoTimeoutMs;
 
@@ -162,40 +163,55 @@ public sealed class CorsairLinkHub : IFanHub
         }
     }
 
+    /// <summary>LEDs por dispositivo da corrente (ventoinhas QX); usado para espalhar efeitos.</summary>
+    public const int LedsPerDevice = 34;
+
+    private int _commandsSinceColor = int.MaxValue;
+    private long _lastColorSetup;
+
     public bool SetGlobalRgb(byte r, byte g, byte b, byte brightnessPercent = 100)
+    {
+        int totalLeds = Math.Max(_subDevices.Count * LedsPerDevice, 400);
+        var colors = new byte[totalLeds * 3];
+        for (int i = 0; i < totalLeds; i++)
+        {
+            colors[i * 3 + 0] = r;
+            colors[i * 3 + 1] = g;
+            colors[i * 3 + 2] = b;
+        }
+        return SetRgbLeds(colors, brightnessPercent);
+    }
+
+    public bool SetRgbLeds(ReadOnlySpan<byte> colors, byte brightnessPercent)
     {
         lock (_syncLock)
         {
             if (_stream == null) return false;
 
             float factor = Math.Clamp(brightnessPercent / 100f, 0f, 1f);
-            byte adjR = (byte)(r * factor);
-            byte adjG = (byte)(g * factor);
-            byte adjB = (byte)(b * factor);
-
-            // Reafirma o modo software para garantir que o hub escute o host
-            SendCommandInternal(LinkHubProtocol.EnterSoftwareMode);
-
             byte[] endpointSetColor = { 0x22 };
             byte[] dataTypeSetColor = { 0x12, 0x00 };
 
-            SendCommandInternal(LinkHubProtocol.CloseEndpoint, endpointSetColor);
-            SendCommandInternal(new byte[] { 0x0d, 0x00 }, endpointSetColor);
-
-            int totalLeds = Math.Max(_subDevices.Count * 34, 400);
-            var colorBytes = new byte[totalLeds * 3];
-            for (int i = 0; i < totalLeds; i++)
+            // Durante efeitos (~20 quadros/s) o endpoint de cor fica aberto: só refaz o preparo quando
+            // outro comando passou pelo hub ou a cada 2 s, reduzindo de 6 para 3 transferências por quadro.
+            bool setup = _commandsSinceColor > 0 || Environment.TickCount64 - _lastColorSetup > 2000;
+            if (setup)
             {
-                colorBytes[i * 3 + 0] = adjR;
-                colorBytes[i * 3 + 1] = adjG;
-                colorBytes[i * 3 + 2] = adjB;
+                // Reafirma o modo software para garantir que o hub escute o host
+                SendCommandInternal(LinkHubProtocol.EnterSoftwareMode);
+                SendCommandInternal(LinkHubProtocol.CloseEndpoint, endpointSetColor);
+                SendCommandInternal(new byte[] { 0x0d, 0x00 }, endpointSetColor);
+                _lastColorSetup = Environment.TickCount64;
             }
 
+            int totalLeds = Math.Max(_subDevices.Count * LedsPerDevice, 400);
             const int headerWriteSize = 4;
-            byte[] buffer = new byte[headerWriteSize + dataTypeSetColor.Length + colorBytes.Length];
-            BinaryPrimitives.WriteUInt16LittleEndian(buffer.AsSpan(0, 2), (ushort)(colorBytes.Length + 2));
+            byte[] buffer = new byte[headerWriteSize + dataTypeSetColor.Length + totalLeds * 3];
+            BinaryPrimitives.WriteUInt16LittleEndian(buffer.AsSpan(0, 2), (ushort)(totalLeds * 3 + 2));
             dataTypeSetColor.CopyTo(buffer.AsSpan(headerWriteSize, 2));
-            colorBytes.CopyTo(buffer.AsSpan(headerWriteSize + 2));
+            var dst = buffer.AsSpan(headerWriteSize + 2);
+            int n = Math.Min(colors.Length, dst.Length);
+            for (int i = 0; i < n; i++) dst[i] = (byte)(colors[i] * factor);
 
             const int maxChunkSize = 508;
             int offset = 0;
@@ -211,6 +227,7 @@ public sealed class CorsairLinkHub : IFanHub
                 chunkIndex++;
             }
 
+            _commandsSinceColor = ok ? 0 : int.MaxValue;
             // NÃO fechar o endpoint 0x22: mantê-lo aberto preserva o stream de cor ativo.
             return ok && _stream != null;
         }
@@ -221,6 +238,7 @@ public sealed class CorsairLinkHub : IFanHub
         if (_stream == null) return null;
 
         var packet = LinkHubProtocol.CreateCommandPacket(command, data);
+        if (_commandsSinceColor != int.MaxValue) _commandsSinceColor++;
 
         try
         {
@@ -248,6 +266,7 @@ public sealed class CorsairLinkHub : IFanHub
     private void CloseStream()
     {
         try { _stream?.Dispose(); } catch { }
+        _commandsSinceColor = int.MaxValue;
         _stream = null;
     }
 

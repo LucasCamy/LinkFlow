@@ -64,18 +64,29 @@ public sealed class PeripheralRgbBridge : IDisposable
                     {
                         SetStatus("G HUB não encontrado ou sem permissão • abra o G HUB e ative \"Permitir que jogos e aplicativos controlem a iluminação\"");
                     }
-                    else if (applied == null || !applied.SameOutputAs(rgb))
+                    else if (applied == null || !applied.SameOutputAs(rgb) || rgb.IsAnimated)
                     {
+                        // Efeitos: mesma conta e mesmo relógio do serviço, então fica no compasso das ventoinhas
                         var o = rgb.OutputFor(RgbTargets.Peripherals);
                         bool ok = _device.SetColor(o.R, o.G, o.B, o.Brightness);
+                        bool changed = applied == null || !applied.SameOutputAs(rgb);
                         applied = rgb;
-                        SetStatus(ok ? "Conectado • via G HUB (pela interface)" : "O G HUB recusou a cor • verifique a permissão do SDK no G HUB");
+                        if (changed || !ok)
+                            SetStatus(ok ? "Conectado • via G HUB (pela interface)" : "O G HUB recusou a cor • verifique a permissão do SDK no G HUB");
                     }
                 }
             }
             catch (Exception ex)
             {
                 Log.Warn($"Periféricos Logitech: {ex.Message}");
+            }
+
+            var cur = _engine.Config.Rgb;
+            if (_device.IsAvailable && cur.SyncPeripherals && cur.IsAnimated)
+            {
+                // Efeito animado: ~20 quadros/s (a chamada ao SDK é barata)
+                _wake.WaitOne(RgbEffects.FastFrame);
+                continue;
             }
 
             // Arrastes de cor geram muitos eventos: aplica no máximo ~10x por segundo
