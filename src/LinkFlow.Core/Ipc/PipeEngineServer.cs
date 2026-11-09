@@ -120,6 +120,9 @@ public sealed class PipeEngineServer : IAsyncDisposable
                     case PipeProtocol.Resume:
                         _engine.NotifyResume();
                         break;
+                    case PipeProtocol.Rescan:
+                        _engine.RescanDevices();
+                        break;
                 }
             }
         }

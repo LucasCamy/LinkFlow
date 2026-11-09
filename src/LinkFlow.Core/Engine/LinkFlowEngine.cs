@@ -79,6 +79,8 @@ public sealed class LinkFlowEngine : IDisposable
     private int _lcdRequested;
     private int _forceReconnectHub;
     private int _forceReconnectAux;
+    private int _rescanRgb;
+    private string? _lcdStatus;
     private int _started;
     private int _stopped;
 
@@ -202,6 +204,23 @@ public sealed class LinkFlowEngine : IDisposable
         Signal(_auxSignal);
     }
 
+    /// <summary>
+    /// Procura de novo todos os dispositivos: reabre o hub (relê a lista de ventoinhas/bomba),
+    /// reconecta o LCD e tenta detectar o RGB da GPU/placa-mãe que não foi encontrado.
+    /// </summary>
+    public void RescanDevices()
+    {
+        Log.Info("Reatualizando dispositivos a pedido do usuário.");
+        lock (_stateLock) _hubStatus = "Procurando dispositivos...";
+        Interlocked.Exchange(ref _forceReconnectHub, 1);
+        Interlocked.Exchange(ref _forceReconnectAux, 1);
+        Interlocked.Exchange(ref _rescanRgb, 1);
+        Interlocked.Increment(ref _gpuFanVersion);
+        Signal(_hubSignal);
+        Signal(_sensorSignal);
+        Signal(_auxSignal);
+    }
+
     public EngineSnapshot GetSnapshot()
     {
         ControlConfig cfg;
@@ -233,6 +252,15 @@ public sealed class LinkFlowEngine : IDisposable
                 GpuFanRpm1 = t.GpuFanRpm1,
                 GpuFanRpm2 = t.GpuFanRpm2,
                 GpuFanPercent = t.GpuFanPercent,
+                CpuPower = t.CpuPower,
+                CpuClockMhz = t.CpuClockMhz,
+                CpuCores = t.CpuCores,
+                GpuPower = t.GpuPower,
+                GpuClockMhz = t.GpuClockMhz,
+                GpuMemClockMhz = t.GpuMemClockMhz,
+                GpuVramUsedGb = t.GpuVramUsedGb,
+                GpuVramTotalGb = t.GpuVramTotalGb,
+                LcdStatus = _lcdStatus,
                 EffectiveGlobalPercent = EffectiveGlobal(cfg),
                 CurveInputTemp = _curveInputTemp,
                 FailSafeActive = _failSafe,
@@ -271,9 +299,9 @@ public sealed class LinkFlowEngine : IDisposable
             long now = Stopwatch.GetTimestamp();
             try
             {
-                if (Interlocked.Exchange(ref _forceReconnectHub, 0) == 1 && _hub.IsConnected)
+                if (Interlocked.Exchange(ref _forceReconnectHub, 0) == 1)
                 {
-                    _hub.Disconnect(restoreHardwareMode: false);
+                    if (_hub.IsConnected) _hub.Disconnect(restoreHardwareMode: false);
                     nextReconnect = 0;
                 }
 
@@ -657,8 +685,9 @@ public sealed class LinkFlowEngine : IDisposable
         lock (_stateLock) _rgbReady = true;
         Log.Info($"RGB: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")}");
 
-        using var renderer = new LcdRenderer();
+        using var composer = new LcdComposer();
         long appliedRgbVersion = -1, lastRgbApply = 0, nextFrame = 0, nextLcdReconnect = 0;
+        LcdConfig? lastLcd = null;
 
         while (!ct.IsCancellationRequested)
         {
@@ -672,6 +701,23 @@ public sealed class LinkFlowEngine : IDisposable
                 {
                     _lcd.Disconnect();
                     nextLcdReconnect = 0;
+                }
+
+                if (Interlocked.Exchange(ref _rescanRgb, 0) == 1)
+                {
+                    // Reatualizar dispositivos: tenta detectar de novo o que não foi encontrado
+                    if (!_gpuRgb.IsAvailable) SafeCall(() => { _gpuRgb.Initialize(); return true; });
+                    if (!_mbRgb.IsAvailable) SafeCall(() => { _mbRgb.Initialize(); return true; });
+                    Interlocked.Increment(ref _rgbVersion);
+                    Log.Info($"RGB redetectado: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")}");
+                }
+
+                // Configuração do LCD mudou: novo quadro imediatamente e libera imagens que saíram da lista
+                if (!ReferenceEquals(lastLcd, cfg.Lcd))
+                {
+                    if (lastLcd != null) composer.Prune(cfg.Lcd);
+                    lastLcd = cfg.Lcd;
+                    nextFrame = 0;
                 }
 
                 // RGB da GPU e placa-mãe
@@ -702,12 +748,15 @@ public sealed class LinkFlowEngine : IDisposable
                 bool requested = Interlocked.Exchange(ref _lcdRequested, 0) == 1;
                 if (_lcd.IsConnected && (requested || (cfg.Lcd.AutoStream && now >= nextFrame)))
                 {
-                    nextFrame = now + Ticks(_opt.LcdFrameInterval);
-                    var jpeg = renderer.Render(BuildLcdFrame(cfg));
+                    var (jpeg, next) = composer.ComposeJpeg(cfg.Lcd, GetSnapshot(), cfg.Rgb);
+                    // Métricas: 1 quadro/s (opção do engine); GIFs: o atraso do próprio quadro
+                    var interval = cfg.Lcd.Mode == LcdMode.Metrics || cfg.Lcd.Media.Count == 0 ? _opt.LcdFrameInterval : next;
+                    nextFrame = Stopwatch.GetTimestamp() + Ticks(interval);
                     bool ok = _lcd.SendJpegFrame(jpeg);
                     lock (_stateLock)
                     {
                         _lcdConnected = _lcd.IsConnected;
+                        _lcdStatus = composer.Status;
                         _rgbLcdOk = cfg.Rgb.SyncLcd ? ok : null;
                     }
                 }
@@ -726,23 +775,6 @@ public sealed class LinkFlowEngine : IDisposable
                 : _opt.TelemetryInterval;
             if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion) wait = Min(wait, _opt.AuxRgbMinInterval);
             await WaitAsync(_auxSignal, Clamp(wait), ct).ConfigureAwait(false);
-        }
-    }
-
-    private LcdFrameData BuildLcdFrame(ControlConfig cfg)
-    {
-        lock (_stateLock)
-        {
-            var t = _telemetry;
-            var critical = _alerts.Values.FirstOrDefault(a => a.Severity == AlertSeverity.Critical);
-            string status = _failSafe ? "MODO SEGURANÇA" : critical != null ? "ALERTA" : "OPERACIONAL";
-            var (r, g, b) = cfg.Rgb.SyncLcd ? (cfg.Rgb.R, cfg.Rgb.G, cfg.Rgb.B) : ((byte)0, (byte)240, (byte)255);
-            return new LcdFrameData(
-                t.CpuSensorAvailable ? t.CpuTemperature : null,
-                t.GpuTemperature,
-                _coolant,
-                _fans.FirstOrDefault(f => f.IsPump)?.Rpm,
-                r, g, b, status, _failSafe || critical != null);
         }
     }
 

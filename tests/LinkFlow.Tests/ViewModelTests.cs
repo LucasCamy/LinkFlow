@@ -176,6 +176,128 @@ public sealed class ViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Color_square_sets_saturation_and_brightness_and_keeps_hue_through_black()
+    {
+        _vm.HexInput = "#00F0FF";
+        double hue = _vm.Hue;
+
+        _vm.ColorValue = 0;            // arrastou até o preto
+        Assert.Equal("#000000", _vm.CurrentRgbHex);
+        Assert.Equal(hue, _vm.Hue, 1);  // a matiz não se perde
+
+        _vm.ColorValue = 1;
+        _vm.ColorSaturation = 0.5;
+        Assert.Equal("#80F8FF", _vm.CurrentRgbHex);
+
+        _vm.RgbR = 255; _vm.RgbG = 0; _vm.RgbB = 0; // slider RGB atualiza o quadro
+        Assert.Equal(0, _vm.Hue, 0);
+        Assert.Equal(1, _vm.ColorSaturation, 2);
+        WaitFor(() => _f.Hw.Hub.LastRgb?.R == 255 && _f.Hw.Hub.LastRgb?.B == 0, "cor no hub");
+    }
+
+    [Fact]
+    public void Rename_edits_one_card_at_a_time_and_reset_restores_default_with_undo()
+    {
+        var a = Fan(1);
+        var b = Fan(2);
+        _vm.BeginRename(a);
+        _vm.BeginRename(b);
+        Assert.False(a.IsEditingName);
+        Assert.True(b.IsEditingName);
+
+        b.Name = "Topo traseira";
+        Assert.True(b.HasCustomName);
+        Assert.Equal("Topo traseira", _client.Config.GetFan(b.Key).Name);
+
+        _vm.ResetName(b);
+        Assert.False(b.HasCustomName);
+        Assert.Equal(b.DefaultName, b.Name);
+        Assert.Null(_client.Config.GetFan(b.Key).Name);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal("Topo traseira", b.Name);
+
+        // Ctrl+R: só com exatamente um cartão selecionado
+        _vm.SelectAllCommand.Execute(null);
+        Assert.False(_vm.BeginRenameSelected());
+        _vm.HandleFanClick(a, ctrl: false, shift: false);
+        Assert.True(_vm.BeginRenameSelected());
+        Assert.True(a.IsEditingName);
+    }
+
+    [Fact]
+    public void Rescan_reconnects_hub_and_reports_found_devices()
+    {
+        int connects = _f.Hw.Hub.ConnectCalls;
+        _vm.RescanDevicesCommand.Execute(null);
+        Assert.True(_vm.IsRescanning);
+        Assert.Equal("Procurando...", _vm.RescanLabel);
+        WaitFor(() => !_vm.IsRescanning, "fim da busca");
+        Assert.True(_f.Hw.Hub.ConnectCalls > connects, "hub reaberto para reler a lista de dispositivos");
+        Assert.Contains("11 dispositivo(s) encontrado(s)", _vm.ToastText);
+        Assert.Equal(11, _vm.Fans.Count);
+    }
+
+    [Fact]
+    public void Dashboard_detail_shows_history_stats_and_rows()
+    {
+        WaitFor(() => _vm.Snapshot.SensorsReady && _vm.Snapshot.CpuTemp != null, "sensores");
+        _vm.OpenDetail("cpu");
+        Assert.True(_vm.IsDetailOpen);
+        Assert.Equal("Processador", _vm.DetailTitle);
+        Assert.Equal("cpu.temp", _vm.DetailSeriesKey);
+        WaitFor(() => _vm.DetailHistory is { Length: >= 2 }, "histórico do gráfico");
+        Assert.EndsWith("°C", _vm.DetailMax);
+        Assert.Contains(_vm.DetailRows, r => r.Label == "Clock médio" && r.Value.Contains("GHz"));
+
+        _vm.SetDetailSeriesCommand.Execute("cpu.power");
+        Assert.EndsWith("W", _vm.DetailNow);
+
+        _vm.OpenDetail("fans");
+        Assert.Equal(10, _vm.DetailFans.Count);
+        _vm.DetailActionCommand.Execute(null);
+        Assert.False(_vm.IsDetailOpen);
+        Assert.Equal(1, _vm.SelectedPage);
+
+        _vm.OpenDetail("xyz");
+        Assert.False(_vm.IsDetailOpen);
+    }
+
+    [Fact]
+    public void Lcd_builder_limits_secondary_items_and_adding_media_switches_mode()
+    {
+        foreach (var m in new[] { LcdMetric.CpuLoad, LcdMetric.PumpRpm }) _vm.ToggleSecondaryCommand.Execute(m);
+        Assert.Equal(4, _client.Config.Lcd.SecondaryMetrics.Count); // padrão GPU + líquido + 2
+        _vm.ToggleSecondaryCommand.Execute(LcdMetric.Clock);
+        Assert.Equal(4, _client.Config.Lcd.SecondaryMetrics.Count);
+        Assert.Contains("até 4", _vm.ToastText);
+
+        _vm.ToggleSecondaryCommand.Execute(LcdMetric.GpuTemp);
+        Assert.Equal(new[] { LcdMetric.CoolantTemp, LcdMetric.CpuLoad, LcdMetric.PumpRpm }, _client.Config.Lcd.SecondaryMetrics);
+        Assert.Equal(1, _vm.LcdSecondaryChoices.Single(c => c.Metric == LcdMetric.CoolantTemp).Order);
+
+        _vm.LcdMainMetric = LcdMetric.GpuTemp;
+        _vm.SetLcdRotationCommand.Execute("180");
+        Assert.Equal(LcdMetric.GpuTemp, _client.Config.Lcd.MainMetric);
+        Assert.Equal(180, _client.Config.Lcd.Rotation);
+
+        _vm.AddLcdMedia(new[] { ("C:\\a.png", "a.png"), ("C:\\b.gif", "b.gif") });
+        Assert.True(_vm.IsLcdMediaMode);
+        Assert.Equal(2, _vm.LcdMedia.Count);
+        Assert.True(_vm.LcdMedia[1].IsGif);
+
+        _vm.MoveMediaUpCommand.Execute(_vm.LcdMedia[1]);
+        Assert.Equal("C:\\b.gif", _client.Config.Lcd.Media[0].Path);
+        _vm.LcdMedia[0].DurationSeconds = 30;
+        Assert.Equal(30, _client.Config.Lcd.Media[0].DurationSeconds);
+
+        _vm.RemoveMediaCommand.Execute(_vm.LcdMedia[0]);
+        Assert.Single(_client.Config.Lcd.Media);
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(2, _client.Config.Lcd.Media.Count);
+    }
+
+    [Fact]
     public void Snapshot_reaches_interface_without_blocking()
     {
         WaitFor(() => _vm.Snapshot.HubConnected && _vm.CpuTempFormatted != Fmt.Missing, "telemetria na tela");

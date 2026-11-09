@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private bool _closingForExit;
     private bool _boundsRestored;
     private HotkeyService? _hotkeys;
+    private readonly LcdPreviewService _lcdPreview;
 
     public MainWindow(MainViewModel viewModel)
     {
@@ -25,10 +26,12 @@ public partial class MainWindow : Window
         RestoreSavedBounds();
 
         ViewModel.SelectedPage = Math.Clamp(App.Current.Settings.Current.SelectedPage, 0, MainViewModel.PageTitles.Length - 1);
+        _lcdPreview = new LcdPreviewService(viewModel, Dispatcher);
         ViewModel.PageChanged += p =>
         {
             App.Current.Settings.Update(s => s.SelectedPage = p);
             if (p == 4) Settings.RefreshServiceState();
+            UpdateViewActive();
         };
 
         StateChanged += OnStateChanged;
@@ -75,6 +78,12 @@ public partial class MainWindow : Window
             ToggleMiniWidget();
             e.Handled = true;
         }
+        else if (ctrl && e.Key == Key.R && !inText && ViewModel.SelectedPage == 1)
+        {
+            if (!ViewModel.BeginRenameSelected())
+                ViewModel.ShowToast("Selecione um cartão para renomear (ou use o lápis ao passar o mouse)", canUndo: false);
+            e.Handled = true;
+        }
         else if (ctrl && e.Key == Key.Q)
         {
             App.Current.ExitApplication();
@@ -92,8 +101,9 @@ public partial class MainWindow : Window
         }
         else if (e.Key == Key.Escape && !inText)
         {
-            // Esc: primeiro fecha o aviso/limpa seleção; depois esconde na bandeja
-            if (ViewModel.ToastVisible) ViewModel.ToastVisible = false;
+            // Esc: primeiro fecha detalhes/aviso/limpa seleção; depois esconde na bandeja
+            if (ViewModel.CloseDetail()) { }
+            else if (ViewModel.ToastVisible) ViewModel.ToastVisible = false;
             else if (ViewModel.SelectedPage == 1 && ViewModel.HasSelection) ViewModel.ClearSelectionCommand.Execute(null);
             else Close();
             e.Handled = true;
@@ -148,7 +158,17 @@ public partial class MainWindow : Window
 
     private void UpdateViewActive()
     {
-        ViewModel.IsViewActive = (IsVisible && WindowState != WindowState.Minimized) || IsMiniWidgetVisible;
+        bool windowVisible = IsVisible && WindowState != WindowState.Minimized;
+        ViewModel.IsViewActive = windowVisible || IsMiniWidgetVisible;
+        // A prévia do LCD só renderiza com a página do LCD aberta
+        _lcdPreview.Active = windowVisible && ViewModel.SelectedPage == 3;
+    }
+
+    /// <summary>Modo de captura: renderiza a prévia mesmo com a janela fora da tela.</summary>
+    public void ForceLcdPreview()
+    {
+        _lcdPreview.Active = true;
+        _lcdPreview.RenderNow();
     }
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
@@ -158,6 +178,7 @@ public partial class MainWindow : Window
         _closingForExit = true;
         SaveBounds();
         _hotkeys?.Dispose();
+        _lcdPreview.Dispose();
         _miniWidget?.CloseForExit();
         Close();
     }

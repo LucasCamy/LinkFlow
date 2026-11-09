@@ -52,6 +52,7 @@ public sealed class ControlConfig
         Rgb.Brightness = Math.Min(Rgb.Brightness, (byte)100);
         Rgb.RecentColors ??= new();
         Lcd ??= new LcdConfig();
+        Lcd.Normalize();
         Safety ??= new SafetyConfig();
         Profiles ??= new();
     }
@@ -154,9 +155,63 @@ public sealed class RgbConfig
         SyncHub == o.SyncHub && SyncLcd == o.SyncLcd && SyncGpu == o.SyncGpu && SyncMotherboard == o.SyncMotherboard;
 }
 
+public enum LcdMode { Metrics, Media }
+
+public enum LcdFit { Cover, Contain }
+
+/// <summary>Informações que podem ser exibidas no LCD.</summary>
+public enum LcdMetric
+{
+    None, CpuTemp, CpuLoad, CpuPower, CpuClock, GpuTemp, GpuHotspot, GpuLoad, GpuPower,
+    CoolantTemp, PumpRpm, FanRpm, FanPower, RamUsage, Clock
+}
+
+public sealed class LcdMediaItem
+{
+    /// <summary>Caminho absoluto (normalmente em %ProgramData%\LinkFlow\media).</summary>
+    public string Path { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>Tempo na tela antes de passar para o próximo item (apresentação de slides).</summary>
+    public int DurationSeconds { get; set; } = 10;
+}
+
 public sealed class LcdConfig
 {
     public bool AutoStream { get; set; } = true;
+    public LcdMode Mode { get; set; } = LcdMode.Metrics;
+
+    /// <summary>Rotação do quadro (0, 90, 180 ou 270) para acompanhar a posição da bomba.</summary>
+    public int Rotation { get; set; }
+
+    // Modo métricas (quadro montado pelo usuário)
+    public string Title { get; set; } = "LINKFLOW";
+    public LcdMetric MainMetric { get; set; } = LcdMetric.CpuTemp;
+    public List<LcdMetric> SecondaryMetrics { get; set; } = new() { LcdMetric.GpuTemp, LcdMetric.CoolantTemp };
+    public bool ShowRing { get; set; } = true;
+    public string? BackgroundPath { get; set; }
+    public byte BackgroundDim { get; set; } = 55;
+
+    // Modo imagem/GIF (lista com apresentação de slides)
+    public List<LcdMediaItem> Media { get; set; } = new();
+    public LcdFit Fit { get; set; } = LcdFit.Cover;
+    public bool MediaOverlay { get; set; }
+    public LcdMetric OverlayMetric { get; set; } = LcdMetric.CpuTemp;
+
+    public const int MaxSecondary = 4;
+
+    public void Normalize()
+    {
+        Rotation = ((Rotation % 360) + 360) % 360 / 90 * 90;
+        Title ??= string.Empty;
+        if (Title.Length > 24) Title = Title[..24];
+        SecondaryMetrics ??= new();
+        SecondaryMetrics = SecondaryMetrics.Where(m => m != LcdMetric.None).Distinct().Take(MaxSecondary).ToList();
+        Media ??= new();
+        Media.RemoveAll(m => string.IsNullOrWhiteSpace(m.Path));
+        foreach (var m in Media) m.DurationSeconds = Math.Clamp(m.DurationSeconds, 2, 3600);
+        BackgroundDim = Math.Min(BackgroundDim, (byte)95);
+    }
 }
 
 public sealed class SafetyConfig

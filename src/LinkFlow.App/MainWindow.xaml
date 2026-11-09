@@ -191,6 +191,9 @@
                     <views:SettingsPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=4}"/>
                 </Grid>
 
+                <!-- Detalhes de um cartão do painel -->
+                <views:DetailPanel Grid.Column="1" Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVis}}"/>
+
                 <!-- Aviso com "Desfazer" -->
                 <Border Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="16,0,16,18"
                         Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"

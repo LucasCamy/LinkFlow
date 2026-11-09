@@ -43,9 +43,36 @@ public partial class FansPage : UserControl
     {
         if (e.ClickCount == 2 && sender is FrameworkElement { DataContext: FanViewModel fan })
         {
-            fan.IsEditingName = true;
+            Vm?.BeginRename(fan);
             e.Handled = true;
         }
+    }
+
+    private static FanViewModel? FanFrom(object sender) => sender is FrameworkElement { DataContext: FanViewModel f } ? f : null;
+
+    private void RenameButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (FanFrom(sender) is { } fan) Vm?.BeginRename(fan);
+    }
+
+    private void RenameMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (FanFrom(sender) is { } fan) Vm?.BeginRename(fan);
+    }
+
+    private void ResetNameMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (FanFrom(sender) is { } fan) Vm?.ResetName(fan);
+    }
+
+    private void LinkMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (FanFrom(sender) is { } fan) fan.IsLinked = true;
+    }
+
+    private void SelectGroupMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (FanFrom(sender) is { Group: { } g }) Vm?.SelectGroupCommand.Execute(g);
     }
 
     private void RenameBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

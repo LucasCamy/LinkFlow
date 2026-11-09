@@ -82,6 +82,15 @@ public sealed class HardwareMonitor : ISensorSource
 
                     var load = Find(_cpu, SensorType.Load, "Total");
                     if (load?.Value != null) t.CpuLoad = load.Value;
+
+                    var power = Find(_cpu, SensorType.Power, "Package");
+                    if (power?.Value is > 0) t.CpuPower = power.Value;
+                    var clocks = _cpu.Sensors.Where(s => s.SensorType == SensorType.Clock && s.Name.StartsWith("Core", StringComparison.OrdinalIgnoreCase) && s.Value > 0).ToList();
+                    if (clocks.Count > 0)
+                    {
+                        t.CpuClockMhz = clocks.Average(s => s.Value!.Value);
+                        t.CpuCores = clocks.Count;
+                    }
                 }
                 catch (Exception ex) { Log.Debug($"CPU update: {ex.Message}"); }
             }
@@ -104,6 +113,17 @@ public sealed class HardwareMonitor : ISensorSource
                     if (fans.Count > 0 && fans[0].Value != null) t.GpuFanRpm1 = (int)fans[0].Value!.Value;
                     if (fans.Count > 1 && fans[1].Value != null) t.GpuFanRpm2 = (int)fans[1].Value!.Value;
                     if (ctrl?.Value != null) t.GpuFanPercent = ctrl.Value;
+
+                    var power = Find(_discreteGpu, SensorType.Power, "Package") ?? Find(_discreteGpu, SensorType.Power, "GPU");
+                    if (power?.Value is > 0) t.GpuPower = power.Value;
+                    var coreClock = Find(_discreteGpu, SensorType.Clock, "Core");
+                    if (coreClock?.Value is > 0) t.GpuClockMhz = coreClock.Value;
+                    var memClock = Find(_discreteGpu, SensorType.Clock, "Memory");
+                    if (memClock?.Value is > 0) t.GpuMemClockMhz = memClock.Value;
+                    var memUsed = Find(_discreteGpu, SensorType.SmallData, "Memory Used");
+                    var memTotal = Find(_discreteGpu, SensorType.SmallData, "Memory Total");
+                    if (memUsed?.Value is > 0) t.GpuVramUsedGb = memUsed.Value / 1024f;
+                    if (memTotal?.Value is > 0) t.GpuVramTotalGb = memTotal.Value / 1024f;
                 }
                 catch (Exception ex) { Log.Debug($"GPU update: {ex.Message}"); }
             }

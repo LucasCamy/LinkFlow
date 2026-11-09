@@ -11,6 +11,12 @@ public sealed class StartupOptions
     /// <summary>Renderiza a janela num PNG e encerra (teste visual automatizado).</summary>
     public string? ScreenshotPath { get; private set; }
     public int ScreenshotPage { get; private set; }
+
+    /// <summary>Teste visual: abre o painel de detalhes (cpu, gpu, coolant, fans, ram).</summary>
+    public string? ScreenshotDetail { get; private set; }
+
+    /// <summary>Teste visual: seleciona as N primeiras ventoinhas.</summary>
+    public int ScreenshotSelect { get; private set; }
     public int? ScreenshotWidth { get; private set; }
     public int? ScreenshotHeight { get; private set; }
 
@@ -55,6 +61,12 @@ public sealed class StartupOptions
                     break;
                 case "--page":
                     o.ScreenshotPage = int.TryParse(Next(), out var p) ? p : 0;
+                    break;
+                case "--detail":
+                    o.ScreenshotDetail = Next();
+                    break;
+                case "--select":
+                    o.ScreenshotSelect = int.TryParse(Next(), out var sel) ? sel : 0;
                     break;
                 case "--size":
                     var parts = Next()?.Split('x');

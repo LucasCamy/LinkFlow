@@ -1,0 +1,174 @@
+<UserControl x:Class="LinkFlow.App.Views.DetailPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:LinkFlow.App.Controls">
+    <!-- Fundo escurecido: clicar fora fecha -->
+    <Grid Background="#B3050913" MouseLeftButtonDown="Backdrop_MouseLeftButtonDown">
+        <Border x:Name="Panel" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                CornerRadius="14" MaxWidth="920" Margin="24,20" VerticalAlignment="Center" MouseLeftButtonDown="Panel_MouseLeftButtonDown">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.55" Color="Black"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Cabeçalho -->
+                <Grid Margin="22,18,14,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="44" Height="44" CornerRadius="12" Background="{StaticResource SurfaceAltBrush}" Margin="0,0,14,0">
+                        <TextBlock Style="{StaticResource Icon}" Text="{Binding DetailIcon}" FontSize="18"
+                                   Foreground="{Binding DetailColor, Converter={StaticResource HexToBrush}}"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DetailTitle}" FontSize="19" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding DetailSubtitle}" Style="{StaticResource Caption}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <Button Grid.Column="2" Style="{StaticResource IconButton}" Content="&#xE711;" VerticalAlignment="Top"
+                            Command="{Binding CloseDetailCommand}" ToolTip="Fechar (Esc)" AutomationProperties.Name="Fechar detalhes"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,8,0,0">
+                    <StackPanel Margin="22,4,22,20">
+                        <!-- Série e período -->
+                        <Grid Margin="0,4,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ItemsControl ItemsSource="{Binding DetailSeriesOptions}" Focusable="False">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ToggleButton Style="{StaticResource Chip}" Content="{Binding Label}"
+                                                      Command="{Binding DataContext.SetDetailSeriesCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                      CommandParameter="{Binding Key}">
+                                            <ToggleButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource StringsEqual}" Mode="OneWay">
+                                                    <Binding Path="Key"/>
+                                                    <Binding Path="DataContext.DetailSeriesKey" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                </MultiBinding>
+                                            </ToggleButton.IsChecked>
+                                        </ToggleButton>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                <ToggleButton Style="{StaticResource Chip}" Content="1 min" Command="{Binding SetDetailRangeCommand}" CommandParameter="60"
+                                              IsChecked="{Binding DetailRangeSeconds, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=60}"/>
+                                <ToggleButton Style="{StaticResource Chip}" Content="5 min" Command="{Binding SetDetailRangeCommand}" CommandParameter="300"
+                                              IsChecked="{Binding DetailRangeSeconds, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=300}"/>
+                                <ToggleButton Style="{StaticResource Chip}" Content="10 min" Margin="0,0,0,8" Command="{Binding SetDetailRangeCommand}" CommandParameter="600"
+                                              IsChecked="{Binding DetailRangeSeconds, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=600}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Estatísticas -->
+                        <c:AdaptiveUniformGrid MinItemWidth="150" MaxColumns="4" Margin="0,0,-10,0">
+                            <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="AGORA" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding DetailNow}" FontSize="22" FontWeight="SemiBold" Foreground="{Binding DetailColor, Converter={StaticResource HexToBrush}}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="MÍNIMO" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding DetailMin}" FontSize="22" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="MÁXIMO" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding DetailMax}" FontSize="22" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,10,10">
+                                <StackPanel>
+                                    <TextBlock Text="MÉDIA" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding DetailAvg}" FontSize="22" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                        </c:AdaptiveUniformGrid>
+
+                        <!-- Gráfico -->
+                        <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="10,12,14,8">
+                            <c:HistoryChart Height="200" Values="{Binding DetailHistory}" Unit="{Binding DetailUnit}" MinRange="{Binding DetailMinRange}"
+                                            Stroke="{Binding DetailColor, Converter={StaticResource HexToBrush}}"/>
+                        </Border>
+                        <TextBlock Text="{Binding DetailSamples}" Style="{StaticResource Caption}" Margin="2,6,0,14"/>
+
+                        <!-- Informações -->
+                        <c:AdaptiveUniformGrid MinItemWidth="340" MaxColumns="2">
+                            <StackPanel Margin="0,0,16,0">
+                                <TextBlock Text="Informações" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding DetailRows}" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,7">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" MinWidth="150"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Label}" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Top" Margin="0,0,12,0"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Value}" FontWeight="SemiBold" TextAlignment="Right" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding Hint}" Style="{StaticResource Caption}" TextAlignment="Right" TextWrapping="Wrap"
+                                                                   Visibility="{Binding Hint, Converter={StaticResource NullToVis}}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <StackPanel Visibility="{Binding DetailHasFans, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Dispositivos" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding DetailFans}" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="56"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Ellipse Width="8" Height="8" Fill="{Binding Color, Converter={StaticResource HexToBrush}}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding Kind}" Style="{StaticResource Caption}"/>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" Text="{Binding Rpm}" FontWeight="SemiBold" VerticalAlignment="Center"
+                                                               Foreground="{Binding Color, Converter={StaticResource HexToBrush}}"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding Power}" TextAlignment="Right" VerticalAlignment="Center"
+                                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </c:AdaptiveUniformGrid>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                            <Button Style="{StaticResource SecondaryButton}" Content="{Binding DetailActionLabel}" Command="{Binding DetailActionCommand}" Margin="0,0,8,0"/>
+                            <Button Style="{StaticResource PrimaryButton}" Content="Fechar" Command="{Binding CloseDetailCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

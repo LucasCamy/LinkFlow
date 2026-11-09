@@ -236,6 +236,7 @@ public sealed class PipeEngineClient : IEngineClient
 
     public void RequestLcdFrame() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.LcdFrame, null));
     public void NotifyResume() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Resume, null));
+    public void RescanDevices() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Rescan, null));
 
     /// <summary>Fecha só a conexão: o serviço continua controlando o hardware.</summary>
     public Task ShutdownAsync(bool restoreHardwareMode = true)

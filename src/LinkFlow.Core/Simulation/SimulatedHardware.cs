@@ -172,7 +172,15 @@ public sealed class SimulatedSensors : ISensorSource
             RamTotalGb = 63.9f,
             GpuFanRpm1 = GpuFanManual is { } p ? 600 + p * 22 : 1180,
             GpuFanRpm2 = GpuFanManual is { } p2 ? 610 + p2 * 22 : 1192,
-            GpuFanPercent = GpuFanManual
+            GpuFanPercent = GpuFanManual,
+            CpuPower = 45 + load * 1.2f,
+            CpuClockMhz = 4200 + load * 8,
+            CpuCores = 12,
+            GpuPower = 60 + load * 2.5f,
+            GpuClockMhz = 2205 + load * 3,
+            GpuMemClockMhz = 11201,
+            GpuVramUsedGb = 3.4f + load / 50f,
+            GpuVramTotalGb = 16f
         };
     }
 

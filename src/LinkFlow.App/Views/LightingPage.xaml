@@ -28,15 +28,28 @@
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Border Width="112" Height="112" CornerRadius="56" BorderThickness="3" BorderBrush="{StaticResource BorderBrush}"
-                                    Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}"/>
-                            <StackPanel Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Código da cor" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                                <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="16" MaxWidth="180"
-                                         HorizontalAlignment="Left" MinWidth="140" ToolTip="Digite #RRGGBB ou #RGB">
+                            <TextBlock Text="Cor" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding RgbSyncStatus}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" MaxWidth="260"/>
+                        </Grid>
+
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Quadro de cores: saturação (horizontal) × brilho (vertical) -->
+                            <c:ColorSpectrum Height="210" MinWidth="200" Hue="{Binding Hue}" Saturation="{Binding ColorSaturation}" Value="{Binding ColorValue}"
+                                             ToolTip="Clique ou arraste para escolher • setas para ajuste fino (Shift = passos maiores)"
+                                             AutomationProperties.Name="Quadro de cores"/>
+                            <StackPanel Grid.Column="1" Width="132" Margin="16,0,0,0">
+                                <Border Height="92" CornerRadius="12" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
+                                        Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}" ToolTip="Cor atual"/>
+                                <TextBlock Text="Código" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                                <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="15"
+                                         ToolTip="Digite #RRGGBB ou #RGB" AutomationProperties.Name="Código da cor">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                             <Style.Triggers>
@@ -47,12 +60,16 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                                <TextBlock Text="{Binding RgbSyncStatus}" Style="{StaticResource Caption}" Margin="0,8,0,0"/>
+                                <TextBlock Style="{StaticResource Caption}" Margin="0,8,0,0" FontFamily="Consolas">
+                                    <Run Text="R " Foreground="#F87171"/><Run Text="{Binding RgbR, Mode=OneWay}"/>
+                                    <Run Text="  G " Foreground="#34D399"/><Run Text="{Binding RgbG, Mode=OneWay}"/>
+                                    <Run Text="  B " Foreground="#60A5FA"/><Run Text="{Binding RgbB, Mode=OneWay}"/>
+                                </TextBlock>
                             </StackPanel>
                         </Grid>
 
-                        <TextBlock Text="Matiz" Style="{StaticResource Label}" Margin="0,18,0,6"/>
-                        <Slider Style="{StaticResource HueSlider}" Minimum="0" Maximum="359" Value="{Binding Hue}" SmallChange="1" LargeChange="15"/>
+                        <Slider Style="{StaticResource HueSlider}" Minimum="0" Maximum="359.9" Value="{Binding Hue}" SmallChange="1" LargeChange="15"
+                                Margin="0,14,0,0" ToolTip="Matiz" AutomationProperties.Name="Matiz"/>
 
                         <TextBlock Text="Cores rápidas" Style="{StaticResource Label}" Margin="0,16,0,8"/>
                         <ItemsControl ItemsSource="{Binding QuickColors}">
@@ -113,7 +130,7 @@
                 <!-- Ajuste fino e dispositivos -->
                 <Border Style="{StaticResource GridCard}">
                     <StackPanel>
-                        <TextBlock Text="Ajuste fino" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+                        <TextBlock Text="Ajuste fino (RGB)" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="72"/>

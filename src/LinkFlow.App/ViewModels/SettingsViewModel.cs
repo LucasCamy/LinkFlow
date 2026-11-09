@@ -28,6 +28,10 @@ public sealed class SettingsViewModel : ObservableObject
 
     public UiSettings Current => _settings.Current;
 
+    /// <summary>Após importar preferências: atualiza todos os interruptores da tela.</summary>
+    public void NotifyAllChanged() => OnPropertiesChanged(nameof(CloseToTray), nameof(MinimizeToTray),
+        nameof(ShowTrayTemperature), nameof(AlertNotifications), nameof(GlobalHotkeys));
+
     public bool CloseToTray
     {
         get => _settings.Current.CloseToTray;

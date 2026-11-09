@@ -52,4 +52,14 @@ public class HardwareTelemetry
     public int? GpuFanRpm1 { get; set; }
     public int? GpuFanRpm2 { get; set; }
     public float? GpuFanPercent { get; set; }
+
+    // Detalhes (painel de detalhes do dashboard)
+    public float? CpuPower { get; set; }
+    public float? CpuClockMhz { get; set; }
+    public int? CpuCores { get; set; }
+    public float? GpuPower { get; set; }
+    public float? GpuClockMhz { get; set; }
+    public float? GpuMemClockMhz { get; set; }
+    public float? GpuVramUsedGb { get; set; }
+    public float? GpuVramTotalGb { get; set; }
 }

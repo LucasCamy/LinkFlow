@@ -32,7 +32,7 @@ public partial class App : Application
         base.OnStartup(e);
         Options = StartupOptions.Parse(e.Args);
 
-        if (Options.Simulate)
+        if (Options.Simulate && Environment.GetEnvironmentVariable("LINKFLOW_DATA_DIR") == null)
         {
             // Simulação nunca toca na configuração real
             AppPaths.SharedDir = Path.Combine(Path.GetTempPath(), "LinkFlow-sim");
@@ -372,8 +372,17 @@ public partial class App : Application
         if (Options.ScreenshotHeight is { } height) w.Height = height;
         w.Show();
         w.SelectPage(Options.ScreenshotPage);
+        if (Options.ScreenshotPage == 3) w.ForceLcdPreview();
 
         await Task.Delay(3500);
+        if (Options.ScreenshotSelect > 0)
+            foreach (var f in w.ViewModel.Fans.Take(Options.ScreenshotSelect)) f.IsSelected = true;
+        if (Options.ScreenshotDetail != null)
+        {
+            w.ViewModel.OpenDetail(Options.ScreenshotDetail);
+            await Task.Delay(1500);
+        }
+        await Task.Delay(300);
         w.UpdateLayout();
 
         var root = (FrameworkElement)w.Content;

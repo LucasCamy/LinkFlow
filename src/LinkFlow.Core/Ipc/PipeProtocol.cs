@@ -26,6 +26,7 @@ public static class PipeProtocol
     public const string SetConfig = "setConfig";
     public const string LcdFrame = "lcd";
     public const string Resume = "resume";
+    public const string Rescan = "rescan";
 
     public sealed class HelloInfo
     {

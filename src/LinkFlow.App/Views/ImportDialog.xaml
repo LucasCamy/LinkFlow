@@ -1,0 +1,60 @@
+<Window x:Class="LinkFlow.App.Views.ImportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Importar configurações" Width="560" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}" FontFamily="{StaticResource UiFont}"
+        UseLayoutRounding="True">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <StackPanel>
+            <Grid Height="40">
+                <TextBlock Text="Importar configurações" FontWeight="SemiBold" Margin="18,0,0,0" VerticalAlignment="Center"/>
+                <Button Style="{StaticResource CloseCaptionButton}" Content="&#xE8BB;" HorizontalAlignment="Right" Margin="0,0,4,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True" Click="Cancel_Click" AutomationProperties.Name="Fechar"/>
+            </Grid>
+
+            <StackPanel Margin="20,4,20,18">
+                <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock x:Name="FileInfo" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="FileDetail" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Grid Margin="0,0,0,6">
+                    <TextBlock Text="O que importar" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource GhostButton}" Content="Marcar tudo" Click="All_Click"/>
+                        <Button Style="{StaticResource GhostButton}" Content="Só perfis" Click="OnlyProfiles_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <ItemsControl x:Name="SectionList" Focusable="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                <CheckBox IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsAvailable}" VerticalContentAlignment="Top">
+                                    <StackPanel Margin="4,0,0,0">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Description}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </CheckBox>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="Perfis com o mesmo nome são substituídos; os outros são mantidos. Logo depois de importar dá para desfazer (Ctrl+Z)."
+                           Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,12,0,0"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                    <Button Style="{StaticResource SecondaryButton}" Content="Cancelar" Margin="0,0,8,0" Click="Cancel_Click" IsCancel="True"/>
+                    <Button x:Name="ImportButton" Style="{StaticResource PrimaryButton}" Content="Importar" Click="Import_Click" IsDefault="True"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

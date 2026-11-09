@@ -15,6 +15,36 @@
                 </StackPanel>
                 <!-- Modo: fixo / curva -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource ChipButton}" Margin="0,0,6,0" Command="{Binding RescanDevicesCommand}"
+                            ToolTip="Procura de novo ventoinhas, bomba, LCD e RGB (útil depois de ligar/desligar algo ou fechar o iCUE)">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontSize="13" Margin="0,0,8,0" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform/>
+                                </TextBlock.RenderTransform>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRescanning}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard x:Name="Spin">
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                                                                             From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                                <DataTrigger.ExitActions>
+                                                    <StopStoryboard BeginStoryboardName="Spin"/>
+                                                </DataTrigger.ExitActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding RescanLabel}"/>
+                        </StackPanel>
+                    </Button>
                     <ToggleButton Style="{StaticResource Chip}" Margin="0,0,6,0" IsChecked="{Binding IsFixedMode, Mode=OneWay}"
                                   Command="{Binding SetModeCommand}" CommandParameter="Fixed" ToolTip="Mesma potência o tempo todo">
                         <StackPanel Orientation="Horizontal">
@@ -204,33 +234,79 @@
             </Border>
 
             <!-- Barra de seleção -->
-            <Border Style="{StaticResource Card}" Padding="14,10">
+            <Border Style="{StaticResource Card}" Padding="16,12,16,12">
                 <StackPanel>
-                    <WrapPanel VerticalAlignment="Center">
-                        <TextBlock Text="Selecionar:" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <Button Style="{StaticResource GhostButton}" Content="Todas" Command="{Binding SelectAllCommand}" ToolTip="Ctrl+A"/>
-                        <Button Style="{StaticResource GhostButton}" Content="Só ventoinhas" Command="{Binding SelectFansCommand}"/>
-                        <Button Style="{StaticResource GhostButton}" Content="Bomba" Command="{Binding SelectPumpsCommand}"/>
-                        <ItemsControl ItemsSource="{Binding AvailableGroups}">
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Seleção" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding SelectionSummary}" Style="{StaticResource Caption}" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                    <WrapPanel>
+                        <Button Style="{StaticResource ChipButton}" Command="{Binding SelectAllCommand}" ToolTip="Ctrl+A">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8B3;" FontSize="12" Margin="0,0,7,0"/>
+                                <TextBlock Text="Todas"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource ChipButton}" Command="{Binding SelectFansCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xEC4A;" FontSize="12" Margin="0,0,7,0"/>
+                                <TextBlock Text="Só ventoinhas"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource ChipButton}" Command="{Binding SelectPumpsCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE9CA;" FontSize="12" Margin="0,0,7,0"/>
+                                <TextBlock Text="Bomba"/>
+                            </StackPanel>
+                        </Button>
+                        <ItemsControl ItemsSource="{Binding AvailableGroups}" Focusable="False">
                             <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource GhostButton}" Content="{Binding}" ToolTip="Selecionar grupo"
+                                    <Button Style="{StaticResource ChipButton}" ToolTip="Selecionar este grupo"
                                             Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}" Foreground="{StaticResource AccentBrush}"/>
+                                            CommandParameter="{Binding}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="12" Margin="0,0,7,0" Foreground="{StaticResource AccentBrush}"/>
+                                            <TextBlock Text="{Binding}"/>
+                                        </StackPanel>
+                                    </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <Button Style="{StaticResource GhostButton}" Content="Inverter" Command="{Binding InvertSelectionCommand}"/>
-                        <Button Style="{StaticResource GhostButton}" Content="Limpar" Command="{Binding ClearSelectionCommand}" ToolTip="Esc"/>
-                        <TextBlock Text="{Binding SelectionSummary}" Style="{StaticResource Caption}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        <Button Style="{StaticResource ChipButton}" Command="{Binding InvertSelectionCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8AB;" FontSize="12" Margin="0,0,7,0"/>
+                                <TextBlock Text="Inverter"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource ChipButton}" Command="{Binding ClearSelectionCommand}" ToolTip="Esc">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE894;" FontSize="12" Margin="0,0,7,0"/>
+                                <TextBlock Text="Limpar"/>
+                            </StackPanel>
+                        </Button>
                     </WrapPanel>
 
-                    <!-- Ações em lote -->
-                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,10,0,0"
-                            Visibility="{Binding HasSelection, Converter={StaticResource BoolToVis}}">
+                    <!-- Ações em lote: sempre visíveis (não empurram os cartões ao selecionar) -->
+                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,4,0,0"
+                            IsEnabled="{Binding HasSelection}" ToolTip="Selecione um ou mais cartões para aplicar em lote">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.55"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <c:AdaptiveUniformGrid MinItemWidth="330" MaxColumns="2">
                             <Grid Margin="0,4,16,4">
                                 <Grid.ColumnDefinitions>
@@ -258,7 +334,7 @@
                                                Visibility="{Binding GroupNameInput, Converter={StaticResource NullToVisInverse}}"/>
                                 </Grid>
                                 <Button Style="{StaticResource SecondaryButton}" Content="Agrupar" Margin="0,0,8,6" Command="{Binding SetGroupCommand}"/>
-                                <Button Style="{StaticResource GhostButton}" Content="Sem grupo" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
+                                <Button Style="{StaticResource SecondaryButton}" Content="Sem grupo" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
                             </WrapPanel>
                         </c:AdaptiveUniformGrid>
                     </Border>
@@ -269,13 +345,30 @@
             <ItemsControl ItemsSource="{Binding Fans}" Margin="0,0,-12,0" Focusable="False">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <c:AdaptiveUniformGrid MinItemWidth="300" MaxColumns="4"/>
+                        <c:AdaptiveUniformGrid MinItemWidth="300" MaxColumns="4" BalanceRows="False"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border x:Name="Card" Style="{StaticResource GridCard}" Padding="14,12" Cursor="Hand"
                                 MouseLeftButtonDown="FanCard_MouseLeftButtonDown" Background="{StaticResource SurfaceBrush}">
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Renomear" InputGestureText="Ctrl+R" Click="RenameMenu_Click">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8AC;" FontSize="13"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Restaurar nome original" Click="ResetNameMenu_Click" IsEnabled="{Binding HasCustomName}">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE7A7;" FontSize="13"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator/>
+                                    <MenuItem Header="Vincular à potência global" Click="LinkMenu_Click" IsEnabled="{Binding IsManual}">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="13"/></MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Selecionar o grupo" Click="SelectGroupMenu_Click" IsEnabled="{Binding HasGroup}">
+                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="13"/></MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Border.ContextMenu>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -290,16 +383,27 @@
                                     <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Selecionar"
                                               AutomationProperties.Name="Selecionar ventoinha"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <Grid>
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" TextTrimming="CharacterEllipsis"
-                                                       ToolTip="Clique duplo para renomear"
+                                        <Grid Height="24">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                       ToolTip="{Binding NameTooltip}"
                                                        Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"
                                                        MouseLeftButtonDown="FanName_MouseLeftButtonDown"/>
-                                            <TextBox Text="{Binding Name, UpdateSourceTrigger=Explicit}" Padding="6,2" FontSize="13"
+                                            <!-- Lápis: renomear (aparece ao passar o mouse no cartão) -->
+                                            <Button x:Name="RenameButton" Grid.Column="1" Style="{StaticResource IconButton}" Width="24" Height="22" FontSize="11"
+                                                    Content="&#xE8AC;" Margin="4,0,0,0" Opacity="0" Click="RenameButton_Click"
+                                                    ToolTip="Renomear (Ctrl+R)" AutomationProperties.Name="Renomear"
+                                                    Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"/>
+                                            <TextBox Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=Explicit}" Padding="6,0" FontSize="13"
+                                                     Height="24" MinHeight="0" VerticalContentAlignment="Center" MaxLength="40"
                                                      Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVis}}"
-                                                     IsVisibleChanged="RenameBox_IsVisibleChanged" KeyDown="RenameBox_KeyDown" LostKeyboardFocus="RenameBox_LostFocus"/>
+                                                     ToolTip="Enter salva • Esc cancela • vazio volta ao nome original"
+                                                     IsVisibleChanged="RenameBox_IsVisibleChanged" PreviewKeyDown="RenameBox_KeyDown" LostKeyboardFocus="RenameBox_LostFocus"/>
                                         </Grid>
-                                        <TextBlock Text="{Binding ChannelLabel}" Style="{StaticResource Caption}"/>
+                                        <TextBlock Text="{Binding ChannelLabel}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{Binding RpmFormatted}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"
                                                Foreground="{Binding StatusColor, Converter={StaticResource HexToBrush}}"/>
@@ -330,9 +434,12 @@
                                 <Setter TargetName="LinkButton" Property="Content" Value="&#xE70F;"/>
                                 <Setter TargetName="FanSlider" Property="Foreground" Value="{StaticResource WarningBrush}"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding IsStopped}" Value="True">
+                            <DataTrigger Binding="{Binding ShowStoppedWarning}" Value="True">
                                 <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
                             </DataTrigger>
+                            <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RenameButton" Property="Opacity" Value="1"/>
+                            </Trigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -342,7 +449,7 @@
                        Style="{StaticResource Caption}" FontSize="13" Margin="0,8,0,0"
                        Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisInverse}}"/>
             <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0"
-                       Text="Dica: arraste o slider de uma ventoinha para controlá-la manualmente (ícone de lápis). Clique no ícone para voltar a seguir o global. Clique duplo no nome para renomear."/>
+                       Text="Dica: arraste o slider de uma ventoinha para controlá-la manualmente (ícone amarelo). Clique no ícone para voltar a seguir o global. Para renomear: lápis ao passar o mouse, Ctrl+R, clique duplo no nome ou botão direito no cartão."/>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

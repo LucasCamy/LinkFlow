@@ -53,20 +53,21 @@
             </Border>
 
             <!-- Métricas -->
-            <c:AdaptiveUniformGrid MinItemWidth="230" MaxColumns="4" Margin="0,0,-12,0">
-                <Border Style="{StaticResource GridCard}">
-                    <Grid>
-                        <StackPanel>
-                            <TextBlock Text="CPU" Style="{StaticResource Label}"/>
-                            <TextBlock Text="{Binding CpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource CpuBrush}" Margin="0,4,0,0"/>
-                            <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-                                <Run Text="{Binding CpuLoadFormatted, Mode=OneWay}"/><Run Text=" de uso • "/><Run Text="{Binding CpuName, Mode=OneWay}"/>
-                            </TextBlock>
-                            <c:Sparkline Values="{Binding CpuHistory}" Stroke="{StaticResource CpuBrush}" Height="38" Margin="0,10,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-                <Border Style="{StaticResource GridCard}">
+            <!-- Métricas: clique abre os detalhes -->
+            <c:AdaptiveUniformGrid MinItemWidth="200" MaxColumns="5" Margin="0,0,-12,0">
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="cpu"
+                        ToolTip="Ver detalhes do processador" AutomationProperties.Name="Detalhes da CPU">
+                    <StackPanel>
+                        <TextBlock Text="CPU" Style="{StaticResource Label}"/>
+                        <TextBlock Text="{Binding CpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource CpuBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
+                            <Run Text="{Binding CpuLoadFormatted, Mode=OneWay}"/><Run Text=" de uso • "/><Run Text="{Binding CpuName, Mode=OneWay}"/>
+                        </TextBlock>
+                        <c:Sparkline Values="{Binding CpuHistory}" Stroke="{StaticResource CpuBrush}" Height="38" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="gpu"
+                        ToolTip="Ver detalhes da placa de vídeo" AutomationProperties.Name="Detalhes da GPU">
                     <StackPanel>
                         <TextBlock Text="GPU" Style="{StaticResource Label}"/>
                         <TextBlock Text="{Binding GpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource GpuBrush}" Margin="0,4,0,0"/>
@@ -75,27 +76,38 @@
                         </TextBlock>
                         <c:Sparkline Values="{Binding GpuHistory}" Stroke="{StaticResource GpuBrush}" Height="38" Margin="0,10,0,0"/>
                     </StackPanel>
-                </Border>
-                <Border Style="{StaticResource GridCard}">
+                </Button>
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="coolant"
+                        ToolTip="Ver detalhes do líquido e da bomba" AutomationProperties.Name="Detalhes do líquido">
                     <StackPanel>
                         <TextBlock Text="LÍQUIDO (AIO)" Style="{StaticResource Label}"/>
                         <TextBlock Text="{Binding CoolantTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource CoolantBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Style="{StaticResource Caption}">
+                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
                             <Run Text="Bomba "/><Run Text="{Binding PumpRpmFormatted, Mode=OneWay}"/>
                         </TextBlock>
                         <c:Sparkline Values="{Binding CoolantHistory}" Stroke="{StaticResource CoolantBrush}" MinRange="3" Height="38" Margin="0,10,0,0"/>
                     </StackPanel>
-                </Border>
-                <Border Style="{StaticResource GridCard}">
+                </Button>
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="fans"
+                        ToolTip="Ver todas as ventoinhas" AutomationProperties.Name="Detalhes das ventoinhas">
                     <StackPanel>
                         <TextBlock Text="VENTOINHAS" Style="{StaticResource Label}"/>
                         <TextBlock Text="{Binding AverageFanRpmFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource AccentBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Style="{StaticResource Caption}">
+                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
                             <Run Text="Potência "/><Run Text="{Binding GlobalSpeedFormatted, Mode=OneWay}"/><Run Text=" • "/><Run Text="{Binding ActivePresetLabel, Mode=OneWay}"/>
                         </TextBlock>
                         <c:Sparkline Values="{Binding FanHistory}" Stroke="{StaticResource AccentBrush}" MinRange="200" Height="38" Margin="0,10,0,0"/>
                     </StackPanel>
-                </Border>
+                </Button>
+                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="ram"
+                        ToolTip="Ver detalhes da memória" AutomationProperties.Name="Detalhes da memória">
+                    <StackPanel>
+                        <TextBlock Text="MEMÓRIA" Style="{StaticResource Label}"/>
+                        <TextBlock Text="{Binding RamUsageFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource RamBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding RamDetail}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
+                        <c:Sparkline Values="{Binding RamHistory}" Stroke="{StaticResource RamBrush}" MinRange="10" Height="38" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Button>
             </c:AdaptiveUniformGrid>
 
             <c:AdaptiveUniformGrid MinItemWidth="380" MaxColumns="2" Margin="0,0,-12,0">
@@ -178,22 +190,22 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Grid Margin="0,10,0,0">
+                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,10,0,10"/>
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="MEMÓRIA" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding RamUsageFormatted}" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource RamBrush}"/>
-                                <TextBlock Text="{Binding RamDetail}" Style="{StaticResource Caption}"/>
-                            </StackPanel>
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7F4;" Foreground="{StaticResource GpuBrush}" Margin="0,0,10,0" VerticalAlignment="Top"/>
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="FANS DA GPU" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding GpuFanModeText}" FontSize="13" FontWeight="SemiBold" Margin="0,3,0,0"/>
+                                <TextBlock FontWeight="SemiBold">
+                                    <Run Text="Fans da GPU: "/><Run Text="{Binding GpuFanModeText, Mode=OneWay}"/>
+                                </TextBlock>
                                 <TextBlock Text="{Binding GpuFanRpmFormatted}" Style="{StaticResource Caption}"/>
                             </StackPanel>
                         </Grid>
+                        <TextBlock Text="Dica: clique em qualquer cartão acima para ver histórico, mínimo, máximo e detalhes." Style="{StaticResource Caption}"
+                                   Margin="0,12,0,0"/>
                     </StackPanel>
                 </Border>
             </c:AdaptiveUniformGrid>

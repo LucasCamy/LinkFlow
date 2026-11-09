@@ -20,6 +20,9 @@ public static class AppPaths
 
     public static string ControlConfigFile => Path.Combine(SharedDir, "config.json");
     public static string LogsDir => Path.Combine(SharedDir, "logs");
+
+    /// <summary>Imagens/GIFs do LCD (legíveis pelo serviço, que roda como SYSTEM).</summary>
+    public static string MediaDir => Path.Combine(SharedDir, "media");
     public static string UiSettingsFile => Path.Combine(UserDir, "ui.json");
 }
 

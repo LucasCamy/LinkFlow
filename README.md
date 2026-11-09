@@ -10,6 +10,11 @@ Controle de ventoinhas, bomba, RGB e display LCD para **Corsair iCUE LINK**, com
 - **Curva automática** com suavização, histerese e editor arrastável; **modo de segurança** (100% em temperatura crítica ou falha da bomba).
 - **Seleção múltipla** de ventoinhas (Ctrl/Shift+clique), ações em lote, grupos, renomear, perfis salvos e **Desfazer (Ctrl+Z)**.
 - **Atalhos** locais e globais (funcionam em jogos).
+- **Painel com detalhes**: clique em CPU, GPU, líquido, ventoinhas ou memória para ver histórico de até 10 minutos, mínimo/máximo/média, clock, potência, VRAM e a lista de dispositivos.
+- **Seletor de cor completo**: quadro de saturação × brilho com barra de matiz, código hex e ajuste fino RGB.
+- **LCD personalizável**: monte o quadro (informação principal, até 4 secundárias, título, anel, foto de fundo) ou mostre fotos e GIFs com apresentação de slides, rotação e informação sobreposta. A prévia usa o mesmo renderizador do display.
+- **Reatualizar dispositivos**: botão "Atualizar" em Ventoinhas procura de novo hub, ventoinhas, LCD e RGB.
+- **Backup**: exporte tudo (perfis, curva, nomes, iluminação, LCD com as imagens, limites, preferências) para um arquivo `.linkflow` e importe escolhendo as partes.
 
 ## Arquitetura
 
@@ -59,6 +64,7 @@ Manualmente (PowerShell como administrador):
 | Ctrl+↑ / Ctrl+↓ | Potência global ±5% |
 | Ctrl+Z | Desfazer |
 | Ctrl+A / Esc | Selecionar todas / limpar seleção (Ventoinhas) |
+| Ctrl+R | Renomear o cartão selecionado (também: lápis, clique duplo ou botão direito) |
 | Ctrl+M / Ctrl+L | Mini widget / enviar quadro ao LCD |
 | Esc, Ctrl+W / Ctrl+Q | Esconder na bandeja / sair |
 
@@ -69,7 +75,7 @@ Manualmente (PowerShell como administrador):
 | `--tray` | Inicia escondido na bandeja (usado pelo início automático) |
 | `--exit` | Encerra a instância em execução de forma controlada |
 | `--simulate` | Hardware simulado (testes/demonstração, não toca na configuração real) |
-| `--screenshot arquivo.png [--page N] [--size LxA]` | Renderiza a janela num PNG e sai (teste visual) |
+| `--screenshot arquivo.png [--page N] [--size LxA] [--detail cpu] [--select N]` | Renderiza a janela num PNG e sai (teste visual) |
 
 `LinkFlow.Service.exe --simulate` roda o serviço em console com hardware simulado. Variáveis `LINKFLOW_PIPE`, `LINKFLOW_DATA_DIR` e `LINKFLOW_DEBUG=1` isolam testes e ativam log detalhado.
 
@@ -78,3 +84,4 @@ Manualmente (PowerShell como administrador):
 - Configuração: `%ProgramData%\LinkFlow\config.json`
 - Logs: `%ProgramData%\LinkFlow\logs\linkflow-{app|service}-AAAA-MM-DD.log`
 - Preferências da interface: `%AppData%\LinkFlow\ui.json`
+- Imagens/GIFs do LCD: `%ProgramData%\LinkFlow\media` (copiadas ao adicionar, para o serviço conseguir ler)

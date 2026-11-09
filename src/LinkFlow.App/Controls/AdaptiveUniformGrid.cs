@@ -17,6 +17,17 @@ public sealed class AdaptiveUniformGrid : Panel
         nameof(MaxColumns), typeof(int), typeof(AdaptiveUniformGrid),
         new FrameworkPropertyMetadata(6, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
+    public static readonly DependencyProperty BalanceRowsProperty = DependencyProperty.Register(
+        nameof(BalanceRows), typeof(bool), typeof(AdaptiveUniformGrid),
+        new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+    /// <summary>Reduz colunas para não deixar um item sozinho na última linha.</summary>
+    public bool BalanceRows
+    {
+        get => (bool)GetValue(BalanceRowsProperty);
+        set => SetValue(BalanceRowsProperty, value);
+    }
+
     public double MinItemWidth
     {
         get => (double)GetValue(MinItemWidthProperty);
@@ -46,6 +57,14 @@ public sealed class AdaptiveUniformGrid : Panel
         int count = VisibleCount;
         double width = double.IsInfinity(available.Width) ? MinItemWidth * Math.Max(1, count) : available.Width;
         _columns = Math.Clamp((int)(width / MinItemWidth), 1, Math.Max(1, Math.Min(MaxColumns, Math.Max(1, count))));
+
+        // Evita um item sozinho na última linha (ex.: 4 cartões em 3 colunas viram 2x2)
+        if (BalanceRows && count > 0)
+        {
+            int cols = _columns;
+            while (cols > 2 && count % cols == 1) cols--;
+            if (count % cols != 1 || cols == _columns) _columns = cols;
+        }
         double cellW = width / _columns;
 
         double rowHeight = 0;

@@ -33,6 +33,12 @@ public class IpcTests
         client.RequestLcdFrame();
         int frames = f.Hw.Lcd.Frames;
         EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames > frames, because: "quadro de LCD solicitado pelo cliente");
+
+        // "Atualizar" na interface: o serviço reabre o hub e relê os dispositivos
+        int connects = f.Hw.Hub.ConnectCalls;
+        client.RescanDevices();
+        EngineFixture.WaitUntil(() => f.Hw.Hub.ConnectCalls > connects, because: "serviço reatualizou os dispositivos");
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Count == 11, because: "dispositivos de volta");
     }
 
     [Fact]

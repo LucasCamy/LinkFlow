@@ -5,7 +5,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="8,8,20,24">
             <TextBlock Text="Configurações" Style="{StaticResource PageTitle}"/>
-            <TextBlock Text="Segundo plano, segurança, atalhos e serviço do Windows." Style="{StaticResource PageSubtitle}"/>
+            <TextBlock Text="Segundo plano, segurança, atalhos, serviço do Windows e backup." Style="{StaticResource PageSubtitle}"/>
 
             <c:AdaptiveUniformGrid MinItemWidth="420" MaxColumns="2" Margin="0,16,-12,0">
                 <!-- Segundo plano -->
@@ -113,7 +113,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                             </Grid.RowDefinitions>
                             <Border Style="{StaticResource Kbd}"><TextBlock Text="F1 … F5" FontFamily="Consolas"/></Border>
                             <TextBlock Grid.Column="1" Text="Aplicar perfil (Silencioso … Curva)" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
@@ -131,6 +131,8 @@
                             <TextBlock Grid.Row="6" Grid.Column="1" Text="Enviar quadro ao LCD" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
                             <Border Grid.Row="7" Style="{StaticResource Kbd}"><TextBlock Text="Esc / Ctrl+W" FontFamily="Consolas"/></Border>
                             <TextBlock Grid.Row="7" Grid.Column="1" Text="Esconder na bandeja • Ctrl+Q sai do app" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                            <Border Grid.Row="8" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+R" FontFamily="Consolas"/></Border>
+                            <TextBlock Grid.Row="8" Grid.Column="1" Text="Renomear o cartão selecionado (Ventoinhas)" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -170,6 +172,39 @@
                     </StackPanel>
                 </Border>
             </c:AdaptiveUniformGrid>
+
+            <!-- Backup: exportar / importar -->
+            <Border Style="{StaticResource Card}" AllowDrop="True" Drop="Backup_Drop" DragOver="Backup_DragOver">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="42" Height="42" CornerRadius="12" Background="{StaticResource SurfaceAltBrush}" Margin="0,0,14,0" VerticalAlignment="Top">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8F7;" Foreground="{StaticResource AccentBrush}"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,8">
+                        <TextBlock Text="Backup das configurações e perfis" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Style="{StaticResource Caption}" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource TextMutedBrush}"
+                                   Text="Salva perfis, curva, nomes e grupos das ventoinhas, iluminação, quadro do LCD (com as imagens e GIFs), limites de segurança e preferências num arquivo .linkflow. Na importação você escolhe o que trazer. Também dá para arrastar o arquivo para cá."/>
+                    </StackPanel>
+                    <WrapPanel Grid.Column="2" VerticalAlignment="Center">
+                        <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="ExportBackup_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xEDE1;" FontSize="13" Margin="0,0,8,0"/>
+                                <TextBlock Text="Exportar..."/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" Click="ImportBackup_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8B5;" FontSize="13" Margin="0,0,8,0"/>
+                                <TextBlock Text="Importar..."/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+                </Grid>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -137,6 +137,7 @@ public partial class MainViewModel
         set
         {
             if (value < 0 || value >= PageTitles.Length || !SetProperty(ref _selectedPage, value)) return;
+            CloseDetail();
             OnPropertyChanged(nameof(PageTitle));
             PageChanged?.Invoke(value);
         }
@@ -181,8 +182,10 @@ public partial class MainViewModel
         GpuHistory = Push(_gpuHist, s.GpuTemp);
         CoolantHistory = Push(_coolHist, s.CoolantTemp);
         FanHistory = Push(_fanHist, s.AverageFanRpm);
-        OnPropertiesChanged(nameof(CpuHistory), nameof(GpuHistory), nameof(CoolantHistory), nameof(FanHistory),
-            nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(TopAlert), nameof(FanCountLabel));
+        RamHistory = Push(_ramHist, s.RamUsage);
+        OnPropertiesChanged(nameof(CpuHistory), nameof(GpuHistory), nameof(CoolantHistory), nameof(FanHistory), nameof(RamHistory),
+            nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(TopAlert), nameof(FanCountLabel), nameof(LcdNowShowing));
+        RecordHistory(s);
     }
 
     public EngineAlert? TopAlert => Snapshot.Alerts.FirstOrDefault();
@@ -320,6 +323,7 @@ public partial class MainViewModel
     {
         if (_batchSelecting) return;
         OnPropertiesChanged(nameof(SelectedCount), nameof(HasSelection), nameof(SelectionSummary));
+        CommandManager.InvalidateRequerySuggested(); // botões de lote reativam mesmo com seleção por teclado
     }
 
     partial void OnFansStructureChangedPartial()
@@ -512,21 +516,43 @@ public partial class MainViewModel
         private set => SetProperty(ref _hexInvalid, value);
     }
 
+    // HSV guardado: arrastar até o preto/cinza não perde a matiz escolhida
+    private double _hsvH = 186, _hsvS = 1, _hsvV = 1;
+    private bool _settingHsv;
+
+    /// <summary>Matiz (0–359). Numa cor cinza/apagada, mover a matiz volta a cor para saturada.</summary>
     public double Hue
     {
-        get
-        {
-            RgbToHsv(RgbR, RgbG, RgbB, out var h, out _, out _);
-            return h;
-        }
-        set
-        {
-            RgbToHsv(RgbR, RgbG, RgbB, out _, out var s, out var v);
-            if (s < 0.05) s = 1;
-            if (v < 0.05) v = 1;
-            HsvToRgb(value, s, v, out var r, out var g, out var b);
-            SetColorPreset(r, g, b);
-        }
+        get => _hsvH;
+        set => SetHsv(value, _hsvS < 0.05 ? 1 : _hsvS, _hsvV < 0.05 ? 1 : _hsvV);
+    }
+
+    /// <summary>Saturação (0–1): eixo horizontal do quadro de cores.</summary>
+    public double ColorSaturation
+    {
+        get => _hsvS;
+        set => SetHsv(_hsvH, value, _hsvV);
+    }
+
+    /// <summary>Brilho da cor (0–1): eixo vertical do quadro de cores.</summary>
+    public double ColorValue
+    {
+        get => _hsvV;
+        set => SetHsv(_hsvH, _hsvS, value);
+    }
+
+    private void SetHsv(double h, double s, double v)
+    {
+        _hsvH = ((h % 360) + 360) % 360;
+        _hsvS = Math.Clamp(s, 0, 1);
+        _hsvV = Math.Clamp(v, 0, 1);
+        HsvToRgb(_hsvH, _hsvS, _hsvV, out var r, out var g, out var b);
+        _settingHsv = true;
+        try { SetColorPreset(r, g, b); }
+        finally { _settingHsv = false; }
+        OnPropertiesChanged(nameof(Hue), nameof(ColorSaturation), nameof(ColorValue));
+        _recentTimer?.Stop();
+        _recentTimer?.Start();
     }
 
     partial void OnRgbColorChangedPartial()
@@ -537,7 +563,14 @@ public partial class MainViewModel
             OnPropertyChanged(nameof(HexInput));
         }
         HexInvalid = false;
-        OnPropertyChanged(nameof(Hue));
+        if (!_settingHsv)
+        {
+            RgbToHsv(RgbR, RgbG, RgbB, out var h, out var s, out var v);
+            if (s > 0.001 && v > 0.001) _hsvH = h; // cinza/preto não têm matiz: mantém a anterior
+            if (v > 0.001) _hsvS = s;
+            _hsvV = v;
+            OnPropertiesChanged(nameof(Hue), nameof(ColorSaturation), nameof(ColorValue));
+        }
         if (!IsLoadingConfig && _recentTimer != null)
         {
             _recentTimer.Stop();
@@ -578,7 +611,7 @@ public partial class MainViewModel
         return true;
     }
 
-    private static void RgbToHsv(byte r, byte g, byte b, out double h, out double s, out double v)
+    internal static void RgbToHsv(byte r, byte g, byte b, out double h, out double s, out double v)
     {
         double rd = r / 255.0, gd = g / 255.0, bd = b / 255.0;
         double max = Math.Max(rd, Math.Max(gd, bd)), min = Math.Min(rd, Math.Min(gd, bd)), d = max - min;
@@ -591,7 +624,7 @@ public partial class MainViewModel
         if (h < 0) h += 360;
     }
 
-    private static void HsvToRgb(double h, double s, double v, out byte r, out byte g, out byte b)
+    internal static void HsvToRgb(double h, double s, double v, out byte r, out byte g, out byte b)
     {
         double c = v * s, x = c * (1 - Math.Abs((h / 60) % 2 - 1)), m = v - c;
         (double rd, double gd, double bd) = (h % 360) switch
@@ -663,6 +696,8 @@ public partial class MainViewModel
 
         RefreshGroups();
         RefreshPresetChips();
+        LoadLcdConfig(c);
+        LcdConfigChanged?.Invoke();
         OnPropertiesChanged(nameof(FanCountLabel), nameof(CurveCurrentOutput));
     }
 
