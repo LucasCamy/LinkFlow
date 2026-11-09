@@ -26,7 +26,7 @@ public sealed class LcdComposer : IDisposable
     private readonly EncoderParameters _encParams;
     private readonly MemoryStream _ms = new(64 * 1024);
     private readonly Dictionary<string, MediaEntry?> _media = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<(string, LcdFit, int, int), byte[]> _jpegCache = new();
+    private readonly Dictionary<string, byte[]> _jpegCache = new();
     private long _jpegCacheBytes;
 
     private readonly Font _titleFont = new("Segoe UI", 13, FontStyle.Bold);
@@ -79,7 +79,8 @@ public sealed class LcdComposer : IDisposable
     /// (1 s para métricas e imagens; o atraso do quadro para GIFs).
     /// </summary>
     /// <param name="applyRotation">False na prévia: mostra o quadro como ele aparece fisicamente, já compensado.</param>
-    public TimeSpan Compose(LcdConfig cfg, EngineSnapshot snap, RgbConfig rgb, bool applyRotation = true)
+    /// <param name="pinItem">Editor: mostra sempre este item (sem passar para o próximo slide).</param>
+    public TimeSpan Compose(LcdConfig cfg, EngineSnapshot snap, RgbConfig rgb, bool applyRotation = true, int? pinItem = null)
     {
         var theme = rgb.SyncLcd ? Color.FromArgb(rgb.R, rgb.G, rgb.B) : Color.FromArgb(0, 240, 255);
         if (theme.R + theme.G + theme.B < 60) theme = Color.FromArgb(0, 240, 255); // cor apagada: mantém legível
@@ -89,6 +90,8 @@ public sealed class LcdComposer : IDisposable
         var g = _g;
         g.ResetTransform();
         TimeSpan next = TimeSpan.FromSeconds(1);
+        IsAnimating = false;
+        _pinItem = pinItem is { } pi && pi >= 0 && pi < cfg.Media.Count ? pi : null;
 
         if (cfg.Mode == LcdMode.Media && cfg.Media.Count > 0)
         {
@@ -97,8 +100,8 @@ public sealed class LcdComposer : IDisposable
         }
         else
         {
-            DrawMetrics(cfg, snap, theme, warning, critical);
-            Status = "Métricas";
+            next = DrawMetrics(cfg, snap, theme, warning, critical);
+            Status = cfg.ShowTelemetry ? "Métricas" : "Imagem de fundo";
         }
 
         if (applyRotation && cfg.Rotation != 0)
@@ -128,7 +131,8 @@ public sealed class LcdComposer : IDisposable
         if (cacheable)
         {
             var next = Compose(cfg, snap, rgb);
-            var key = (CurrentItem(cfg).Path, cfg.Fit, cfg.Rotation, _frameIndex);
+            var item = CurrentItem(cfg);
+            var key = $"{item.Path}|{cfg.Fit}|{cfg.Rotation}|{_frameIndex}|{item.Crop.Zoom:0.###}|{item.Crop.OffsetX:0.###}|{item.Crop.OffsetY:0.###}";
             if (_jpegCache.TryGetValue(key, out var cached)) return (cached, next);
             var jpeg = EncodeJpeg();
             if (_jpegCacheBytes + jpeg.Length > 24 * 1024 * 1024)
@@ -147,16 +151,34 @@ public sealed class LcdComposer : IDisposable
 
     // ------------------------------------------------------------------ Métricas
 
-    private void DrawMetrics(LcdConfig cfg, EngineSnapshot snap, Color theme, bool warning, EngineAlert? critical)
+    private TimeSpan DrawMetrics(LcdConfig cfg, EngineSnapshot snap, Color theme, bool warning, EngineAlert? critical)
     {
         var g = _g;
         g.FillRectangle(_bgBrush, 0, 0, Size, Size);
+        TimeSpan next = TimeSpan.FromSeconds(1);
 
         if (!string.IsNullOrWhiteSpace(cfg.BackgroundPath) && GetMedia(cfg.BackgroundPath!) is { } bg)
         {
-            DrawImageFit(bg.Image, LcdFit.Cover);
-            using var dim = new SolidBrush(Color.FromArgb((int)(cfg.BackgroundDim * 2.55), 6, 10, 18));
-            g.FillRectangle(dim, 0, 0, Size, Size);
+            // Fundo animado (GIF): avança os quadros como no modo imagem
+            if (bg.FrameCount > 1)
+            {
+                if (_bgPath != cfg.BackgroundPath) { _bgPath = cfg.BackgroundPath; _bgFrame = 0; _bgStarted = Stopwatch.GetTimestamp(); }
+                var remaining = AdvanceFrames(bg, ref _bgFrame, ref _bgStarted);
+                bg.Image.SelectActiveFrame(bg.Dimension, _bgFrame);
+                next = TimeSpan.FromMilliseconds(Math.Max(MinFrameMs, remaining));
+                IsAnimating = true;
+            }
+            DrawImageFit(bg.Image, LcdFit.Cover, cfg.BackgroundCrop);
+            if (cfg.ShowTelemetry)
+            {
+                using var dim = new SolidBrush(Color.FromArgb((int)(cfg.BackgroundDim * 2.55), 6, 10, 18));
+                g.FillRectangle(dim, 0, 0, Size, Size);
+            }
+            else
+            {
+                if (warning) DrawWarningBanner(snap, critical);
+                return next; // só a imagem/GIF, sem números
+            }
         }
 
         var main = Metric(cfg.MainMetric, snap);
@@ -208,6 +230,7 @@ public sealed class LcdComposer : IDisposable
 
         string status = snap.FailSafeActive ? "MODO SEGURANÇA" : critical != null ? "ALERTA" : "OPERACIONAL";
         g.DrawString($"● {status}", _statusFont, warning ? _warn : _ok, new PointF(240, statusY), _center);
+        return next;
     }
 
     private void DrawSmall(LcdMetricValue m, float x, float y)
@@ -295,8 +318,17 @@ public sealed class LcdComposer : IDisposable
             _frameStarted = now;
         }
 
+        // Editor aberto: fica no item que está sendo enquadrado
+        if (_pinItem is { } pin && pin != _itemIndex)
+        {
+            _itemIndex = pin;
+            _itemStarted = now;
+            _frameIndex = 0;
+            _frameStarted = now;
+        }
+
         var item = CurrentItem(cfg);
-        if (cfg.Media.Count > 1 && Stopwatch.GetElapsedTime(_itemStarted, now).TotalSeconds >= item.DurationSeconds)
+        if (_pinItem == null && cfg.Media.Count > 1 && Stopwatch.GetElapsedTime(_itemStarted, now).TotalSeconds >= item.DurationSeconds)
         {
             _itemIndex = (_itemIndex + 1) % cfg.Media.Count;
             _itemStarted = now;
@@ -319,24 +351,18 @@ public sealed class LcdComposer : IDisposable
         else if (media.FrameCount > 1)
         {
             // Avança os quadros do GIF conforme o tempo real (pula quadros se atrasar)
-            var elapsed = Stopwatch.GetElapsedTime(_frameStarted, now).TotalMilliseconds;
-            while (elapsed >= media.Delays[_frameIndex])
-            {
-                elapsed -= media.Delays[_frameIndex];
-                _frameIndex = (_frameIndex + 1) % media.FrameCount;
-                _frameStarted = now - (long)(elapsed * Stopwatch.Frequency / 1000);
-            }
+            double remaining = AdvanceFrames(media, ref _frameIndex, ref _frameStarted);
             media.Image.SelectActiveFrame(media.Dimension, _frameIndex);
-            DrawImageFit(media.Image, cfg.Fit);
-            double remaining = media.Delays[_frameIndex] - elapsed;
+            DrawImageFit(media.Image, cfg.Fit, item.Crop);
             next = TimeSpan.FromMilliseconds(Math.Max(MinFrameMs, remaining));
+            IsAnimating = true;
             Status = $"GIF{position} • {media.FrameCount} quadros";
         }
         else
         {
-            DrawImageFit(media.Image, cfg.Fit);
+            DrawImageFit(media.Image, cfg.Fit, item.Crop);
             Status = $"Imagem{position}";
-            if (cfg.Media.Count > 1)
+            if (cfg.Media.Count > 1 && _pinItem == null)
             {
                 var left = item.DurationSeconds - Stopwatch.GetElapsedTime(_itemStarted, now).TotalSeconds;
                 next = TimeSpan.FromSeconds(Math.Clamp(left, 0.1, 1));
@@ -373,14 +399,54 @@ public sealed class LcdComposer : IDisposable
         _g.DrawString(text, _messageFont, _white, rect, _centerBoth);
     }
 
-    private void DrawImageFit(Image img, LcdFit fit)
+    /// <summary>Tamanho da imagem na tela (px do LCD) para o encaixe e zoom escolhidos.</summary>
+    public static (double W, double H) ScaledSize(double imgW, double imgH, LcdFit fit, double zoom)
     {
-        float scale = fit == LcdFit.Cover
-            ? Math.Max((float)Size / img.Width, (float)Size / img.Height)
-            : Math.Min((float)Size / img.Width, (float)Size / img.Height);
-        float w = img.Width * scale, h = img.Height * scale;
-        _g.DrawImage(img, new RectangleF((Size - w) / 2, (Size - h) / 2, w, h));
+        double scale = fit == LcdFit.Cover ? Math.Max(Size / imgW, Size / imgH) : Math.Min(Size / imgW, Size / imgH);
+        scale *= Math.Clamp(zoom, 1, LcdCrop.MaxZoom);
+        return (imgW * scale, imgH * scale);
     }
+
+    /// <summary>Quanto a imagem pode andar para cada lado (px do LCD): deslocamento ±1 = até a borda.</summary>
+    public static (double X, double Y) PanRange(double imgW, double imgH, LcdFit fit, double zoom)
+    {
+        var (w, h) = ScaledSize(imgW, imgH, fit, zoom);
+        return (Math.Abs(w - Size) / 2, Math.Abs(h - Size) / 2);
+    }
+
+    private void DrawImageFit(Image img, LcdFit fit, LcdCrop? crop = null)
+    {
+        double zoom = crop?.Zoom ?? 1;
+        var (w, h) = ScaledSize(img.Width, img.Height, fit, zoom);
+        var (rx, ry) = PanRange(img.Width, img.Height, fit, zoom);
+        double x = (Size - w) / 2 + (crop?.OffsetX ?? 0) * rx;
+        double y = (Size - h) / 2 + (crop?.OffsetY ?? 0) * ry;
+        _g.DrawImage(img, new RectangleF((float)x, (float)y, (float)w, (float)h));
+    }
+
+    /// <summary>Avança os quadros do GIF pelo tempo real. Retorna quantos ms faltam para o próximo.</summary>
+    private static double AdvanceFrames(MediaEntry media, ref int index, ref long started)
+    {
+        long now = Stopwatch.GetTimestamp();
+        if (index >= media.FrameCount) index = 0;
+        var elapsed = Stopwatch.GetElapsedTime(started, now).TotalMilliseconds;
+        int guard = 0;
+        while (elapsed >= media.Delays[index] && guard++ < 1000)
+        {
+            elapsed -= media.Delays[index];
+            index = (index + 1) % media.FrameCount;
+            started = now - (long)(elapsed * Stopwatch.Frequency / 1000);
+        }
+        return media.Delays[index] - elapsed;
+    }
+
+    /// <summary>Há um GIF animando (o engine deve mandar quadros na velocidade dele).</summary>
+    public bool IsAnimating { get; private set; }
+
+    private int? _pinItem;
+    private string? _bgPath;
+    private int _bgFrame;
+    private long _bgStarted;
 
     private static GraphicsPath RoundedRect(RectangleF r, float radius)
     {
@@ -423,7 +489,7 @@ public sealed class LcdComposer : IDisposable
             _media[path]?.Dispose();
             _media.Remove(path);
         }
-        foreach (var k in _jpegCache.Keys.Where(k => !keep.Contains(k.Item1)).ToList())
+        foreach (var k in _jpegCache.Keys.Where(k => !keep.Contains(k[..k.IndexOf('|')])).ToList())
         {
             _jpegCacheBytes -= _jpegCache[k].Length;
             _jpegCache.Remove(k);

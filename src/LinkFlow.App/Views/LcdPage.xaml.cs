@@ -67,6 +67,59 @@ public partial class LcdPage : UserControl
         if (supported.Count > 0) await ImportAsync(supported);
     }
 
+    // ------------------------------------------------------------------ Enquadramento na prévia
+
+    private Point? _dragFrom;
+
+    private void Crop_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement el) return;
+        if (e.ClickCount == 2)
+        {
+            Vm?.ResetCropCommand.Execute(null);
+            return;
+        }
+        _dragFrom = e.GetPosition(el);
+        el.CaptureMouse();
+        e.Handled = true;
+    }
+
+    private void Crop_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (_dragFrom is not { } from || sender is not FrameworkElement el || Vm is not { } vm) return;
+        var p = e.GetPosition(el);
+        vm.PanCropBy(p.X - from.X, p.Y - from.Y, el.ActualWidth);
+        _dragFrom = p;
+    }
+
+    private void Crop_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        _dragFrom = null;
+        (sender as FrameworkElement)?.ReleaseMouseCapture();
+    }
+
+    private void Crop_MouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        Vm?.ZoomCropBy(e.Delta);
+        e.Handled = true;
+    }
+
+    private void MediaRow_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is DependencyObject d && FindButton(d)) return; // botões da linha têm ação própria
+        if (ItemFrom(sender) is { } item) Vm?.EditMedia(item.Index);
+    }
+
+    private static bool FindButton(DependencyObject d)
+    {
+        while (d != null && d is not Border { Name: "MediaRow" })
+        {
+            if (d is System.Windows.Controls.Primitives.ButtonBase) return true;
+            d = System.Windows.Media.VisualTreeHelper.GetParent(d);
+        }
+        return false;
+    }
+
     private static LcdMediaItemViewModel? ItemFrom(object sender) =>
         sender is FrameworkElement { DataContext: LcdMediaItemViewModel item } ? item : null;
 

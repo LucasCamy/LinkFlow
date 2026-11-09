@@ -895,7 +895,8 @@ public sealed class LinkFlowEngine : IDisposable
                 {
                     var (jpeg, next) = composer.ComposeJpeg(cfg.Lcd, GetSnapshot(), cfg.Rgb);
                     // Métricas: 1 quadro/s (opção do engine); GIFs: o atraso do próprio quadro
-                    var interval = cfg.Lcd.Mode == LcdMode.Metrics || cfg.Lcd.Media.Count == 0 ? _opt.LcdFrameInterval : next;
+                    bool fast = composer.IsAnimating || (cfg.Lcd.Mode == LcdMode.Media && cfg.Lcd.Media.Count > 1);
+                    var interval = fast ? next : _opt.LcdFrameInterval;
                     nextFrame = Stopwatch.GetTimestamp() + Ticks(interval);
                     bool ok = _lcd.SendJpegFrame(jpeg);
                     lock (_stateLock)

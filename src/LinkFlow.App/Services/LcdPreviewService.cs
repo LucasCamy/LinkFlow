@@ -61,7 +61,8 @@ public sealed class LcdPreviewService : IDisposable
                 try
                 {
                     composer ??= new LcdComposer();
-                    next = composer.Compose(cfg.Lcd, snap, cfg.Rgb, applyRotation: false);
+                    int pin = _vm.LcdPreviewPin;
+                    next = composer.Compose(cfg.Lcd, snap, cfg.Rgb, applyRotation: false, pinItem: pin >= 0 ? pin : null);
                     image = ToBitmapSource(composer.Canvas);
                 }
                 catch (Exception ex)
@@ -73,7 +74,7 @@ public sealed class LcdPreviewService : IDisposable
 
                 _ui.BeginInvoke(DispatcherPriority.Background, () => _vm.LcdPreview = image);
 
-                bool animated = cfg.Lcd.Mode == LcdMode.Media && cfg.Lcd.Media.Count > 0;
+                bool animated = composer.IsAnimating;
                 var wait = animated ? next : TimeSpan.FromSeconds(1);
                 if (wait < TimeSpan.FromMilliseconds(40)) wait = TimeSpan.FromMilliseconds(40);
                 _wake.WaitOne(wait);

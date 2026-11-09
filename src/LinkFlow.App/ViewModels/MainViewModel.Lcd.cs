@@ -257,9 +257,14 @@ public partial class MainViewModel
                     l.Media.Add(new LcdMediaItem { Path = path, Name = name, DurationSeconds = 10 });
                 l.Mode = LcdMode.Media;
             }));
+        EditMedia(LcdMedia.Count - 1); // já abre o enquadramento do que acabou de entrar
     }
 
-    public void SetLcdBackground(string path) => UpdateLcd(l => l.BackgroundPath = path);
+    public void SetLcdBackground(string path) => UpdateLcd(l =>
+    {
+        l.BackgroundPath = path;
+        l.BackgroundCrop = new LcdCrop();
+    });
 
     // ------------------------------------------------------------------ Propriedades
 
@@ -382,6 +387,7 @@ public partial class MainViewModel
 
         OnPropertiesChanged(nameof(IsLcdMetricsMode), nameof(IsLcdMediaMode), nameof(LcdRotation), nameof(LcdFitCover), nameof(LcdFitContain),
             nameof(HasLcdMedia), nameof(HasLcdBackground), nameof(LcdBackgroundName), nameof(LcdSecondaryCount), nameof(LcdSecondarySummary),
-            nameof(LcdNowShowing));
+            nameof(LcdNowShowing), nameof(LcdShowTelemetry));
+        SyncEditorAfterLoad();
     }
 }

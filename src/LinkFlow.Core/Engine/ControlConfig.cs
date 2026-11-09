@@ -222,6 +222,9 @@ public sealed class LcdMediaItem
 
     /// <summary>Tempo na tela antes de passar para o próximo item (apresentação de slides).</summary>
     public int DurationSeconds { get; set; } = 10;
+
+    /// <summary>Enquadramento escolhido no editor (zoom e posição).</summary>
+    public LcdCrop Crop { get; set; } = new();
 }
 
 public sealed class LcdConfig
@@ -239,6 +242,10 @@ public sealed class LcdConfig
     public bool ShowRing { get; set; } = true;
     public string? BackgroundPath { get; set; }
     public byte BackgroundDim { get; set; } = 55;
+    public LcdCrop BackgroundCrop { get; set; } = new();
+
+    /// <summary>Modo telemetria com foto de fundo: false esconde os números (só a imagem/GIF).</summary>
+    public bool ShowTelemetry { get; set; } = true;
 
     // Modo imagem/GIF (lista com apresentação de slides)
     public List<LcdMediaItem> Media { get; set; } = new();
@@ -259,6 +266,9 @@ public sealed class LcdConfig
         Media.RemoveAll(m => string.IsNullOrWhiteSpace(m.Path));
         foreach (var m in Media) m.DurationSeconds = Math.Clamp(m.DurationSeconds, 2, 3600);
         BackgroundDim = Math.Min(BackgroundDim, (byte)95);
+        BackgroundCrop ??= new();
+        BackgroundCrop.Normalize();
+        foreach (var m in Media) { m.Crop ??= new(); m.Crop.Normalize(); }
     }
 }
 
@@ -415,5 +425,27 @@ public sealed class AutomationConfig
         Quiet ??= new();
         Quiet.StartHour = Math.Clamp(Quiet.StartHour, 0, 23);
         Quiet.EndHour = Math.Clamp(Quiet.EndHour, 0, 23);
+    }
+}
+
+/// <summary>
+/// Enquadramento de uma imagem no LCD: zoom (1 = encaixe escolhido) e deslocamento normalizado
+/// (-1..1 = até a borda da imagem), então qualquer valor salvo é sempre válido.
+/// </summary>
+public sealed class LcdCrop
+{
+    public double Zoom { get; set; } = 1;
+    public double OffsetX { get; set; }
+    public double OffsetY { get; set; }
+
+    public const double MaxZoom = 5;
+
+    public bool IsDefault => Math.Abs(Zoom - 1) < 0.001 && Math.Abs(OffsetX) < 0.001 && Math.Abs(OffsetY) < 0.001;
+
+    public void Normalize()
+    {
+        Zoom = Math.Clamp(double.IsFinite(Zoom) ? Zoom : 1, 1, MaxZoom);
+        OffsetX = Math.Clamp(double.IsFinite(OffsetX) ? OffsetX : 0, -1, 1);
+        OffsetY = Math.Clamp(double.IsFinite(OffsetY) ? OffsetY : 0, -1, 1);
     }
 }
