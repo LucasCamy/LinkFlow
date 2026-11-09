@@ -60,7 +60,7 @@ public sealed class CorsairLinkHub : IFanHub
         {
             int v1 = fwResp[4];
             int v2 = fwResp[5];
-            int v3 = BinaryPrimitives.ReadInt16LittleEndian(fwResp.AsSpan(6, 2));
+            int v3 = BinaryPrimitives.ReadUInt16LittleEndian(fwResp.AsSpan(6, 2));
             FirmwareVersion = $"{v1}.{v2}.{v3}";
         }
 

@@ -461,7 +461,9 @@ public sealed class LinkFlowEngine : IDisposable
                 }
                 else
                 {
-                    bool stopped = f.Rpm == 0 && f.AppliedPercent >= FanLimits.MinPercent;
+                    // Dispositivos de modelo desconhecido podem não ter tacômetro (ex.: módulos sem ventoinha)
+                    bool stopped = f.Rpm == 0 && f.AppliedPercent >= FanLimits.MinPercent &&
+                                   f.Model != nameof(LinkDeviceModel.Unknown);
                     int n = stopped ? zeroReads.GetValueOrDefault(f.Key) + 1 : 0;
                     zeroReads[f.Key] = n;
                     if (n >= _opt.FanStopReadsBeforeAlert)
