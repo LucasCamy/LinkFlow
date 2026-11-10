@@ -22,6 +22,20 @@ Controle de ventoinhas, bomba, RGB e display LCD para **Corsair iCUE LINK**, com
 - **Leve**: discos e prévias só leem quando visíveis; na bandeja a interface devolve a memória ao Windows; dispositivos USB reconectam na hora ao serem ligados.
 - **Backup**: exporte tudo (perfis, curva, nomes, iluminação, LCD com as imagens, limites, preferências) para um arquivo `.linkflow` e importe escolhendo as partes.
 
+## Instalar
+
+Baixe o **`LinkFlow-Setup-<versão>.exe`** na página de [Releases](https://github.com/LucasCamy/LinkFlow/releases) e execute. Não precisa instalar o .NET.
+
+- O instalador copia o LinkFlow para `Arquivos de Programas`, instala o **serviço do Windows** (recomendado) e, se quiser, abre o LinkFlow na bandeja ao entrar no Windows.
+- O Windows pode mostrar "O Windows protegeu o computador" (o instalador não é assinado): clique em **Mais informações → Executar assim mesmo**.
+- **Feche o iCUE** antes de usar: os dois não podem controlar o hub ao mesmo tempo.
+- Opcional: **RGB das memórias Corsair DDR5** precisa do [PawnIO](https://pawnio.eu/) instalado; **periféricos Logitech** precisam do G HUB aberto com "Permitir que jogos e aplicativos controlem a iluminação" ligado.
+- Para atualizar, rode o instalador da versão nova por cima (as configurações ficam em `%ProgramData%\LinkFlow`). Para remover, use **Configurações do Windows → Aplicativos**.
+
+Também há a versão **portátil** (`LinkFlow-<versão>-portable.zip`): descompacte e abra `LinkFlow.App.exe`.
+
+Para gerar os arquivos do release: `.\scripts\release.ps1` (requer o [Inno Setup 6](https://jrsoftware.org/isinfo.php)).
+
 ## Arquitetura
 
 ```
