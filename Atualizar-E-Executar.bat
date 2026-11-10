@@ -43,6 +43,7 @@ xcopy /Y /E /I "%NEWDIR%\*" "%APPDIR%\" >nul
 
 if "%HASSVC%"=="1" (
     echo 5. Iniciando o servico %SVC%...
+    sc config %SVC% start= auto >nul 2>&1
     sc start %SVC% >nul 2>&1
     timeout /t 2 /nobreak >nul
 )

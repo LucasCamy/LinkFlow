@@ -17,6 +17,8 @@ public partial class App : Application
     private SingleInstance? _instance;
     private TrayIconService? _tray;
     private int _exiting;
+    private bool _handoffToService;
+    private DispatcherTimer? _serviceWatch;
     private DateTime _lastTrayUpdate;
 
     public StartupOptions Options { get; private set; } = new();
@@ -96,6 +98,7 @@ public partial class App : Application
 
         _engine = CreateEngineClient();
         _engine.Start();
+        if (!_engine.IsRemote && !Options.Simulate && !testRun) WatchForService();
         SettingsVm.AttachEngine(_engine);
 
         _vm = new MainViewModel(_engine);
@@ -150,12 +153,30 @@ public partial class App : Application
                 return remote;
             }
 
-            if (!Options.Simulate && ServiceManager.Query() is ServiceState.Running or ServiceState.Starting)
+            var state = Options.Simulate ? ServiceState.NotInstalled : ServiceManager.Query();
+            if (state is ServiceState.Running or ServiceState.Starting or ServiceState.Stopped)
             {
-                // Serviço iniciando (ex.: logo após o boot): espera um pouco antes de cair para o modo local
-                remote = Core.Ipc.PipeEngineClient.TryConnect(TimeSpan.FromSeconds(8));
-                if (remote != null) return remote;
-                Log.Warn("Serviço instalado mas sem resposta; usando modo local.");
+                // Serviço instalado: ele é o dono do hardware. Dois engines no mesmo hub embaralham os
+                // comandos (cores doidas, leituras de 0 RPM → modo de segurança com tudo a 100%).
+                // Logo após o logon ele pode ainda não ter subido: inicia se der e espera.
+                if (state == ServiceState.Stopped && AutoStartManager.IsElevated)
+                {
+                    Log.Info("Serviço instalado mas parado: iniciando.");
+                    ServiceManager.Execute("start-service");
+                }
+                var wait = Options.StartInTray ? TimeSpan.FromMinutes(3) : TimeSpan.FromSeconds(20);
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                while (sw.Elapsed < wait)
+                {
+                    remote = Core.Ipc.PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2));
+                    if (remote != null)
+                    {
+                        Log.Info($"Conectado ao serviço LinkFlow após {sw.Elapsed.TotalSeconds:0} s (modo serviço).");
+                        return remote;
+                    }
+                    Thread.Sleep(1000);
+                }
+                Log.Warn("Serviço instalado mas sem resposta; usando modo local até ele aparecer.");
             }
         }
 
@@ -337,6 +358,44 @@ public partial class App : Application
         base.OnSessionEnding(e);
     }
 
+    // ------------------------------------------------------------------ Modo local → serviço
+
+    /// <summary>
+    /// No modo local, vigia o pipe do serviço (barato: só lista os pipes a cada 5 s). Se o serviço subir,
+    /// a interface solta o hardware e reabre como cliente — nunca dois engines no mesmo hub.
+    /// </summary>
+    private void WatchForService()
+    {
+        _serviceWatch = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(5) };
+        _serviceWatch.Tick += (_, _) =>
+        {
+            if (!ServicePipeExists()) return;
+            _serviceWatch.Stop();
+            Log.Warn("Serviço LinkFlow apareceu com a interface em modo local: devolvendo o hardware ao serviço.");
+            _handoffToService = true;
+            ExitApplication();
+        };
+        _serviceWatch.Start();
+    }
+
+    private static bool ServicePipeExists()
+    {
+        try { return Directory.EnumerateFiles(@"\\.\pipe\", Core.Ipc.PipeProtocol.PipeName).Any(); }
+        catch { return false; }
+    }
+
+    private void RelaunchAsServiceClient()
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(AutoStartManager.ExePath, "--tray") { UseShellExecute = false, WorkingDirectory = AppContext.BaseDirectory });
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Não foi possível reabrir a interface: {ex.Message}");
+        }
+    }
+
     // ------------------------------------------------------------------ Encerramento
 
     /// <summary>Encerra o aplicativo de verdade (no modo local o hub volta ao modo hardware).</summary>
@@ -358,8 +417,9 @@ public partial class App : Application
             _peripheralBridge?.Dispose();
             _automation?.Dispose();
             _vm?.Dispose();
-            _engine?.ShutdownAsync(restoreHardwareMode: true).Wait(TimeSpan.FromSeconds(6));
+            _engine?.ShutdownAsync(restoreHardwareMode: !_handoffToService).Wait(TimeSpan.FromSeconds(6));
             _instance?.Dispose();
+            if (_handoffToService) RelaunchAsServiceClient();
         }
         catch (Exception ex)
         {

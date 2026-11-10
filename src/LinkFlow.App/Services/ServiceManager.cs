@@ -70,7 +70,7 @@ public static class ServiceManager
         var state = Query();
         if (state == ServiceState.NotInstalled)
         {
-            int code = Sc($"create {Name} binPath= \"\\\"{ServiceExePath}\\\"\" start= delayed-auto DisplayName= \"{DisplayName}\"", out var output);
+            int code = Sc($"create {Name} binPath= \"\\\"{ServiceExePath}\\\"\" start= auto DisplayName= \"{DisplayName}\"", out var output);
             if (code != 0)
             {
                 Log.Warn($"sc create falhou ({code}): {output}");
@@ -81,7 +81,7 @@ public static class ServiceManager
         {
             // Já existe: atualiza o caminho (ex.: pasta do app mudou)
             StopService();
-            Sc($"config {Name} binPath= \"\\\"{ServiceExePath}\\\"\" start= delayed-auto", out _);
+            Sc($"config {Name} binPath= \"\\\"{ServiceExePath}\\\"\" start= auto", out _);
         }
 
         Sc($"description {Name} \"{Description}\"", out _);

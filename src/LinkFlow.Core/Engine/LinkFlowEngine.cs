@@ -842,6 +842,7 @@ public sealed class LinkFlowEngine : IDisposable
 
         using var composer = new LcdComposer();
         long appliedRgbVersion = -1, lastRgbApply = 0, nextFrame = 0, nextLcdReconnect = 0;
+        long nextPeripheralRetry = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(30));
         LcdConfig? lastLcd = null;
 
         while (!ct.IsCancellationRequested)
@@ -856,6 +857,17 @@ public sealed class LinkFlowEngine : IDisposable
                 {
                     _lcd.Disconnect();
                     nextLcdReconnect = 0;
+                }
+
+                // G HUB costuma abrir depois do LinkFlow no logon: tenta os periféricos de novo a cada 30 s
+                if (!_peripheralsRgb.IsAvailable && now >= nextPeripheralRetry)
+                {
+                    nextPeripheralRetry = now + Ticks(TimeSpan.FromSeconds(30));
+                    if (SafeCall(() => { _peripheralsRgb.Initialize(); return _peripheralsRgb.IsAvailable; }))
+                    {
+                        Log.Info($"Periféricos detectados: {_peripheralsRgb.Name}");
+                        Interlocked.Increment(ref _rgbVersion);
+                    }
                 }
 
                 if (Interlocked.Exchange(ref _rescanRgb, 0) == 1)
