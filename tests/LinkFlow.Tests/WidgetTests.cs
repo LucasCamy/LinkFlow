@@ -41,6 +41,8 @@ public sealed class WidgetTests : IDisposable
     public void Default_items_show_live_values()
     {
         Assert.Equal(new[] { "cpu.temp", "gpu.temp", "coolant.temp", "fans.avg" }, _w.Items.Select(i => i.Id));
+        WaitFor(() => _vm.Snapshot.CpuTemp.HasValue && _vm.Snapshot.Fans.Any(f => !f.IsPump && f.Rpm > 0),
+            "amostra de temperatura da CPU e rotação das ventoinhas");
         _w.Update(_vm.Snapshot);
         Assert.EndsWith("°C", _w.Items[0].Text);
         Assert.EndsWith("RPM", _w.Items[3].Text);
