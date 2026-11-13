@@ -2,6 +2,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LinkFlow.Core\LinkFlow.Core.csproj" />
+    <InternalsVisibleTo Include="LinkFlow.Tests" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -18,7 +21,8 @@
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <AssemblyName>LinkFlow.App</AssemblyName>
     <Product>LinkFlow</Product>
-    <Version>2.0.0</Version>
+    <Version>2.2.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Company>LinkFlow</Company>
     <Description>LinkFlow - controle de ventoinhas, RGB e LCD para Corsair iCUE LINK</Description>
       <!-- Baixo consumo: sem GC em segundo plano (thread e memória extras) -->

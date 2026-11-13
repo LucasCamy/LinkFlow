@@ -27,28 +27,27 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private bool _syncHub, _syncLcd, _syncGpu, _syncMotherboard, _syncRam, _syncPeripherals;
     private bool _isLcdAutoStream;
 
-    public MainViewModel(IEngineClient engine, Dispatcher? dispatcher = null)
+    public MainViewModel(IEngineClient engine, Dispatcher? dispatcher = null, string? alertHistoryPath = null)
     {
         _engine = engine;
         _dispatcher = dispatcher ?? Application.Current.Dispatcher;
+        AlertCenter = new AlertsViewModel(alertHistoryPath);
 
         LoadConfig(engine.Config);
 
         _engine.SnapshotUpdated += OnSnapshot;
         _engine.ConfigChanged += c => _dispatcher.BeginInvoke(() => LoadConfig(c));
-        _engine.AlertRaised += a => _dispatcher.BeginInvoke(() => AlertRaised?.Invoke(a));
-        _engine.ConnectionChanged += connected => _dispatcher.BeginInvoke(() =>
-        {
-            OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected));
-            if (connected) LoadConfig(_engine.Config);
-        });
+        _engine.AlertRaised += OnEngineAlert;
+        _engine.ConnectionChanged += OnEngineConnectionChanged;
 
         InitializeCommands();
         UpdateSensorDemand();
         if (engine.Snapshot is { } s) ApplySnapshot(s);
+        else AlertCenter.Update(Snapshot, IsEngineDisconnected);
     }
 
     public IEngineClient Engine => _engine;
+    public AlertsViewModel AlertCenter { get; }
     public event Action<EngineAlert>? AlertRaised;
     public event Action? SnapshotApplied;
 
@@ -89,7 +88,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private void ApplySnapshot(EngineSnapshot s)
     {
+        bool wasFailSafeActive = Snapshot.FailSafeActive;
         Snapshot = s;
+        AlertCenter.Update(s, IsEngineDisconnected);
         if (!_isViewActive)
         {
             SnapshotApplied?.Invoke();
@@ -102,18 +103,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
             nameof(Snapshot),
             nameof(IsConnected), nameof(ConnectionStatus), nameof(HubStatusColor),
             nameof(CpuName), nameof(GpuName),
-            nameof(CpuTempFormatted), nameof(CpuLoadFormatted), nameof(CpuSensorHint),
-            nameof(GpuTempFormatted), nameof(GpuLoadFormatted), nameof(GpuHotspotFormatted),
+            nameof(CpuTempFormatted), nameof(CpuLoadFormatted), nameof(CpuPowerDetail),
+            nameof(GpuTempFormatted), nameof(GpuLoadFormatted), nameof(GpuHotspotFormatted), nameof(GpuVramDetail),
             nameof(RamUsageFormatted), nameof(RamDetail),
-            nameof(CoolantTempFormatted),
+            nameof(CoolantTempFormatted), nameof(HasLiquidCooling),
             nameof(AverageFanRpm), nameof(AverageFanRpmFormatted), nameof(PumpRpm), nameof(PumpRpmFormatted),
             nameof(GpuFanRpmFormatted),
             nameof(EffectiveGlobalPercent), nameof(GlobalSpeedFormatted), nameof(CurveStatus), nameof(IsFailSafeActive),
             nameof(IsLcdConnected), nameof(LcdStatus),
-            nameof(GpuRgbStatus), nameof(MotherboardRgbStatus), nameof(RamRgbStatus), nameof(PeripheralsRgbStatus), nameof(RgbSyncStatus),
-            nameof(Alerts), nameof(HasAlerts), nameof(EngineModeLabel));
+            nameof(MotherboardRgbStatus), nameof(RamRgbStatus), nameof(RgbSyncStatus),
+            nameof(EngineModeLabel));
+        NotifyLightingStatus();
 
-        if (_mode == FanControlMode.Curve || s.FailSafeActive || s.GroupOutputs.Count > 0)
+        if (_mode == FanControlMode.Curve || s.FailSafeActive || wasFailSafeActive || s.GroupOutputs.Count > 0)
         {
             foreach (var f in Fans) f.RefreshLinkedValue();
         }
@@ -121,6 +123,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnSnapshotAppliedPartial(s);
         SnapshotApplied?.Invoke();
     }
+
+    private void OnEngineAlert(EngineAlert alert) => _dispatcher.BeginInvoke(() =>
+    {
+        AlertCenter.Record(alert);
+        AlertRaised?.Invoke(alert);
+    });
+
+    private void OnEngineConnectionChanged(bool connected) => _dispatcher.BeginInvoke(() =>
+    {
+        OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected));
+        AlertCenter.Update(Snapshot, IsEngineDisconnected);
+        NotifyLightingStatus();
+        if (connected) LoadConfig(_engine.Config);
+    });
 
     private void SyncFans(List<FanState> states)
     {
@@ -165,13 +181,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public string CpuTempFormatted => Fmt.Temp(Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null);
     public string CpuLoadFormatted => Fmt.Pct(Snapshot.CpuLoad);
-    public string? CpuSensorHint => Snapshot.SensorsReady && !Snapshot.CpuSensorAvailable
-        ? "Sensor de temperatura da CPU indisponível. Execute como administrador ou instale o serviço LinkFlow."
-        : null;
-
+    public string? CpuPowerDetail => Snapshot.CpuPower is { } power ? $"Pacote · {power:0} W" : null;
     public string GpuTempFormatted => Fmt.Temp(Snapshot.GpuTemp);
     public string GpuLoadFormatted => Fmt.Pct(Snapshot.GpuLoad);
     public string GpuHotspotFormatted => Fmt.Temp(Snapshot.GpuHotspot);
+    public string? GpuVramDetail
+    {
+        get
+        {
+            if (Snapshot.GpuVramTotalGb is not { } total || total <= 0) return null;
+            return Snapshot.GpuVramUsedGb is { } used
+                ? $"VRAM {used:0.0} de {total:0.#} GB"
+                : $"VRAM {total:0.#} GB";
+        }
+    }
 
     public string RamUsageFormatted => Fmt.Pct(Snapshot.RamUsage);
     public string RamDetail => Snapshot.RamUsedGb is { } u && Snapshot.RamTotalGb is { } t
@@ -179,6 +202,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         : Fmt.Missing;
 
     public string CoolantTempFormatted => Fmt.Temp(Snapshot.CoolantTemp);
+    public bool HasLiquidCooling => Snapshot.CoolantTemp.HasValue || Snapshot.PumpRpm.HasValue;
 
     public int? AverageFanRpm => Snapshot.AverageFanRpm;
     public string AverageFanRpmFormatted => Fmt.Rpm(Snapshot.AverageFanRpm);
@@ -190,32 +214,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         : $"Fan 1: {Snapshot.GpuFanRpm1 ?? 0:N0} RPM  •  Fan 2: {Snapshot.GpuFanRpm2 ?? 0:N0} RPM";
 
     public bool IsFailSafeActive => Snapshot.FailSafeActive;
-    public IReadOnlyList<EngineAlert> Alerts => Snapshot.Alerts;
-    public bool HasAlerts => Snapshot.Alerts.Count > 0;
 
     public bool IsLcdConnected => Snapshot.LcdConnected;
     public string LcdStatus => Snapshot.LcdConnected
         ? "Display 480x480 conectado"
         : "Display LCD não encontrado • tentando reconectar";
 
-    public string GpuRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.GpuRgbAvailable ? $"Conectado • {Snapshot.GpuRgbName}" : "Não detectado";
     public string MotherboardRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
     public string RamRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.RamRgbAvailable ? $"Conectado • {Snapshot.RamRgbName}" : "Não detectado";
-    public string PeripheralsRgbStatus => _externalPeripheralsStatus ?? (!Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.PeripheralsRgbAvailable ? $"Conectado • {Snapshot.PeripheralsRgbName}"
-        : "G HUB não encontrado • abra o G HUB e ative \"Permitir que jogos e aplicativos controlem a iluminação\"");
-
-    private string? _externalPeripheralsStatus;
-
-    /// <summary>Status vindo da ponte da interface (modo serviço).</summary>
-    public string? ExternalPeripheralsStatus
-    {
-        get => _externalPeripheralsStatus;
-        set { _externalPeripheralsStatus = value; OnPropertyChanged(nameof(PeripheralsRgbStatus)); }
-    }
     public string RgbSyncStatus => Snapshot.RgbStatus;
 
     // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)
@@ -255,9 +263,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public bool IsCurveMode => _mode == FanControlMode.Curve;
     public bool IsFixedMode => _mode == FanControlMode.Fixed;
 
-    public string CurveStatus => _mode == FanControlMode.Curve
-        ? $"Curva ativa • {(Snapshot.CurveInputTemp is { } t ? $"{t:0.0}°C" : "aguardando sensor")} → {Snapshot.EffectiveGlobalPercent}%"
-        : "Potência fixa";
+    public string CurveStatus => IsFailSafeActive ? "Proteção ativa · ventoinhas em 100%" :
+        _mode == FanControlMode.Curve
+            ? $"Curva ativa • {(Snapshot.CurveInputTemp is { } t ? $"{t:0.0}°C" : "aguardando sensor")} → {Snapshot.EffectiveGlobalPercent}%"
+            : "Potência fixa";
 
     public string ActivePreset => _activePreset;
 
@@ -413,6 +422,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (field == value) return;
         field = value;
         OnPropertyChanged(name);
+        if (name is nameof(SyncGpu) or nameof(SyncPeripherals))
+        {
+            NotifyLightingStatus();
+            OnPropertiesChanged(nameof(GpuLightingConflict), nameof(PeripheralsLightingConflict));
+        }
         if (!_loadingConfig) _engine.UpdateConfig(c => apply(c, value));
     }
 
@@ -490,6 +504,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _engine.SnapshotUpdated -= OnSnapshot;
+        _engine.AlertRaised -= OnEngineAlert;
+        _engine.ConnectionChanged -= OnEngineConnectionChanged;
         GC.SuppressFinalize(this);
     }
 }

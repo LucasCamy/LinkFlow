@@ -21,6 +21,7 @@ public sealed class EngineFixture : IDisposable
             LcdFrameInterval = TimeSpan.FromMilliseconds(50),
             FanStopReadsBeforeAlert = 3,
             PumpLowReadsBeforeAlert = 2,
+            FailSafeRecoveryDelay = TimeSpan.FromMilliseconds(200),
             ConfigPath = null
         };
         configure?.Invoke(opt);
@@ -119,14 +120,57 @@ public class EngineTests
         EngineFixture.WaitUntil(() => Speed(f, 1) == 30);
 
         f.Hw.Sensors.ForcedCpuTemp = 97;
-        EngineFixture.WaitUntil(() => Speed(f, 1) == 100, because: "modo de segurança em 100%");
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 100 && f.Hw.Sensors.GpuFanManual == 100,
+            because: "hub e GPU em 100% no modo de segurança");
         Assert.True(f.Engine.GetSnapshot().FailSafeActive);
-        Assert.Equal((byte?)100, f.Hw.Sensors.GpuFanManual);
         EngineFixture.WaitUntil(() => { lock (alerts) return alerts.Any(a => a.Key == "failsafe"); });
 
         f.Hw.Sensors.ForcedCpuTemp = 60;
-        EngineFixture.WaitUntil(() => Speed(f, 1) == 30, because: "volta ao normal");
-        Assert.Null(f.Hw.Sensors.GpuFanManual);
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 30 && f.Hw.Sensors.GpuFanManual == null,
+            because: "hub em 30% e GPU em modo automático");
+    }
+
+    [Theory]
+    [InlineData(11)]
+    [InlineData(12)]
+    public void Fail_safe_restores_the_latest_profile_after_coolant_stays_below_critical(int sensorChannel)
+    {
+        using var f = new EngineFixture(new ControlConfig { GlobalPercent = 35 },
+            options => options.FailSafeRecoveryDelay = TimeSpan.FromMilliseconds(400));
+        f.Hw.Hub.CoolantSensorChannel = sensorChannel;
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 35);
+        f.Hw.Hub.CoolantTemp = 51;
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 100);
+        Assert.Contains(f.Engine.GetSnapshot().Alerts, a => a.Key == "failsafe" && a.Message.Contains("Líquido"));
+
+        f.Engine.UpdateConfig(c =>
+        {
+            c.Mode = FanControlMode.Curve;
+            c.Curve.Points = [new(0, 55), new(110, 55)];
+            c.GpuFanAuto = false;
+            c.GpuFanPercent = 60;
+        });
+        Assert.Equal(100, Speed(f, 1));
+        f.Hw.Hub.CoolantTemp = 47.5f;
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Alerts.Any(a =>
+            a.Key == "failsafe" && a.Message.Contains("estabilização")));
+        Assert.Equal(100, Speed(f, 1));
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 55 && f.Hw.Sensors.GpuFanManual == 60,
+            because: "perfil selecionado retomado depois de a temperatura estabilizar");
+        var snapshot = f.Engine.GetSnapshot();
+        Assert.False(snapshot.FailSafeActive);
+        Assert.Contains(snapshot.Alerts, a => a.Key == "coolant-temp" && a.Severity == AlertSeverity.Warning);
+    }
+
+    [Fact]
+    public void Pump_failure_protects_hardware_even_when_fan_alerts_are_disabled()
+    {
+        using var f = new EngineFixture(new ControlConfig { GlobalPercent = 40, Safety = { FanStopAlert = false } });
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().PumpRpm > 800);
+        f.Hw.Hub.StoppedChannels.Add(11);
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 100 && f.Engine.GetSnapshot().FailSafeActive);
+        f.Hw.Hub.StoppedChannels.Clear();
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 40 && !f.Engine.GetSnapshot().FailSafeActive);
     }
 
     [Fact]

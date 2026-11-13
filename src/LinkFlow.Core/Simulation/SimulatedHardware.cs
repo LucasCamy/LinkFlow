@@ -41,6 +41,7 @@ public sealed class SimulatedHub : IFanHub
     public (byte R, byte G, byte B, byte Brightness)? LastRgb { get; private set; }
     public bool InSoftwareMode { get; private set; }
     public float CoolantTemp { get; set; } = 32.5f;
+    public int CoolantSensorChannel { get; set; } = 11;
 
     public SimulatedHub()
     {
@@ -109,7 +110,7 @@ public sealed class SimulatedHub : IFanHub
         lock (_lock)
         {
             if (!IsConnected || FailReads) return null;
-            return new Dictionary<int, float> { [11] = CoolantTemp + (float)(_rnd.NextDouble() * 0.2) };
+            return new Dictionary<int, float> { [CoolantSensorChannel] = CoolantTemp + (float)(_rnd.NextDouble() * 0.2) };
         }
     }
 
@@ -258,9 +259,24 @@ public sealed class SimulatedRgb : IRgbDevice
     public SimulatedRgb(string name) => Name = name;
     public string Name { get; }
     public bool IsAvailable { get; private set; }
+    public bool FailInitialization { get; set; }
+    public bool FailColorWrites { get; set; }
+    public bool NeedsInitializationRetry { get; private set; }
+    public int InitializationCalls { get; private set; }
     public int Calls { get; private set; }
     public (byte R, byte G, byte B, byte Brightness)? Last { get; private set; }
-    public void Initialize() => IsAvailable = true;
-    public bool SetColor(byte r, byte g, byte b, byte brightnessPercent) { Calls++; Last = (r, g, b, brightnessPercent); return true; }
+    public void Initialize()
+    {
+        InitializationCalls++;
+        IsAvailable = !FailInitialization;
+        NeedsInitializationRetry = !IsAvailable;
+    }
+    public bool SetColor(byte r, byte g, byte b, byte brightnessPercent)
+    {
+        bool accepted = !FailColorWrites;
+        Calls++;
+        if (accepted) Last = (r, g, b, brightnessPercent);
+        return accepted;
+    }
     public void Dispose() { }
 }

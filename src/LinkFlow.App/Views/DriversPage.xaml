@@ -1,0 +1,278 @@
+<UserControl x:Class="LinkFlow.App.Views.DriversPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:LinkFlow.App.Controls">
+    <UserControl.Resources>
+        <Style x:Key="InstalledDriverRow" TargetType="Expander">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                            <StackPanel>
+                                <ToggleButton Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                              AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                                              Foreground="{TemplateBinding Foreground}" Cursor="Hand" FocusVisualStyle="{StaticResource FocusRing}">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border x:Name="Row" Background="Transparent" Padding="16,11">
+                                                <DockPanel>
+                                                    <TextBlock x:Name="Arrow" DockPanel.Dock="Right" Text="&#xE70D;"
+                                                               Style="{StaticResource Icon}" Foreground="{StaticResource TextMutedBrush}"
+                                                               FontSize="11" Margin="16,0,0,0"/>
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                </DockPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Row" Property="Background" Value="{StaticResource SurfaceAltBrush}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Row" Property="Background" Value="{StaticResource SurfaceAltBrush}"/>
+                                                    <Setter TargetName="Arrow" Property="Text" Value="&#xE70E;"/>
+                                                    <Setter TargetName="Arrow" Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                                <ContentPresenter x:Name="Details" ContentSource="Content" Margin="16,12,16,14" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="Details" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="Drivers" Style="{StaticResource SystemPageTitle}"/>
+            <TextBlock Text="Consulte atualizações e confira as versões instaladas neste PC." Style="{StaticResource SystemDetail}"/>
+        </StackPanel>
+
+        <TabControl x:Name="DriversTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Atualizações" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <c:AdaptiveUniformGrid MinItemWidth="290" MaxColumns="2" Margin="0,0,-12,0">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <DockPanel VerticalAlignment="Top">
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE774;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Fabricantes" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock x:Name="ManufacturerStatus" Text="Consulte as fontes oficiais das peças detectadas."
+                                                       Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                                        <WrapPanel>
+                                            <Button x:Name="SearchManufacturersButton" Content="Buscar nos fabricantes" Click="SearchManufacturers_Click"
+                                                    Style="{StaticResource PrimaryButton}"/>
+                                            <Button x:Name="CancelDownloadButton" Content="Cancelar download" Click="CancelDownload_Click"
+                                                    Style="{StaticResource SecondaryButton}" Visibility="Collapsed" Margin="8,0,0,0"/>
+                                        </WrapPanel>
+                                        <ProgressBar x:Name="DownloadProgress" Height="5" Margin="0,12,0,0" Visibility="Collapsed"
+                                                     Foreground="{StaticResource AccentBrush}" Background="{StaticResource BgBrush}"
+                                                     BorderThickness="0" AutomationProperties.Name="Progresso do download"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <Grid x:Name="DriverForm">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <DockPanel VerticalAlignment="Top">
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xECAA;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Windows Update" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock x:Name="DriverStatus" Text="Confira as atualizações que o Windows oferece para este PC."
+                                                       Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <WrapPanel Grid.Row="1" Margin="0,16,0,0">
+                                        <Button x:Name="SearchUpdatesButton" Content="Buscar atualizações" Click="Search_Click"
+                                                Style="{StaticResource SecondaryButton}"/>
+                                        <Button Content="Abrir ↗" Click="OpenUpdate_Click" Style="{StaticResource SystemLinkButton}"
+                                                Margin="6,0,0,0" ToolTip="Abrir Windows Update nas Configurações"
+                                                AutomationProperties.Name="Abrir Windows Update nas Configurações"/>
+                                    </WrapPanel>
+                                </Grid>
+                            </Border>
+                        </c:AdaptiveUniformGrid>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,4,0,12"
+                                Visibility="{Binding HasItems, ElementName=ManufacturerList, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <TextBlock Text="Resultados dos fabricantes" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                                <ItemsControl x:Name="ManufacturerList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource SystemRow}">
+                                                <DockPanel>
+                                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                                                        <Button Content="Site oficial ↗" Tag="{Binding}" Click="OpenManufacturer_Click"
+                                                                Style="{StaticResource SystemLinkButton}" Margin="0,0,6,0"
+                                                                Visibility="{Binding SupportUrl, Converter={StaticResource NullToVis}}"
+                                                                AutomationProperties.Name="{Binding Device, StringFormat='Site oficial de {0}'}"/>
+                                                        <Button Content="{Binding DownloadLabel}" Tag="{Binding Package}" Click="InstallManufacturer_Click"
+                                                                Style="{StaticResource SystemActionButton}"
+                                                                Visibility="{Binding Package, Converter={StaticResource NullToVis}}"
+                                                                AutomationProperties.Name="{Binding Package.Title, StringFormat='Baixar {0}'}"/>
+                                                    </StackPanel>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Device}" Style="{StaticResource SystemItemTitle}"/>
+                                                        <TextBlock Text="{Binding Details}" Style="{StaticResource SystemDetail}"/>
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,4,0,0"
+                                Visibility="{Binding HasItems, ElementName=DriverList, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <TextBlock Text="Ofertas do Windows Update" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                                <ItemsControl x:Name="DriverList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource SystemRow}">
+                                                <DockPanel>
+                                                    <Button DockPanel.Dock="Right" Content="Revisar e instalar" Tag="{Binding}" Click="Install_Click"
+                                                            IsEnabled="{Binding CanInstall}" Style="{StaticResource SystemActionButton}"
+                                                            Margin="14,0,0,0" VerticalAlignment="Center"
+                                                            AutomationProperties.Name="{Binding Title, StringFormat='Revisar e instalar {0}'}"/>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}"/>
+                                                        <TextBlock Text="{Binding Details}" Style="{StaticResource SystemDetail}"
+                                                                   Visibility="{Binding Details, Converter={StaticResource BoolToVis}}"/>
+                                                        <TextBlock Text="{Binding InstallIssue}" Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"
+                                                                   Visibility="{Binding InstallIssue, Converter={StaticResource BoolToVis}}"/>
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Instalados" Style="{StaticResource SystemTab}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Style="{StaticResource SystemPanel}" Margin="0,0,8,14">
+                        <StackPanel>
+                            <DockPanel>
+                                <Button x:Name="ReadInstalledButton" DockPanel.Dock="Right" Content="Ler drivers" Click="ReadInstalled_Click"
+                                        Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xE896;" Style="{StaticResource SystemIcon}"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Drivers deste PC" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock x:Name="InstalledStatus" Text="Leia o inventário dos dispositivos conectados."
+                                               Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <Grid x:Name="InstalledFilterPanel" Margin="0,14,0,0" HorizontalAlignment="Left" Visibility="Collapsed">
+                                <TextBox x:Name="InstalledFilter" Style="{StaticResource SystemSearch}" Width="360"
+                                         Tag="Filtrar por dispositivo, versão ou ID" TextChanged="InstalledFilter_Changed"
+                                         AutomationProperties.Name="Filtrar drivers instalados"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}">
+                        <Border Style="{StaticResource SystemPanel}" Padding="0" Margin="0,0,0,24" VerticalAlignment="Top"
+                                Visibility="{Binding HasItems, ElementName=InstalledList, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <DockPanel Margin="16,11,43,11">
+                                    <TextBlock DockPanel.Dock="Right" Text="Versão" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="Dispositivo" Style="{StaticResource Label}"/>
+                                </DockPanel>
+                                <ItemsControl x:Name="InstalledList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Expander Style="{StaticResource InstalledDriverRow}" Header="{Binding}" AutomationProperties.Name="{Binding Name}">
+                                                <Expander.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <DockPanel>
+                                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Version}" Foreground="{StaticResource TextBrush}"
+                                                                       FontSize="13" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Name}" Style="{StaticResource SystemItemTitle}"/>
+                                                                <TextBlock Style="{StaticResource SystemDetail}"><Run Text="{Binding Category, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Provider, Mode=OneWay}"/></TextBlock>
+                                                            </StackPanel>
+                                                        </DockPanel>
+                                                    </DataTemplate>
+                                                </Expander.HeaderTemplate>
+                                                <StackPanel>
+                                                    <WrapPanel>
+                                                        <StackPanel Margin="0,0,28,8" Visibility="{Binding InfName, Converter={StaticResource NullToVis}}">
+                                                            <TextBlock Text="Arquivo INF" Style="{StaticResource Label}"/>
+                                                            <TextBlock Text="{Binding InfName}" Style="{StaticResource SystemItemTitle}"/>
+                                                        </StackPanel>
+                                                        <StackPanel Margin="0,0,0,8" Visibility="{Binding Date, Converter={StaticResource NullToVis}}">
+                                                            <TextBlock Text="Data do driver" Style="{StaticResource Label}"/>
+                                                            <TextBlock Text="{Binding DateText}" Style="{StaticResource SystemItemTitle}"/>
+                                                        </StackPanel>
+                                                    </WrapPanel>
+                                                    <StackPanel Visibility="{Binding HardwareId, Converter={StaticResource NullToVis}}">
+                                                        <TextBlock Text="ID de hardware" Style="{StaticResource Label}"/>
+                                                        <TextBlock Text="{Binding HardwareId}" Style="{StaticResource SystemDetail}"/>
+                                                    </StackPanel>
+                                                    <WrapPanel Margin="-8,6,0,0">
+                                                        <Button Content="Site oficial ↗" Tag="{Binding SupportUrl}" Click="OpenInstalledLink_Click"
+                                                                Style="{StaticResource SystemLinkButton}" Margin="0,0,6,0"
+                                                                Visibility="{Binding SupportUrl, Converter={StaticResource NullToVis}}"
+                                                                AutomationProperties.Name="{Binding Name, StringFormat='Site oficial de {0}'}"/>
+                                                        <Button Content="Catálogo Microsoft ↗" Tag="{Binding CatalogUrl}" Click="OpenInstalledLink_Click"
+                                                                Style="{StaticResource SystemLinkButton}"
+                                                                Visibility="{Binding CatalogUrl, Converter={StaticResource NullToVis}}"
+                                                                AutomationProperties.Name="{Binding Name, StringFormat='Catálogo Microsoft para {0}'}"/>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Expander>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

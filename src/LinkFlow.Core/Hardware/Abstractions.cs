@@ -57,11 +57,15 @@ public interface IRgbDevice : IDisposable
 {
     string Name { get; }
     bool IsAvailable { get; }
+    string? Diagnostic => null;
+    bool NeedsInitializationRetry => false;
+    TimeSpan? MinAnimationInterval => null;
 
     /// <summary>Detecção do dispositivo. Pode ser lenta (I2C/HID).</summary>
     void Initialize();
 
     bool SetColor(byte r, byte g, byte b, byte brightnessPercent);
+    bool SetAnimationColor(byte r, byte g, byte b, byte brightnessPercent) => SetColor(r, g, b, brightnessPercent);
 }
 
 public interface IHardwareFactory
@@ -78,6 +82,10 @@ public interface IHardwareFactory
 
 public sealed class RealHardwareFactory : IHardwareFactory
 {
+    private readonly bool _usePeripheralBridge;
+
+    public RealHardwareFactory(bool usePeripheralBridge = false) => _usePeripheralBridge = usePeripheralBridge;
+
     public bool IsSimulated => false;
     public IFanHub CreateHub() => new CorsairLinkHub();
     public ISensorSource CreateSensors() => new HardwareMonitor();
@@ -86,10 +94,9 @@ public sealed class RealHardwareFactory : IHardwareFactory
     public IRgbDevice CreateMotherboardRgb() => new MsiMotherboardRgb();
     public IRgbDevice CreateRamRgb() => new CorsairDramRgb();
     /// <summary>
-    /// O G HUB só aceita o SDK de iluminação de processos na sessão do usuário. Como serviço (sessão 0)
-    /// os periféricos ficam a cargo da interface (<c>PeripheralRgbBridge</c>).
+    /// A interface usa sua própria fila para o G HUB, que exige uma sessão interativa.
     /// </summary>
-    public IRgbDevice CreatePeripheralsRgb() => System.Diagnostics.Process.GetCurrentProcess().SessionId == 0
+    public IRgbDevice CreatePeripheralsRgb() => _usePeripheralBridge || System.Diagnostics.Process.GetCurrentProcess().SessionId == 0
         ? new UnavailableRgbDevice("Periféricos Logitech G (controlados pela interface)")
         : new LogitechPeripheralsRgb();
 }

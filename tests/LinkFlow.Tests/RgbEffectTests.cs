@@ -127,4 +127,36 @@ public class RgbEffectTests
         f.Engine.UpdateConfig(c => { c.Rgb.Effect = RgbEffect.Breathing; c.Rgb.EffectSpeed = 10; });
         EngineFixture.WaitUntil(() => f.Hw.GpuRgb.Calls >= gpu0 + 5 && f.Hw.RamRgb.Calls >= ram0 + 3, because: "GPU e RAM acompanham o efeito");
     }
+
+    [Fact]
+    public void Rgb_devices_share_phase_with_independent_frame_rates()
+    {
+        var rgb = new RgbConfig { Effect = RgbEffect.Random, EffectSpeed = 10, SpreadOnFans = false };
+        const long sharedFrame = 4500;
+        var expected = rgb.OutputFor(RgbTargets.Hub, sharedFrame, 0);
+        int hubInterval = RgbFrameClock.IntervalMs(new EngineOptions().HubRgbMinInterval);
+        int fallbackRamInterval = RgbFrameClock.IntervalMs(new EngineOptions().RamRgbMinInterval);
+
+        Assert.True(hubInterval < fallbackRamInterval);
+        Assert.True(RgbFrameClock.PeripheralIntervalMs < hubInterval);
+        foreach (var (target, interval, writeMs) in new[]
+        {
+            (RgbTargets.Ram, fallbackRamInterval, 80),
+            (RgbTargets.Hub, hubInterval, 12),
+            (RgbTargets.Peripherals, RgbFrameClock.PeripheralIntervalMs, 2)
+        })
+        {
+            var clock = new RgbFrameClock();
+            clock.RecordFrame(sharedFrame - interval, interval, TimeSpan.FromMilliseconds(writeMs));
+            long start = sharedFrame - writeMs;
+
+            Assert.Equal(TimeSpan.FromMilliseconds(1), clock.UntilNextFrame(start - 1, interval));
+            Assert.False(clock.IsDue(clock.FrameTime(start - 1, interval), interval));
+            long frame = clock.FrameTime(start, interval);
+            Assert.True(clock.IsDue(frame, interval));
+            Assert.Equal(sharedFrame, frame);
+            Assert.Equal(expected, rgb.OutputFor(target, frame, 0));
+            Assert.Equal(sharedFrame + interval * 2L, clock.FrameTime(start + interval * 2 + 10, interval));
+        }
+    }
 }

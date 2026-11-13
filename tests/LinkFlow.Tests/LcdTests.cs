@@ -215,7 +215,8 @@ public sealed class LcdTests : IDisposable
     public void Engine_streams_gif_to_lcd_faster_than_metrics()
     {
         var gif = CreateImage(_dir, "fast.gif", 96, Colors.Cyan, frames: 3);
-        using var f = new EngineFixture(configure: o => o.LcdFrameInterval = TimeSpan.FromSeconds(1));
+        var metricsInterval = TimeSpan.FromSeconds(2);
+        using var f = new EngineFixture(configure: o => o.LcdFrameInterval = metricsInterval);
         EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames > 0, because: "primeiro quadro de métricas");
 
         f.Engine.UpdateConfig(c =>
@@ -223,10 +224,12 @@ public sealed class LcdTests : IDisposable
             c.Lcd.Mode = LcdMode.Media;
             c.Lcd.Media.Add(new LcdMediaItem { Path = gif });
         });
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().LcdStatus?.Contains("GIF") == true,
+            because: "primeiro quadro do GIF");
+
         int start = f.Hw.Lcd.Frames;
-        Thread.Sleep(1000);
-        Assert.True(f.Hw.Lcd.Frames - start >= 5, $"GIF deveria enviar vários quadros/s (enviou {f.Hw.Lcd.Frames - start})");
-        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().LcdStatus?.Contains("GIF") == true, because: "status do LCD");
+        EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames - start >= 5, timeoutMs: (int)metricsInterval.TotalMilliseconds,
+            because: "cinco quadros do GIF dentro de um intervalo de métricas");
     }
 
     [Fact]

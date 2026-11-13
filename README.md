@@ -14,7 +14,12 @@ Controle de ventoinhas, bomba, RGB e display LCD para **Corsair iCUE LINK**, com
 - **Seletor de cor completo**: quadro de saturação × brilho com barra de matiz, código hex e ajuste fino RGB.
 - **LCD personalizável**: monte o quadro (informação principal, até 4 secundárias, título, anel, foto de fundo) ou mostre fotos e GIFs com apresentação de slides, rotação e informação sobreposta. A prévia usa o mesmo renderizador do display.
 - **Reatualizar dispositivos**: botão "Atualizar" em Ventoinhas procura de novo hub, ventoinhas, LCD e RGB.
-- **Widget flutuante configurável** (aba Widget): qualquer informação do catálogo (CPU, GPU, cada ventoinha, rede, discos, hora...), em % ou valor, em linha/coluna/grade, tamanho, opacidade, cores, fonte; sempre no topo, clique atravessa, some em jogos em tela cheia, gruda nas bordas.
+- **Hardware** mostra um inventário filtrável de CPU, GPUs, placa-mãe, BIOS, versão do Windows, memória, discos, rede, monitores e periféricos. A leitura mostra geração e velocidade da RAM e diferencia SSD, HDD e barramentos como NVMe, SATA e USB quando o Windows fornece esses dados. O catálogo indica as funções de cada adaptador do LinkFlow.
+- **Desempenho do Windows** permite ativar planos de energia, ajustar os tempos para apagar a tela e suspender o PC e alternar as animações da interface. A aba permite desfazer o último ajuste feito na sessão e remover apps opcionais da conta após confirmação.
+- **Drivers** consulta os drivers de dispositivo oferecidos pelo Windows Update quando você clica em **Buscar atualizações**. Você pode revisar e confirmar a instalação de cada driver. O Windows solicita elevação quando necessário e o LinkFlow informa se for preciso reiniciar.
+- **Fabricantes** compara os drivers GeForce e os pacotes dos chipsets AMD AM4 e AM5 reconhecidos com os catálogos oficiais. Em **Drivers instalados**, filtre dispositivos conectados por versão, fabricante, INF ou ID de hardware. Quando o Windows fornece o ID, a aba abre a busca correspondente no Catálogo Microsoft Update. O AMD Auto-Detect e o Intel Driver & Support Assistant estão disponíveis para os dispositivos detectados.
+- **Widget flutuante configurável** (aba Widget) com CPU, GPU, ventoinhas, rede, discos e outros sensores em linha, coluna ou grade. Pode ficar sempre no topo, deixar cliques passarem e ocultar em tela cheia somente no próprio monitor.
+- **Overlay em jogos (RTSS)** em **Widget → Comportamento**. Instale e abra o [RivaTuner Statistics Server](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/), habilite o OSD no perfil do jogo e ative a opção com o widget ligado. O LinkFlow envia as leituras selecionadas até uma vez por segundo. O RTSS define o visual e a posição do texto e pode exibi-lo em tela cheia exclusiva em jogos compatíveis. Alguns jogos restringem overlays pelo anti-cheat.
 - **Rede e discos**: download/upload, espaço por volume e — só quando algo exibe — atividade, leitura/escrita e temperatura dos discos.
 - **Curvas por grupo**: um grupo pode seguir a própria curva e o próprio sensor (ex.: radiador pelo líquido).
 - **Perfil automático**: por jogo/app aberto e horário silencioso; volta sozinho ao perfil anterior.
@@ -33,8 +38,6 @@ Baixe o **`LinkFlow-Setup-<versão>.exe`** na página de [Releases](https://gith
 - Para atualizar, rode o instalador da versão nova por cima (as configurações ficam em `%ProgramData%\LinkFlow`). Para remover, use **Configurações do Windows → Aplicativos**.
 
 Também há a versão **portátil** (`LinkFlow-<versão>-portable.zip`): descompacte e abra `LinkFlow.App.exe`.
-
-Para gerar os arquivos do release: `.\scripts\release.ps1` (requer o [Inno Setup 6](https://jrsoftware.org/isinfo.php)).
 
 ## Arquitetura
 
@@ -62,6 +65,12 @@ dotnet test tests\LinkFlow.Tests
 
 `Atualizar-E-Executar.bat` compila, para o serviço (se instalado), atualiza `bin\LinkFlow` e reabre o app.
 
+### Preparar um release
+
+Use a mesma versão `X.Y.Z` nos projetos `LinkFlow.App` e `LinkFlow.Service`. Envie a tag `vX.Y.Z` para o GitHub apontando para o commit dessa versão. O GitHub Actions executa os testes no Windows e anexa o instalador x64, o ZIP portátil e `SHA256SUMS.txt` a um rascunho em **Releases**. Revise o rascunho e clique em **Publish release** para disponibilizar os downloads.
+
+Para gerar os mesmos arquivos localmente, rode `.\scripts\release.ps1` com o [Inno Setup 6](https://jrsoftware.org/isinfo.php) instalado. Os arquivos ficam em `artifacts\release`.
+
 ## Instalar o serviço
 
 Abra o LinkFlow → **Configurações → Serviço do Windows → Instalar serviço** (pede UAC uma vez). Para remover, use **Remover serviço** no mesmo lugar.
@@ -80,7 +89,7 @@ Manualmente (PowerShell como administrador):
 | F1 … F5 | Perfis: Silencioso, Equilibrado, Desempenho, Máximo, Curva |
 | Ctrl+Alt+1 … 5 | Perfis de qualquer lugar (globais) |
 | Ctrl+Alt+L / Ctrl+Alt+M | Abrir/esconder o LinkFlow / mini widget (globais) |
-| Ctrl+1 … 6 | Páginas (Ctrl+5 = Widget, Ctrl+6 = Configurações) |
+| Ctrl+1 … 9 | Páginas (Ctrl+5 = Widget, Ctrl+6 = Configurações, Ctrl+7 = Hardware, Ctrl+8 = Windows, Ctrl+9 = Drivers) |
 | Ctrl+↑ / Ctrl+↓ | Potência global ±5% |
 | Ctrl+Z | Desfazer |
 | Ctrl+A / Esc | Selecionar todas / limpar seleção (Ventoinhas) |

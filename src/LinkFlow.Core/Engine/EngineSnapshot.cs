@@ -85,13 +85,18 @@ public sealed class EngineSnapshot
     /// <summary>O que o LCD está exibindo (ex.: "Métricas", "GIF 3/5 • 12 fps").</summary>
     public string? LcdStatus { get; set; }
     public bool GpuRgbAvailable { get; set; }
+    public bool GpuRgbRetrying { get; set; }
     public string GpuRgbName { get; set; } = string.Empty;
+    public bool? GpuRgbApplied { get; set; }
+    public string? GpuRgbDiagnostic { get; set; }
     public bool MotherboardRgbAvailable { get; set; }
     public string MotherboardRgbName { get; set; } = string.Empty;
     public bool RamRgbAvailable { get; set; }
     public string RamRgbName { get; set; } = string.Empty;
     public bool PeripheralsRgbAvailable { get; set; }
     public string PeripheralsRgbName { get; set; } = string.Empty;
+    public bool? PeripheralsRgbApplied { get; set; }
+    public string? PeripheralsRgbDiagnostic { get; set; }
     public bool RgbDevicesReady { get; set; }
     public string RgbStatus { get; set; } = string.Empty;
 

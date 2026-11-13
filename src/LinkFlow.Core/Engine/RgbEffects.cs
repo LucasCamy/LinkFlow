@@ -12,9 +12,6 @@ public static class RgbEffects
     /// <summary>Milissegundos desde que o Windows ligou (igual em todos os processos).</summary>
     public static long Now => Environment.TickCount64;
 
-    /// <summary>Intervalo entre quadros enquanto um efeito anima (ventoinhas e periféricos).</summary>
-    public static readonly TimeSpan FastFrame = TimeSpan.FromMilliseconds(50);
-
     /// <summary>Paletas prontas.</summary>
     public static readonly IReadOnlyList<(string Name, string[] Colors)> Presets = new (string, string[])[]
     {

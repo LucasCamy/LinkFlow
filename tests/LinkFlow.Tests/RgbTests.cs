@@ -37,4 +37,42 @@ public class RgbTests
         f.Engine.UpdateConfig(c => { c.Rgb.R = 255; c.Rgb.G = 128; c.Rgb.B = 0; c.Rgb.LedGamma = 2f; });
         EngineFixture.WaitUntil(() => f.Hw.Hub.LastRgb is { R: 255, B: 0 } l && l.G is >= 62 and <= 66, because: "laranja corrigido no hub");
     }
+
+    [Fact]
+    public void Engine_retries_gpu_detection_and_sends_static_color_after_startup_failure()
+    {
+        var hardware = new SimulatedHardwareFactory();
+        hardware.GpuRgb.FailInitialization = true;
+        var options = new EngineOptions
+        {
+            ConfigPath = null,
+            ReconnectInterval = TimeSpan.FromMilliseconds(100),
+            TelemetryInterval = TimeSpan.FromMilliseconds(40)
+        };
+        using var engine = new LinkFlowEngine(hardware, options, new ControlConfig());
+        engine.Start();
+        EngineFixture.WaitUntil(() => engine.GetSnapshot() is { HubConnected: true, GpuRgbRetrying: true, GpuRgbAvailable: false });
+        int hubConnections = hardware.Hub.ConnectCalls;
+
+        hardware.GpuRgb.FailInitialization = false;
+        EngineFixture.WaitUntil(() => engine.GetSnapshot() is { GpuRgbAvailable: true, GpuRgbRetrying: false, GpuRgbApplied: true },
+            because: "detecção recuperada e cor fixa reenviada");
+        Assert.Equal(hubConnections, hardware.Hub.ConnectCalls);
+    }
+
+    [Fact]
+    public void Resend_retries_gpu_color_rejected_after_successful_detection()
+    {
+        using var f = new EngineFixture();
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true);
+        int detection = f.Hw.GpuRgb.InitializationCalls;
+        f.Hw.GpuRgb.FailColorWrites = true;
+        f.Engine.RefreshRgb();
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot() is { GpuRgbAvailable: true, GpuRgbApplied: false });
+
+        f.Hw.GpuRgb.FailColorWrites = false;
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true,
+            because: "cor estática reaplicada na nova tentativa");
+        Assert.True(f.Hw.GpuRgb.InitializationCalls >= detection + 2);
+    }
 }

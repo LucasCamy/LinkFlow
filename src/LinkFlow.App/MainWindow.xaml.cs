@@ -17,6 +17,7 @@ public partial class MainWindow : Window
     private bool _boundsRestored;
     private HotkeyService? _hotkeys;
     private readonly LcdPreviewService _lcdPreview;
+    private readonly WidgetGameOverlay? _gameOverlay;
 
     public MainWindow(MainViewModel viewModel)
     {
@@ -31,25 +32,31 @@ public partial class MainWindow : Window
         var ui = App.Current.Settings.Current;
         ui.Widget ??= WidgetSettings.MigrateFrom(ui);
         Widget = new WidgetViewModel(ui.Widget, () => App.Current.Settings.Update(_ => { }), viewModel);
+        if (App.Current.Options.ScreenshotPath == null && !viewModel.Engine.IsSimulated)
+            _gameOverlay = new WidgetGameOverlay(Widget, () => ViewModel.Snapshot, () => ViewModel.Engine.IsConnected, Dispatcher);
         ViewModel.SnapshotApplied += () =>
         {
             bool page = ViewModel.SelectedPage == MainViewModel.WidgetPageIndex && IsVisible;
             if (IsMiniWidgetVisible || page) Widget.Update(ViewModel.Snapshot);
             if (page) Widget.RefreshPicker();
         };
-        ViewModel.SetWidgetDemandSource(() => IsMiniWidgetVisible ? Widget.Demand : Core.SensorDemand.None);
+        ViewModel.SetWidgetDemandSource(() => IsMiniWidgetVisible || Widget.IsGameOverlayPublishing ? Widget.Demand : Core.SensorDemand.None);
         ViewModel.PageChanged += p =>
         {
             App.Current.Settings.Update(s => s.SelectedPage = p);
             if (p == 5) Settings.RefreshServiceState();
-            if (p == 2) ViewModel.RefreshDynamicLighting();
+            if (p == 2) ViewModel.RefreshLightingDiagnostics();
             UpdateViewActive();
             // Transição: a página que acabou de aparecer entra com fade + deslize
             if (p >= 0 && p < PageHost.Children.Count) Motion.PageIn(PageHost.Children[p]);
         };
         Toast.IsVisibleChanged += (_, e) => { if (e.NewValue is true) Motion.ToastIn(Toast); };
         Motion.UserEnabled = App.Current.Settings.Current.Animations;
-        ViewModel.RefreshDynamicLighting();
+        if (ViewModel.SelectedPage == 2) ViewModel.RefreshLightingDiagnostics();
+        Activated += (_, _) =>
+        {
+            if (ViewModel.SelectedPage == 2) ViewModel.RefreshLightingDiagnostics();
+        };
 
         StateChanged += OnStateChanged;
         SizeChanged += (_, e) => ViewModel.IsCompact = e.NewSize.Width < CompactWidth;
@@ -63,6 +70,7 @@ public partial class MainWindow : Window
     public SettingsViewModel Settings => App.Current.SettingsVm;
     public bool IsMiniWidgetVisible => _miniWidget?.IsVisible == true;
     public WidgetViewModel Widget { get; }
+    public string ShortcutHint => $"F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow {typeof(App).Assembly.GetName().Version!.ToString(3)}";
 
     // ------------------------------------------------------------------ Atalhos
 
@@ -98,6 +106,7 @@ public partial class MainWindow : Window
         }
         else if (ctrl && e.Key == Key.R && !inText && ViewModel.SelectedPage == 1)
         {
+            ShowFanDevices();
             if (!ViewModel.BeginRenameSelected())
                 ViewModel.ShowToast("Selecione um cartão para renomear (ou use o lápis ao passar o mouse)", canUndo: false);
             e.Handled = true;
@@ -114,6 +123,7 @@ public partial class MainWindow : Window
         }
         else if (ctrl && e.Key == Key.A && !inText && ViewModel.SelectedPage == 1)
         {
+            ShowFanDevices();
             ViewModel.SelectAllCommand.Execute(null);
             e.Handled = true;
         }
@@ -135,7 +145,6 @@ public partial class MainWindow : Window
     {
         new WindowInteropHelper(this).EnsureHandle();
         UpdateViewActive();
-        if (App.Current.Settings.Current.MiniVisible) ShowMiniWidget();
     }
 
     public void ShowFromTray()
@@ -195,12 +204,23 @@ public partial class MainWindow : Window
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
 
+    internal void ShowFanDevices() => FansView.ShowDevices();
+
+    internal void ShowFanAutomation()
+    {
+        SelectPage(1);
+        FansView.ShowAutomation();
+    }
+
+    private void OpenAlertHistory_Click(object sender, RoutedEventArgs e) => DashboardView.ShowAlertHistory();
+
     public void CloseForExit()
     {
         _closingForExit = true;
         SaveBounds();
         _hotkeys?.Dispose();
         _lcdPreview.Dispose();
+        _gameOverlay?.Dispose();
         _miniWidget?.CloseForExit();
         Close();
     }
@@ -270,50 +290,36 @@ public partial class MainWindow : Window
 
     public void ToggleMiniWidget(bool fromTray = false)
     {
-        if (IsMiniWidgetVisible)
+        if (Widget.IsWidgetEnabled)
         {
-            _miniWidget!.Hide();
-            App.Current.Settings.Update(s => s.MiniVisible = false);
+            SetWidgetEnabled(false);
         }
         else
         {
-            ShowMiniWidget();
+            SetWidgetEnabled(true);
             if (!fromTray && IsVisible) HideToTray();
         }
-        UpdateViewActive();
     }
 
-    private void ShowMiniWidget()
+    private void ToggleMiniWidget_Click(object sender, RoutedEventArgs e) => ToggleMiniWidget();
+
+    /// <summary>Aba Widget: liga/desliga sem esconder a janela principal.</summary>
+    public void SetWidgetEnabled(bool enabled)
     {
-        if (_miniWidget == null)
+        if (enabled && _miniWidget == null)
         {
             _miniWidget = new MiniWidgetWindow(Widget);
             _miniWidget.ConfigureRequested += () => { ShowFromTray(); SelectPage(MainViewModel.WidgetPageIndex); };
             _miniWidget.OpenMainRequested += ShowFromTray;
             _miniWidget.IsVisibleChanged += (_, _) => UpdateViewActive();
         }
-        _miniWidget.Show();
-        App.Current.Settings.Update(s => s.MiniVisible = true);
-        UpdateViewActive();
-    }
-
-    private void ToggleMiniWidget_Click(object sender, RoutedEventArgs e) => ToggleMiniWidget();
-
-    /// <summary>Aba Widget: liga/desliga sem esconder a janela principal.</summary>
-    public void SetWidgetVisible(bool visible)
-    {
-        if (visible) ShowMiniWidget();
-        else if (_miniWidget != null)
-        {
-            _miniWidget.Hide();
-            App.Current.Settings.Update(s => s.MiniVisible = false);
-        }
+        _miniWidget?.SetWidgetEnabled(enabled);
         UpdateViewActive();
     }
 
     public void MoveWidgetToCorner(string corner)
     {
-        if (!IsMiniWidgetVisible) ShowMiniWidget();
+        if (!Widget.IsWidgetEnabled) SetWidgetEnabled(true);
         _miniWidget!.UpdateLayout();
         _miniWidget.MoveToCorner(corner);
     }
