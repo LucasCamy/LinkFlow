@@ -116,32 +116,16 @@ public static class LinkHubProtocol
 
             byte rawModel = deviceInfo[2];
             byte variant = deviceInfo[3];
-            var model = Enum.IsDefined(typeof(LinkDeviceModel), rawModel) ? (LinkDeviceModel)rawModel : LinkDeviceModel.Unknown;
-
-            string name = model switch
-            {
-                LinkDeviceModel.FanQxSeries => $"QX Fan #{ch}",
-                LinkDeviceModel.FanRxSeries or LinkDeviceModel.FanRxRgbSeries => $"RX Fan #{ch}",
-                LinkDeviceModel.FanLxSeries => $"LX Fan #{ch}",
-                LinkDeviceModel.LiquidCoolerHSeries => "H-Series AIO Pump",
-                LinkDeviceModel.LiquidCoolerTitanSeries => "Titan AIO Pump",
-                LinkDeviceModel.PumpXd5Series or LinkDeviceModel.PumpXd6Series => "Custom Loop Pump",
-                _ => $"Device #{ch} (0x{rawModel:X2})"
-            };
-
-            bool isPump = model == LinkDeviceModel.LiquidCoolerHSeries ||
-                          model == LinkDeviceModel.LiquidCoolerTitanSeries ||
-                          model == LinkDeviceModel.PumpXd5Series ||
-                          model == LinkDeviceModel.PumpXd6Series;
+            var family = LinkDeviceCatalog.Find(rawModel);
 
             devices.Add(new ConnectedSubDevice
             {
                 Channel = ch,
                 DeviceId = deviceId,
-                Model = model,
+                Model = family?.Model ?? LinkDeviceModel.Unknown,
                 Variant = variant,
-                Name = name,
-                IsPump = isPump
+                Name = family == null ? $"Device #{ch} (0x{rawModel:X2})" : LinkDeviceCatalog.DisplayName(family, variant, ch),
+                IsPump = family?.Role == LinkDeviceRole.Pump
             });
 
             idx += (8 + deviceIdLength);

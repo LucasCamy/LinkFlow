@@ -40,6 +40,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _engine.ConnectionChanged += connected => _dispatcher.BeginInvoke(() =>
         {
             OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected));
+            NotifyLightingStatus();
             if (connected) LoadConfig(_engine.Config);
         });
 
@@ -102,16 +103,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
             nameof(Snapshot),
             nameof(IsConnected), nameof(ConnectionStatus), nameof(HubStatusColor),
             nameof(CpuName), nameof(GpuName),
-            nameof(CpuTempFormatted), nameof(CpuLoadFormatted), nameof(CpuSensorHint),
-            nameof(GpuTempFormatted), nameof(GpuLoadFormatted), nameof(GpuHotspotFormatted),
+            nameof(CpuTempFormatted), nameof(CpuLoadFormatted), nameof(CpuPowerDetail), nameof(CpuSensorHint),
+            nameof(GpuTempFormatted), nameof(GpuLoadFormatted), nameof(GpuHotspotFormatted), nameof(GpuVramDetail),
             nameof(RamUsageFormatted), nameof(RamDetail),
-            nameof(CoolantTempFormatted),
+            nameof(CoolantTempFormatted), nameof(HasLiquidCooling),
             nameof(AverageFanRpm), nameof(AverageFanRpmFormatted), nameof(PumpRpm), nameof(PumpRpmFormatted),
             nameof(GpuFanRpmFormatted),
             nameof(EffectiveGlobalPercent), nameof(GlobalSpeedFormatted), nameof(CurveStatus), nameof(IsFailSafeActive),
             nameof(IsLcdConnected), nameof(LcdStatus),
-            nameof(GpuRgbStatus), nameof(MotherboardRgbStatus), nameof(RamRgbStatus), nameof(PeripheralsRgbStatus), nameof(RgbSyncStatus),
+            nameof(MotherboardRgbStatus), nameof(RamRgbStatus), nameof(RgbSyncStatus),
             nameof(Alerts), nameof(HasAlerts), nameof(EngineModeLabel));
+        NotifyLightingStatus();
 
         if (_mode == FanControlMode.Curve || s.FailSafeActive || s.GroupOutputs.Count > 0)
         {
@@ -165,6 +167,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public string CpuTempFormatted => Fmt.Temp(Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null);
     public string CpuLoadFormatted => Fmt.Pct(Snapshot.CpuLoad);
+    public string? CpuPowerDetail => Snapshot.CpuPower is { } power ? $"Pacote · {power:0} W" : null;
     public string? CpuSensorHint => Snapshot.SensorsReady && !Snapshot.CpuSensorAvailable
         ? "Sensor de temperatura da CPU indisponível. Execute como administrador ou instale o serviço LinkFlow."
         : null;
@@ -172,6 +175,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string GpuTempFormatted => Fmt.Temp(Snapshot.GpuTemp);
     public string GpuLoadFormatted => Fmt.Pct(Snapshot.GpuLoad);
     public string GpuHotspotFormatted => Fmt.Temp(Snapshot.GpuHotspot);
+    public string? GpuVramDetail
+    {
+        get
+        {
+            if (Snapshot.GpuVramTotalGb is not { } total || total <= 0) return null;
+            return Snapshot.GpuVramUsedGb is { } used
+                ? $"VRAM {used:0.0} de {total:0.#} GB"
+                : $"VRAM {total:0.#} GB";
+        }
+    }
 
     public string RamUsageFormatted => Fmt.Pct(Snapshot.RamUsage);
     public string RamDetail => Snapshot.RamUsedGb is { } u && Snapshot.RamTotalGb is { } t
@@ -179,6 +192,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         : Fmt.Missing;
 
     public string CoolantTempFormatted => Fmt.Temp(Snapshot.CoolantTemp);
+    public bool HasLiquidCooling => Snapshot.CoolantTemp.HasValue || Snapshot.PumpRpm.HasValue;
 
     public int? AverageFanRpm => Snapshot.AverageFanRpm;
     public string AverageFanRpmFormatted => Fmt.Rpm(Snapshot.AverageFanRpm);
@@ -198,24 +212,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ? "Display 480x480 conectado"
         : "Display LCD não encontrado • tentando reconectar";
 
-    public string GpuRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.GpuRgbAvailable ? $"Conectado • {Snapshot.GpuRgbName}" : "Não detectado";
     public string MotherboardRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
     public string RamRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.RamRgbAvailable ? $"Conectado • {Snapshot.RamRgbName}" : "Não detectado";
-    public string PeripheralsRgbStatus => _externalPeripheralsStatus ?? (!Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.PeripheralsRgbAvailable ? $"Conectado • {Snapshot.PeripheralsRgbName}"
-        : "G HUB não encontrado • abra o G HUB e ative \"Permitir que jogos e aplicativos controlem a iluminação\"");
-
-    private string? _externalPeripheralsStatus;
-
-    /// <summary>Status vindo da ponte da interface (modo serviço).</summary>
-    public string? ExternalPeripheralsStatus
-    {
-        get => _externalPeripheralsStatus;
-        set { _externalPeripheralsStatus = value; OnPropertyChanged(nameof(PeripheralsRgbStatus)); }
-    }
     public string RgbSyncStatus => Snapshot.RgbStatus;
 
     // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)
@@ -413,6 +413,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (field == value) return;
         field = value;
         OnPropertyChanged(name);
+        if (name is nameof(SyncGpu) or nameof(SyncPeripherals))
+        {
+            NotifyLightingStatus();
+            OnPropertiesChanged(nameof(GpuLightingConflict), nameof(PeripheralsLightingConflict));
+        }
         if (!_loadingConfig) _engine.UpdateConfig(c => apply(c, value));
     }
 

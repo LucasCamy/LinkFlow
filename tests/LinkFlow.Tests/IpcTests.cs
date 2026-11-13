@@ -34,8 +34,16 @@ public class IpcTests
         int frames = f.Hw.Lcd.Frames;
         EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames > frames, because: "quadro de LCD solicitado pelo cliente");
 
-        // "Atualizar" na interface: o serviço reabre o hub e relê os dispositivos
+        EngineFixture.WaitUntil(() => client.Snapshot?.GpuRgbApplied == true && f.Hw.Hub.SetRgbCalls > 0);
         int connects = f.Hw.Hub.ConnectCalls;
+        int hubRgb = f.Hw.Hub.SetRgbCalls;
+        int gpuRgb = f.Hw.GpuRgb.Calls;
+        client.RefreshRgb();
+        EngineFixture.WaitUntil(() => f.Hw.Hub.SetRgbCalls > hubRgb && f.Hw.GpuRgb.Calls > gpuRgb,
+            because: "serviço reaplicou a iluminação");
+        Assert.Equal(connects, f.Hw.Hub.ConnectCalls);
+
+        // "Atualizar" na interface: o serviço reabre o hub e relê os dispositivos
         client.RescanDevices();
         EngineFixture.WaitUntil(() => f.Hw.Hub.ConnectCalls > connects, because: "serviço reatualizou os dispositivos");
         EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Count == 11, because: "dispositivos de volta");
@@ -84,7 +92,10 @@ public class IpcTests
 
         await using var server2 = new PipeEngineServer(f.Engine, pipe);
         server2.Start();
-        EngineFixture.WaitUntil(() => client.IsConnected, timeoutMs: 6000, because: "reconectou");
+        EngineFixture.WaitUntil(() =>
+        {
+            lock (states) return client.IsConnected && states.Count >= 2;
+        }, timeoutMs: 6000, because: "reconectou e publicou o evento");
         lock (states) Assert.Equal(new[] { false, true }, states);
 
         client.UpdateConfig(c => c.GlobalPercent = 66);

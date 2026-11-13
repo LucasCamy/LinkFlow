@@ -1,237 +1,357 @@
 <UserControl x:Class="LinkFlow.App.Views.DashboardPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:c="clr-namespace:LinkFlow.App.Controls">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="8,8,20,24">
-            <TextBlock Text="Painel" Style="{StaticResource PageTitle}"/>
-            <TextBlock Text="Temperaturas, ventoinhas e alertas em tempo real." Style="{StaticResource PageSubtitle}" Margin="0,2,0,16"/>
+             xmlns:c="clr-namespace:LinkFlow.App.Controls"
+             Language="pt-BR">
+    <UserControl.Resources>
+        <Style x:Key="TelemetryMeter" TargetType="ProgressBar">
+            <Setter Property="Height" Value="5"/>
+            <Setter Property="Maximum" Value="100"/>
+            <Setter Property="Background" Value="{StaticResource BgBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid>
+                            <Border x:Name="PART_Track" Background="{TemplateBinding Background}" CornerRadius="3"/>
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="3" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
-            <!-- Modo de segurança -->
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <DockPanel Margin="0,0,0,18">
+            <Border DockPanel.Dock="Right" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="11,6" Margin="12,0,0,0" VerticalAlignment="Center"
+                    Visibility="{Binding Snapshot.SensorsReady, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding Snapshot.Timestamp, StringFormat='Leitura às {0:HH:mm:ss}'}"
+                           Style="{StaticResource SystemDetail}" Margin="0"/>
+            </Border>
+            <StackPanel>
+                <TextBlock Text="Painel" Style="{StaticResource SystemPageTitle}"/>
+                <TextBlock Text="Temperaturas, utilização e refrigeração deste PC." Style="{StaticResource SystemDetail}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <StackPanel Grid.Row="1">
             <Border Style="{StaticResource Banner}" Background="{StaticResource DangerSoftBrush}" BorderBrush="{StaticResource DangerBrush}"
                     Visibility="{Binding IsFailSafeActive, Converter={StaticResource BoolToVis}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource DangerBrush}" Margin="0,0,10,0"/>
-                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource DangerBrush}" Margin="0,0,10,0"/>
+                    <TextBlock TextWrapping="Wrap">
                         <Run FontWeight="SemiBold" Text="Modo de segurança ativo."/>
                         <Run Text="Todas as ventoinhas estão em 100% até as temperaturas voltarem ao normal."/>
                     </TextBlock>
-                </StackPanel>
+                </DockPanel>
             </Border>
-
-            <!-- Serviço sem resposta -->
             <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
                     Visibility="{Binding IsEngineDisconnected, Converter={StaticResource BoolToVis}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
-                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextBrush}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
+                    <TextBlock TextWrapping="Wrap">
                         <Run FontWeight="SemiBold" Text="O serviço LinkFlow não está respondendo."/>
-                        <Run Text="Os valores podem estar desatualizados. Reconectando automaticamente..."/>
+                        <Run Text="As leituras exibidas podem estar desatualizadas."/>
                     </TextBlock>
-                </StackPanel>
+                </DockPanel>
             </Border>
-
-            <!-- Modo limitado / sensor da CPU indisponível -->
-            <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
-                    Visibility="{Binding CpuSensorHint, Converter={StaticResource NullToVis}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Style="{StaticResource Icon}" Text="&#xE946;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Top"/>
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="{Binding CpuSensorHint}" TextWrapping="Wrap" Foreground="{StaticResource TextBrush}"/>
-                        <WrapPanel Margin="0,8,0,0" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   Visibility="{Binding IsLimitedLocal, Converter={StaticResource BoolToVis}}">
-                            <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço (recomendado)" Margin="0,0,8,0" Click="InstallService_Click"
-                                    Visibility="{Binding ServiceCanInstall, Converter={StaticResource BoolToVis}}"/>
-                            <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Click="RestartAsAdmin_Click"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Métricas -->
-            <!-- Métricas: clique abre os detalhes -->
-            <c:AdaptiveUniformGrid MinItemWidth="200" MaxColumns="4" Margin="0,0,-12,0">
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="cpu"
-                        ToolTip="Ver detalhes do processador" AutomationProperties.Name="Detalhes da CPU">
-                    <StackPanel>
-                        <TextBlock Text="CPU" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding CpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource CpuBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-                            <Run Text="{Binding CpuLoadFormatted, Mode=OneWay}"/><Run Text=" de uso • "/><Run Text="{Binding CpuName, Mode=OneWay}"/>
-                        </TextBlock>
-                        <c:Sparkline Values="{Binding CpuHistory}" Stroke="{StaticResource CpuBrush}" Height="38" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="gpu"
-                        ToolTip="Ver detalhes da placa de vídeo" AutomationProperties.Name="Detalhes da GPU">
-                    <StackPanel>
-                        <TextBlock Text="GPU" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding GpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource GpuBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-                            <Run Text="{Binding GpuLoadFormatted, Mode=OneWay}"/><Run Text=" de uso • hotspot "/><Run Text="{Binding GpuHotspotFormatted, Mode=OneWay}"/>
-                        </TextBlock>
-                        <c:Sparkline Values="{Binding GpuHistory}" Stroke="{StaticResource GpuBrush}" Height="38" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="coolant"
-                        ToolTip="Ver detalhes do líquido e da bomba" AutomationProperties.Name="Detalhes do líquido">
-                    <StackPanel>
-                        <TextBlock Text="LÍQUIDO (AIO)" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding CoolantTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource CoolantBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
-                            <Run Text="Bomba "/><Run Text="{Binding PumpRpmFormatted, Mode=OneWay}"/>
-                        </TextBlock>
-                        <c:Sparkline Values="{Binding CoolantHistory}" Stroke="{StaticResource CoolantBrush}" MinRange="3" Height="38" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="fans"
-                        ToolTip="Ver todas as ventoinhas" AutomationProperties.Name="Detalhes das ventoinhas">
-                    <StackPanel>
-                        <TextBlock Text="VENTOINHAS" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding AverageFanRpmFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource AccentBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
-                            <Run Text="Potência "/><Run Text="{Binding GlobalSpeedFormatted, Mode=OneWay}"/><Run Text=" • "/><Run Text="{Binding ActivePresetLabel, Mode=OneWay}"/>
-                        </TextBlock>
-                        <c:Sparkline Values="{Binding FanHistory}" Stroke="{StaticResource AccentBrush}" MinRange="200" Height="38" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="ram"
-                        ToolTip="Ver detalhes da memória" AutomationProperties.Name="Detalhes da memória">
-                    <StackPanel>
-                        <TextBlock Text="MEMÓRIA" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding RamUsageFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource RamBrush}" Margin="0,4,0,0"/>
-                        <TextBlock Text="{Binding RamDetail}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                        <c:Sparkline Values="{Binding RamHistory}" Stroke="{StaticResource RamBrush}" MinRange="10" Height="38" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="net"
-                        ToolTip="Ver detalhes da rede" AutomationProperties.Name="Detalhes da rede">
-                    <StackPanel>
-                        <TextBlock Text="REDE" Style="{StaticResource Label}"/>
-                        <TextBlock Style="{StaticResource Metric}" Foreground="#34D399" Margin="0,4,0,0" TextTrimming="CharacterEllipsis">
-                            <Run Text="↓ "/><Run Text="{Binding NetDownFormatted, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
-                            <Run Text="↑ "/><Run Text="{Binding NetUpFormatted, Mode=OneWay}"/><Run Text=" • "/><Run Text="{Binding NetAdapter, Mode=OneWay}"/>
-                        </TextBlock>
-                        <c:Sparkline Values="{Binding NetHistory}" Stroke="#34D399" MinRange="0.5" Height="38" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Button>
-                <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="disk"
-                        ToolTip="Ver detalhes dos discos" AutomationProperties.Name="Detalhes dos discos">
-                    <StackPanel>
-                        <TextBlock Text="DISCOS" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding DiskMainFormatted}" Style="{StaticResource Metric}" Foreground="#FBBF24" Margin="0,4,0,0"/>
-                        <TextBlock Text="{Binding DiskMainDetail}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                        <c:Sparkline Values="{Binding DiskHistory}" Stroke="#FB923C" MinRange="10" Height="22" Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding DiskActivityFormatted}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
-                </Button>
-            </c:AdaptiveUniformGrid>
-
-            <c:AdaptiveUniformGrid MinItemWidth="380" MaxColumns="2" Margin="0,0,-12,0">
-                <!-- Perfis rápidos -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <TextBlock Text="Perfil de ventoinhas" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Text="Um clique aplica em todas as ventoinhas. Atalhos F1–F5 (ou Ctrl+Alt+1–5 de qualquer lugar)." Style="{StaticResource Caption}" Margin="0,2,0,12"/>
-                        <ItemsControl ItemsSource="{Binding PresetItems}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsActive, Mode=OneWay}" ToolTip="{Binding Tooltip}"
-                                                  Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  CommandParameter="{Binding Key}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Icon}" Text="{Binding Icon}" FontSize="13" Margin="0,0,8,0"/>
-                                            <TextBlock Text="{Binding Label}"/>
-                                        </StackPanel>
-                                    </ToggleButton>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <ItemsControl ItemsSource="{Binding Profiles}" Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsActive, Mode=OneWay}" Content="{Binding Name}"
-                                                  Command="{Binding DataContext.ApplyProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  CommandParameter="{Binding Name}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Grid Margin="0,6,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Potência" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}"
-                                    ToolTip="Ctrl+↑ / Ctrl+↓ ajusta 5%"/>
-                            <TextBlock Grid.Column="2" Text="{Binding GlobalSpeedFormatted}" FontWeight="SemiBold" Width="48" TextAlignment="Right"
-                                       Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Alertas -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <TextBlock Text="Alertas" Style="{StaticResource SectionTitle}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0" Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisInverse}}">
-                            <TextBlock Style="{StaticResource Icon}" Text="&#xE73E;" Foreground="{StaticResource SuccessBrush}"/>
-                            <TextBlock Text="Tudo normal. Ventoinhas, bomba e temperaturas dentro dos limites." Margin="10,0,0,0"
-                                       Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <ItemsControl ItemsSource="{Binding Alerts}" Margin="0,10,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{Binding Severity, Converter={StaticResource SeverityToSoftBrush}}" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" VerticalAlignment="Top" Margin="0,2,10,0"
-                                                       Foreground="{Binding Severity, Converter={StaticResource SeverityToBrush}}"/>
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
-                                                <TextBlock Text="{Binding Message}" Style="{StaticResource Caption}" Foreground="{StaticResource TextMutedBrush}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,10,0,10"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7F4;" Foreground="{StaticResource GpuBrush}" Margin="0,0,10,0" VerticalAlignment="Top"/>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock FontWeight="SemiBold">
-                                    <Run Text="Fans da GPU: "/><Run Text="{Binding GpuFanModeText, Mode=OneWay}"/>
-                                </TextBlock>
-                                <TextBlock Text="{Binding GpuFanRpmFormatted}" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </Grid>
-                        <TextBlock Text="Dica: clique em qualquer cartão acima para ver histórico, mínimo, máximo e detalhes." Style="{StaticResource Caption}"
-                                   Margin="0,12,0,0"/>
-                    </StackPanel>
-                </Border>
-            </c:AdaptiveUniformGrid>
         </StackPanel>
-    </ScrollViewer>
+
+        <TabControl x:Name="DashboardTabs" Grid.Row="2" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Visão geral" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
+                                Visibility="{Binding CpuSensorHint, Converter={StaticResource NullToVis}}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE946;" Foreground="{StaticResource WarningBrush}" Margin="0,2,10,0" VerticalAlignment="Top"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding CpuSensorHint}" TextWrapping="Wrap"/>
+                                    <WrapPanel Margin="0,8,0,0" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                               Visibility="{Binding IsLimitedLocal, Converter={StaticResource BoolToVis}}">
+                                        <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço" Margin="0,0,8,4" Click="InstallService_Click"
+                                                Visibility="{Binding ServiceCanInstall, Converter={StaticResource BoolToVis}}"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Margin="0,0,0,4" Click="RestartAsAdmin_Click"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <c:AdaptiveUniformGrid MinItemWidth="275" MaxColumns="2" Margin="0,0,-12,0">
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="cpu"
+                                    AutomationProperties.Name="Abrir detalhes do processador">
+                                <StackPanel Margin="0,0,14,0">
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE950;" Style="{StaticResource SystemIcon}" Foreground="{StaticResource CpuBrush}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Processador" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding CpuName}" Style="{StaticResource SystemDetail}" TextWrapping="NoWrap"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding CpuName}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <DockPanel Margin="0,12,0,12">
+                                        <StackPanel DockPanel.Dock="Left" MinWidth="98" Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding CpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource CpuBrush}"/>
+                                            <TextBlock Text="Temperatura" Style="{StaticResource Label}"/>
+                                        </StackPanel>
+                                        <c:Sparkline Values="{Binding CpuHistory}" Stroke="{StaticResource CpuBrush}" Height="45" MinRange="6" ClipToBounds="True"
+                                                     AutomationProperties.Name="Histórico de temperatura do processador"/>
+                                    </DockPanel>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding CpuLoadFormatted}" Style="{StaticResource SystemItemTitle}"/>
+                                        <TextBlock Text="Uso da CPU" Style="{StaticResource SystemDetail}" Margin="0" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <ProgressBar Style="{StaticResource TelemetryMeter}" Foreground="{StaticResource CpuBrush}"
+                                                 Value="{Binding Snapshot.CpuLoad, Mode=OneWay, TargetNullValue=0, FallbackValue=0}"
+                                                 AutomationProperties.Name="Uso da CPU"/>
+                                    <TextBlock Text="{Binding CpuPowerDetail}" Style="{StaticResource SystemDetail}" Margin="0,8,0,0"
+                                               Visibility="{Binding CpuPowerDetail, Converter={StaticResource NullToVis}}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="gpu"
+                                    AutomationProperties.Name="Abrir detalhes da placa de vídeo">
+                                <StackPanel Margin="0,0,14,0">
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE7F4;" Style="{StaticResource SystemIcon}" Foreground="{StaticResource GpuBrush}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Placa de vídeo" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding GpuName}" Style="{StaticResource SystemDetail}" TextWrapping="NoWrap"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding GpuName}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <DockPanel Margin="0,12,0,12">
+                                        <StackPanel DockPanel.Dock="Left" MinWidth="98" Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding GpuTempFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource GpuBrush}"/>
+                                            <TextBlock Text="Temperatura" Style="{StaticResource Label}"/>
+                                        </StackPanel>
+                                        <c:Sparkline Values="{Binding GpuHistory}" Stroke="{StaticResource GpuBrush}" Height="45" MinRange="6" ClipToBounds="True"
+                                                     AutomationProperties.Name="Histórico de temperatura da placa de vídeo"/>
+                                    </DockPanel>
+                                    <DockPanel Margin="0,0,0,6">
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding GpuLoadFormatted}" Style="{StaticResource SystemItemTitle}"/>
+                                        <TextBlock Text="Uso da GPU" Style="{StaticResource SystemDetail}" Margin="0" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <ProgressBar Style="{StaticResource TelemetryMeter}" Foreground="{StaticResource GpuBrush}"
+                                                 Value="{Binding Snapshot.GpuLoad, Mode=OneWay, TargetNullValue=0, FallbackValue=0}"
+                                                 AutomationProperties.Name="Uso da GPU"/>
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <TextBlock Text="{Binding GpuHotspotFormatted, StringFormat='Hotspot {0}'}" Style="{StaticResource SystemDetail}"
+                                                   Margin="0,0,14,0" Visibility="{Binding Snapshot.GpuHotspot, Converter={StaticResource NullToVis}}"/>
+                                        <TextBlock Text="{Binding GpuVramDetail}" Style="{StaticResource SystemDetail}" Margin="0"
+                                                   Visibility="{Binding GpuVramDetail, Converter={StaticResource NullToVis}}"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Button>
+                        </c:AdaptiveUniformGrid>
+
+                        <c:AdaptiveUniformGrid MinItemWidth="190" MaxColumns="3" Margin="0,0,-12,0">
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="ram"
+                                    AutomationProperties.Name="Abrir detalhes da memória">
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Text="Memória" Style="{StaticResource SystemItemTitle}"/>
+                                    <TextBlock Text="{Binding RamUsageFormatted}" Style="{StaticResource Metric}" FontSize="24"
+                                               Foreground="{StaticResource RamBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{Binding RamDetail}" Style="{StaticResource SystemDetail}"/>
+                                    <ProgressBar Style="{StaticResource TelemetryMeter}" Foreground="{StaticResource RamBrush}" Margin="0,10,0,0"
+                                                 Value="{Binding Snapshot.RamUsage, Mode=OneWay, TargetNullValue=0, FallbackValue=0}"
+                                                 AutomationProperties.Name="Uso da memória"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="fans"
+                                    AutomationProperties.Name="Abrir detalhes das ventoinhas">
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Text="Ventoinhas" Style="{StaticResource SystemItemTitle}"/>
+                                    <TextBlock Text="{Binding AverageFanRpmFormatted}" Style="{StaticResource Metric}" FontSize="24"
+                                               Foreground="{StaticResource AccentBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{Binding FanCountLabel}" Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="coolant"
+                                    Visibility="{Binding HasLiquidCooling, Converter={StaticResource BoolToVis}}"
+                                    AutomationProperties.Name="Abrir detalhes do líquido e da bomba">
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Text="Líquido e bomba" Style="{StaticResource SystemItemTitle}"/>
+                                    <TextBlock Text="{Binding CoolantTempFormatted}" Style="{StaticResource Metric}" FontSize="24"
+                                               Foreground="{StaticResource CoolantBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Text="{Binding PumpRpmFormatted, StringFormat='Bomba · {0}'}" Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                            </Button>
+                        </c:AdaptiveUniformGrid>
+
+                        <c:AdaptiveUniformGrid MinItemWidth="360" MaxColumns="2" Margin="0,0,-12,0">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Content="Abrir Ventoinhas" Style="{StaticResource SystemLinkButton}"
+                                                Command="{Binding NavigateCommand}" CommandParameter="1" Margin="8,-4,-6,0"/>
+                                        <TextBlock Text="Perfis de ventoinhas" Style="{StaticResource SystemSectionTitle}" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding CurveStatus}" Style="{StaticResource SystemDetail}"/>
+                                    <ItemsControl ItemsSource="{Binding PresetItems}" Margin="0,12,0,0">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsActive, Mode=OneWay}" ToolTip="{Binding Tooltip}"
+                                                              Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                              CommandParameter="{Binding Key}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{StaticResource Icon}" Text="{Binding Icon}" FontSize="13" Margin="0,0,7,0"/>
+                                                        <TextBlock Text="{Binding Label}"/>
+                                                    </StackPanel>
+                                                </ToggleButton>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <ItemsControl ItemsSource="{Binding Profiles}" Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsActive, Mode=OneWay}" Content="{Binding Name}"
+                                                              Command="{Binding DataContext.ApplyProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                              CommandParameter="{Binding Name}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <DockPanel Margin="0,4,0,0">
+                                        <TextBlock DockPanel.Dock="Left" Text="Potência" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding GlobalSpeedFormatted}" Style="{StaticResource SystemItemTitle}"
+                                                   Foreground="{StaticResource AccentBrush}" Width="48" TextAlignment="Right" VerticalAlignment="Center"/>
+                                        <Slider Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}"
+                                                AutomationProperties.Name="Potência global" ToolTip="Ctrl+↑ / Ctrl+↓ ajusta 5%"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border x:Name="AlertPanel" Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <TextBlock Text="Alertas" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="Nenhum alerta ativo." Style="{StaticResource SystemDetail}" Margin="0,8,0,0"
+                                               Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisInverse}}"/>
+                                    <ItemsControl ItemsSource="{Binding Alerts}" Margin="0,10,0,0"
+                                                  Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVis}}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding Severity, Converter={StaticResource SeverityToSoftBrush}}"
+                                                        CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                                    <DockPanel>
+                                                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;"
+                                                                   VerticalAlignment="Top" Margin="0,2,10,0"
+                                                                   Foreground="{Binding Severity, Converter={StaticResource SeverityToBrush}}"/>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}"/>
+                                                            <TextBlock Text="{Binding Message}" Style="{StaticResource SystemDetail}"/>
+                                                        </StackPanel>
+                                                    </DockPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Border Style="{StaticResource SystemRow}" Margin="0,12,0,0"
+                                            Visibility="{Binding Snapshot.GpuName, Converter={StaticResource NullToVis}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Ventoinhas da GPU" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding GpuFanModeText}" Style="{StaticResource SystemDetail}"/>
+                                            <TextBlock Text="{Binding GpuFanRpmFormatted}" Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </c:AdaptiveUniformGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Rede e discos" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <c:AdaptiveUniformGrid MinItemWidth="275" MaxColumns="2" Margin="0,0,-12,0">
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="net"
+                                    AutomationProperties.Name="Abrir detalhes da rede">
+                                <StackPanel Margin="0,0,14,0">
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE701;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Rede" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding NetAdapter}" Style="{StaticResource SystemDetail}" TextWrapping="NoWrap"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding NetAdapter}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding NetDownFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource GpuBrush}" Margin="0,12,0,0"/>
+                                    <TextBlock Text="Download" Style="{StaticResource Label}"/>
+                                    <c:Sparkline Values="{Binding NetHistory}" Stroke="{StaticResource GpuBrush}" Height="40" MinRange="1"
+                                                 ClipToBounds="True" Margin="0,6,0,10" AutomationProperties.Name="Histórico de download"/>
+                                    <TextBlock Text="{Binding NetUpFormatted, StringFormat='Upload · {0}'}" Style="{StaticResource SystemDetail}"/>
+                                    <TextBlock Text="{Binding NetLinkFormatted, StringFormat='Velocidade do link · {0}'}" Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="disk"
+                                    AutomationProperties.Name="Abrir detalhes dos discos">
+                                <StackPanel Margin="0,0,14,0">
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE8B7;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Armazenamento" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding DiskMainDetail}" Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding DiskMainFormatted}" Style="{StaticResource Metric}" Foreground="{StaticResource WarningBrush}" Margin="0,12,0,0"/>
+                                    <TextBlock Text="Ocupação do volume principal" Style="{StaticResource Label}"/>
+                                    <TextBlock Text="{Binding DiskActivityFormatted}" Style="{StaticResource SystemDetail}" Margin="0,8,0,0"/>
+                                    <c:Sparkline Values="{Binding DiskHistory}" Stroke="{StaticResource WarningBrush}" Height="40" MinRange="10"
+                                                 ClipToBounds="True" Margin="0,6,0,10" AutomationProperties.Name="Histórico de atividade dos discos"/>
+                                </StackPanel>
+                            </Button>
+                        </c:AdaptiveUniformGrid>
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,4,0,0"
+                                Visibility="{Binding Snapshot.Volumes.Count, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <TextBlock Text="Volumes locais" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                                <ItemsControl x:Name="DashboardVolumes" ItemsSource="{Binding Snapshot.Volumes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource SystemRow}">
+                                                <StackPanel>
+                                                    <DockPanel>
+                                                        <TextBlock DockPanel.Dock="Right" Text="{Binding UsedPercent, StringFormat='{}{0:0}% ocupado'}"
+                                                                   Style="{StaticResource SystemDetail}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                        <TextBlock Style="{StaticResource SystemItemTitle}">
+                                                            <Run Text="{Binding Letter, Mode=OneWay}"/><Run Text=" "/><Run Text="{Binding Label, Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </DockPanel>
+                                                    <ProgressBar Style="{StaticResource TelemetryMeter}" Value="{Binding UsedPercent, Mode=OneWay}"
+                                                                 AutomationProperties.Name="{Binding Letter, StringFormat='Uso do volume {0}'}" Margin="0,8,0,6"/>
+                                                    <TextBlock Style="{StaticResource SystemDetail}">
+                                                        <Run Text="{Binding FreeGb, Mode=OneWay, StringFormat='{}{0:0.#} GB livres'}"/><Run Text=" de "/><Run Text="{Binding TotalGb, Mode=OneWay, StringFormat='{}{0:0.#} GB'}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </UserControl>

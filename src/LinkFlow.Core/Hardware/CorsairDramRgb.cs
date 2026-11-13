@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,19 +20,21 @@ public sealed class CorsairDramRgb : IRgbDevice
     private const string PiixModuleResource = "LibreHardwareMonitor.Resources.PawnIo.SmbusPIIX4.bin";
 
     private const int Read = 1, Write = 0;
-    private const int ByteData = 2, WordData = 3, BlockData = 5;
+    private const int ByteData = 2, BlockData = 5;
 
     private const byte RegResetBuffer = 0x0B;
     private const byte RegSetBinaryData = 0x20;
     private const byte RegBinaryStart = 0x21;
-    private const byte RegSwitchMode = 0x23;
     private const byte RegStatus = 0x30;
+    private const byte RegDirectColors = 0x31;
     private const byte RegGetBinaryData = 0x40;
     private const byte RegGetChecksum = 0x42;
     private const byte RegGetDeviceInfo = 0x61;
     private const byte RegWriteConfiguration = 0x82;
     private const byte IdEffectConfiguration = 1;
     private const byte IdColorData = 2;
+    private const int DirectLedCount = 10;
+    private static readonly TimeSpan DirectAnimationInterval = TimeSpan.FromMilliseconds(60);
 
     public const int VengeanceDdr5LedCount = 12;
 
@@ -39,8 +42,11 @@ public sealed class CorsairDramRgb : IRgbDevice
     private IntPtr _pawnHandle = IntPtr.Zero;
     private Mutex? _mutex;
     private bool _disposed;
+    private volatile bool _useDirectFrames;
+    private bool _directFrameLogged;
 
     public bool IsAvailable { get; private set; }
+    public TimeSpan? MinAnimationInterval => _useDirectFrames ? DirectAnimationInterval : null;
     public string StatusMessage { get; private set; } = "Não inicializado";
     public List<byte> ModuleAddresses { get; } = new();
     public int ModuleCount => ModuleAddresses.Count;
@@ -57,6 +63,8 @@ public sealed class CorsairDramRgb : IRgbDevice
     {
         lock (_syncLock)
         {
+            _useDirectFrames = false;
+            _directFrameLogged = false;
             try
             {
                 if (!File.Exists(Native.LibraryPath))
@@ -115,6 +123,7 @@ public sealed class CorsairDramRgb : IRgbDevice
 
                 if (ModuleAddresses.Count > 0)
                 {
+                    _useDirectFrames = ModuleAddresses.All(SupportsDirectFrames);
                     IsAvailable = true;
                     StatusMessage = $"● Corsair Vengeance DDR5 ({ModuleAddresses.Count} módulos)";
                 }
@@ -152,15 +161,55 @@ public sealed class CorsairDramRgb : IRgbDevice
         }
     }
 
-    public bool SetColor(byte r, byte g, byte b, byte brightnessPercent)
+    private bool SupportsDirectFrames(byte address)
     {
-        if (!IsAvailable || _disposed || _pawnHandle == IntPtr.Zero || ModuleAddresses.Count == 0)
+        if (!WriteByte(address, RegGetDeviceInfo, 0) || !WriteByte(address, RegBinaryStart, 0)) return false;
+        Span<byte> info = stackalloc byte[32];
+        for (int index = 0; index < info.Length; index++)
+        {
+            int value = ReadByte(address, RegGetBinaryData);
+            if (value < 0) return false;
+            info[index] = (byte)value;
+        }
+
+        if (ReadByte(address, RegGetChecksum) != Crc8(info) || info[0] != 0x1C || info[1] != 0x1B || info[28] < 4)
             return false;
+        int product = info[2] | (info[3] << 8);
+        // Vengeance RGB DDR5 de dez LEDs, conforme a identificação de dispositivos do OpenRGB.
+        return product is 0x0700 or 0x0701 or 0x0900 or 0x0901 or 0x0910 or 0x0911;
+    }
 
-        byte bright = (byte)(Math.Clamp((int)brightnessPercent, 0, 100) * 255 / 100);
+    public bool SetColor(byte r, byte g, byte b, byte brightnessPercent) =>
+        ApplyColor(r, g, b, brightnessPercent, animated: false);
 
+    public bool SetAnimationColor(byte r, byte g, byte b, byte brightnessPercent) =>
+        ApplyColor(r, g, b, brightnessPercent, animated: true);
+
+    private bool ApplyColor(byte r, byte g, byte b, byte brightnessPercent, bool animated)
+    {
         lock (_syncLock)
         {
+            if (!IsAvailable || _disposed || _pawnHandle == IntPtr.Zero || ModuleAddresses.Count == 0) return false;
+
+            int brightness = Math.Min((int)brightnessPercent, 100);
+            if (animated && _useDirectFrames)
+            {
+                long started = Stopwatch.GetTimestamp();
+                if (SendDirectFrame((byte)(r * brightness / 100), (byte)(g * brightness / 100), (byte)(b * brightness / 100)))
+                {
+                    if (!_directFrameLogged)
+                    {
+                        Log.Info($"RGB da RAM: quadro direto enviado para {ModuleCount} módulos em {Stopwatch.GetElapsedTime(started).TotalMilliseconds:F1} ms.");
+                        _directFrameLogged = true;
+                    }
+                    return true;
+                }
+
+                _useDirectFrames = false;
+                Log.Warn("RGB da RAM: o envio direto falhou. Voltando ao envio por configuração.");
+            }
+
+            byte bright = (byte)(brightness * 255 / 100);
             bool allOk = true;
             foreach (var addr in ModuleAddresses)
             {
@@ -169,6 +218,25 @@ public sealed class CorsairDramRgb : IRgbDevice
             }
             return allOk;
         }
+    }
+
+    private bool SendDirectFrame(byte r, byte g, byte b)
+    {
+        // O primeiro byte é o tamanho do bloco SMBus. O CRC cobre a contagem de LEDs e as cores.
+        byte[] block = new byte[1 + 1 + DirectLedCount * 3 + 1];
+        block[0] = (byte)(block.Length - 1);
+        block[1] = DirectLedCount;
+        for (int index = 2; index < block.Length - 1; index += 3)
+        {
+            block[index] = r;
+            block[index + 1] = g;
+            block[index + 2] = b;
+        }
+        block[^1] = Crc8(block.AsSpan(1, block.Length - 2));
+
+        foreach (byte address in ModuleAddresses)
+            if (Xfer(address, Write, RegDirectColors, BlockData, block) is null) return false;
+        return true;
     }
 
     private bool SetModuleStaticColor(byte addr, byte r, byte g, byte b, byte brightness)
@@ -319,6 +387,7 @@ public sealed class CorsairDramRgb : IRgbDevice
         {
             if (_disposed) return;
             _disposed = true;
+            _useDirectFrames = false;
 
             if (_pawnHandle != IntPtr.Zero)
             {

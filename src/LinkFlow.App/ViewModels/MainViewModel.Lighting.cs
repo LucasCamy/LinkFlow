@@ -12,6 +12,78 @@ public partial class MainViewModel
     private readonly Dictionary<string, byte> _deviceBrightness = new();
     private bool _dynamicLightingOn;
     private ICommand? _openDynamicLightingCommand;
+    private string? _gpuLightingConflict;
+    private string? _peripheralsLightingConflict;
+    private (string Status, bool HasIssue)? _externalPeripherals;
+
+    internal event Action? RgbRefreshRequested;
+
+    public string GpuRgbStatus => !SyncGpu ? "Sincronização desligada" :
+        IsEngineDisconnected ? "Aguardando conexão com o serviço LinkFlow" :
+        !Snapshot.RgbDevicesReady ? "Detectando o controlador…" :
+        Snapshot.GpuRgbRetrying ? "GPU sem resposta. Tentando reconectar…" :
+        !Snapshot.GpuRgbAvailable ? "Controle RGB indisponível" :
+        Snapshot.GpuRgbApplied switch
+        {
+            true => $"Cor enviada · {Snapshot.GpuRgbName}",
+            false => $"Envio recusado · {Snapshot.GpuRgbName}",
+            _ => $"Controlador detectado · {Snapshot.GpuRgbName}"
+        };
+
+    public string? GpuRgbIssue
+    {
+        get
+        {
+            if (!SyncGpu || IsEngineDisconnected || !Snapshot.RgbDevicesReady) return null;
+            if (Snapshot.GpuRgbRetrying) return Snapshot.GpuRgbDiagnostic;
+            return Snapshot.GpuRgbDiagnostic ?? (Snapshot.GpuRgbAvailable
+                ? Snapshot.GpuRgbApplied == false ? "O controlador da placa recusou o envio da cor." : null
+                : "Nenhum controlador ASUS Aura compatível foi identificado na placa de vídeo.");
+        }
+    }
+
+    public string PeripheralsRgbStatus
+    {
+        get
+        {
+            if (!SyncPeripherals) return "Sincronização desligada";
+            if (_externalPeripherals is { } bridge) return bridge.Status;
+            if (_engine.IsRemote || !Snapshot.RgbDevicesReady) return "Verificando o G HUB na sessão do Windows…";
+            return Snapshot.PeripheralsRgbDiagnostic ?? (!Snapshot.PeripheralsRgbAvailable ? "Controle RGB pelo G HUB indisponível." :
+                Snapshot.PeripheralsRgbApplied switch
+                {
+                    true => "Cor enviada pelo SDK do G HUB.",
+                    false => "O SDK do G HUB recusou a cor.",
+                    _ => "SDK do G HUB conectado. Aguardando o envio da cor."
+                });
+        }
+    }
+
+    public bool HasPeripheralsRgbIssue => SyncPeripherals && (_externalPeripherals?.HasIssue ??
+        (!_engine.IsRemote && Snapshot.RgbDevicesReady &&
+         (!Snapshot.PeripheralsRgbAvailable || Snapshot.PeripheralsRgbApplied == false || Snapshot.PeripheralsRgbDiagnostic != null)));
+
+    public string? GpuLightingConflict => SyncGpu ? _gpuLightingConflict : null;
+    public string? PeripheralsLightingConflict => SyncPeripherals ? _peripheralsLightingConflict : null;
+    public bool HasLightingAttention => GpuRgbIssue != null || HasPeripheralsRgbIssue ||
+        GpuLightingConflict != null || PeripheralsLightingConflict != null;
+
+    internal void SetExternalPeripheralsStatus(string status, bool hasIssue)
+    {
+        _externalPeripherals = (status, hasIssue);
+        NotifyLightingStatus();
+    }
+
+    private void NotifyLightingStatus() => OnPropertiesChanged(nameof(GpuRgbStatus), nameof(GpuRgbIssue),
+        nameof(PeripheralsRgbStatus), nameof(HasPeripheralsRgbIssue), nameof(HasLightingAttention));
+
+    private void RefreshRgb()
+    {
+        RefreshLightingDiagnostics();
+        _engine.RefreshRgb();
+        RgbRefreshRequested?.Invoke();
+        ShowToast("Reenviando a iluminação dos dispositivos selecionados…", canUndo: false);
+    }
 
     /// <summary>Intensidade da correção (0 = desligada, 100 = gama 2,2).</summary>
     public double LedVividness
@@ -58,9 +130,10 @@ public partial class MainViewModel
         catch (Exception ex) { Log.Warn($"Não foi possível abrir as configurações de iluminação: {ex.Message}"); }
     });
 
-    /// <summary>Lê o registro (barato); chamado ao abrir a página de Iluminação.</summary>
-    public void RefreshDynamicLighting()
+    public void RefreshLightingDiagnostics()
     {
+        if (_engine.IsSimulated) return;
+
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Lighting");
@@ -70,6 +143,32 @@ public partial class MainViewModel
         {
             IsDynamicLightingOn = false;
         }
+
+        try
+        {
+            var common = new List<string>();
+            if (IsRunning("OpenRGB")) common.Add("OpenRGB");
+            if (IsRunning("SignalRgb") || IsRunning("WhirlwindFX")) common.Add("SignalRGB");
+            _peripheralsLightingConflict = DescribeConflict(common);
+            if (IsRunning("LightingService") || IsRunning("Aura")) common.Add("ASUS Aura");
+            _gpuLightingConflict = DescribeConflict(common);
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            _gpuLightingConflict = _peripheralsLightingConflict = null;
+            Log.Debug($"Consulta de controladores RGB em execução: {ex.Message}");
+        }
+        OnPropertiesChanged(nameof(GpuLightingConflict), nameof(PeripheralsLightingConflict), nameof(HasLightingAttention));
+    }
+
+    private static string? DescribeConflict(List<string> controllers) => controllers.Count == 0 ? null :
+        $"Possível disputa pelo controle da iluminação com {string.Join(", ", controllers)}, em execução.";
+
+    private static bool IsRunning(string name)
+    {
+        var processes = Process.GetProcessesByName(name);
+        foreach (var process in processes) process.Dispose();
+        return processes.Length > 0;
     }
 
     private void LoadLightingExtras(ControlConfig c)

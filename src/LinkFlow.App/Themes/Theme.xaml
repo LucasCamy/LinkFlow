@@ -110,12 +110,113 @@
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
+    <!-- ============================================================ Hardware, Windows e Drivers -->
+    <Style x:Key="SystemPageTitle" TargetType="TextBlock" BasedOn="{StaticResource PageTitle}">
+        <Setter Property="FontSize" Value="32"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="AutomationProperties.HeadingLevel" Value="Level1"/>
+    </Style>
+    <Style x:Key="SystemDetail" TargetType="TextBlock" BasedOn="{StaticResource PageSubtitle}">
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <Style x:Key="SystemSectionTitle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitle}">
+        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="AutomationProperties.HeadingLevel" Value="Level2"/>
+    </Style>
+    <Style x:Key="SystemItemTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style x:Key="SystemPanel" TargetType="Border" BasedOn="{StaticResource Card}">
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="18"/>
+        <Setter Property="Margin" Value="0"/>
+    </Style>
+    <Style x:Key="SystemIconTile" TargetType="Border">
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="SystemIcon" TargetType="TextBlock" BasedOn="{StaticResource Icon}">
+        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+    <Style x:Key="SystemRow" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="0,10"/>
+    </Style>
+    <Style x:Key="SystemScroll" TargetType="ScrollViewer">
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="Padding" Value="0,0,8,0"/>
+    </Style>
+
     <!-- ============================================================ Foco -->
     <Style x:Key="FocusRing">
         <Setter Property="Control.Template">
             <Setter.Value>
                 <ControlTemplate>
                     <Border Margin="-3" CornerRadius="10" BorderBrush="{StaticResource AccentBrush}" BorderThickness="2" SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SystemTabs" TargetType="TabControl">
+        <Setter Property="Padding" Value="0,16,0,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"/>
+                        <TabPanel x:Name="HeaderPanel" IsItemsHost="True" KeyboardNavigation.TabIndex="1"
+                                  KeyboardNavigation.TabNavigation="Once" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                        <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Row="1" ContentSource="SelectedContent"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="SystemTab" TargetType="TabItem">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="MinHeight" Value="42"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="Margin" Value="0,0,4,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border x:Name="TabBorder" Padding="{TemplateBinding Padding}" Background="Transparent"
+                            CornerRadius="8,8,0,0" BorderThickness="0,0,0,2" BorderBrush="Transparent">
+                        <ContentPresenter x:Name="TabLabel" ContentSource="Header" RecognizesAccessKey="True"
+                                          TextElement.Foreground="{StaticResource TextMutedBrush}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                            <Setter TargetName="TabLabel" Property="TextElement.Foreground" Value="{StaticResource TextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="TabLabel" Property="TextElement.Foreground" Value="{StaticResource AccentBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -206,6 +307,18 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
         <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+    <Style x:Key="SystemLinkButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="8,7"/>
+    </Style>
+    <Style x:Key="SystemActionButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AccentDimBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
     <Style x:Key="CaptionButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
@@ -355,8 +468,8 @@
         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
         <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Margin" Value="0,0,0,4"/>
-        <Setter Property="Height" Value="42"/>
+        <Setter Property="Margin" Value="0,0,0,3"/>
+        <Setter Property="Height" Value="38"/>
         <Setter Property="GroupName" Value="Nav"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -593,6 +706,35 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+    </Style>
+
+    <Style x:Key="SystemSearch" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Field" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1" CornerRadius="{StaticResource ControlRadius}">
+                        <Grid>
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="14" Foreground="{StaticResource TextMutedBrush}"
+                                       HorizontalAlignment="Left" Margin="11,0,0,0" IsHitTestVisible="False"/>
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="34,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Foreground="{StaticResource TextMutedBrush}"
+                                       Margin="34,0,10,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                       IsHitTestVisible="False" Visibility="Collapsed"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Hint" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Field" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ============================================================ ComboBox -->

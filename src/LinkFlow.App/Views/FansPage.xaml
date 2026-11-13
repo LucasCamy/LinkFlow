@@ -3,580 +3,632 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="8,8,20,24">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="Ventoinhas" Style="{StaticResource PageTitle}"/>
-                    <TextBlock Text="{Binding FanCountLabel}" Style="{StaticResource PageSubtitle}"/>
-                </StackPanel>
-                <!-- Modo: fixo / curva -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource ChipButton}" Margin="0,0,6,0" Command="{Binding RescanDevicesCommand}"
-                            ToolTip="Procura de novo ventoinhas, bomba, LCD e RGB (útil depois de ligar/desligar algo ou fechar o iCUE)">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE72C;" FontSize="13" Margin="0,0,8,0" RenderTransformOrigin="0.5,0.5">
-                                <TextBlock.RenderTransform>
-                                    <RotateTransform/>
-                                </TextBlock.RenderTransform>
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsRescanning}" Value="True">
-                                                <DataTrigger.EnterActions>
-                                                    <BeginStoryboard x:Name="Spin">
-                                                        <Storyboard>
-                                                            <DoubleAnimation Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
-                                                                             From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </DataTrigger.EnterActions>
-                                                <DataTrigger.ExitActions>
-                                                    <StopStoryboard BeginStoryboardName="Spin"/>
-                                                </DataTrigger.ExitActions>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBlock Text="{Binding RescanLabel}"/>
-                        </StackPanel>
-                    </Button>
-                    <ToggleButton Style="{StaticResource Chip}" Margin="0,0,6,0" IsChecked="{Binding IsFixedMode, Mode=OneWay}"
-                                  Command="{Binding SetModeCommand}" CommandParameter="Fixed" ToolTip="Mesma potência o tempo todo">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Icon}" Text="&#xE9E9;" FontSize="13" Margin="0,0,8,0"/>
-                            <TextBlock Text="Potência fixa"/>
-                        </StackPanel>
-                    </ToggleButton>
-                    <ToggleButton Style="{StaticResource Chip}" Margin="0" IsChecked="{Binding IsCurveMode, Mode=OneWay}"
-                                  Command="{Binding SetModeCommand}" CommandParameter="Curve" ToolTip="A potência acompanha a temperatura">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Icon}" Text="&#xE9D9;" FontSize="13" Margin="0,0,8,0"/>
-                            <TextBlock Text="Curva automática"/>
-                        </StackPanel>
-                    </ToggleButton>
-                </StackPanel>
-            </Grid>
 
-            <!-- Perfis -->
-            <Border Style="{StaticResource Card}" Margin="0,16,0,12">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Perfis" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Style="{StaticResource GhostButton}" Command="{Binding RelinkAllCommand}"
-                                ToolTip="Todas as ventoinhas voltam a seguir a potência global">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
-                                <TextBlock Text="Revincular todas"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                    <ItemsControl ItemsSource="{Binding PresetItems}" Margin="0,10,0,0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsActive, Mode=OneWay}" ToolTip="{Binding Tooltip}"
-                                              Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                              CommandParameter="{Binding Key}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Icon}" Text="{Binding Icon}" FontSize="13" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding Label}"/>
-                                        <TextBlock Text="{Binding Index, StringFormat=' F{0}'}" Foreground="{StaticResource TextSubtleBrush}" Margin="6,0,0,0" FontSize="11" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </ToggleButton>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Perfis salvos pelo usuário -->
-                    <ItemsControl ItemsSource="{Binding Profiles}" Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,0,8,8">
-                                    <ToggleButton Style="{StaticResource Chip}" Margin="0" Padding="12,7,34,7" IsChecked="{Binding IsActive, Mode=OneWay}"
-                                                  Content="{Binding Name}" ToolTip="Aplicar perfil salvo"
-                                                  Command="{Binding DataContext.ApplyProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  CommandParameter="{Binding Name}"/>
-                                    <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="9" Content="&#xE711;" HorizontalAlignment="Right" Margin="0,0,4,0"
-                                            ToolTip="Excluir perfil" AutomationProperties.Name="Excluir perfil"
-                                            Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding Name}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Grid Margin="0,4,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" MaxWidth="380"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*" MaxWidth="9999"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="ProfileNameBox" Text="{Binding NewProfileName, UpdateSourceTrigger=PropertyChanged}" KeyDown="ProfileNameBox_KeyDown"
-                                 ToolTip="Nome do perfil (ex.: Jogo, Noite, Render)" MinWidth="200"/>
-                        <TextBlock Text="Salvar configuração atual como perfil..." IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextSubtleBrush}"
-                                   Visibility="{Binding NewProfileName, Converter={StaticResource NullToVisInverse}}"/>
-                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding SaveProfileCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="13" Margin="0,0,8,0"/>
-                                <TextBlock Text="Salvar"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- Automação: perfil por jogo/app e horário silencioso -->
-            <Border Style="{StaticResource Card}">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="Perfil automático" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="Troca de perfil sozinho ao abrir um jogo/app ou à noite; ao terminar, volta ao que você tinha. Se você mudar à mão, ele respeita."
-                                       Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,10"/>
-                        </StackPanel>
-                        <Border Grid.Column="1" Background="{StaticResource AccentSoftBrush}" CornerRadius="8" Padding="10,4" VerticalAlignment="Top" Margin="12,0,0,0"
-                                Visibility="{Binding HasAutomationStatus, Converter={StaticResource BoolToVis}}">
-                            <TextBlock Text="{Binding AutomationStatus}" Foreground="{StaticResource AccentBrush}" FontSize="12"/>
-                        </Border>
-                    </Grid>
-
-                    <!-- Horário silencioso -->
-                    <WrapPanel VerticalAlignment="Center" Margin="0,0,0,6">
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding QuietEnabled}" Content="Horário silencioso das" Margin="0,0,8,8" VerticalAlignment="Center"/>
-                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietStart}" Width="70" Margin="0,0,8,8" ItemStringFormat="{}{0:00}h"/>
-                        <TextBlock Text="às" VerticalAlignment="Center" Margin="0,0,8,8" Foreground="{StaticResource TextMutedBrush}"/>
-                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietEnd}" Width="70" Margin="0,0,8,8" ItemStringFormat="{}{0:00}h"/>
-                        <TextBlock Text="usar" VerticalAlignment="Center" Margin="0,0,8,8" Foreground="{StaticResource TextMutedBrush}"/>
-                        <ComboBox ItemsSource="{Binding ProfileOptions}" SelectedValuePath="Key" DisplayMemberPath="Label" SelectedValue="{Binding QuietProfile}" Width="190" Margin="0,0,0,8"/>
-                    </WrapPanel>
-
-                    <!-- Regras por jogo/app -->
-                    <ItemsControl ItemsSource="{Binding AppRules}" Focusable="False">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,6,6,6" Margin="0,0,0,6">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Regra ativa"/>
-                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                            <Run Text="Ao abrir "/><Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold"/>
-                                        </TextBlock>
-                                        <ComboBox Grid.Column="2" Width="190" Margin="8,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Label"
-                                                  ItemsSource="{Binding DataContext.ProfileOptions, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  SelectedValue="{Binding Profile}"/>
-                                        <Button Grid.Column="3" Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="11" Content="&#xE711;" ToolTip="Remover regra"
-                                                Foreground="{StaticResource DangerBrush}"
-                                                Command="{Binding DataContext.RemoveRuleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Grid Margin="0,2,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" MaxWidth="320"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox IsEditable="True" Text="{Binding NewRuleProcess, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RunningApps}"
-                                  DropDownOpened="RunningApps_DropDownOpened" ToolTip="Nome do programa (ex.: cs2, valorant, Cyberpunk2077) ou escolha um aberto"/>
-                        <TextBlock Text="Jogo ou app (abra a lista para escolher um aberto)..." IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextSubtleBrush}" Visibility="{Binding NewRuleProcess, Converter={StaticResource NullToVisInverse}}"/>
-                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding AddRuleCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
-                                <TextBlock Text="Adicionar regra"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- Potência global (modo fixo) -->
-            <Border Style="{StaticResource Card}" Visibility="{Binding IsFixedMode, Converter={StaticResource BoolToVis}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
-                        <TextBlock Text="Potência global" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Text="Ventoinhas vinculadas seguem este valor" Style="{StaticResource Caption}"/>
-                    </StackPanel>
-                    <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}" ToolTip="Ctrl+↑ / Ctrl+↓ ajusta 5%"/>
-                    <TextBlock Grid.Column="2" Text="{Binding GlobalSpeedFormatted}" FontSize="22" FontWeight="SemiBold" Width="70" TextAlignment="Right"
-                               Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-
-            <!-- Curva (modo automático) -->
-            <Border Style="{StaticResource Card}" Visibility="{Binding ShowCurveCard, Converter={StaticResource BoolToVis}}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="{Binding CurveTitle}" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="{Binding CurveStatus}" Style="{StaticResource Caption}" Foreground="{StaticResource WarningBrush}"/>
-                        </StackPanel>
-                        <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="Restaurar padrão" Command="{Binding ResetCurveCommand}" VerticalAlignment="Top"/>
-                    </Grid>
-                    <c:CurveEditor x:Name="CurveEditorControl" Grid.Row="1" Height="240" Margin="0,12,0,12"
-                                   Points="{Binding CurvePoints}" CurrentTemp="{Binding CurveCurrentTemp}" CurrentOutput="{Binding CurveCurrentOutput}"/>
-                    <c:AdaptiveUniformGrid Grid.Row="2" MinItemWidth="280" MaxColumns="2">
-                        <StackPanel Margin="0,0,16,8">
-                            <TextBlock Text="Sensor de referência" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                            <ComboBox ItemsSource="{Binding CurveSources}" SelectedValuePath="Value" DisplayMemberPath="Label"
-                                      SelectedValue="{Binding CurveSourceValue}"/>
-                            <TextBlock Text="Para AIO, o líquido reage devagar e evita picos de ruído." Style="{StaticResource Caption}" Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,8">
-                            <Grid Margin="0,0,0,6">
-                                <TextBlock Text="Histerese (queda antes de reduzir)" Style="{StaticResource Label}"/>
-                                <TextBlock Text="{Binding CurveHysteresisFormatted}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-                            </Grid>
-                            <Slider Minimum="0" Maximum="10" Value="{Binding CurveHysteresis}" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                            <TextBlock Text="Evita que as ventoinhas fiquem acelerando e desacelerando." Style="{StaticResource Caption}" Margin="0,4,0,0"/>
-                        </StackPanel>
-                    </c:AdaptiveUniformGrid>
-                </Grid>
-            </Border>
-
-            <!-- Curvas por grupo -->
-            <Border Style="{StaticResource Card}" Visibility="{Binding HasGroupCurves, Converter={StaticResource BoolToVis}}">
-                <StackPanel>
-                    <Grid>
-                        <StackPanel>
-                            <TextBlock Text="Curvas por grupo" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="Um grupo pode seguir a própria curva e o próprio sensor (ex.: radiador pelo líquido, gabinete pela GPU). Funciona em qualquer modo."
-                                       Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,10"/>
-                        </StackPanel>
-                    </Grid>
-                    <ItemsControl ItemsSource="{Binding GroupCurves}" Focusable="False">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border x:Name="Row" Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,8" Margin="0,0,0,6" BorderThickness="1" BorderBrush="Transparent">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock FontWeight="SemiBold">
-                                                <Run Text="{Binding Name, Mode=OneWay}"/><Run Text="  •  " Foreground="{StaticResource TextSubtleBrush}"/><Run Text="{Binding Members, Mode=OneWay}" Foreground="{StaticResource TextMutedBrush}"/><Run Text=" dispositivo(s)" Foreground="{StaticResource TextMutedBrush}"/>
-                                            </TextBlock>
-                                            <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}"/>
-                                        </StackPanel>
-                                        <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HasOwnCurve}" Content="Curva própria"
-                                                  VerticalAlignment="Center" Margin="12,0"/>
-                                        <ComboBox Grid.Column="2" Width="240" VerticalAlignment="Center" IsEnabled="{Binding HasOwnCurve}"
-                                                  ItemsSource="{Binding DataContext.CurveSources, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                  SelectedValuePath="Value" DisplayMemberPath="Label" SelectedValue="{Binding Source}" ToolTip="Sensor que este grupo segue"/>
-                                        <Button Grid.Column="3" Style="{StaticResource SecondaryButton}" Content="Editar curva" Margin="8,0,0,0" VerticalAlignment="Center"
-                                                Command="{Binding DataContext.EditCurveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding Name}"/>
-                                    </Grid>
-                                </Border>
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                        <Setter TargetName="Row" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Content="← Voltar a editar a curva global" Command="{Binding EditCurveCommand}"
-                            CommandParameter="" Visibility="{Binding IsEditingGroupCurve, Converter={StaticResource BoolToVis}}"/>
-                </StackPanel>
-            </Border>
-
-            <!-- GPU -->
-            <Border Style="{StaticResource Card}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Width="38" Height="38" CornerRadius="10" Background="#14342A" Margin="0,0,14,0">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE950;" Foreground="{StaticResource GpuBrush}"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding GpuName}" Style="{StaticResource SectionTitle}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="{Binding GpuFanRpmFormatted}" Style="{StaticResource Caption}"/>
-                    </StackPanel>
-                    <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsGpuFanAuto}" Content="Automático (vBIOS)"
-                              VerticalAlignment="Center"/>
-                    <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,14,0,0" Visibility="{Binding IsGpuFanManual, Converter={StaticResource BoolToVis}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Controle manual" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <Slider Grid.Column="1" Minimum="30" Maximum="100" Value="{Binding GpuFanPercent}" Foreground="{StaticResource GpuBrush}"/>
-                        <TextBlock Grid.Column="2" Text="{Binding GpuFanPercentFormatted}" FontSize="16" FontWeight="SemiBold" Width="56" TextAlignment="Right"
-                                   Foreground="{StaticResource GpuBrush}" VerticalAlignment="Center"/>
-                    </Grid>
-                </Grid>
-            </Border>
-
-            <!-- Barra de seleção -->
-            <Border Style="{StaticResource Card}" Padding="16,12,16,12">
-                <StackPanel>
-                    <Grid Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Seleção" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{Binding SelectionSummary}" Style="{StaticResource Caption}" VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </Grid>
-                    <WrapPanel>
-                        <Button Style="{StaticResource ChipButton}" Command="{Binding SelectAllCommand}" ToolTip="Ctrl+A">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8B3;" FontSize="12" Margin="0,0,7,0"/>
-                                <TextBlock Text="Todas"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource ChipButton}" Command="{Binding SelectFansCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xEC4A;" FontSize="12" Margin="0,0,7,0"/>
-                                <TextBlock Text="Só ventoinhas"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource ChipButton}" Command="{Binding SelectPumpsCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE9CA;" FontSize="12" Margin="0,0,7,0"/>
-                                <TextBlock Text="Bomba"/>
-                            </StackPanel>
-                        </Button>
-                        <ItemsControl ItemsSource="{Binding AvailableGroups}" Focusable="False">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Style="{StaticResource ChipButton}" ToolTip="Selecionar este grupo"
-                                            Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="12" Margin="0,0,7,0" Foreground="{StaticResource AccentBrush}"/>
-                                            <TextBlock Text="{Binding}"/>
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Button Style="{StaticResource ChipButton}" Command="{Binding InvertSelectionCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8AB;" FontSize="12" Margin="0,0,7,0"/>
-                                <TextBlock Text="Inverter"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource ChipButton}" Command="{Binding ClearSelectionCommand}" ToolTip="Esc">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE894;" FontSize="12" Margin="0,0,7,0"/>
-                                <TextBlock Text="Limpar"/>
-                            </StackPanel>
-                        </Button>
-                    </WrapPanel>
-
-                    <!-- Ações em lote: sempre visíveis (não empurram os cartões ao selecionar) -->
-                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,4,0,0"
-                            IsEnabled="{Binding HasSelection}" ToolTip="Selecione um ou mais cartões para aplicar em lote">
-                        <Border.Style>
-                            <Style TargetType="Border">
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Margin="0,0,0,18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Ventoinhas" Style="{StaticResource SystemPageTitle}"/>
+                <TextBlock Text="{Binding FanCountLabel}" Style="{StaticResource SystemDetail}"/>
+            </StackPanel>
+            <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" VerticalAlignment="Center" Margin="16,0,0,0" Command="{Binding RescanDevicesCommand}"
+                    ToolTip="Atualizar a lista de ventoinhas, bomba, LCD e RGB">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72C;" FontSize="13" Margin="0,0,8,0" RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform/>
+                        </TextBlock.RenderTransform>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Icon}">
                                 <Style.Triggers>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Opacity" Value="0.55"/>
-                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsRescanning}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="Spin">
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0" To="360" Duration="0:0:0.9" RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <StopStoryboard BeginStoryboardName="Spin"/>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </Border.Style>
-                        <c:AdaptiveUniformGrid MinItemWidth="330" MaxColumns="2">
-                            <Grid Margin="0,4,16,4">
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding RescanLabel}"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <TabControl x:Name="FanTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Perfis e curvas" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource SystemLinkButton}" Margin="12,0,0,0" Command="{Binding RelinkAllCommand}"
+                                            ToolTip="Todas as ventoinhas voltam a seguir a potência global">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
+                                            <TextBlock Text="Revincular todas"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xEC4A;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Perfis de refrigeração" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{Binding ActivePresetLabel, StringFormat='Ativo · {0}'}" Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding PresetItems}" Margin="0,16,0,0">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsActive, Mode=OneWay}" ToolTip="{Binding Tooltip}"
+                                                          Command="{Binding DataContext.ApplyPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                          CommandParameter="{Binding Key}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Icon}" Text="{Binding Icon}" FontSize="13" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="{Binding Label}"/>
+                                                    <TextBlock Text="{Binding Index, StringFormat=' F{0}'}" Foreground="{StaticResource TextSubtleBrush}" Margin="6,0,0,0" FontSize="11" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </ToggleButton>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Perfis salvos pelo usuário -->
+                                <ItemsControl ItemsSource="{Binding Profiles}" Visibility="{Binding HasProfiles, Converter={StaticResource BoolToVis}}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,8,8">
+                                                <ToggleButton Style="{StaticResource Chip}" Margin="0" Padding="12,7,34,7" IsChecked="{Binding IsActive, Mode=OneWay}"
+                                                              Content="{Binding Name}" ToolTip="Aplicar perfil salvo"
+                                                              Command="{Binding DataContext.ApplyProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                              CommandParameter="{Binding Name}"/>
+                                                <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="9" Content="&#xE711;" HorizontalAlignment="Right" Margin="0,0,4,0"
+                                                        ToolTip="Excluir perfil" AutomationProperties.Name="Excluir perfil"
+                                                        Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding Name}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" MaxWidth="380"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*" MaxWidth="9999"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="ProfileNameBox" Text="{Binding NewProfileName, UpdateSourceTrigger=PropertyChanged}" KeyDown="ProfileNameBox_KeyDown"
+                                             AutomationProperties.Name="Nome do novo perfil" ToolTip="Salva a configuração atual como perfil" MinWidth="160"/>
+                                    <TextBlock Text="Nome do novo perfil" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextSubtleBrush}"
+                                               Visibility="{Binding NewProfileName, Converter={StaticResource NullToVisInverse}}"/>
+                                    <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding SaveProfileCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="13" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Salvar"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <ToggleButton Style="{StaticResource Chip}" Margin="0,0,8,0" IsChecked="{Binding IsFixedMode, Mode=OneWay}"
+                                                  Command="{Binding SetModeCommand}" CommandParameter="Fixed" ToolTip="Mesma potência o tempo todo">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE9E9;" FontSize="13" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Potência fixa"/>
+                                        </StackPanel>
+                                    </ToggleButton>
+                                    <ToggleButton Style="{StaticResource Chip}" Margin="0" IsChecked="{Binding IsCurveMode, Mode=OneWay}"
+                                                  Command="{Binding SetModeCommand}" CommandParameter="Curve" ToolTip="A potência acompanha a temperatura">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE9D9;" FontSize="13" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Curva automática"/>
+                                        </StackPanel>
+                                    </ToggleButton>
+                                </StackPanel>
+                                <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xE9D9;" Style="{StaticResource SystemIcon}"/>
+                                </Border>
+                                <TextBlock Text="Modo de controle" Style="{StaticResource SystemSectionTitle}" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12" Visibility="{Binding IsFixedMode, Converter={StaticResource BoolToVis}}">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Aplicar" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding BatchPercent}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding BatchPercent, StringFormat={}{0}%}" Width="44" TextAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                <Button Grid.Column="3" Style="{StaticResource PrimaryButton}" Content="Aplicar" Margin="10,0,0,0" Command="{Binding ApplyBatchCommand}"/>
+                                <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
+                                    <TextBlock Text="Potência global" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="Ventoinhas vinculadas seguem este valor." Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                                <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}" AutomationProperties.Name="Potência global" ToolTip="Ctrl+↑ / Ctrl+↓ ajusta 5%"/>
+                                <TextBlock Grid.Column="2" Text="{Binding GlobalSpeedFormatted}" FontSize="22" FontWeight="SemiBold" Width="70" TextAlignment="Right"
+                                           Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
                             </Grid>
-                            <WrapPanel Margin="0,4">
-                                <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,6" Command="{Binding LinkSelectedCommand}"
-                                        ToolTip="As selecionadas voltam a seguir a potência global">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
-                                        <TextBlock Text="Vincular ao global"/>
-                                    </StackPanel>
-                                </Button>
-                                <Grid Margin="0,0,8,6">
-                                    <TextBox Width="130" Text="{Binding GroupNameInput, UpdateSourceTrigger=PropertyChanged}" ToolTip="Nome do grupo (ex.: Frontal, Topo, Radiador)"/>
-                                    <TextBlock Text="Grupo..." IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextSubtleBrush}"
-                                               Visibility="{Binding GroupNameInput, Converter={StaticResource NullToVisInverse}}"/>
-                                </Grid>
-                                <Button Style="{StaticResource SecondaryButton}" Content="Agrupar" Margin="0,0,8,6" Command="{Binding SetGroupCommand}"/>
-                                <Button Style="{StaticResource SecondaryButton}" Content="Sem grupo" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
-                            </WrapPanel>
-                        </c:AdaptiveUniformGrid>
-                    </Border>
-                </StackPanel>
-            </Border>
+                        </Border>
 
-            <!-- Cartões das ventoinhas -->
-            <ItemsControl ItemsSource="{Binding Fans}" Margin="0,0,-12,0" Focusable="False">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <c:AdaptiveUniformGrid MinItemWidth="300" MaxColumns="4" BalanceRows="False"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border x:Name="Card" Style="{StaticResource GridCard}" Padding="14,12" Cursor="Hand"
-                                MouseLeftButtonDown="FanCard_MouseLeftButtonDown" Background="{StaticResource SurfaceBrush}">
-                            <Border.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Renomear" InputGestureText="Ctrl+R" Click="RenameMenu_Click">
-                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8AC;" FontSize="13"/></MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Restaurar nome original" Click="ResetNameMenu_Click" IsEnabled="{Binding HasCustomName}">
-                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE7A7;" FontSize="13"/></MenuItem.Icon>
-                                    </MenuItem>
-                                    <Separator/>
-                                    <MenuItem Header="Vincular à potência global" Click="LinkMenu_Click" IsEnabled="{Binding IsManual}">
-                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="13"/></MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Selecionar o grupo" Click="SelectGroupMenu_Click" IsEnabled="{Binding HasGroup}">
-                                        <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="13"/></MenuItem.Icon>
-                                    </MenuItem>
-                                </ContextMenu>
-                            </Border.ContextMenu>
+                        <Border x:Name="CurvePanel" Style="{StaticResource SystemPanel}" Margin="0,0,0,12" Visibility="{Binding ShowCurveCard, Converter={StaticResource BoolToVis}}">
                             <Grid>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Selecionar"
-                                              AutomationProperties.Name="Selecionar ventoinha"/>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <Grid Height="24">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding CurveTitle}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{Binding CurveStatus}" Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="Restaurar padrão" Command="{Binding ResetCurveCommand}" VerticalAlignment="Top"/>
+                                </Grid>
+                                <c:CurveEditor x:Name="CurveEditorControl" Grid.Row="1" Height="240" Margin="0,12,0,12"
+                                               Points="{Binding CurvePoints}" CurrentTemp="{Binding CurveCurrentTemp}" CurrentOutput="{Binding CurveCurrentOutput}"/>
+                                <c:AdaptiveUniformGrid Grid.Row="2" MinItemWidth="300" MaxColumns="2">
+                                    <StackPanel Margin="0,0,16,8">
+                                        <TextBlock Text="Sensor de referência" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                        <ComboBox AutomationProperties.Name="Sensor de referência" ItemsSource="{Binding CurveSources}" SelectedValuePath="Value" DisplayMemberPath="Label"
+                                                  SelectedValue="{Binding CurveSourceValue}"/>
+                                        <TextBlock Text="Para AIO, o líquido reage devagar e evita picos de ruído." Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,8">
+                                        <Grid Margin="0,0,0,6">
+                                            <TextBlock Text="Histerese (queda antes de reduzir)" Style="{StaticResource Label}"/>
+                                            <TextBlock Text="{Binding CurveHysteresisFormatted}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                        </Grid>
+                                        <Slider Minimum="0" Maximum="10" Value="{Binding CurveHysteresis}" AutomationProperties.Name="Histerese da curva" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                                        <TextBlock Text="Evita que as ventoinhas fiquem acelerando e desacelerando." Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </c:AdaptiveUniformGrid>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}" Visibility="{Binding HasGroupCurves, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE8EC;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Curvas por grupo" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="Use curvas e sensores diferentes para o radiador, o gabinete e outros grupos." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding GroupCurves}" Focusable="False" Margin="0,14,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border x:Name="Row" Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,8" Margin="0,0,0,6" BorderThickness="1" BorderBrush="Transparent">
+                                                <StackPanel>
+                                                    <TextBlock FontWeight="SemiBold" TextWrapping="Wrap">
+                                                        <Run Text="{Binding Name, Mode=OneWay}"/><Run Text=" · " Foreground="{StaticResource TextSubtleBrush}"/><Run Text="{Binding Members, Mode=OneWay}" Foreground="{StaticResource TextMutedBrush}"/><Run Text=" dispositivo(s)" Foreground="{StaticResource TextMutedBrush}"/>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}"/>
+                                                    <WrapPanel Margin="0,8,0,0">
+                                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HasOwnCurve}" Content="Curva própria"
+                                                                  VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                        <ComboBox Width="210" VerticalAlignment="Center" IsEnabled="{Binding HasOwnCurve}" Margin="0,0,8,0"
+                                                                  ItemsSource="{Binding DataContext.CurveSources, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                  SelectedValuePath="Value" DisplayMemberPath="Label" SelectedValue="{Binding Source}"
+                                                                  ToolTip="Sensor que este grupo segue" AutomationProperties.Name="Sensor do grupo"/>
+                                                        <Button Style="{StaticResource SecondaryButton}" Content="Editar curva" VerticalAlignment="Center"
+                                                                Command="{Binding DataContext.EditCurveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding Name}"
+                                                                Click="GroupCurve_Click"/>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                    <Setter TargetName="Row" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Content="← Voltar a editar a curva global" Command="{Binding EditCurveCommand}"
+                                        CommandParameter="" Click="GroupCurve_Click" Visibility="{Binding IsEditingGroupCurve, Converter={StaticResource BoolToVis}}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="DevicesTab" Header="Dispositivos" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE8B3;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Controle por dispositivo" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{Binding SelectionSummary}" Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <WrapPanel Margin="0,14,0,0">
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding SelectAllCommand}" ToolTip="Ctrl+A">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8B3;" FontSize="12" Margin="0,0,7,0"/>
+                                            <TextBlock Text="Todas"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding SelectFansCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xEC4A;" FontSize="12" Margin="0,0,7,0"/>
+                                            <TextBlock Text="Só ventoinhas"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding SelectPumpsCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE9CA;" FontSize="12" Margin="0,0,7,0"/>
+                                            <TextBlock Text="Bomba"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <ItemsControl ItemsSource="{Binding AvailableGroups}" Focusable="False">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource ChipButton}" ToolTip="Selecionar este grupo"
+                                                        Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="12" Margin="0,0,7,0" Foreground="{StaticResource AccentBrush}"/>
+                                                        <TextBlock Text="{Binding}"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding InvertSelectionCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8AB;" FontSize="12" Margin="0,0,7,0"/>
+                                            <TextBlock Text="Inverter"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding ClearSelectionCommand}" ToolTip="Esc">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE894;" FontSize="12" Margin="0,0,7,0"/>
+                                            <TextBlock Text="Limpar"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+
+                                <!-- Ações em lote: sempre visíveis (não empurram os cartões ao selecionar) -->
+                                <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,4,0,0"
+                                        IsEnabled="{Binding HasSelection}" ToolTip="Selecione um ou mais cartões para aplicar em lote">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.55"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <c:AdaptiveUniformGrid MinItemWidth="330" MaxColumns="2">
+                                        <Grid Margin="0,4,16,4">
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
-                                                       ToolTip="{Binding NameTooltip}"
-                                                       Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"
-                                                       MouseLeftButtonDown="FanName_MouseLeftButtonDown"/>
-                                            <!-- Lápis: renomear (aparece ao passar o mouse no cartão) -->
-                                            <Button x:Name="RenameButton" Grid.Column="1" Style="{StaticResource IconButton}" Width="24" Height="22" FontSize="11"
-                                                    Content="&#xE8AC;" Margin="4,0,0,0" Opacity="0" Click="RenameButton_Click"
-                                                    ToolTip="Renomear (Ctrl+R)" AutomationProperties.Name="Renomear"
-                                                    Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"/>
-                                            <TextBox Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=Explicit}" Padding="6,0" FontSize="13"
-                                                     Height="24" MinHeight="0" VerticalContentAlignment="Center" MaxLength="40"
-                                                     Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVis}}"
-                                                     ToolTip="Enter salva • Esc cancela • vazio volta ao nome original"
-                                                     IsVisibleChanged="RenameBox_IsVisibleChanged" PreviewKeyDown="RenameBox_KeyDown" LostKeyboardFocus="RenameBox_LostFocus"/>
+                                            <TextBlock Text="Potência" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding BatchPercent}" AutomationProperties.Name="Potência da seleção"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding BatchPercent, StringFormat={}{0}%}" Width="44" TextAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <Button Grid.Column="3" Style="{StaticResource PrimaryButton}" Content="Aplicar" Margin="10,0,0,0" Command="{Binding ApplyBatchCommand}"/>
                                         </Grid>
-                                        <TextBlock Text="{Binding ChannelLabel}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="2" Text="{Binding RpmFormatted}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"
-                                               Foreground="{Binding StatusColor, Converter={StaticResource HexToBrush}}"/>
-                                </Grid>
-                                <Grid Grid.Row="1" Margin="0,12,0,0">
+                                        <WrapPanel Margin="0,4">
+                                            <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,6" Command="{Binding LinkSelectedCommand}"
+                                                    ToolTip="As selecionadas voltam a seguir a potência global">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="Vincular ao global"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Grid Margin="0,0,8,6">
+                                                <TextBox Width="130" Text="{Binding GroupNameInput, UpdateSourceTrigger=PropertyChanged}" ToolTip="Nome do grupo (ex.: Frontal, Topo, Radiador)"/>
+                                                <TextBlock Text="Grupo..." IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextSubtleBrush}"
+                                                           Visibility="{Binding GroupNameInput, Converter={StaticResource NullToVisInverse}}"/>
+                                            </Grid>
+                                            <Button Style="{StaticResource SecondaryButton}" Content="Agrupar" Margin="0,0,8,6" Command="{Binding SetGroupCommand}"/>
+                                            <Button Style="{StaticResource SecondaryButton}" Content="Sem grupo" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
+                                        </WrapPanel>
+                                    </c:AdaptiveUniformGrid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <ItemsControl ItemsSource="{Binding Fans}" Margin="0,0,-12,0" Focusable="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <c:AdaptiveUniformGrid MinItemWidth="276" MaxColumns="4" BalanceRows="False"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="Card" Style="{StaticResource SystemPanel}" Margin="0,0,12,12" Padding="14,12" Cursor="Hand"
+                                            MouseLeftButtonDown="FanCard_MouseLeftButtonDown" Background="{StaticResource SurfaceBrush}">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Renomear" InputGestureText="Ctrl+R" Click="RenameMenu_Click">
+                                                    <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8AC;" FontSize="13"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Restaurar nome original" Click="ResetNameMenu_Click" IsEnabled="{Binding HasCustomName}">
+                                                    <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE7A7;" FontSize="13"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <Separator/>
+                                                <MenuItem Header="Vincular à potência global" Click="LinkMenu_Click" IsEnabled="{Binding IsManual}">
+                                                    <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="13"/></MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Header="Selecionar o grupo" Click="SelectGroupMenu_Click" IsEnabled="{Binding HasGroup}">
+                                                    <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="13"/></MenuItem.Icon>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Selecionar"
+                                                          AutomationProperties.Name="Selecionar ventoinha"/>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <Grid Height="24">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                                   ToolTip="{Binding NameTooltip}"
+                                                                   Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"
+                                                                   MouseLeftButtonDown="FanName_MouseLeftButtonDown"/>
+                                                        <!-- Lápis: renomear (aparece ao passar o mouse no cartão) -->
+                                                        <Button x:Name="RenameButton" Grid.Column="1" Style="{StaticResource IconButton}" Width="24" Height="22" FontSize="11"
+                                                                Content="&#xE8AC;" Margin="4,0,0,0" Opacity="0" Click="RenameButton_Click"
+                                                                ToolTip="Renomear (Ctrl+R)" AutomationProperties.Name="Renomear"
+                                                                Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"/>
+                                                        <TextBox Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=Explicit}" Padding="6,0" FontSize="13"
+                                                                 Height="24" MinHeight="0" VerticalContentAlignment="Center" MaxLength="40"
+                                                                 Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVis}}"
+                                                                 ToolTip="Enter salva • Esc cancela • vazio volta ao nome original"
+                                                                 IsVisibleChanged="RenameBox_IsVisibleChanged" PreviewKeyDown="RenameBox_KeyDown" LostKeyboardFocus="RenameBox_LostFocus"/>
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding ChannelLabel}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2" Text="{Binding RpmFormatted}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"
+                                                           Foreground="{Binding StatusColor, Converter={StaticResource HexToBrush}}"/>
+                                            </Grid>
+                                            <Grid Grid.Row="1" Margin="0,12,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Button x:Name="LinkButton" Style="{StaticResource IconButton}" Width="30" Height="28" FontSize="13" Margin="-6,0,6,0"
+                                                        Content="&#xE71B;" ToolTip="{Binding LinkTooltip}" AutomationProperties.Name="Vincular à potência global"
+                                                        Command="{Binding DataContext.ToggleLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}" Foreground="{StaticResource AccentBrush}"/>
+                                                <Slider x:Name="FanSlider" Grid.Column="1" Minimum="{Binding SliderMinimum}" Maximum="100" Value="{Binding SliderValue}" AutomationProperties.Name="{Binding Name, StringFormat='Potência de {0}'}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding PowerFormatted}" Width="42" TextAlignment="Right" VerticalAlignment="Center"
+                                                           Foreground="{StaticResource TextMutedBrush}"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                            <Setter TargetName="Card" Property="Background" Value="#15253A"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsLinked}" Value="False">
+                                            <Setter TargetName="LinkButton" Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                            <Setter TargetName="LinkButton" Property="Content" Value="&#xE70F;"/>
+                                            <Setter TargetName="FanSlider" Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ShowStoppedWarning}" Value="True">
+                                            <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
+                                        </DataTrigger>
+                                        <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="RenameButton" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                        <Trigger SourceName="Card" Property="IsKeyboardFocusWithin" Value="True">
+                                            <Setter TargetName="RenameButton" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12"
+                                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisInverse}}">
+                            <StackPanel>
+                                <TextBlock Text="Hub iCUE LINK não detectado" Style="{StaticResource SystemSectionTitle}"/>
+                                <TextBlock Text="Confira o cabo USB do hub e feche o iCUE antes de atualizar a lista." Style="{StaticResource SystemDetail}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xE950;" Style="{StaticResource SystemIcon}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Ventoinhas da GPU" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="{Binding GpuName}" Style="{StaticResource SystemDetail}"/>
+                                    <TextBlock Text="{Binding GpuFanRpmFormatted}" Style="{StaticResource Caption}"/>
+                                </StackPanel>
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsGpuFanAuto}" Content="Automático (vBIOS)" Margin="12,0,0,0"
+                                          VerticalAlignment="Center"/>
+                                <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,14,0,0" Visibility="{Binding IsGpuFanManual, Converter={StaticResource BoolToVis}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button x:Name="LinkButton" Style="{StaticResource IconButton}" Width="30" Height="28" FontSize="13" Margin="-6,0,6,0"
-                                            Content="&#xE71B;" ToolTip="{Binding LinkTooltip}" AutomationProperties.Name="Vincular à potência global"
-                                            Command="{Binding DataContext.ToggleLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}" Foreground="{StaticResource AccentBrush}"/>
-                                    <Slider x:Name="FanSlider" Grid.Column="1" Minimum="{Binding SliderMinimum}" Maximum="100" Value="{Binding SliderValue}"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding PowerFormatted}" Width="42" TextAlignment="Right" VerticalAlignment="Center"
-                                               Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="Controle manual" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                    <Slider Grid.Column="1" Minimum="30" Maximum="100" Value="{Binding GpuFanPercent}" AutomationProperties.Name="Potência das ventoinhas da GPU" Foreground="{StaticResource GpuBrush}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding GpuFanPercentFormatted}" FontSize="16" FontWeight="SemiBold" Width="56" TextAlignment="Right"
+                                               Foreground="{StaticResource GpuBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Grid>
                         </Border>
-                        <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                <Setter TargetName="Card" Property="Background" Value="#15253A"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsLinked}" Value="False">
-                                <Setter TargetName="LinkButton" Property="Foreground" Value="{StaticResource WarningBrush}"/>
-                                <Setter TargetName="LinkButton" Property="Content" Value="&#xE70F;"/>
-                                <Setter TargetName="FanSlider" Property="Foreground" Value="{StaticResource WarningBrush}"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding ShowStoppedWarning}" Value="True">
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
-                            </DataTrigger>
-                            <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RenameButton" Property="Opacity" Value="1"/>
-                            </Trigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="AutomationTab" Header="Automação" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource Banner}" Background="{StaticResource AccentSoftBrush}" BorderBrush="{StaticResource AccentBrush}"
+                                Visibility="{Binding HasAutomationStatus, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding AutomationStatus}" TextWrapping="Wrap" Foreground="{StaticResource AccentBrush}"/>
+                        </Border>
 
-            <TextBlock Text="Nenhum dispositivo do iCUE LINK encontrado ainda. Verifique o cabo USB do hub e se o iCUE está fechado."
-                       Style="{StaticResource Caption}" FontSize="13" Margin="0,8,0,0"
-                       Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisInverse}}"/>
-            <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0"
-                       Text="Dica: arraste o slider de uma ventoinha para controlá-la manualmente (ícone amarelo). Clique no ícone para voltar a seguir o global. Para renomear: lápis ao passar o mouse, Ctrl+R, clique duplo no nome ou botão direito no cartão."/>
-        </StackPanel>
-    </ScrollViewer>
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE823;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Horário silencioso" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="Use um perfil específico durante o período escolhido." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding QuietEnabled}" Content="Ativar horário silencioso" Margin="0,14,0,12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="82"/>
+                                        <ColumnDefinition Width="82"/>
+                                        <ColumnDefinition Width="*" MaxWidth="300"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,10,0">
+                                        <TextBlock Text="Início" Style="{StaticResource Label}" Margin="0,0,0,5"/>
+                                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietStart}" ItemStringFormat="{}{0:00}h"
+                                                  AutomationProperties.Name="Início do horário silencioso"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                        <TextBlock Text="Fim" Style="{StaticResource Label}" Margin="0,0,0,5"/>
+                                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietEnd}" ItemStringFormat="{}{0:00}h"
+                                                  AutomationProperties.Name="Fim do horário silencioso"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Perfil" Style="{StaticResource Label}" Margin="0,0,0,5"/>
+                                        <ComboBox ItemsSource="{Binding ProfileOptions}" SelectedValuePath="Key" DisplayMemberPath="Label" SelectedValue="{Binding QuietProfile}"
+                                                  AutomationProperties.Name="Perfil do horário silencioso"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE8A7;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Perfis por aplicativo" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="Aplique um perfil ao abrir um jogo ou aplicativo. Ao fechar, o LinkFlow retoma o perfil anterior." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding AppRules}" Focusable="False" Margin="0,14,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,6,6,6" Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Regra ativa"/>
+                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                        <Run Text="Ao abrir "/><Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    </TextBlock>
+                                                    <ComboBox Grid.Column="2" Width="190" Margin="8,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Label"
+                                                              ItemsSource="{Binding DataContext.ProfileOptions, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                              SelectedValue="{Binding Profile}"/>
+                                                    <Button Grid.Column="3" Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="11" Content="&#xE711;" ToolTip="Remover regra"
+                                                            Foreground="{StaticResource DangerBrush}"
+                                                            Command="{Binding DataContext.RemoveRuleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" MaxWidth="320"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox IsEditable="True" Text="{Binding NewRuleProcess, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RunningApps}"
+                                              DropDownOpened="RunningApps_DropDownOpened" ToolTip="Digite o nome do processo ou escolha um aplicativo aberto" AutomationProperties.Name="Jogo ou aplicativo"/>
+                                    <TextBlock Text="Jogo ou aplicativo" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextSubtleBrush}" Visibility="{Binding NewRuleProcess, Converter={StaticResource NullToVisInverse}}"/>
+                                    <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding AddRuleCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Adicionar regra"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </UserControl>

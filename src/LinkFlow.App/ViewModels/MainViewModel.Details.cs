@@ -208,7 +208,7 @@ public partial class MainViewModel
         Push("ram.used", s.RamUsedGb);
         Push("net.down", s.Network?.DownBytesPerSec / 1e6);
         Push("net.up", s.Network?.UpBytesPerSec / 1e6);
-        Push("disk.activity", s.Disks is { Count: > 0 } da ? da.Max(x => x.ActivityPercent ?? 0) : null);
+        Push("disk.activity", ReadDiskActivity(s));
         Push("disk.read", s.Disks is { Count: > 0 } dr ? dr.Sum(x => x.ReadBytesPerSec ?? 0) / 1e6 : null);
         Push("disk.write", s.Disks is { Count: > 0 } dw ? dw.Sum(x => x.WriteBytesPerSec ?? 0) / 1e6 : null);
 
@@ -307,7 +307,7 @@ public partial class MainViewModel
                 rows.Add(new("Adaptador", NetAdapter));
                 rows.Add(new("Download", NetDownFormatted));
                 rows.Add(new("Upload", NetUpFormatted));
-                rows.Add(new("Velocidade do link", net is { LinkBitsPerSec: > 0 } ? (net.LinkBitsPerSec >= 1_000_000_000 ? $"{net.LinkBitsPerSec / 1e9:0.#} Gbps" : $"{net.LinkBitsPerSec / 1e6:0} Mbps") : Fmt.Missing));
+                rows.Add(new("Velocidade do link", NetLinkFormatted));
                 rows.Add(new("Desde que o LinkFlow abriu", net != null ? $"↓ {(net.SessionDownBytes / 1e9).ToString("0.00", Pt)} GB • ↑ {(net.SessionUpBytes / 1e9).ToString("0.00", Pt)} GB" : Fmt.Missing));
                 break;
             case "disk":

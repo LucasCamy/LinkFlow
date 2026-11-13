@@ -12,6 +12,7 @@ public sealed class HardwareMonitor : ISensorSource
     private Computer? _computer;
     private IHardware? _cpu;
     private IHardware? _discreteGpu;
+    private IHardware? _monitoredGpu;
     private IHardware? _ram;
 
     public bool IsOpen { get; private set; }
@@ -46,11 +47,12 @@ public sealed class HardwareMonitor : ISensorSource
             _discreteGpu = _computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.GpuNvidia)
                            ?? _computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.GpuAmd && !IsIntegrated(h))
                            ?? _computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.GpuIntel);
+            _monitoredGpu = _discreteGpu ?? _computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.GpuAmd);
             _ram = _computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.Memory && h.Name.Contains("Total", StringComparison.OrdinalIgnoreCase))
                    ?? _computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.Memory && !h.Name.Contains("Virtual", StringComparison.OrdinalIgnoreCase));
 
             IsOpen = true;
-            Log.Info($"Sensores: CPU={_cpu?.Name ?? "-"} GPU={_discreteGpu?.Name ?? "-"} RAM={_ram?.Name ?? "-"}");
+            Log.Info($"Sensores: CPU={_cpu?.Name ?? "-"} GPU={_monitoredGpu?.Name ?? "-"} RAM={_ram?.Name ?? "-"}");
         }
     }
 
@@ -99,17 +101,17 @@ public sealed class HardwareMonitor : ISensorSource
                 catch (Exception ex) { Log.Debug($"CPU update: {ex.Message}"); }
             }
 
-            if (_discreteGpu != null)
+            if (_monitoredGpu is { } gpu)
             {
-                t.GpuName = _discreteGpu.Name;
+                t.GpuName = gpu.Name;
                 try
                 {
-                    _discreteGpu.Update();
-                    var temp = Find(_discreteGpu, SensorType.Temperature, "Core");
-                    var hot = Find(_discreteGpu, SensorType.Temperature, "Hot Spot");
-                    var load = Find(_discreteGpu, SensorType.Load, "Core");
-                    var fans = _discreteGpu.Sensors.Where(s => s.SensorType == SensorType.Fan).OrderBy(s => s.Index).ToList();
-                    var ctrl = _discreteGpu.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Control);
+                    gpu.Update();
+                    var temp = Find(gpu, SensorType.Temperature, "Core");
+                    var hot = Find(gpu, SensorType.Temperature, "Hot Spot");
+                    var load = Find(gpu, SensorType.Load, "Core");
+                    var fans = gpu.Sensors.Where(s => s.SensorType == SensorType.Fan).OrderBy(s => s.Index).ToList();
+                    var ctrl = gpu.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Control);
 
                     if (temp?.Value is > 0) t.GpuTemperature = temp.Value;
                     if (hot?.Value is > 0) t.GpuHotspotTemperature = hot.Value;
@@ -118,14 +120,14 @@ public sealed class HardwareMonitor : ISensorSource
                     if (fans.Count > 1 && fans[1].Value != null) t.GpuFanRpm2 = (int)fans[1].Value!.Value;
                     if (ctrl?.Value != null) t.GpuFanPercent = ctrl.Value;
 
-                    var power = Find(_discreteGpu, SensorType.Power, "Package") ?? Find(_discreteGpu, SensorType.Power, "GPU");
+                    var power = Find(gpu, SensorType.Power, "Package") ?? Find(gpu, SensorType.Power, "GPU");
                     if (power?.Value is > 0) t.GpuPower = power.Value;
-                    var coreClock = Find(_discreteGpu, SensorType.Clock, "Core");
+                    var coreClock = Find(gpu, SensorType.Clock, "Core");
                     if (coreClock?.Value is > 0) t.GpuClockMhz = coreClock.Value;
-                    var memClock = Find(_discreteGpu, SensorType.Clock, "Memory");
+                    var memClock = Find(gpu, SensorType.Clock, "Memory");
                     if (memClock?.Value is > 0) t.GpuMemClockMhz = memClock.Value;
-                    var memUsed = Find(_discreteGpu, SensorType.SmallData, "Memory Used");
-                    var memTotal = Find(_discreteGpu, SensorType.SmallData, "Memory Total");
+                    var memUsed = Find(gpu, SensorType.SmallData, "Memory Used");
+                    var memTotal = Find(gpu, SensorType.SmallData, "Memory Total");
                     if (memUsed?.Value is > 0) t.GpuVramUsedGb = memUsed.Value / 1024f;
                     if (memTotal?.Value is > 0) t.GpuVramTotalGb = memTotal.Value / 1024f;
                 }

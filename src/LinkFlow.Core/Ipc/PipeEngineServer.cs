@@ -120,6 +120,9 @@ public sealed class PipeEngineServer : IAsyncDisposable
                     case PipeProtocol.Resume:
                         _engine.NotifyResume();
                         break;
+                    case PipeProtocol.RefreshRgb:
+                        _engine.RefreshRgb();
+                        break;
                     case PipeProtocol.Demand:
                         if (PipeProtocol.Read<int>(payload) is var d) _engine.SetSensorDemand(conn, (SensorDemand)d);
                         break;

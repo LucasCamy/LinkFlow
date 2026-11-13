@@ -21,11 +21,22 @@ public sealed class AdaptiveUniformGrid : Panel
         nameof(BalanceRows), typeof(bool), typeof(AdaptiveUniformGrid),
         new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
+    public static readonly DependencyProperty StackColumnsProperty = DependencyProperty.Register(
+        nameof(StackColumns), typeof(bool), typeof(AdaptiveUniformGrid),
+        new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
     /// <summary>Reduz colunas para não deixar um item sozinho na última linha.</summary>
     public bool BalanceRows
     {
         get => (bool)GetValue(BalanceRowsProperty);
         set => SetValue(BalanceRowsProperty, value);
+    }
+
+    /// <summary>Empilha os cartões com altura própria em cada coluna.</summary>
+    public bool StackColumns
+    {
+        get => (bool)GetValue(StackColumnsProperty);
+        set => SetValue(StackColumnsProperty, value);
     }
 
     public double MinItemWidth
@@ -69,11 +80,17 @@ public sealed class AdaptiveUniformGrid : Panel
 
         double rowHeight = 0;
         double total = 0;
+        var columnHeights = StackColumns ? new double[_columns] : null;
         int i = 0;
         foreach (UIElement child in InternalChildren)
         {
             if (child.Visibility == Visibility.Collapsed) continue;
             child.Measure(new Size(cellW, double.PositiveInfinity));
+            if (columnHeights != null)
+            {
+                columnHeights[i++ % _columns] += child.DesiredSize.Height;
+                continue;
+            }
             rowHeight = Math.Max(rowHeight, child.DesiredSize.Height);
             if (++i % _columns == 0)
             {
@@ -81,16 +98,27 @@ public sealed class AdaptiveUniformGrid : Panel
                 rowHeight = 0;
             }
         }
-        total += rowHeight;
-        return new Size(width, total);
+        return new Size(width, columnHeights?.Max() ?? total + rowHeight);
     }
 
     protected override Size ArrangeOverride(Size finalSize)
     {
         double cellW = finalSize.Width / _columns;
-        var visible = InternalChildren.Cast<UIElement>().Where(c => c.Visibility != Visibility.Collapsed).ToList();
+        var visible = InternalChildren.Cast<UIElement>().Where(c => c.Visibility != Visibility.Collapsed).ToArray();
+        if (StackColumns)
+        {
+            var offsets = new double[_columns];
+            for (int i = 0; i < visible.Length; i++)
+            {
+                int column = i % _columns;
+                double height = visible[i].DesiredSize.Height;
+                visible[i].Arrange(new Rect(column * cellW, offsets[column], cellW, height));
+                offsets[column] += height;
+            }
+            return finalSize;
+        }
         double y = 0;
-        for (int row = 0; row * _columns < visible.Count; row++)
+        for (int row = 0; row * _columns < visible.Length; row++)
         {
             var items = visible.Skip(row * _columns).Take(_columns).ToList();
             double h = items.Max(c => c.DesiredSize.Height);

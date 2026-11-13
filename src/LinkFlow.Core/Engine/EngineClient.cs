@@ -31,6 +31,7 @@ public interface IEngineClient : IDisposable
     void ReplaceConfig(ControlConfig config);
     void RequestLcdFrame();
     void NotifyResume();
+    void RefreshRgb();
 
     /// <summary>Procura de novo ventoinhas, bomba, LCD e RGB.</summary>
     void RescanDevices();
@@ -87,6 +88,7 @@ public sealed class LocalEngineClient : IEngineClient
     public void ReplaceConfig(ControlConfig config) => _engine.ReplaceConfig(config, this);
     public void RequestLcdFrame() => _engine.RequestLcdFrame();
     public void NotifyResume() => _engine.NotifyResume();
+    public void RefreshRgb() => _engine.RefreshRgb();
     public void RescanDevices() => _engine.RescanDevices();
     public void SetSensorDemand(SensorDemand demand) => _engine.SetSensorDemand(this, demand);
     public Task ShutdownAsync(bool restoreHardwareMode = true) => _engine.StopAsync(restoreHardwareMode);

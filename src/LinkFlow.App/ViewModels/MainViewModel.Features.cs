@@ -109,7 +109,7 @@ public partial class MainViewModel
             _engine.UpdateConfig(c => TargetCurve(c).Points = FanCurveConfig.DefaultPoints())));
 
         ApplyColorCommand = new RelayCommand(p => { if (p is string hex) ApplyHex(hex, addRecent: true); });
-        ResendRgbCommand = new RelayCommand(() => { _engine.NotifyResume(); ShowToast("Reenviando cor e velocidades para todos os dispositivos...", canUndo: false); });
+        ResendRgbCommand = new RelayCommand(RefreshRgb);
         TransmitLcdCommand = new RelayCommand(() => { _engine.RequestLcdFrame(); ShowToast("Quadro enviado ao display LCD", canUndo: false); });
         GlobalStepCommand = new RelayCommand(p =>
         {
@@ -129,7 +129,8 @@ public partial class MainViewModel
     private int _selectedPage;
     private bool _isCompact;
 
-    public static readonly string[] PageTitles = { "Painel", "Ventoinhas", "Iluminação", "Tela LCD", "Widget", "Configurações" };
+    public static readonly string[] PageTitles =
+        { "Painel", "Ventoinhas", "Iluminação", "Tela LCD", "Widget", "Configurações", "Hardware", "Windows", "Drivers" };
 
     public int SelectedPage
     {

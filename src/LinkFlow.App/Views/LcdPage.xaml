@@ -3,80 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="8,8,20,24">
-            <TextBlock Text="Tela LCD" Style="{StaticResource PageTitle}"/>
-            <TextBlock Text="Escolha o que aparece no display 480x480 da bomba e ajuste na prévia." Style="{StaticResource PageSubtitle}"/>
-
-            <!-- O que mostrar: escolha grande e visível -->
-            <Grid Margin="0,14,0,0">
-                <Grid.Resources>
-                    <Style x:Key="ModeCard" TargetType="ToggleButton">
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border x:Name="Bd" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1.5"
-                                            CornerRadius="12" Padding="16,12">
-                                        <ContentPresenter/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceAltBrush}"/>
-                                        </Trigger>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentSoftBrush}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Grid.Resources>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <ToggleButton Style="{StaticResource ModeCard}" Command="{Binding SetLcdModeCommand}" CommandParameter="Metrics"
-                              IsChecked="{Binding IsLcdMetricsMode, Mode=OneWay}" AutomationProperties.Name="Mostrar telemetria">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE9D9;" FontSize="22" Foreground="{StaticResource AccentBrush}" Margin="0,0,14,0" VerticalAlignment="Center"/>
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="Telemetria" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="Temperaturas e uso em tempo real, com foto ou GIF de fundo opcional" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Grid>
-                </ToggleButton>
-                <ToggleButton Grid.Column="2" Style="{StaticResource ModeCard}" Command="{Binding SetLcdModeCommand}" CommandParameter="Media"
-                              IsChecked="{Binding IsLcdMediaMode, Mode=OneWay}" AutomationProperties.Name="Mostrar imagem ou GIF">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xEB9F;" FontSize="22" Foreground="{StaticResource AccentBrush}" Margin="0,0,14,0" VerticalAlignment="Center"/>
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="Imagem ou GIF" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock Text="Sua foto ou GIF animado em tela cheia, com zoom e posição; telemetria por cima só se quiser" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Grid>
-                </ToggleButton>
-            </Grid>
-
-            <c:AdaptiveUniformGrid MinItemWidth="380" MaxColumns="2" Margin="0,16,-12,0">
-                <!-- ================================================= Prévia -->
-                <Border Style="{StaticResource GridCard}" AllowDrop="True" Drop="Media_Drop" DragOver="Media_DragOver">
-                    <StackPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Prévia" Style="{StaticResource SectionTitle}"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" VerticalAlignment="Center">
+    <UserControl.Resources>
+        <DataTemplate x:Key="LcdPreviewPanel">
+            <Border Style="{StaticResource SystemPanel}" AllowDrop="True" Drop="Media_Drop" DragOver="Media_DragOver">
+                <StackPanel>
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                            <TextBlock Text="&#xE7F4;" Style="{StaticResource SystemIcon}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Prévia do LCD" Style="{StaticResource SystemSectionTitle}"/>
+                            <DockPanel Margin="0,2,0,0">
+                                <Ellipse DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
                                     <Ellipse.Style>
                                         <Style TargetType="Ellipse">
                                             <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
@@ -88,12 +26,13 @@
                                         </Style>
                                     </Ellipse.Style>
                                 </Ellipse>
-                                <TextBlock Text="{Binding LcdStatus}" Margin="8,0,0,0" Style="{StaticResource Caption}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
+                                <TextBlock Text="{Binding LcdStatus}" Style="{StaticResource SystemDetail}" Margin="0"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </DockPanel>
 
-                        <!-- Mesmo quadro que vai para o display (recortado em círculo como a tela da bomba) -->
-                        <Grid Width="290" Height="290" Margin="0,16,0,0" HorizontalAlignment="Center">
+                    <Viewbox StretchDirection="DownOnly" MaxWidth="262" MaxHeight="262" Margin="0,14,0,0" HorizontalAlignment="Center">
+                        <Grid Width="290" Height="290">
                             <Ellipse Fill="#05080F"/>
                             <Image Source="{Binding LcdPreview}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality">
                                 <Image.Clip>
@@ -105,264 +44,331 @@
                             <Ellipse x:Name="CropSurface" Fill="Transparent" Cursor="SizeAll"
                                      Visibility="{Binding HasCropTarget, Converter={StaticResource BoolToVis}}"
                                      ToolTip="Arraste para posicionar • roda do mouse para zoom • clique duplo centraliza"
-                                     MouseLeftButtonDown="Crop_MouseDown" MouseMove="Crop_MouseMove" MouseLeftButtonUp="Crop_MouseUp" MouseWheel="Crop_MouseWheel"/>
+                                     MouseLeftButtonDown="Crop_MouseDown" MouseMove="Crop_MouseMove" MouseLeftButtonUp="Crop_MouseUp" LostMouseCapture="Crop_LostCapture" MouseWheel="Crop_MouseWheel"/>
                         </Grid>
-                        <TextBlock Text="{Binding LcdNowShowing}" Style="{StaticResource Caption}" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                    </Viewbox>
+                    <TextBlock Text="{Binding LcdNowShowing}" Style="{StaticResource SystemDetail}" TextAlignment="Center" Margin="0,10,0,0"/>
 
-                        <!-- Enquadramento -->
-                        <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,10" Margin="0,12,0,0"
-                                Visibility="{Binding HasCropTarget, Converter={StaticResource BoolToVis}}">
-                            <StackPanel>
-                                <TextBlock TextTrimming="CharacterEllipsis">
-                                    <Run Text="Enquadrar: " Foreground="{StaticResource TextMutedBrush}"/><Run Text="{Binding CropTargetName, Mode=OneWay}" FontWeight="SemiBold"/>
-                                </TextBlock>
-                                <Grid Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="50"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE71E;" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Zoom"/>
-                                    <Slider Grid.Column="1" Minimum="1" Maximum="5" SmallChange="0.05" LargeChange="0.25" Value="{Binding CropZoom}"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding CropZoomText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                                    <Button Grid.Column="3" Style="{StaticResource ChipButton}" Content="Centralizar" Margin="10,0,0,0" Command="{Binding ResetCropCommand}"/>
-                                </Grid>
-                                <TextBlock Text="Arraste a imagem na prévia para escolher a parte que aparece; use a roda do mouse para aproximar." Style="{StaticResource Caption}"
-                                           TextWrapping="Wrap" Margin="0,4,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <TextBlock Text="Rotação" Style="{StaticResource Label}" Margin="0,16,0,6"/>
-                        <WrapPanel>
-                            <ToggleButton Style="{StaticResource Chip}" Content="0°" MinWidth="54" Command="{Binding SetLcdRotationCommand}" CommandParameter="0"
-                                          IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=0}"/>
-                            <ToggleButton Style="{StaticResource Chip}" Content="90°" MinWidth="54" Command="{Binding SetLcdRotationCommand}" CommandParameter="90"
-                                          IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=90}"/>
-                            <ToggleButton Style="{StaticResource Chip}" Content="180°" MinWidth="54" Command="{Binding SetLcdRotationCommand}" CommandParameter="180"
-                                          IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=180}"/>
-                            <ToggleButton Style="{StaticResource Chip}" Content="270°" MinWidth="54" Command="{Binding SetLcdRotationCommand}" CommandParameter="270"
-                                          IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=270}"/>
-                        </WrapPanel>
-                        <TextBlock Text="Use se a bomba estiver montada girada: a prévia mostra o quadro já corrigido." Style="{StaticResource Caption}"/>
-
-                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,14"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsLcdAutoStream}">
-                            <StackPanel>
-                                <TextBlock Text="Transmitir continuamente"/>
-                                <TextBlock Text="Métricas 1x por segundo; GIFs na velocidade do arquivo (até ~16 quadros/s)" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncLcd}">
-                            <StackPanel>
-                                <TextBlock Text="Usar a cor da iluminação no display"/>
-                                <TextBlock Text="Anel e destaques seguem a cor RGB; sem esta opção ficam em ciano" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <Button Style="{StaticResource PrimaryButton}" Command="{Binding TransmitLcdCommand}" HorizontalAlignment="Left" Margin="0,10,0,0" ToolTip="Ctrl+L">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE724;" FontSize="13" Margin="0,0,8,0"/>
-                                <TextBlock Text="Enviar quadro agora"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </Border>
-
-                <StackPanel>
-                    <!-- ================================================= Montar quadro (métricas) -->
-                    <Border Style="{StaticResource GridCard}" Visibility="{Binding IsLcdMetricsMode, Converter={StaticResource BoolToVis}}">
+                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,10" Margin="0,12,0,0"
+                            Visibility="{Binding HasCropTarget, Converter={StaticResource BoolToVis}}">
                         <StackPanel>
-                            <TextBlock Text="Montar o quadro" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="Escolha o que aparece no display. A prévia ao lado atualiza na hora." Style="{StaticResource Caption}" Margin="0,2,0,12"/>
-
-                            <c:AdaptiveUniformGrid MinItemWidth="200" MaxColumns="2">
-                                <StackPanel Margin="0,0,12,10">
-                                    <TextBlock Text="Título" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                                    <TextBox Text="{Binding LcdTitle, UpdateSourceTrigger=PropertyChanged, Delay=250}" MaxLength="24" Height="34" Padding="10,0" VerticalContentAlignment="Center"
-                                             ToolTip="Texto no topo do display (vazio = sem título)"/>
-                                </StackPanel>
-                                <StackPanel Margin="0,0,0,10">
-                                    <TextBlock Text="Informação principal" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                                    <ComboBox ItemsSource="{x:Static vm:MainViewModel.LcdMetricOptions}" SelectedValuePath="Value" DisplayMemberPath="Label"
-                                              SelectedValue="{Binding LcdMainMetric}"/>
-                                </StackPanel>
-                            </c:AdaptiveUniformGrid>
-
-                            <TextBlock Text="Informações secundárias" Style="{StaticResource Label}" Margin="0,4,0,6"/>
-                            <ItemsControl ItemsSource="{Binding LcdSecondaryChoices}" Focusable="False">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsSelected, Mode=OneWay}"
-                                                      Command="{Binding DataContext.ToggleSecondaryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                      CommandParameter="{Binding Metric}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Border Width="17" Height="17" CornerRadius="8.5" Background="{StaticResource AccentBrush}" Margin="0,0,7,0"
-                                                        Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}">
-                                                    <TextBlock Text="{Binding OrderText}" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource OnAccentBrush}"
-                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                                <TextBlock Text="{Binding Label}"/>
-                                            </StackPanel>
-                                        </ToggleButton>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="{Binding LcdSecondarySummary}" Style="{StaticResource Caption}"/>
-
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdShowRing}" Margin="0,12,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="Anel de progresso"/>
-                                    <TextBlock Text="Preenche conforme a informação principal (ex.: temperatura até 100°C)" Style="{StaticResource Caption}"/>
-                                </StackPanel>
-                            </CheckBox>
-
-                            <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,8,0,14"/>
-                            <TextBlock Text="Foto ou GIF de fundo" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                            <WrapPanel>
-                                <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="ChooseBackground_Click">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Icon}" Text="&#xEB9F;" FontSize="13" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Escolher foto ou GIF..."/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Style="{StaticResource SecondaryButton}" Content="Remover" Margin="0,0,8,8" Command="{Binding RemoveBackgroundCommand}"
-                                        Visibility="{Binding HasLcdBackground, Converter={StaticResource BoolToVis}}"/>
-                                <TextBlock Text="{Binding LcdBackgroundName}" Style="{StaticResource Caption}" VerticalAlignment="Center" Margin="0,0,0,8"
-                                           TextTrimming="CharacterEllipsis" MaxWidth="200"/>
-                            </WrapPanel>
-                            <Grid Visibility="{Binding HasLcdBackground, Converter={StaticResource BoolToVis}}">
+                            <TextBlock TextWrapping="Wrap">
+                                <Run Text="Enquadrar · " Foreground="{StaticResource TextMutedBrush}"/><Run Text="{Binding CropTargetName, Mode=OneWay}" FontWeight="SemiBold"/>
+                            </TextBlock>
+                            <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="44"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="Escurecer" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                <Slider Grid.Column="1" Minimum="0" Maximum="95" Value="{Binding LcdBackgroundDim, Delay=150}" IsSnapToTickEnabled="True" TickFrequency="5"
-                                        ToolTip="Deixa os números legíveis sobre a foto"/>
-                                <TextBlock Grid.Column="2" Text="{Binding LcdBackgroundDimText}" TextAlignment="Right" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextMutedBrush}"/>
-                            </Grid>
-<CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdShowTelemetry}" Margin="0,10,0,0"                                      Visibility="{Binding HasLcdBackground, Converter={StaticResource BoolToVis}}">                                <StackPanel>                                    <TextBlock Text="Mostrar a telemetria sobre a foto"/>                                    <TextBlock Text="Desligue para ver só a foto/GIF (sem números). Para slides com várias imagens, use Imagem ou GIF" Style="{StaticResource Caption}" TextWrapping="Wrap"/>                                </StackPanel>                            </CheckBox>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ================================================= Imagens e GIFs -->
-                    <Border Style="{StaticResource GridCard}" Visibility="{Binding IsLcdMediaMode, Converter={StaticResource BoolToVis}}"
-                            AllowDrop="True" Drop="Media_Drop" DragOver="Media_DragOver">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="Imagens e GIFs" Style="{StaticResource SectionTitle}"/>
-                                    <TextBlock Text="Com mais de um arquivo, vira apresentação de slides." Style="{StaticResource Caption}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                                    <Button Style="{StaticResource PrimaryButton}" Click="AddMedia_Click" Margin="0,0,6,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
-                                            <TextBlock Text="Adicionar"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Style="{StaticResource IconButton}" Content="&#xE74D;" Command="{Binding ClearMediaCommand}"
-                                            ToolTip="Remover todas" AutomationProperties.Name="Remover todas as imagens"/>
-                                </StackPanel>
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE71E;" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Zoom"/>
+                                <Slider Grid.Column="1" Minimum="1" Maximum="5" SmallChange="0.05" LargeChange="0.25" Value="{Binding CropZoom}" AutomationProperties.Name="Zoom da imagem"/>
+                                <TextBlock Grid.Column="2" Text="{Binding CropZoomText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                                <Button Grid.Column="3" Style="{StaticResource SecondaryButton}" Content="Centralizar" Margin="10,0,0,0" Command="{Binding ResetCropCommand}"/>
                             </Grid>
-
-                            <!-- Vazio: área para soltar arquivos -->
-                            <Border Margin="0,14,0,4" Padding="16,26" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1.5"
-                                    Background="{StaticResource BgBrush}" Cursor="Hand" MouseLeftButtonUp="EmptyDrop_Click"
-                                    Visibility="{Binding HasLcdMedia, Converter={StaticResource BoolToVisInverse}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE898;" FontSize="26" HorizontalAlignment="Center" Foreground="{StaticResource AccentBrush}"/>
-                                    <TextBlock Text="Arraste fotos ou GIFs para cá" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,2"/>
-                                    <TextBlock Text="ou clique para escolher • PNG, JPG, GIF, WebP, BMP" Style="{StaticResource Caption}" HorizontalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-
-                            <ItemsControl ItemsSource="{Binding LcdMedia}" Margin="0,12,0,0" Focusable="False">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border x:Name="MediaRow" Background="{StaticResource BgBrush}" CornerRadius="10" Padding="8" Margin="0,0,0,8" BorderThickness="1.5" BorderBrush="Transparent"
-                                                Cursor="Hand" MouseLeftButtonUp="MediaRow_Click" ToolTip="Clique para enquadrar este item na prévia">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Border Width="52" Height="52" CornerRadius="26" Background="#05080F" Margin="0,0,12,0" ClipToBounds="True">
-                                                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
-                                                        <Image.Clip>
-                                                            <EllipseGeometry Center="26,26" RadiusX="26" RadiusY="26"/>
-                                                        </Image.Clip>
-                                                    </Image>
-                                                </Border>
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock TextTrimming="CharacterEllipsis">
-                                                        <Run Text="{Binding Position, Mode=OneWay}" Foreground="{StaticResource TextSubtleBrush}"/><Run Text=".  "/><Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
-                                                    </TextBlock>
-                                                    <TextBlock Text="{Binding Kind}" Style="{StaticResource Caption}"/>
-                                                </StackPanel>
-                                                <!-- Tempo na tela -->
-                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0"
-                                                            ToolTip="Tempo na tela antes do próximo item">
-                                                    <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="10" Content="&#xE738;" Click="DurationMinus_Click"
-                                                            AutomationProperties.Name="Menos tempo"/>
-                                                    <TextBlock Text="{Binding DurationText}" MinWidth="44" TextAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                                    <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="10" Content="&#xE710;" Click="DurationPlus_Click"
-                                                            AutomationProperties.Name="Mais tempo"/>
-                                                </StackPanel>
-                                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE7A8;" ToolTip="Enquadrar (zoom e posição) na prévia"
-                                                            Command="{Binding DataContext.EditMediaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70E;" ToolTip="Mover para cima"
-                                                            Command="{Binding DataContext.MoveMediaUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70D;" ToolTip="Mover para baixo"
-                                                            Command="{Binding DataContext.MoveMediaDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE74D;" ToolTip="Remover"
-                                                            Foreground="{StaticResource DangerBrush}"
-                                                            Command="{Binding DataContext.RemoveMediaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                        <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                                                <Setter TargetName="MediaRow" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                                            </DataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock Text="Ajuste da imagem" Style="{StaticResource Label}" Margin="0,8,0,6"/>
-                            <WrapPanel>
-                                <ToggleButton Style="{StaticResource Chip}" Content="Preencher o círculo" Command="{Binding SetLcdFitCommand}" CommandParameter="Cover"
-                                              IsChecked="{Binding LcdFitCover, Mode=OneWay}" ToolTip="Corta as bordas para ocupar a tela toda"/>
-                                <ToggleButton Style="{StaticResource Chip}" Content="Mostrar inteira" Command="{Binding SetLcdFitCommand}" CommandParameter="Contain"
-                                              IsChecked="{Binding LcdFitContain, Mode=OneWay}" ToolTip="Mostra a imagem toda, com bordas escuras"/>
-                            </WrapPanel>
-
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdMediaOverlay}" Margin="0,8,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="Mostrar telemetria por cima da imagem"/>
-                                    <TextBlock Text="Desligado = só a imagem/GIF. Ligado = uma etiqueta (ex.: CPU 55°) na parte de baixo" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </CheckBox>
-                            <ComboBox ItemsSource="{x:Static vm:MainViewModel.LcdMetricOptions}" SelectedValuePath="Value" DisplayMemberPath="Label"
-                                      SelectedValue="{Binding LcdOverlayMetric}" Margin="56,0,0,0" MaxWidth="280" HorizontalAlignment="Left"
-                                      Visibility="{Binding LcdMediaOverlay, Converter={StaticResource BoolToVis}}"/>
-                            <TextBlock Text="Em alerta crítico ou modo de segurança, um aviso vermelho aparece sobre a imagem." Style="{StaticResource Caption}" Margin="0,10,0,0"/>
+                            <TextBlock Text="Arraste a imagem para posicionar. Use a roda do mouse para ajustar o zoom." Style="{StaticResource Caption}"
+                                       TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
-            </c:AdaptiveUniformGrid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="Tela LCD" Style="{StaticResource SystemPageTitle}"/>
+            <TextBlock Text="Personalize o display da bomba com métricas, fotos ou GIFs." Style="{StaticResource SystemDetail}"/>
         </StackPanel>
-    </ScrollViewer>
+
+        <TabControl x:Name="LcdTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Conteúdo" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <c:AdaptiveUniformGrid MinItemWidth="286" MaxColumns="2" StackColumns="True" Margin="0,0,-12,0">
+                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource LcdPreviewPanel}"
+                                            HorizontalContentAlignment="Stretch" Margin="0,0,12,12"/>
+                            <StackPanel Margin="0,0,12,12">
+                                <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="Modo de exibição" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                                        <WrapPanel Margin="0,0,-8,-8">
+                                            <ToggleButton Style="{StaticResource Chip}" Content="Telemetria" Command="{Binding SetLcdModeCommand}" CommandParameter="Metrics"
+                                                          IsChecked="{Binding IsLcdMetricsMode, Mode=OneWay}" AutomationProperties.Name="Mostrar telemetria"/>
+                                            <ToggleButton Style="{StaticResource Chip}" Content="Imagem ou GIF" Command="{Binding SetLcdModeCommand}" CommandParameter="Media"
+                                                          IsChecked="{Binding IsLcdMediaMode, Mode=OneWay}" AutomationProperties.Name="Mostrar imagem ou GIF"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource SystemPanel}" Visibility="{Binding IsLcdMetricsMode, Converter={StaticResource BoolToVis}}">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                                <TextBlock Text="&#xE9D9;" Style="{StaticResource SystemIcon}"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Telemetria" Style="{StaticResource SystemSectionTitle}"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                        <c:AdaptiveUniformGrid Margin="0,14,0,0" MinItemWidth="200" MaxColumns="2">
+                                            <StackPanel Margin="0,0,12,10">
+                                                <TextBlock Text="Título" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                                <TextBox Text="{Binding LcdTitle, UpdateSourceTrigger=PropertyChanged, Delay=250}" MaxLength="24" Height="34" Padding="10,0" VerticalContentAlignment="Center"
+                                                         ToolTip="Deixe vazio para omitir o título" AutomationProperties.Name="Título no LCD"/>
+                                            </StackPanel>
+                                            <StackPanel Margin="0,0,0,10">
+                                                <TextBlock Text="Informação principal" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                                <ComboBox ItemsSource="{x:Static vm:MainViewModel.LcdMetricOptions}" SelectedValuePath="Value" DisplayMemberPath="Label"
+                                                          SelectedValue="{Binding LcdMainMetric}" AutomationProperties.Name="Informação principal do LCD"/>
+                                            </StackPanel>
+                                        </c:AdaptiveUniformGrid>
+
+                                        <TextBlock Text="Informações secundárias" Style="{StaticResource Label}" Margin="0,4,0,6"/>
+                                        <ItemsControl ItemsSource="{Binding LcdSecondaryChoices}" Focusable="False">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                                                  Command="{Binding DataContext.ToggleSecondaryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                  CommandParameter="{Binding Metric}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Border Width="17" Height="17" CornerRadius="8.5" Background="{StaticResource AccentBrush}" Margin="0,0,7,0"
+                                                                    Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}">
+                                                                <TextBlock Text="{Binding OrderText}" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource OnAccentBrush}"
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            <TextBlock Text="{Binding Label}"/>
+                                                        </StackPanel>
+                                                    </ToggleButton>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="{Binding LcdSecondarySummary}" Style="{StaticResource Caption}"/>
+
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdShowRing}" Margin="0,12,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="Anel de progresso"/>
+                                                <TextBlock Text="O preenchimento acompanha a informação principal." Style="{StaticResource Caption}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+
+                                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,8,0,14"/>
+                                        <TextBlock Text="Foto ou GIF de fundo" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                        <WrapPanel>
+                                            <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="ChooseBackground_Click">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Icon}" Text="&#xEB9F;" FontSize="13" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Escolher foto ou GIF..."/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{StaticResource SecondaryButton}" Content="Remover" Margin="0,0,8,8" Command="{Binding RemoveBackgroundCommand}"
+                                                    Visibility="{Binding HasLcdBackground, Converter={StaticResource BoolToVis}}"/>
+                                            <TextBlock Text="{Binding LcdBackgroundName}" Style="{StaticResource Caption}" VerticalAlignment="Center" Margin="0,0,0,8"
+                                                       TextTrimming="CharacterEllipsis" MaxWidth="200"/>
+                                        </WrapPanel>
+                                        <Grid Visibility="{Binding HasLcdBackground, Converter={StaticResource BoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="44"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Escurecer" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                            <Slider Grid.Column="1" Minimum="0" Maximum="95" Value="{Binding LcdBackgroundDim, Delay=150}" IsSnapToTickEnabled="True" TickFrequency="5"
+                                                    ToolTip="Deixa os números legíveis sobre a foto" AutomationProperties.Name="Escurecer a imagem de fundo"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding LcdBackgroundDimText}" TextAlignment="Right" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource TextMutedBrush}"/>
+                                        </Grid>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdShowTelemetry}" Margin="0,10,0,0"
+                                                  Visibility="{Binding HasLcdBackground, Converter={StaticResource BoolToVis}}">
+                                            <StackPanel>
+                                                <TextBlock Text="Mostrar telemetria sobre a imagem"/>
+                                                <TextBlock Text="Para alternar entre vários arquivos, use o modo Imagem ou GIF." Style="{StaticResource Caption}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource SystemPanel}" Visibility="{Binding IsLcdMediaMode, Converter={StaticResource BoolToVis}}"
+                                        AllowDrop="True" Drop="Media_Drop" DragOver="Media_DragOver">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                                <TextBlock Text="&#xEB9F;" Style="{StaticResource SystemIcon}"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Imagens e GIFs" Style="{StaticResource SystemSectionTitle}"/>
+                                                <TextBlock Text="Com mais de um arquivo, o LCD alterna entre os itens." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </DockPanel>
+
+                                        <WrapPanel Margin="0,14,0,0">
+                                            <Button Style="{StaticResource PrimaryButton}" Click="AddMedia_Click" Margin="0,0,8,0">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Adicionar"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button Style="{StaticResource IconButton}" Content="&#xE74D;" Command="{Binding ClearMediaCommand}"
+                                                    ToolTip="Remover todas" AutomationProperties.Name="Remover todas as imagens"/>
+                                        </WrapPanel>
+
+                                        <!-- Vazio: área para soltar arquivos -->
+                                        <Border Margin="0,14,0,4" Padding="12,18" CornerRadius="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1.5"
+                                                Background="{StaticResource BgBrush}" Cursor="Hand" MouseLeftButtonUp="EmptyDrop_Click"
+                                                Visibility="{Binding HasLcdMedia, Converter={StaticResource BoolToVisInverse}}">
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE898;" FontSize="26" HorizontalAlignment="Center" Foreground="{StaticResource AccentBrush}"/>
+                                                <TextBlock Text="Arraste fotos ou GIFs para cá" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,2" TextWrapping="Wrap" TextAlignment="Center"/>
+                                                <TextBlock Text="ou clique para escolher • PNG, JPG, GIF, WebP, BMP" Style="{StaticResource Caption}" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <ItemsControl ItemsSource="{Binding LcdMedia}" Margin="0,12,0,0" Focusable="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border x:Name="MediaRow" Background="{StaticResource BgBrush}" CornerRadius="10" Padding="8" Margin="0,0,0,8" BorderThickness="1.5" BorderBrush="Transparent"
+                                                            Cursor="Hand" MouseLeftButtonUp="MediaRow_Click" ToolTip="Clique para enquadrar este item na prévia">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <Border Width="52" Height="52" CornerRadius="26" Background="#05080F" Margin="0,0,12,0" ClipToBounds="True">
+                                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill">
+                                                                    <Image.Clip>
+                                                                        <EllipseGeometry Center="26,26" RadiusX="26" RadiusY="26"/>
+                                                                    </Image.Clip>
+                                                                </Image>
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                                <TextBlock TextTrimming="CharacterEllipsis">
+                                                                    <Run Text="{Binding Position, Mode=OneWay}" Foreground="{StaticResource TextSubtleBrush}"/><Run Text=".  "/><Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                </TextBlock>
+                                                                <TextBlock Text="{Binding Kind}" Style="{StaticResource Caption}"/>
+                                                            </StackPanel>
+                                                            <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,6,0,0">
+                                                                <!-- Tempo na tela -->
+                                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                                            ToolTip="Tempo na tela antes do próximo item">
+                                                                    <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="10" Content="&#xE738;" Click="DurationMinus_Click"
+                                                                            AutomationProperties.Name="Menos tempo"/>
+                                                                    <TextBlock Text="{Binding DurationText}" MinWidth="44" TextAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                                                    <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="10" Content="&#xE710;" Click="DurationPlus_Click"
+                                                                            AutomationProperties.Name="Mais tempo"/>
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE7A8;" ToolTip="Enquadrar (zoom e posição) na prévia"
+                                                                            Command="{Binding DataContext.EditMediaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70E;" ToolTip="Mover para cima"
+                                                                            Command="{Binding DataContext.MoveMediaUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70D;" ToolTip="Mover para baixo"
+                                                                            Command="{Binding DataContext.MoveMediaDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE74D;" ToolTip="Remover"
+                                                                            Foreground="{StaticResource DangerBrush}"
+                                                                            Command="{Binding DataContext.RemoveMediaCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                                </StackPanel>
+                                                            </WrapPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                    <DataTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                            <Setter TargetName="MediaRow" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                                        </DataTrigger>
+                                                    </DataTemplate.Triggers>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock Text="Ajuste da imagem" Style="{StaticResource Label}" Margin="0,8,0,6"/>
+                                        <WrapPanel>
+                                            <ToggleButton Style="{StaticResource Chip}" Content="Preencher o círculo" Command="{Binding SetLcdFitCommand}" CommandParameter="Cover"
+                                                          IsChecked="{Binding LcdFitCover, Mode=OneWay}" ToolTip="Corta as bordas para ocupar a tela toda"/>
+                                            <ToggleButton Style="{StaticResource Chip}" Content="Mostrar inteira" Command="{Binding SetLcdFitCommand}" CommandParameter="Contain"
+                                                          IsChecked="{Binding LcdFitContain, Mode=OneWay}" ToolTip="Mostra a imagem toda, com bordas escuras"/>
+                                        </WrapPanel>
+
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdMediaOverlay}" Margin="0,8,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="Mostrar telemetria por cima da imagem"/>
+                                                <TextBlock Text="Mostra a métrica escolhida na parte de baixo do display." Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                        <ComboBox ItemsSource="{x:Static vm:MainViewModel.LcdMetricOptions}" SelectedValuePath="Value" DisplayMemberPath="Label"
+                                                  SelectedValue="{Binding LcdOverlayMetric}" AutomationProperties.Name="Métrica sobre a imagem" Margin="56,0,0,0" MaxWidth="280" HorizontalAlignment="Left"
+                                                  Visibility="{Binding LcdMediaOverlay, Converter={StaticResource BoolToVis}}"/>
+                                        <TextBlock Text="Em alerta crítico ou modo de segurança, um aviso vermelho aparece sobre a imagem." Style="{StaticResource Caption}" Margin="0,10,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </c:AdaptiveUniformGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Tela e transmissão" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <c:AdaptiveUniformGrid MinItemWidth="286" MaxColumns="2" StackColumns="True" Margin="0,0,-12,0">
+                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource LcdPreviewPanel}"
+                                            HorizontalContentAlignment="Stretch" Margin="0,0,12,12"/>
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE713;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Ajustes da tela" Style="{StaticResource SystemSectionTitle}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <TextBlock Text="Rotação" Style="{StaticResource Label}" Margin="0,16,0,6"/>
+                                    <WrapPanel>
+                                        <ToggleButton Style="{StaticResource Chip}" Content="0°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="0"
+                                                      IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=0}"/>
+                                        <ToggleButton Style="{StaticResource Chip}" Content="90°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="90"
+                                                      IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=90}"/>
+                                        <ToggleButton Style="{StaticResource Chip}" Content="180°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="180"
+                                                      IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=180}"/>
+                                        <ToggleButton Style="{StaticResource Chip}" Content="270°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="270"
+                                                      IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=270}"/>
+                                    </WrapPanel>
+                                    <TextBlock Text="A prévia acompanha a orientação escolhida." Style="{StaticResource Caption}"/>
+
+                                    <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,14"/>
+                                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsLcdAutoStream}">
+                                        <StackPanel>
+                                            <TextBlock Text="Transmitir continuamente"/>
+                                            <TextBlock Text="Métricas a cada segundo e GIFs em até 16 quadros por segundo." Style="{StaticResource Caption}"/>
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncLcd}">
+                                        <StackPanel>
+                                            <TextBlock Text="Usar a cor da iluminação no display" TextWrapping="Wrap"/>
+                                            <TextBlock Text="O anel e os destaques acompanham o RGB." Style="{StaticResource Caption}"/>
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding TransmitLcdCommand}" HorizontalAlignment="Left" Margin="0,10,0,0" ToolTip="Ctrl+L">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE724;" FontSize="13" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Enviar quadro agora"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </c:AdaptiveUniformGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </UserControl>

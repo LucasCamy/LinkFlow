@@ -250,6 +250,16 @@ public sealed class LinkFlowEngine : IDisposable
         Signal(_ramSignal);
     }
 
+    /// <summary>Revê os controladores RGB e reenvia a cor atual, mantendo as conexões do hub e do LCD.</summary>
+    public void RefreshRgb()
+    {
+        Interlocked.Exchange(ref _rescanRgb, 1);
+        Interlocked.Increment(ref _rgbVersion);
+        Signal(_hubSignal);
+        Signal(_auxSignal);
+        Signal(_ramSignal);
+    }
+
     /// <summary>
     /// Procura de novo todos os dispositivos: reabre o hub (relê a lista de ventoinhas/bomba),
     /// reconecta o LCD e tenta detectar o RGB da GPU/placa-mãe que não foi encontrado.
@@ -323,13 +333,18 @@ public sealed class LinkFlowEngine : IDisposable
                 }).ToList(),
                 LcdConnected = _lcdConnected,
                 GpuRgbAvailable = _gpuRgb.IsAvailable,
+                GpuRgbRetrying = cfg.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry,
                 GpuRgbName = _gpuRgb.Name,
+                GpuRgbApplied = cfg.Rgb.SyncGpu ? _rgbGpuOk : null,
+                GpuRgbDiagnostic = _gpuRgb.Diagnostic,
                 MotherboardRgbAvailable = _mbRgb.IsAvailable,
                 MotherboardRgbName = _mbRgb.Name,
                 RamRgbAvailable = _ramRgb.IsAvailable,
                 RamRgbName = _ramRgb.Name,
                 PeripheralsRgbAvailable = _peripheralsRgb.IsAvailable,
                 PeripheralsRgbName = _peripheralsRgb.Name,
+                PeripheralsRgbApplied = cfg.Rgb.SyncPeripherals ? _rgbPeripheralsOk : null,
+                PeripheralsRgbDiagnostic = _peripheralsRgb.Diagnostic,
                 RgbDevicesReady = _rgbReady,
                 RgbStatus = BuildRgbStatus(cfg.Rgb),
                 Alerts = _alerts.Values.OrderByDescending(a => a.Severity).ThenBy(a => a.Since).Select(a => new EngineAlert
@@ -344,6 +359,8 @@ public sealed class LinkFlowEngine : IDisposable
 
     private async Task HubLoopAsync(CancellationToken ct)
     {
+        var rgbClock = new RgbFrameClock();
+        int rgbInterval = RgbFrameClock.IntervalMs(_opt.HubRgbMinInterval);
         long nextRead = 0, nextReconnect = 0, lastSpeedApply = 0, lastRgbApply = 0;
         long nextDeviceCheck = Stopwatch.GetTimestamp() + Ticks(_opt.SubDeviceCheckInterval);
         long appliedRgbVersion = -1;
@@ -440,7 +457,9 @@ public sealed class LinkFlowEngine : IDisposable
                     // 3. RGB do hub (limitado a ~16 atualizações/s durante arrastes e efeitos)
                     long rgbVersion = Interlocked.Read(ref _rgbVersion);
                     bool hubAnimated = cfg.Rgb.SyncHub && cfg.Rgb.IsAnimated;
-                    if ((appliedRgbVersion != rgbVersion || hubAnimated) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
+                    long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
+                    bool nextRgbFrame = hubAnimated && rgbClock.IsDue(frame, rgbInterval);
+                    if ((appliedRgbVersion != rgbVersion || nextRgbFrame) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
                     {
                         bool changed = appliedRgbVersion != rgbVersion;
                         appliedRgbVersion = rgbVersion;
@@ -448,7 +467,11 @@ public sealed class LinkFlowEngine : IDisposable
                         if (cfg.Rgb.SyncHub)
                         {
                             bool ok;
-                            if (hubAnimated) ok = ApplyHubFrame(cfg.Rgb);
+                            if (hubAnimated)
+                            {
+                                ok = ApplyHubFrame(cfg.Rgb, frame);
+                                rgbClock.RecordFrame(frame, rgbInterval, ok ? Stopwatch.GetElapsedTime(lastRgbApply) : null);
+                            }
                             else
                             {
                                 var o = cfg.Rgb.OutputFor(RgbTargets.Hub);
@@ -477,7 +500,7 @@ public sealed class LinkFlowEngine : IDisposable
             if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion && _hub.IsConnected)
                 wait = Min(wait, _opt.HubRgbMinInterval);
             if (_hub.IsConnected && CurrentRgb is { SyncHub: true, IsAnimated: true })
-                wait = Min(wait, _opt.HubRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply));
+                wait = Min(wait, RgbFrameWait(rgbClock, rgbInterval, lastRgbApply, _opt.HubRgbMinInterval));
             await WaitAsync(_hubSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
     }
@@ -839,9 +862,13 @@ public sealed class LinkFlowEngine : IDisposable
         SafeCall(() => { _peripheralsRgb.Initialize(); return true; });
         lock (_stateLock) _rgbReady = true;
         Log.Info($"RGB: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")} • RAM={(_ramRgb.IsAvailable ? _ramRgb.Name : "não detectada")} • Periféricos={(_peripheralsRgb.IsAvailable ? _peripheralsRgb.Name : "não detectados")}");
+        if (_gpuRgb.Diagnostic is { } initialGpuDiagnostic) Log.Info($"RGB GPU: {initialGpuDiagnostic}");
 
         using var composer = new LcdComposer();
+        var rgbClock = new RgbFrameClock();
+        int rgbInterval = RgbFrameClock.IntervalMs(_opt.AuxRgbMinInterval);
         long appliedRgbVersion = -1, lastRgbApply = 0, nextFrame = 0, nextLcdReconnect = 0;
+        long nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
         long nextPeripheralRetry = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(30));
         LcdConfig? lastLcd = null;
 
@@ -870,10 +897,21 @@ public sealed class LinkFlowEngine : IDisposable
                     }
                 }
 
-                if (Interlocked.Exchange(ref _rescanRgb, 0) == 1)
+                bool rescanRgb = Interlocked.Exchange(ref _rescanRgb, 0) == 1;
+                bool retryGpu = cfg.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry && now >= nextGpuRetry;
+                if (retryGpu || (rescanRgb && (cfg.Rgb.SyncGpu || !_gpuRgb.IsAvailable)))
                 {
-                    // Reatualizar dispositivos: tenta detectar de novo o que não foi encontrado
-                    if (!_gpuRgb.IsAvailable) SafeCall(() => { _gpuRgb.Initialize(); return true; });
+                    bool found = SafeCall(() => { _gpuRgb.Initialize(); return _gpuRgb.IsAvailable; });
+                    nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
+                    if (retryGpu && found)
+                    {
+                        Log.Info($"RGB GPU: conexão recuperada com {_gpuRgb.Name}.");
+                        appliedRgbVersion = -1;
+                    }
+                }
+
+                if (rescanRgb)
+                {
                     if (!_mbRgb.IsAvailable) SafeCall(() => { _mbRgb.Initialize(); return true; });
                     if (!_ramRgb.IsAvailable) SafeCall(() => { _ramRgb.Initialize(); return true; });
                     if (!_peripheralsRgb.IsAvailable) SafeCall(() => { _peripheralsRgb.Initialize(); return true; });
@@ -891,22 +929,35 @@ public sealed class LinkFlowEngine : IDisposable
 
                 // RGB da GPU, placa-mãe e periféricos (a RAM, lenta, tem fila própria)
                 long rgbVersion = Interlocked.Read(ref _rgbVersion);
-                bool animated = cfg.Rgb.IsAnimated;
-                if ((appliedRgbVersion != rgbVersion || animated) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
+                var rgb = cfg.Rgb;
+                bool animated = rgb.IsAnimated && HasAuxRgb(rgb);
+                long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
+                if ((appliedRgbVersion != rgbVersion || (animated && rgbClock.IsDue(frame, rgbInterval))) &&
+                    Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
                 {
                     bool changed = appliedRgbVersion != rgbVersion;
                     appliedRgbVersion = rgbVersion;
                     lastRgbApply = Stopwatch.GetTimestamp();
-                    var rgb = cfg.Rgb;
-                    bool? gpuOk = rgb.SyncGpu && _gpuRgb.IsAvailable ? SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu)) : null;
-                    bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard)) : null;
-                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals)) : null;
+                    var previousGpuOk = _rgbGpuOk;
+                    var previousGpuDiagnostic = _gpuRgb.Diagnostic;
+                    bool? gpuOk = rgb.SyncGpu && _gpuRgb.IsAvailable ? SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu, frame)) : null;
+                    bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard, frame)) : null;
+                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals, frame)) : null;
+                    if (animated)
+                    {
+                        var writeTime = gpuOk == true || mbOk == true || periphOk == true ? Stopwatch.GetElapsedTime(lastRgbApply) : (TimeSpan?)null;
+                        rgbClock.RecordFrame(frame, rgbInterval, writeTime);
+                    }
                     lock (_stateLock)
                     {
                         _rgbGpuOk = gpuOk;
                         _rgbMbOk = mbOk;
                         _rgbPeripheralsOk = periphOk;
                     }
+                    if (gpuOk == false && (previousGpuOk != false || previousGpuDiagnostic != _gpuRgb.Diagnostic))
+                        Log.Warn($"RGB GPU: {_gpuRgb.Diagnostic ?? "O controlador recusou o envio da cor."}");
+                    else if (gpuOk == true && previousGpuOk != true)
+                        Log.Info($"RGB GPU: cor aceita pelo controlador {_gpuRgb.Name}.");
                     // O anel do LCD segue a cor; durante efeitos ele acompanha no ritmo normal dos quadros
                     if (rgb.SyncLcd && changed) Interlocked.Exchange(ref _lcdRequested, 1);
                 }
@@ -926,8 +977,8 @@ public sealed class LinkFlowEngine : IDisposable
                     var (jpeg, next) = composer.ComposeJpeg(cfg.Lcd, GetSnapshot(), RgbForLcd(cfg.Rgb));
                     // Métricas: 1 quadro/s (opção do engine); GIFs: o atraso do próprio quadro
                     bool fast = composer.IsAnimating || (cfg.Lcd.Mode == LcdMode.Media && cfg.Lcd.Media.Count > 1);
-                    var interval = fast ? next : _opt.LcdFrameInterval;
-                    nextFrame = Stopwatch.GetTimestamp() + Ticks(interval);
+                    var lcdInterval = fast ? next : _opt.LcdFrameInterval;
+                    nextFrame = Stopwatch.GetTimestamp() + Ticks(lcdInterval);
                     bool ok = _lcd.SendJpegFrame(jpeg);
                     lock (_stateLock)
                     {
@@ -950,18 +1001,20 @@ public sealed class LinkFlowEngine : IDisposable
                 ? Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextFrame)
                 : _opt.TelemetryInterval;
             if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion) wait = Min(wait, _opt.AuxRgbMinInterval);
-            if (c2.Rgb.IsAnimated && (c2.Rgb.SyncGpu || c2.Rgb.SyncMotherboard || c2.Rgb.SyncPeripherals))
-                wait = Min(wait, _opt.AuxRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply));
+            if (c2.Rgb.IsAnimated && HasAuxRgb(c2.Rgb))
+                wait = Min(wait, RgbFrameWait(rgbClock, rgbInterval, lastRgbApply, _opt.AuxRgbMinInterval));
+            if (c2.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry)
+                wait = Min(wait, Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextGpuRetry));
             await WaitAsync(_auxSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
     }
 
     /// <summary>
-    /// Memórias DDR5: cada cor leva dezenas de escritas no SMBus (~100 ms). Numa fila própria, os efeitos
-    /// não atrasam os quadros do LCD; durante efeitos atualiza ~5x por segundo.
+    /// A fila da memória usa a cadência do controlador sem atrasar os outros dispositivos.
     /// </summary>
     private async Task RamLoopAsync(CancellationToken ct)
     {
+        var rgbClock = new RgbFrameClock();
         long applied = -1, lastApply = 0;
         while (!ct.IsCancellationRequested)
         {
@@ -972,14 +1025,21 @@ public sealed class LinkFlowEngine : IDisposable
             var rgb = cfg.Rgb;
             long version = Interlocked.Read(ref _rgbVersion);
             bool animated = rgb.IsAnimated && rgb.SyncRam && _ramRgb.IsAvailable;
+            var minInterval = animated && _ramRgb.MinAnimationInterval is { } streamingInterval
+                ? Min(_opt.RamRgbMinInterval, streamingInterval)
+                : _opt.RamRgbMinInterval;
+            int interval = RgbFrameClock.IntervalMs(minInterval);
+            long frame = rgbClock.FrameTime(RgbEffects.Now, interval);
             try
             {
-                if (ready && (applied != version || animated) && Stopwatch.GetElapsedTime(lastApply) >= _opt.RamRgbMinInterval)
+                if (ready && (applied != version || (animated && rgbClock.IsDue(frame, interval))) &&
+                    Stopwatch.GetElapsedTime(lastApply) >= minInterval)
                 {
                     bool changed = applied != version;
                     applied = version;
                     lastApply = Stopwatch.GetTimestamp();
-                    bool? ok = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => Apply(_ramRgb, rgb, RgbTargets.Ram)) : null;
+                    bool? ok = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => Apply(_ramRgb, rgb, RgbTargets.Ram, frame)) : null;
+                    if (animated) rgbClock.RecordFrame(frame, interval, ok == true ? Stopwatch.GetElapsedTime(lastApply) : null);
                     if (changed || _rgbRamOk != ok) lock (_stateLock) _rgbRamOk = ok;
                 }
             }
@@ -989,7 +1049,8 @@ public sealed class LinkFlowEngine : IDisposable
             }
 
             var wait = !ready ? TimeSpan.FromMilliseconds(200)
-                : animated || applied != Interlocked.Read(ref _rgbVersion) ? _opt.RamRgbMinInterval - Stopwatch.GetElapsedTime(lastApply)
+                : applied != Interlocked.Read(ref _rgbVersion) ? minInterval - Stopwatch.GetElapsedTime(lastApply)
+                : animated ? RgbFrameWait(rgbClock, interval, lastApply, minInterval)
                 : TimeSpan.FromSeconds(5);
             try { await WaitAsync(_ramSignal, Clamp(wait), ct).ConfigureAwait(false); }
             catch (OperationCanceledException) { break; }
@@ -1001,27 +1062,36 @@ public sealed class LinkFlowEngine : IDisposable
         get { lock (_configLock) return _config.Rgb; }
     }
 
+    private bool HasAuxRgb(RgbConfig rgb) =>
+        (rgb.SyncGpu && _gpuRgb.IsAvailable) || (rgb.SyncMotherboard && _mbRgb.IsAvailable) ||
+        (rgb.SyncPeripherals && _peripheralsRgb.IsAvailable);
+
+    private static TimeSpan RgbFrameWait(RgbFrameClock clock, int intervalMs, long lastSend, TimeSpan minInterval)
+    {
+        var frameWait = clock.UntilNextFrame(RgbEffects.Now, intervalMs);
+        var rateWait = minInterval - Stopwatch.GetElapsedTime(lastSend);
+        return frameWait > rateWait ? frameWait : rateWait;
+    }
+
     private byte[] _hubFrame = Array.Empty<byte>();
 
     /// <summary>Um quadro do efeito nas ventoinhas: igual em todas, ou espalhado LED a LED pela corrente.</summary>
-    private bool ApplyHubFrame(RgbConfig rgb)
+    private bool ApplyHubFrame(RgbConfig rgb, long frame)
     {
-        long now = RgbEffects.Now;
+        if (!rgb.SpreadOnFans)
+        {
+            var o = rgb.OutputFor(RgbTargets.Hub, frame, 0);
+            return _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
+        }
+
         int devices = Math.Max(_hub.SubDevices.Count, 1);
         int leds = Math.Max(devices * CorsairLinkHub.LedsPerDevice, 400);
         if (_hubFrame.Length != leds * 3) _hubFrame = new byte[leds * 3];
         var (_, _, _, brightness) = rgb.Finish(RgbTargets.Hub, 0, 0, 0);
-
-        if (!rgb.SpreadOnFans)
-        {
-            var o = rgb.OutputFor(RgbTargets.Hub, now, 0);
-            return _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
-        }
-
         for (int i = 0; i < leds; i++)
         {
             double phase = RgbEffects.LedPhase(rgb.Effect, i, CorsairLinkHub.LedsPerDevice, devices);
-            var (r, g, b, level) = RgbEffects.ColorAt(rgb, now, phase);
+            var (r, g, b, level) = RgbEffects.ColorAt(rgb, frame, phase);
             var (cr, cg, cb, _) = rgb.Finish(RgbTargets.Hub, r, g, b);
             _hubFrame[i * 3] = (byte)(cr * level);
             _hubFrame[i * 3 + 1] = (byte)(cg * level);
@@ -1043,13 +1113,18 @@ public sealed class LinkFlowEngine : IDisposable
         if (!_rgbReady) return "Detectando dispositivos RGB...";
         var ok = new List<string>();
         var fail = new List<string>();
-        void Add(bool? r, string name) { if (r == true) ok.Add(name); else if (r == false) fail.Add(name); }
-        Add(_rgbHubOk, "Fans/Bomba");
-        Add(_rgbGpuOk, "GPU");
-        Add(_rgbMbOk, "Placa-mãe");
-        Add(_rgbRamOk, "RAM DDR5");
-        Add(_rgbPeripheralsOk, "Periféricos");
-        Add(_rgbLcdOk, "LCD");
+        void Add(bool enabled, bool? r, string name)
+        {
+            if (!enabled) return;
+            if (r == true) ok.Add(name);
+            else if (r == false) fail.Add(name);
+        }
+        Add(rgb.SyncHub, _rgbHubOk, "Fans/Bomba");
+        Add(rgb.SyncGpu, _rgbGpuOk, "GPU");
+        Add(rgb.SyncMotherboard, _rgbMbOk, "Placa-mãe");
+        Add(rgb.SyncRam, _rgbRamOk, "RAM DDR5");
+        Add(rgb.SyncPeripherals, _rgbPeripheralsOk, "Periféricos");
+        Add(rgb.SyncLcd, _rgbLcdOk, "LCD");
         if (ok.Count == 0 && fail.Count == 0) return "Nenhum dispositivo sincronizado";
         var s = ok.Count > 0 ? $"Sincronizado: {string.Join(", ", ok)}" : string.Empty;
         if (fail.Count > 0) s += (s.Length > 0 ? " • " : string.Empty) + $"Falhou: {string.Join(", ", fail)}";
@@ -1136,10 +1211,12 @@ public sealed class LinkFlowEngine : IDisposable
         _cts.Dispose();
     }
 
-    private static bool Apply(IRgbDevice device, RgbConfig rgb, string target)
+    private static bool Apply(IRgbDevice device, RgbConfig rgb, string target, long frame)
     {
-        var o = rgb.OutputFor(target);
-        return device.SetColor(o.R, o.G, o.B, o.Brightness);
+        var o = rgb.OutputFor(target, frame, 0);
+        return rgb.IsAnimated
+            ? device.SetAnimationColor(o.R, o.G, o.B, o.Brightness)
+            : device.SetColor(o.R, o.G, o.B, o.Brightness);
     }
 
     private static bool SafeCall(Func<bool> f)

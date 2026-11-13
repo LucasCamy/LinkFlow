@@ -1,3 +1,6 @@
+using System.Globalization;
+using LinkFlow.App.Services;
+
 namespace LinkFlow.App;
 
 public sealed class StartupOptions
@@ -21,6 +24,9 @@ public sealed class StartupOptions
     public int? ScreenshotHeight { get; private set; }
 
     public string? ServiceCommand { get; private set; }
+    internal bool InstallDriverRequested { get; private set; }
+    internal DriverIdentity? DriverToInstall { get; private set; }
+    internal bool AcceptDriverLicense { get; private set; }
 
     /// <summary>Pede para a instância em execução encerrar de forma controlada (scripts de atualização).</summary>
     public bool ExitRunning { get; private set; }
@@ -67,6 +73,17 @@ public sealed class StartupOptions
                     break;
                 case "--select":
                     o.ScreenshotSelect = int.TryParse(Next(), out var sel) ? sel : 0;
+                    break;
+                case "--install-driver":
+                    o.InstallDriverRequested = true;
+                    var updateId = Next();
+                    var revisionNumber = Next();
+                    o.DriverToInstall = Guid.TryParseExact(updateId, "D", out Guid id) && id != Guid.Empty &&
+                                        int.TryParse(revisionNumber, NumberStyles.None, CultureInfo.InvariantCulture, out int revision)
+                        ? new DriverIdentity(id, revision) : null;
+                    break;
+                case "--accept-driver-license":
+                    o.AcceptDriverLicense = true;
                     break;
                 case "--size":
                     var parts = Next()?.Split('x');

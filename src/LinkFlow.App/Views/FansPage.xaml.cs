@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using LinkFlow.App.ViewModels;
 
 namespace LinkFlow.App.Views;
@@ -16,6 +17,17 @@ public partial class FansPage : UserControl
     }
 
     private MainViewModel? Vm => DataContext as MainViewModel;
+
+    internal void ShowDevices() => DevicesTab.IsSelected = true;
+    internal void ShowAutomation() => AutomationTab.IsSelected = true;
+
+    private void GroupCurve_Click(object sender, RoutedEventArgs e)
+    {
+        Dispatcher.InvokeAsync(() =>
+        {
+            if (CurvePanel.IsVisible) CurvePanel.BringIntoView();
+        }, DispatcherPriority.Loaded);
+    }
 
     /// <summary>Clique no cartão: simples seleciona só ele; Ctrl alterna; Shift seleciona intervalo.</summary>
     private void FanCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

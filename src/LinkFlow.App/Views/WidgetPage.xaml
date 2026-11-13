@@ -1,301 +1,389 @@
 <UserControl x:Class="LinkFlow.App.Views.WidgetPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:views="clr-namespace:LinkFlow.App.Views"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                  DataContext="{Binding Widget, RelativeSource={RelativeSource AncestorType=Window}}">
-        <StackPanel Margin="8,8,20,24">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="Widget" Style="{StaticResource PageTitle}"/>
-                    <TextBlock Text="Um painel pequeno sempre à vista: escolha as informações, o visual e como ele se comporta." Style="{StaticResource PageSubtitle}"/>
-                </StackPanel>
-                <ToggleButton Grid.Column="1" Style="{StaticResource Chip}" Margin="0" VerticalAlignment="Center" IsChecked="{Binding IsWidgetVisible, Mode=OneWay}"
-                              Click="ToggleWidget_Click" ToolTip="Ctrl+Alt+M de qualquer lugar">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8A7;" FontSize="13" Margin="0,0,8,0"/>
-                        <TextBlock Text="Mostrar widget"/>
-                    </StackPanel>
-                </ToggleButton>
-            </Grid>
+    <UserControl.Resources>
+        <Style x:Key="WidgetSwatch" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Swatch" CornerRadius="8" BorderThickness="2"
+                                BorderBrush="{StaticResource BorderBrush}" Background="{TemplateBinding Background}"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Swatch" Property="BorderBrush" Value="{StaticResource TextBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="WidgetSliderValue" TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+    </UserControl.Resources>
 
-            <c:AdaptiveUniformGrid MinItemWidth="400" MaxColumns="2" Margin="0,16,-12,0">
+    <Grid MaxWidth="1160" Margin="24,20,24,0"
+          DataContext="{Binding Widget, RelativeSource={RelativeSource AncestorType=Window}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Margin="0,0,0,16">
+            <ToggleButton DockPanel.Dock="Right" VerticalAlignment="Center" Margin="12,0,0,0"
+                          IsChecked="{Binding IsWidgetVisible, Mode=OneWay}" Click="ToggleWidget_Click"
+                          ToolTip="Alternar o widget flutuante (Ctrl+Alt+M)">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton" BasedOn="{StaticResource Chip}">
+                        <Setter Property="Content" Value="Mostrar widget"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsWidgetVisible}" Value="True">
+                                <Setter Property="Content" Value="Ocultar widget"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+            </ToggleButton>
+            <StackPanel>
+                <TextBlock Text="Widget" Style="{StaticResource SystemPageTitle}"/>
+                <TextBlock Text="Personalize o monitor flutuante da área de trabalho." Style="{StaticResource SystemDetail}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <DockPanel Grid.Row="1" SizeChanged="Workspace_SizeChanged">
+            <Border x:Name="PreviewCard" DockPanel.Dock="Top" Style="{StaticResource SystemPanel}"
+                    Padding="12" Margin="0,0,0,12" VerticalAlignment="Top">
                 <StackPanel>
-                    <!-- ================================================= Prévia -->
-                    <Border Style="{StaticResource GridCard}">
-                        <StackPanel>
-                            <TextBlock Text="Prévia" Style="{StaticResource SectionTitle}"/>
-                            <Border Margin="0,12,0,0" CornerRadius="10" MinHeight="170" Padding="16" ClipToBounds="True">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#1E3A5F" Offset="0"/>
-                                        <GradientStop Color="#3B1F4F" Offset="0.55"/>
-                                        <GradientStop Color="#0F2A2E" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <views:WidgetView HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding Opacity}"/>
+                    <TextBlock Text="Prévia ao vivo" Style="{StaticResource SystemSectionTitle}"/>
+                    <Border x:Name="PreviewStage" Margin="0,8,0,0" Padding="10" MinHeight="72" MaxHeight="84"
+                            CornerRadius="10" ClipToBounds="True"
+                            ToolTip="A prévia se ajusta ao espaço. Use Mostrar widget para conferir no tamanho escolhido.">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#1E3A5F" Offset="0"/>
+                                <GradientStop Color="#3B1F4F" Offset="0.55"/>
+                                <GradientStop Color="#0F2A2E" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                            <views:WidgetView x:Name="LivePreview" Opacity="{Binding Opacity}"/>
+                        </Viewbox>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <TabControl x:Name="WidgetTabs" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+                <TabItem Header="Informações" Style="{StaticResource SystemTab}">
+                    <ScrollViewer Style="{StaticResource SystemScroll}">
+                        <StackPanel Margin="0,0,0,24">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,12">
+                                        <Button DockPanel.Dock="Right" Content="Adicionar" Style="{StaticResource SystemLinkButton}"
+                                                VerticalAlignment="Center" Click="GoToPicker_Click" Margin="8,0,0,0"/>
+                                        <StackPanel>
+                                            <TextBlock Text="No widget" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="Use as setas para mudar a ordem." Style="{StaticResource SystemDetail}"
+                                                       Visibility="{Binding HasItems, Converter={StaticResource BoolToVis}}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="Escolha abaixo as informações que deseja acompanhar." Style="{StaticResource SystemDetail}"
+                                               Visibility="{Binding HasItems, Converter={StaticResource BoolToVisInverse}}"/>
+                                    <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource SystemRow}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Ellipse Width="8" Height="8" Fill="{Binding Color, Converter={StaticResource HexToBrush}}"
+                                                                 Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding FullLabel}" Style="{StaticResource SystemItemTitle}"/>
+                                                            <TextBlock Style="{StaticResource SystemDetail}">
+                                                                <Run Text="{Binding Group, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Text, Mode=OneWay}"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                        <Button Grid.Column="2" Style="{StaticResource ChipButton}" Margin="8,0,4,0" MinWidth="54"
+                                                                Content="{Binding DisplayLabel}" ToolTip="Alternar entre porcentagem e valor real"
+                                                                Command="{Binding DataContext.ToggleDisplayCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}" Visibility="{Binding CanToggleDisplay, Converter={StaticResource BoolToVis}}"/>
+                                                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70E;"
+                                                                    ToolTip="Mover para cima" AutomationProperties.Name="{Binding FullLabel, StringFormat='Mover {0} para cima'}"
+                                                                    Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                            <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70D;"
+                                                                    ToolTip="Mover para baixo" AutomationProperties.Name="{Binding FullLabel, StringFormat='Mover {0} para baixo'}"
+                                                                    Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                            <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE711;"
+                                                                    ToolTip="Remover" AutomationProperties.Name="{Binding FullLabel, StringFormat='Remover {0}'}" Foreground="{StaticResource DangerBrush}"
+                                                                    Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </Border>
-                            <TextBlock Text="Fundo de exemplo simulando a área de trabalho." Style="{StaticResource Caption}" Margin="0,6,0,0"/>
 
-                            <TextBlock Text="Posição" Style="{StaticResource Label}" Margin="0,14,0,6"/>
-                            <WrapPanel>
-                                <Button Style="{StaticResource ChipButton}" Content="↖ Superior esquerdo" Tag="TopLeft" Click="Corner_Click"/>
-                                <Button Style="{StaticResource ChipButton}" Content="↑ Topo central" Tag="TopCenter" Click="Corner_Click"/>
-                                <Button Style="{StaticResource ChipButton}" Content="↗ Superior direito" Tag="TopRight" Click="Corner_Click"/>
-                                <Button Style="{StaticResource ChipButton}" Content="↙ Inferior esquerdo" Tag="BottomLeft" Click="Corner_Click"/>
-                                <Button Style="{StaticResource ChipButton}" Content="↘ Inferior direito" Tag="BottomRight" Click="Corner_Click"/>
-                            </WrapPanel>
-                            <TextBlock Text="Ou arraste o widget; perto da borda ele gruda sozinho." Style="{StaticResource Caption}"/>
+                            <Border x:Name="PickerPanel" Style="{StaticResource SystemPanel}">
+                                <StackPanel>
+                                    <TextBlock Text="Adicionar informações" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="Marque o que deseja acompanhar. Discos físicos podem levar alguns segundos para aparecer."
+                                               Style="{StaticResource SystemDetail}" Margin="0,2,0,12"/>
+                                    <ItemsControl ItemsSource="{Binding Picker}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource SystemRow}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Name}" Style="{StaticResource SystemItemTitle}" Margin="0,0,0,8"/>
+                                                        <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsAdded, Mode=OneWay}" Padding="10,5"
+                                                                                  Command="{Binding DataContext.AddCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+                                                                                  CommandParameter="{Binding Id}" AutomationProperties.Name="{Binding Label}">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <Ellipse Width="7" Height="7" Fill="{Binding Color, Converter={StaticResource HexToBrush}}" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                                                            <TextBlock Text="{Binding Label}" MaxWidth="260" TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"/>
+                                                                        </StackPanel>
+                                                                    </ToggleButton>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
+                    </ScrollViewer>
+                </TabItem>
 
-                    <!-- ================================================= Itens -->
-                    <Border Style="{StaticResource GridCard}">
-                        <StackPanel>
-                            <TextBlock Text="Informações no widget" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="A ordem aqui é a ordem no widget. Onde houver as duas formas, escolha % ou valor real." Style="{StaticResource Caption}" Margin="0,2,0,10"/>
-                            <TextBlock Text="Nenhuma informação ainda: adicione ao lado." Style="{StaticResource Caption}" FontSize="13"
-                                       Visibility="{Binding HasItems, Converter={StaticResource BoolToVisInverse}}"/>
-                            <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,8,6,8" Margin="0,0,0,6">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Ellipse Width="9" Height="9" Fill="{Binding Color, Converter={StaticResource HexToBrush}}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding FullLabel}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Style="{StaticResource Caption}">
-                                                        <Run Text="{Binding Group, Mode=OneWay}"/><Run Text=" • agora "/><Run Text="{Binding Text, Mode=OneWay}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                                <Button Grid.Column="2" Style="{StaticResource ChipButton}" Margin="8,0,6,0" MinWidth="58" Content="{Binding DisplayLabel}"
-                                                        ToolTip="Alternar entre % e valor real"
-                                                        Command="{Binding DataContext.ToggleDisplayCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
-                                                        Visibility="{Binding CanToggleDisplay, Converter={StaticResource BoolToVis}}"/>
-                                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70E;" ToolTip="Mover para cima"
-                                                            Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE70D;" ToolTip="Mover para baixo"
-                                                            Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                    <Button Style="{StaticResource IconButton}" Width="28" Height="28" FontSize="11" Content="&#xE711;" ToolTip="Remover"
-                                                            Foreground="{StaticResource DangerBrush}"
-                                                            Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
+                <TabItem Header="Aparência" Style="{StaticResource SystemTab}">
+                    <ScrollViewer Style="{StaticResource SystemScroll}">
+                        <StackPanel Margin="0,0,0,24">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,12">
+                                        <Button DockPanel.Dock="Right" Style="{StaticResource SystemLinkButton}" Content="Restaurar padrão"
+                                                Command="{Binding ResetCommand}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                ToolTip="Redefine as informações e a aparência do widget"/>
+                                        <TextBlock Text="Formato e tamanho" Style="{StaticResource SystemSectionTitle}" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <WrapPanel>
+                                        <RadioButton GroupName="WidgetLayout" Style="{StaticResource Chip}" Content="Em linha"
+                                                     IsChecked="{Binding IsHorizontal, Mode=OneWay}" Command="{Binding SetLayoutCommand}" CommandParameter="Horizontal"/>
+                                        <RadioButton GroupName="WidgetLayout" Style="{StaticResource Chip}" Content="Em coluna"
+                                                     IsChecked="{Binding IsVertical, Mode=OneWay}" Command="{Binding SetLayoutCommand}" CommandParameter="Vertical"/>
+                                        <RadioButton GroupName="WidgetLayout" Style="{StaticResource Chip}" Content="Grade"
+                                                     IsChecked="{Binding IsGrid, Mode=OneWay}" Command="{Binding SetLayoutCommand}" CommandParameter="Grid"/>
+                                    </WrapPanel>
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="104"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="52"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="34"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Tamanho" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0.7" Maximum="2" SmallChange="0.05" LargeChange="0.1"
+                                                IsSnapToTickEnabled="True" TickFrequency="0.05" Value="{Binding Scale}" AutomationProperties.Name="Tamanho do widget"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding ScaleText}" Style="{StaticResource WidgetSliderValue}"/>
+                                        <Grid Grid.Row="1" Grid.ColumnSpan="3" Height="34" Visibility="{Binding IsGrid, Converter={StaticResource BoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="104"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="52"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Colunas" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"/>
+                                            <Slider Grid.Column="1" Minimum="1" Maximum="6" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                    Value="{Binding GridColumns}" AutomationProperties.Name="Colunas da grade"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding GridColumns}" Style="{StaticResource WidgetSliderValue}"/>
+                                        </Grid>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
 
-                    <!-- ================================================= Comportamento -->
-                    <Border Style="{StaticResource GridCard}">
-                        <StackPanel>
-                            <TextBlock Text="Comportamento" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AlwaysOnTop}">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
                                 <StackPanel>
-                                    <TextBlock Text="Sempre no topo"/>
-                                    <TextBlock Text="Fica por cima das outras janelas" Style="{StaticResource Caption}"/>
-                                </StackPanel>
-                            </CheckBox>
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HideInFullscreen}">
-                                <StackPanel>
-                                    <TextBlock Text="Esconder em jogos e tela cheia"/>
-                                    <TextBlock Text="Some durante jogos, vídeos em tela cheia e apresentações; volta sozinho" Style="{StaticResource Caption}"/>
-                                </StackPanel>
-                            </CheckBox>
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ClickThrough}">
-                                <StackPanel>
-                                    <TextBlock Text="Clique atravessa o widget"/>
-                                    <TextBlock Text="O mouse passa por ele (não atrapalha o que está atrás). Para mexer de novo, desligue aqui" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </CheckBox>
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SnapToEdges}">
-                                <StackPanel>
-                                    <TextBlock Text="Grudar nas bordas"/>
-                                    <TextBlock Text="Ao soltar perto da borda da tela, encaixa certinho" Style="{StaticResource Caption}"/>
-                                </StackPanel>
-                            </CheckBox>
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LockPosition}">
-                                <StackPanel>
-                                    <TextBlock Text="Travar posição"/>
-                                    <TextBlock Text="Evita arrastar sem querer" Style="{StaticResource Caption}"/>
-                                </StackPanel>
-                            </CheckBox>
-                            <TextBlock Text="Consumo: o widget atualiza 1x por segundo só enquanto está visível; escondido em jogos, não gasta nada." Style="{StaticResource Caption}"
-                                       TextWrapping="Wrap" Margin="0,6,0,0"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                                    <TextBlock Text="Cores e transparência" Style="{StaticResource SystemSectionTitle}"/>
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="52"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="34"/><RowDefinition Height="34"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Opacidade" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0.3" Maximum="1" IsSnapToTickEnabled="True" TickFrequency="0.05"
+                                                Value="{Binding Opacity}" AutomationProperties.Name="Opacidade do widget"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding OpacityText}" Style="{StaticResource WidgetSliderValue}"/>
 
-                <StackPanel>
-                    <!-- ================================================= Adicionar -->
-                    <Border Style="{StaticResource GridCard}">
-                        <StackPanel>
-                            <TextBlock Text="Adicionar informação" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Text="Clique para adicionar ou tirar. Discos físicos aparecem depois de alguns segundos com esta aba aberta." Style="{StaticResource Caption}"
-                                       TextWrapping="Wrap" Margin="0,2,0,8"/>
-                            <ItemsControl ItemsSource="{Binding Picker}" Focusable="False">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="0,4,0,4">
-                                            <TextBlock Text="{Binding Name}" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                                            <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
+                                        <TextBlock Grid.Row="1" Text="Fundo" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"
+                                                   ToolTip="Transparência somente do fundo"/>
+                                        <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="1" IsSnapToTickEnabled="True" TickFrequency="0.05"
+                                                Value="{Binding BackgroundOpacity}" AutomationProperties.Name="Opacidade do fundo"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding BackgroundOpacityText}" Style="{StaticResource WidgetSliderValue}"/>
+                                    </Grid>
+
+                                    <Border Style="{StaticResource SystemRow}" Margin="0,10,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Cor do fundo" Style="{StaticResource SystemItemTitle}" Margin="0,0,0,8"/>
+                                            <ItemsControl ItemsSource="{x:Static vm:WidgetViewModel.BackgroundOptions}" Focusable="False">
+                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsAdded, Mode=OneWay}" Padding="10,5"
-                                                                      Command="{Binding DataContext.AddCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
-                                                                      CommandParameter="{Binding Id}">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Ellipse Width="7" Height="7" Fill="{Binding Color, Converter={StaticResource HexToBrush}}" Margin="0,0,7,0" VerticalAlignment="Center"/>
-                                                                <TextBlock Text="{Binding Label}" MaxWidth="260" TextTrimming="CharacterEllipsis"/>
-                                                            </StackPanel>
-                                                        </ToggleButton>
+                                                        <Button Style="{StaticResource WidgetSwatch}" ToolTip="{Binding}"
+                                                                Background="{Binding Converter={StaticResource HexToBrush}}" AutomationProperties.Name="{Binding StringFormat='Cor de fundo {0}'}"
+                                                                Command="{Binding DataContext.SetBackgroundCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" CommandParameter="{Binding}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock Text="Cor dos valores" Style="{StaticResource SystemItemTitle}" Margin="0,4,0,6"/>
+                                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding UseSensorColors}"
+                                                      Content="Cada informação com sua cor" Margin="0,0,0,10"/>
+                                            <ItemsControl ItemsSource="{x:Static vm:WidgetViewModel.AccentOptions}" Focusable="False">
+                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Style="{StaticResource WidgetSwatch}" Width="26" Height="26" ToolTip="{Binding StringFormat='Cor única {0}'}"
+                                                                Background="{Binding Converter={StaticResource HexToBrush}}" AutomationProperties.Name="{Binding StringFormat='Cor única {0}'}"
+                                                                Command="{Binding DataContext.SetAccentCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" CommandParameter="{Binding}"/>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                         </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ================================================= Aparência -->
-                    <Border Style="{StaticResource GridCard}">
-                        <StackPanel>
-                            <Grid>
-                                <TextBlock Text="Aparência" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
-                                <Button Style="{StaticResource GhostButton}" Content="Restaurar padrão" HorizontalAlignment="Right" Command="{Binding ResetCommand}"/>
-                            </Grid>
-
-                            <TextBlock Text="Formato" Style="{StaticResource Label}" Margin="0,8,0,6"/>
-                            <WrapPanel>
-                                <ToggleButton Style="{StaticResource Chip}" Content="Em linha" IsChecked="{Binding IsHorizontal, Mode=OneWay}"
-                                              Command="{Binding SetLayoutCommand}" CommandParameter="Horizontal"/>
-                                <ToggleButton Style="{StaticResource Chip}" Content="Em coluna" IsChecked="{Binding IsVertical, Mode=OneWay}"
-                                              Command="{Binding SetLayoutCommand}" CommandParameter="Vertical"/>
-                                <ToggleButton Style="{StaticResource Chip}" Content="Grade" IsChecked="{Binding IsGrid, Mode=OneWay}"
-                                              Command="{Binding SetLayoutCommand}" CommandParameter="Grid"/>
-                                <StackPanel Orientation="Horizontal" Margin="4,0,0,8" VerticalAlignment="Center" Visibility="{Binding IsGrid, Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Colunas" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
-                                    <Slider Width="110" Minimum="1" Maximum="6" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding GridColumns}"/>
-                                    <TextBlock Text="{Binding GridColumns}" Width="20" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    </Border>
                                 </StackPanel>
-                            </WrapPanel>
+                            </Border>
 
-                            <Grid Margin="0,6,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="120"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="50"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Tamanho" VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Minimum="0.7" Maximum="2" SmallChange="0.05" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.05" Value="{Binding Scale}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding ScaleText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-
-                                <TextBlock Grid.Row="1" Text="Opacidade" VerticalAlignment="Center"/>
-                                <Slider Grid.Row="1" Grid.Column="1" Minimum="0.3" Maximum="1" IsSnapToTickEnabled="True" TickFrequency="0.05" Value="{Binding Opacity}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding OpacityText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-
-                                <TextBlock Grid.Row="2" Text="Fundo" VerticalAlignment="Center" ToolTip="Transparência só do fundo (o texto continua nítido)"/>
-                                <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="1" IsSnapToTickEnabled="True" TickFrequency="0.05" Value="{Binding BackgroundOpacity}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding BackgroundOpacityText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-
-                                <TextBlock Grid.Row="3" Text="Cantos" VerticalAlignment="Center"/>
-                                <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="24" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding CornerRadius}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding CornerRadius}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            </Grid>
-
-                            <TextBlock Text="Cor do fundo" Style="{StaticResource Label}" Margin="0,10,0,6"/>
-                            <ItemsControl ItemsSource="{x:Static vm:WidgetViewModel.BackgroundOptions}" Focusable="False">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Width="30" Height="30" Margin="0,0,8,8" Cursor="Hand" ToolTip="{Binding}"
-                                                Command="{Binding DataContext.SetBackgroundCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" CommandParameter="{Binding}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="Sw" CornerRadius="8" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" Background="{Binding Converter={StaticResource HexToBrush}}"/>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Sw" Property="BorderBrush" Value="{StaticResource TextBrush}"/></Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock Text="Cor dos valores" Style="{StaticResource Label}" Margin="0,6,0,6"/>
-                            <WrapPanel>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding UseSensorColors}" Content="Cada informação com sua cor" Margin="0,0,14,8"/>
-                                <ItemsControl ItemsSource="{x:Static vm:WidgetViewModel.AccentOptions}" Focusable="False" VerticalAlignment="Center">
-                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Width="24" Height="24" Margin="0,0,6,8" Cursor="Hand" ToolTip="Cor única"
-                                                    Command="{Binding DataContext.SetAccentCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" CommandParameter="{Binding}">
-                                                <Button.Template>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border x:Name="Sw" CornerRadius="12" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" Background="{Binding Converter={StaticResource HexToBrush}}"/>
-                                                        <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Sw" Property="BorderBrush" Value="{StaticResource TextBrush}"/></Trigger>
-                                                        </ControlTemplate.Triggers>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </WrapPanel>
-
-                            <TextBlock Text="Fonte" Style="{StaticResource Label}" Margin="0,6,0,6"/>
-                            <ItemsControl ItemsSource="{x:Static vm:WidgetViewModel.FontOptions}" Focusable="False">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <ToggleButton Style="{StaticResource Chip}" Content="{Binding}" FontFamily="{Binding}"
-                                                      Command="{Binding DataContext.SetFontCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" CommandParameter="{Binding}">
-                                            <ToggleButton.IsChecked>
-                                                <MultiBinding Converter="{StaticResource StringsEqual}" Mode="OneWay">
-                                                    <Binding/>
-                                                    <Binding Path="DataContext.FontFamily" RelativeSource="{RelativeSource AncestorType=ScrollViewer}"/>
-                                                </MultiBinding>
-                                            </ToggleButton.IsChecked>
-                                        </ToggleButton>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <WrapPanel Margin="0,4,0,0">
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowLabels}" Content="Nomes" Margin="0,0,16,0"/>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowBars}" Content="Barras" Margin="0,0,16,0"/>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowBorder}" Content="Borda"/>
-                            </WrapPanel>
+                            <Border Style="{StaticResource SystemPanel}">
+                                <StackPanel>
+                                    <TextBlock Text="Fonte e detalhes" Style="{StaticResource SystemSectionTitle}"/>
+                                    <ItemsControl ItemsSource="{x:Static vm:WidgetViewModel.FontOptions}" Focusable="False" Margin="0,10,0,0">
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <RadioButton GroupName="WidgetFont" Style="{StaticResource Chip}" Content="{Binding}" FontFamily="{Binding}"
+                                                             Command="{Binding DataContext.SetFontCommand, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" CommandParameter="{Binding}">
+                                                    <RadioButton.IsChecked>
+                                                        <MultiBinding Converter="{StaticResource StringsEqual}" Mode="OneWay">
+                                                            <Binding/>
+                                                            <Binding Path="DataContext.FontFamily" RelativeSource="{RelativeSource AncestorType=ScrollViewer}"/>
+                                                        </MultiBinding>
+                                                    </RadioButton.IsChecked>
+                                                </RadioButton>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Grid Margin="0,2,0,8" Height="34">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="104"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="52"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Cantos" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="24" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                Value="{Binding CornerRadius}" AutomationProperties.Name="Arredondamento dos cantos"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding CornerRadius}" Style="{StaticResource WidgetSliderValue}"/>
+                                    </Grid>
+                                    <WrapPanel>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowLabels}" Content="Nomes" Margin="0,4,16,4"/>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowBars}" Content="Barras" Margin="0,4,16,4"/>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowBorder}" Content="Borda"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </c:AdaptiveUniformGrid>
-        </StackPanel>
-    </ScrollViewer>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="Comportamento" Style="{StaticResource SystemTab}">
+                    <ScrollViewer Style="{StaticResource SystemScroll}">
+                        <StackPanel Margin="0,0,0,24">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="Janela flutuante" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AlwaysOnTop}">
+                                            <StackPanel>
+                                                <TextBlock Text="Sempre no topo" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="Mantém o widget acima das outras janelas." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HideInFullscreen}">
+                                            <StackPanel>
+                                                <TextBlock Text="Ocultar em tela cheia" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="Volta a aparecer ao sair do jogo, vídeo ou apresentação." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ClickThrough}">
+                                            <StackPanel>
+                                                <TextBlock Text="Deixar cliques passarem" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="O mouse interage com a janela atrás do widget. Desative aqui para voltar a mover a janela."
+                                                           Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource SystemPanel}">
+                                <StackPanel>
+                                    <TextBlock Text="Posição" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="Use os atalhos abaixo ou arraste a janela flutuante." Style="{StaticResource SystemDetail}" Margin="0,2,0,10"/>
+                                    <WrapPanel>
+                                        <Button Style="{StaticResource ChipButton}" Content="↖ Superior esquerdo" Tag="TopLeft" Click="Corner_Click"/>
+                                        <Button Style="{StaticResource ChipButton}" Content="↑ Topo central" Tag="TopCenter" Click="Corner_Click"/>
+                                        <Button Style="{StaticResource ChipButton}" Content="↗ Superior direito" Tag="TopRight" Click="Corner_Click"/>
+                                        <Button Style="{StaticResource ChipButton}" Content="↙ Inferior esquerdo" Tag="BottomLeft" Click="Corner_Click"/>
+                                        <Button Style="{StaticResource ChipButton}" Content="↘ Inferior direito" Tag="BottomRight" Click="Corner_Click"/>
+                                    </WrapPanel>
+                                    <Border Style="{StaticResource SystemRow}" Margin="0,4,0,0">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SnapToEdges}" Content="Encaixar nas bordas"/>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LockPosition}" Content="Travar posição"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
+    </Grid>
 </UserControl>

@@ -240,6 +240,7 @@ public sealed class PipeEngineClient : IEngineClient
 
     public void RequestLcdFrame() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.LcdFrame, null));
     public void NotifyResume() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Resume, null));
+    public void RefreshRgb() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.RefreshRgb, null));
     public void RescanDevices() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Rescan, null));
 
     private SensorDemand _demand;

@@ -43,10 +43,19 @@ public partial class App : Application
             AppPaths.UserDir = Path.Combine(Path.GetTempPath(), "LinkFlow-sim", "user");
         }
 
-        Log.Configure(Options.ServiceCommand != null ? "app-admin" : "app",
+        Log.Configure(Options.ServiceCommand != null || Options.InstallDriverRequested ? "app-admin" : "app",
             Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
 
         if (Options.WaitPid is { } waitPid) WaitForProcessExit(waitPid);
+
+        if (Options.InstallDriverRequested)
+        {
+            int code = !Options.Simulate && Options.DriverToInstall is { } driver
+                ? WindowsDrivers.InstallElevated(driver, Options.AcceptDriverLicense)
+                : 87;
+            Shutdown(code);
+            return;
+        }
 
         // Processo auxiliar elevado: só executa o comando de serviço e sai
         if (Options.ServiceCommand != null)
@@ -105,8 +114,11 @@ public partial class App : Application
         // Serviço em sessão 0: periféricos Logitech pela interface (sessão do usuário)
         if (_engine.IsRemote && !_engine.IsSimulated)
         {
-            _peripheralBridge = new PeripheralRgbBridge(_engine);
-            _peripheralBridge.StatusChanged += () => Dispatcher.BeginInvoke(() => _vm.ExternalPeripheralsStatus = _peripheralBridge.Status);
+            var bridge = _peripheralBridge = new PeripheralRgbBridge(_engine);
+            void UpdateStatus() => _vm.SetExternalPeripheralsStatus(bridge.Status, bridge.HasIssue);
+            bridge.StatusChanged += () => Dispatcher.BeginInvoke(UpdateStatus);
+            _vm.RgbRefreshRequested += bridge.RequestResend;
+            UpdateStatus();
         }
         _vm.AlertRaised += OnAlert;
         _vm.SnapshotApplied += OnSnapshotApplied;
@@ -451,7 +463,10 @@ public partial class App : Application
 
         await Task.Delay(3500);
         if (Options.ScreenshotSelect > 0)
+        {
+            if (Options.ScreenshotPage == 1) w.ShowFanDevices();
             foreach (var f in w.ViewModel.Fans.Take(Options.ScreenshotSelect)) f.IsSelected = true;
+        }
         if (Options.ScreenshotDetail != null)
         {
             w.ViewModel.OpenDetail(Options.ScreenshotDetail);

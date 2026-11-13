@@ -50,6 +50,7 @@ public sealed class WidgetTests : IDisposable
     [Fact]
     public void Add_toggle_percent_move_and_remove_are_saved()
     {
+        WaitFor(() => _vm.Snapshot.RamUsedGb.HasValue && _vm.Snapshot.RamTotalGb.HasValue, "amostra de memória");
         _w.AddCommand.Execute("ram.usage");
         var ram = _w.Items.Last();
         Assert.Equal("ram.usage", _settings.Items.Last().Id);

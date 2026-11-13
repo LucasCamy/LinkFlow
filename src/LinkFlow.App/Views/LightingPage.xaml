@@ -3,11 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls">
     <UserControl.Resources>
-        <!-- Linha de dispositivo: liga/desliga à esquerda, brilho próprio à direita -->
-        <Style x:Key="DeviceRow" TargetType="Border">
-            <Setter Property="Padding" Value="0,6"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Style x:Key="DeviceRow" TargetType="Border" BasedOn="{StaticResource SystemRow}">
+            <Setter Property="Padding" Value="0,9"/>
+        </Style>
+        <Style x:Key="LightingWarning" TargetType="TextBlock" BasedOn="{StaticResource SystemDetail}">
+            <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+            <Setter Property="AutomationProperties.LiveSetting" Value="Polite"/>
         </Style>
         <Style x:Key="DeviceBrightness" TargetType="Slider" BasedOn="{StaticResource {x:Type Slider}}">
             <Setter Property="Width" Value="96"/>
@@ -30,28 +31,32 @@
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="8,8,20,24">
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,18">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Iluminação" Style="{StaticResource PageTitle}"/>
-                    <TextBlock Text="Escolha o efeito e a cor; tudo é aplicado em tempo real nos dispositivos marcados." Style="{StaticResource PageSubtitle}"/>
+                    <TextBlock Text="Iluminação" Style="{StaticResource SystemPageTitle}"/>
+                    <TextBlock Text="Efeitos, cores e brilho dos dispositivos RGB." Style="{StaticResource SystemDetail}"/>
                 </StackPanel>
-                <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Command="{Binding ResendRgbCommand}" VerticalAlignment="Center"
-                        ToolTip="Reconecta e reenvia a cor para todos os dispositivos (útil após o iCUE ou outro app mudar as luzes)">
+                <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Command="{Binding ResendRgbCommand}" VerticalAlignment="Center" Margin="16,0,0,0"
+                        ToolTip="Revê os controladores e reenvia o efeito aos dispositivos selecionados">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="13" Margin="0,0,8,0"/>
-                        <TextBlock Text="Reenviar para todos"/>
+                        <TextBlock Text="Reenviar iluminação"/>
                     </StackPanel>
                 </Button>
             </Grid>
 
             <!-- Iluminação Dinâmica do Windows ligada: conflita com G HUB / iCUE -->
-            <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}" Margin="0,16,0,0"
+            <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}" Margin="0,12,0,0"
                     Visibility="{Binding IsDynamicLightingOn, Converter={StaticResource BoolToVis}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -62,409 +67,452 @@
                     <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run FontWeight="SemiBold" Text="A Iluminação Dinâmica do Windows está ligada."/>
-                        <Run Text="Ela assume teclado e mouse compatíveis e briga com o G HUB e com o LinkFlow. Desligue &quot;Usar Iluminação Dinâmica nos meus dispositivos&quot;."/>
+                        <Run Text="Ela pode assumir o controle de teclados e mouses compatíveis."/>
                     </TextBlock>
                     <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="Abrir configuração" Margin="12,0,0,0"
                             Command="{Binding OpenDynamicLightingCommand}"/>
                 </Grid>
             </Border>
+        </StackPanel>
 
-            <!-- Efeito -->
-            <Border Style="{StaticResource Card}" Margin="0,16,0,0">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Efeito" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding RgbSyncStatus}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
-                    </Grid>
+        <TabControl x:Name="LightingTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Efeito e cor" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <c:AdaptiveUniformGrid MinItemWidth="376" MaxColumns="2" StackColumns="True" Margin="0,0,-12,0">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE9D9;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Efeitos" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="{Binding RgbSyncStatus}" Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <Button Content="Ver avisos dos dispositivos" Click="ShowDeviceWarnings_Click" Style="{StaticResource SystemLinkButton}"
+                                            HorizontalAlignment="Left" Margin="-8,6,0,0"
+                                            Visibility="{Binding HasLightingAttention, Converter={StaticResource BoolToVis}}"/>
 
-                    <ItemsControl ItemsSource="{Binding EffectOptions}" Margin="0,12,0,0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Padding="14,8"
-                                              Command="{Binding DataContext.SelectEffectCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                              CommandParameter="{Binding}" ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Name}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Icon}" Text="{Binding Icon}" FontSize="14" Margin="0,0,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
-                                        <TextBlock Text="{Binding Name}"/>
-                                    </StackPanel>
-                                </ToggleButton>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                    <ItemsControl ItemsSource="{Binding EffectOptions}" Margin="0,16,0,0">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Padding="14,8"
+                                                              Command="{Binding DataContext.SelectEffectCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                              CommandParameter="{Binding}" ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Name}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{StaticResource Icon}" Text="{Binding Icon}" FontSize="14" Margin="0,0,8,0" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                                                        <TextBlock Text="{Binding Name}"/>
+                                                    </StackPanel>
+                                                </ToggleButton>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
 
-                    <!-- Prévia ao vivo: mesma conta e mesmo relógio que os LEDs -->
-                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,10" Margin="0,4,0,0">
-                        <StackPanel>
-                            <c:EffectPreview Height="64" Source="{Binding RgbPreviewSource}" FanCount="{Binding PreviewFanCount}"
-                                             AutomationProperties.Name="Prévia do efeito"/>
-                            <TextBlock Text="{Binding EffectDescription}" Style="{StaticResource Caption}" TextAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
+                                    <!-- Prévia ao vivo: mesma conta e mesmo relógio que os LEDs -->
+                                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,10" Margin="0,4,0,0">
+                                        <StackPanel>
+                                            <c:EffectPreview Height="82" Source="{Binding RgbPreviewSource}" FanCount="{Binding PreviewFanCount}"
+                                                             AutomationProperties.Name="Prévia do efeito"/>
+                                            <TextBlock Text="{Binding EffectDescription}" Style="{StaticResource SystemDetail}" TextAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
 
-                    <c:AdaptiveUniformGrid MinItemWidth="300" MaxColumns="2" Margin="0,14,-20,0">
-                        <Grid Margin="0,0,20,0" Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="92"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Velocidade" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                            <Slider Grid.Column="1" Minimum="1" Maximum="10" Value="{Binding EffectSpeed, Delay=80}" IsSnapToTickEnabled="True" TickFrequency="1"
-                                    AutomationProperties.Name="Velocidade do efeito"/>
-                            <TextBlock Grid.Column="2" Text="{Binding EffectSpeedText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                        </Grid>
-                        <Grid Margin="0,0,20,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="92"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Brilho" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding RgbBrightness}" AutomationProperties.Name="Brilho geral"/>
-                            <TextBlock Grid.Column="2" Text="{Binding RgbBrightnessFormatted}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                        </Grid>
-                    </c:AdaptiveUniformGrid>
+                                    <c:AdaptiveUniformGrid MinItemWidth="320" MaxColumns="2" Margin="0,14,-12,0">
+                                        <Grid Margin="0,0,12,8" Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="76"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Velocidade" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <Slider Grid.Column="1" Minimum="1" Maximum="10" Value="{Binding EffectSpeed, Delay=80}" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                    AutomationProperties.Name="Velocidade do efeito"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding EffectSpeedText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,12,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="76"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Brilho" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding RgbBrightness}" AutomationProperties.Name="Brilho geral"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding RgbBrightnessFormatted}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                                        </Grid>
+                                    </c:AdaptiveUniformGrid>
 
-                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SpreadOnFans}" Margin="0,10,0,0"
-                              Visibility="{Binding CanSpread, Converter={StaticResource BoolToVis}}">
-                        <StackPanel>
-                            <TextBlock Text="Espalhar pelas ventoinhas"/>
-                            <TextBlock Text="Cada ventoinha fica num ponto do ciclo (onda). Desligado, todas mudam juntas." Style="{StaticResource Caption}"/>
-                        </StackPanel>
-                    </CheckBox>
+                                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SpreadOnFans}" Margin="0,10,0,0"
+                                              Visibility="{Binding CanSpread, Converter={StaticResource BoolToVis}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Espalhar pelas ventoinhas"/>
+                                            <TextBlock Text="Cada ventoinha segue uma fase própria. Desative para acompanhar os outros dispositivos." Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </CheckBox>
 
-                    <!-- Paleta -->
-                    <StackPanel Margin="0,14,0,0" Visibility="{Binding IsPaletteEffect, Converter={StaticResource BoolToVis}}">
-                        <TextBlock Text="Cores da paleta" Style="{StaticResource Label}" Margin="0,0,0,8"/>
-                        <WrapPanel>
-                            <ItemsControl ItemsSource="{Binding PaletteColors}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Width="40" Height="34" Margin="0,0,8,8" Cursor="Hand" ToolTip="{Binding StringFormat=Remover {0} da paleta}"
-                                                Command="{Binding DataContext.RemovePaletteColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}" FocusVisualStyle="{StaticResource FocusRing}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Grid>
-                                                        <Border x:Name="Sw" CornerRadius="8" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
-                                                                Background="{Binding Converter={StaticResource HexToBrush}}"/>
-                                                        <Border x:Name="X" CornerRadius="8" Background="#99000000" Opacity="0">
-                                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="12" Foreground="White"
-                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        </Border>
-                                                    </Grid>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="X" Property="Opacity" Value="1"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Button Style="{StaticResource ChipButton}" Command="{Binding AddPaletteColorCommand}" Height="34" Padding="10,0"
-                                    IsEnabled="{Binding CanAddPaletteColor}" ToolTip="Adiciona a cor escolhida no quadro abaixo (até 8 cores)">
-                                <StackPanel Orientation="Horizontal">
-                                    <Border Width="16" Height="16" CornerRadius="4" Margin="0,0,8,0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
-                                            Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}"/>
-                                    <TextBlock Text="Adicionar à paleta"/>
-                                </StackPanel>
-                            </Button>
-                        </WrapPanel>
-                    </StackPanel>
-
-                    <TextBlock Text="Paletas prontas" Style="{StaticResource Label}" Margin="0,10,0,8"
-                               Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}"/>
-                    <ItemsControl ItemsSource="{Binding PalettePresets}" Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Margin="0,0,8,8" Cursor="Hand" ToolTip="Usar esta paleta (troca o efeito para Paleta)"
-                                        Command="{Binding DataContext.ApplyPalettePresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                        CommandParameter="{Binding}" FocusVisualStyle="{StaticResource FocusRing}" AutomationProperties.Name="{Binding Name}">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="Bd" CornerRadius="8" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
-                                                    Background="{StaticResource SurfaceAltBrush}" Padding="6">
+                                    <!-- Paleta -->
+                                    <StackPanel Margin="0,14,0,0" Visibility="{Binding IsPaletteEffect, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="Cores da paleta" Style="{StaticResource Label}" Margin="0,0,0,8"/>
+                                        <WrapPanel>
+                                            <ItemsControl ItemsSource="{Binding PaletteColors}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Width="40" Height="34" Margin="0,0,8,8" Cursor="Hand" ToolTip="{Binding StringFormat=Remover {0} da paleta}"
+                                                                Command="{Binding DataContext.RemovePaletteColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}" FocusVisualStyle="{StaticResource FocusRing}">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Grid>
+                                                                        <Border x:Name="Sw" CornerRadius="8" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
+                                                                                Background="{Binding Converter={StaticResource HexToBrush}}"/>
+                                                                        <Border x:Name="X" CornerRadius="8" Background="#99000000" Opacity="0">
+                                                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="12" Foreground="White"
+                                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </Grid>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="X" Property="Opacity" Value="1"/>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <Button Style="{StaticResource ChipButton}" Command="{Binding AddPaletteColorCommand}" Height="34" Padding="10,0"
+                                                    IsEnabled="{Binding CanAddPaletteColor}" ToolTip="Adiciona a cor escolhida no quadro abaixo (até 8 cores)">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Border Width="54" Height="20" CornerRadius="5" Background="{Binding Preview}"/>
-                                                    <TextBlock Text="{Binding Name}" Margin="8,0,4,0" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+                                                    <Border Width="16" Height="16" CornerRadius="4" Margin="0,0,8,0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
+                                                            Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}"/>
+                                                    <TextBlock Text="Adicionar à paleta"/>
                                                 </StackPanel>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentDimBrush}"/>
-                                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+                                            </Button>
+                                        </WrapPanel>
+                                    </StackPanel>
 
-            <c:AdaptiveUniformGrid MinItemWidth="400" MaxColumns="2" Margin="0,4,-12,0">
-                <!-- Cor: quadro + matiz + ajuste fino (R/G/B) juntos -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <TextBlock Text="Cor" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Text="{Binding EffectColorHint}" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,0"
-                                   Visibility="{Binding EffectColorHint, Converter={StaticResource NullToVis}}"/>
+                                    <TextBlock Text="Paletas prontas" Style="{StaticResource Label}" Margin="0,10,0,8"
+                                               Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}"/>
+                                    <ItemsControl ItemsSource="{Binding PalettePresets}" Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Margin="0,0,8,8" Cursor="Hand" ToolTip="Usar esta paleta (troca o efeito para Paleta)"
+                                                        Command="{Binding DataContext.ApplyPalettePresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}" FocusVisualStyle="{StaticResource FocusRing}" AutomationProperties.Name="{Binding Name}">
+                                                    <Button.Template>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="Bd" CornerRadius="8" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
+                                                                    Background="{StaticResource SurfaceAltBrush}" Padding="6">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <Border Width="54" Height="20" CornerRadius="5" Background="{Binding Preview}"/>
+                                                                    <TextBlock Text="{Binding Name}" Margin="8,0,4,0" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentDimBrush}"/>
+                                                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceHoverBrush}"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Button.Template>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE790;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Cor e ajustes RGB" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="{Binding EffectColorHint}" Style="{StaticResource SystemDetail}" Visibility="{Binding EffectColorHint, Converter={StaticResource NullToVis}}"/>
+                                        </StackPanel>
+                                    </DockPanel>
 
-                        <StackPanel>
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding UsesPickedColor}" Value="False">
-                                            <Setter Property="Opacity" Value="0.5"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
-                            <Grid Margin="0,12,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <!-- Quadro de cores: saturação (horizontal) × brilho (vertical) -->
-                                <c:ColorSpectrum Height="200" MinWidth="200" Hue="{Binding Hue}" Saturation="{Binding ColorSaturation}" Value="{Binding ColorValue}"
-                                                 ToolTip="Clique ou arraste para escolher • setas para ajuste fino (Shift = passos maiores)"
-                                                 AutomationProperties.Name="Quadro de cores"/>
-                                <StackPanel Grid.Column="1" Width="124" Margin="16,0,0,0">
-                                    <Border Height="84" CornerRadius="12" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
-                                            Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}" ToolTip="Cor escolhida"/>
-                                    <TextBlock Text="Código" Style="{StaticResource Label}" Margin="0,12,0,4"/>
-                                    <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="15"
-                                             ToolTip="Digite #RRGGBB ou #RGB" AutomationProperties.Name="Código da cor">
-                                        <TextBox.Style>
-                                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                    <StackPanel>
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HexInvalid}" Value="True">
-                                                        <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
+                                                    <DataTrigger Binding="{Binding UsesPickedColor}" Value="False">
+                                                        <Setter Property="Opacity" Value="0.5"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </TextBox.Style>
-                                    </TextBox>
+                                        </StackPanel.Style>
+                                        <Grid Margin="0,12,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <!-- Quadro de cores: saturação (horizontal) × brilho (vertical) -->
+                                            <c:ColorSpectrum Height="172" MinWidth="170" Hue="{Binding Hue}" Saturation="{Binding ColorSaturation}" Value="{Binding ColorValue}"
+                                                             ToolTip="Clique ou arraste para escolher • setas para ajuste fino (Shift = passos maiores)"
+                                                             AutomationProperties.Name="Quadro de cores"/>
+                                            <StackPanel Grid.Column="1" Width="108" Margin="12,0,0,0">
+                                                <Border Height="72" CornerRadius="12" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
+                                                        Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}" ToolTip="Cor escolhida"/>
+                                                <TextBlock Text="Código HEX" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                                                <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="15"
+                                                         ToolTip="Digite #RRGGBB ou #RGB" AutomationProperties.Name="Código da cor">
+                                                    <TextBox.Style>
+                                                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HexInvalid}" Value="True">
+                                                                    <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBox.Style>
+                                                </TextBox>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Slider Style="{StaticResource HueSlider}" Minimum="0" Maximum="359.9" Value="{Binding Hue}" SmallChange="1" LargeChange="15"
+                                                Margin="0,14,0,0" ToolTip="Matiz" AutomationProperties.Name="Matiz"/>
+
+                                        <!-- Ajuste fino: os mesmos valores do quadro, canal a canal -->
+                                        <TextBlock Text="Ajuste fino" Style="{StaticResource Label}" Margin="0,14,0,2"/>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="30"/>
+                                            </Grid.RowDefinitions>
+                                            <DockPanel>
+                                                <TextBlock Text="R" Foreground="#F87171" Style="{StaticResource ChannelLabel}"/>
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding RgbR}" Style="{StaticResource ChannelValue}"/>
+                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbR}" Foreground="#F87171" VerticalAlignment="Center" AutomationProperties.Name="Vermelho"/>
+                                            </DockPanel>
+                                            <DockPanel Grid.Row="1">
+                                                <TextBlock Text="G" Foreground="#34D399" Style="{StaticResource ChannelLabel}"/>
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding RgbG}" Style="{StaticResource ChannelValue}"/>
+                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbG}" Foreground="#34D399" VerticalAlignment="Center" AutomationProperties.Name="Verde"/>
+                                            </DockPanel>
+                                            <DockPanel Grid.Row="2">
+                                                <TextBlock Text="B" Foreground="#60A5FA" Style="{StaticResource ChannelLabel}"/>
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding RgbB}" Style="{StaticResource ChannelValue}"/>
+                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbB}" Foreground="#60A5FA" VerticalAlignment="Center" AutomationProperties.Name="Azul"/>
+                                            </DockPanel>
+                                        </Grid>
+
+                                        <TextBlock Text="Cores rápidas" Style="{StaticResource Label}" Margin="0,14,0,8"/>
+                                        <ItemsControl ItemsSource="{Binding QuickColors}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Width="32" Height="32" Margin="0,0,8,8" ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}"
+                                                            Command="{Binding DataContext.ApplyColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding Hex}" Cursor="Hand" FocusVisualStyle="{StaticResource FocusRing}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="Sw" CornerRadius="16" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
+                                                                        Background="{Binding Hex, Converter={StaticResource HexToBrush}}"/>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="Sw" Property="BorderBrush" Value="{StaticResource TextBrush}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock Text="Recentes" Style="{StaticResource Label}" Margin="0,6,0,8"/>
+                                        <ItemsControl ItemsSource="{Binding RecentColors}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Width="28" Height="28" Margin="0,0,8,8" ToolTip="{Binding}" Cursor="Hand"
+                                                            Command="{Binding DataContext.ApplyColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="Sw" CornerRadius="7" BorderThickness="1.5" BorderBrush="{StaticResource BorderBrush}"
+                                                                        Background="{Binding Converter={StaticResource HexToBrush}}"/>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="Sw" Property="BorderBrush" Value="{StaticResource TextBrush}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="Nenhuma cor recente." Style="{StaticResource Caption}"
+                                                   Visibility="{Binding RecentColors.Count, Converter={StaticResource BoolToVisInverse}}"/>
+                                    </StackPanel>
                                 </StackPanel>
-                            </Grid>
-
-                            <Slider Style="{StaticResource HueSlider}" Minimum="0" Maximum="359.9" Value="{Binding Hue}" SmallChange="1" LargeChange="15"
-                                    Margin="0,14,0,0" ToolTip="Matiz" AutomationProperties.Name="Matiz"/>
-
-                            <!-- Ajuste fino: os mesmos valores do quadro, canal a canal -->
-                            <TextBlock Text="Ajuste fino" Style="{StaticResource Label}" Margin="0,14,0,2"/>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30"/>
-                                    <RowDefinition Height="30"/>
-                                    <RowDefinition Height="30"/>
-                                </Grid.RowDefinitions>
+                            </Border>
+                        </c:AdaptiveUniformGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="DevicesTab" Header="Dispositivos" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                            <StackPanel>
                                 <DockPanel>
-                                    <TextBlock Text="R" Foreground="#F87171" Style="{StaticResource ChannelLabel}"/>
-                                    <TextBlock DockPanel.Dock="Right" Text="{Binding RgbR}" Style="{StaticResource ChannelValue}"/>
-                                    <Slider Minimum="0" Maximum="255" Value="{Binding RgbR}" Foreground="#F87171" VerticalAlignment="Center" AutomationProperties.Name="Vermelho"/>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE8B3;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Onde aplicar" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="Ative o RGB e ajuste o brilho de cada dispositivo." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
                                 </DockPanel>
-                                <DockPanel Grid.Row="1">
-                                    <TextBlock Text="G" Foreground="#34D399" Style="{StaticResource ChannelLabel}"/>
-                                    <TextBlock DockPanel.Dock="Right" Text="{Binding RgbG}" Style="{StaticResource ChannelValue}"/>
-                                    <Slider Minimum="0" Maximum="255" Value="{Binding RgbG}" Foreground="#34D399" VerticalAlignment="Center" AutomationProperties.Name="Verde"/>
-                                </DockPanel>
-                                <DockPanel Grid.Row="2">
-                                    <TextBlock Text="B" Foreground="#60A5FA" Style="{StaticResource ChannelLabel}"/>
-                                    <TextBlock DockPanel.Dock="Right" Text="{Binding RgbB}" Style="{StaticResource ChannelValue}"/>
-                                    <Slider Minimum="0" Maximum="255" Value="{Binding RgbB}" Foreground="#60A5FA" VerticalAlignment="Center" AutomationProperties.Name="Azul"/>
-                                </DockPanel>
-                            </Grid>
+                                <TextBlock Text="Brilho individual" Style="{StaticResource Label}" Width="140" HorizontalAlignment="Right" Margin="0,14,0,5"/>
+                                <Border Style="{StaticResource DeviceRow}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncHub}">
+                                            <StackPanel>
+                                                <TextBlock Text="Ventoinhas e bomba (iCUE LINK)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{Binding ConnectionStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncHub}" VerticalAlignment="Center">
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding HubBrightness, Delay=120}" AutomationProperties.Name="Brilho das ventoinhas"/>
+                                            <TextBlock Text="{Binding HubBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource DeviceRow}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncGpu}">
+                                            <StackPanel>
+                                                <TextBlock Text="Placa de vídeo (ASUS Aura)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{Binding GpuRgbStatus}" Style="{StaticResource SystemDetail}"/>
+                                                <TextBlock Text="{Binding GpuRgbIssue}" Style="{StaticResource LightingWarning}"
+                                                           Visibility="{Binding GpuRgbIssue, Converter={StaticResource NullToVis}}"/>
+                                                <TextBlock Text="{Binding GpuLightingConflict}" Style="{StaticResource LightingWarning}"
+                                                           Visibility="{Binding GpuLightingConflict, Converter={StaticResource NullToVis}}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncGpu}" VerticalAlignment="Center">
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding GpuBrightness, Delay=120}" AutomationProperties.Name="Brilho da placa de vídeo"/>
+                                            <TextBlock Text="{Binding GpuBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource DeviceRow}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncMotherboard}">
+                                            <StackPanel>
+                                                <TextBlock Text="Placa-mãe e saídas ARGB (MSI)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{Binding MotherboardRgbStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncMotherboard}" VerticalAlignment="Center">
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding MotherboardBrightness, Delay=120}" AutomationProperties.Name="Brilho da placa-mãe"/>
+                                            <TextBlock Text="{Binding MotherboardBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource DeviceRow}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncRam}">
+                                            <StackPanel>
+                                                <TextBlock Text="Memórias DDR5 (Corsair)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{Binding RamRgbStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncRam}" VerticalAlignment="Center">
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding RamBrightness, Delay=120}" AutomationProperties.Name="Brilho das memórias"/>
+                                            <TextBlock Text="{Binding RamBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource DeviceRow}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncPeripherals}">
+                                            <StackPanel>
+                                                <TextBlock Text="Periféricos Logitech (G HUB)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{Binding PeripheralsRgbStatus}" AutomationProperties.LiveSetting="Polite">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource SystemDetail}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasPeripheralsRgbIssue}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding PeripheralsLightingConflict}" Style="{StaticResource LightingWarning}"
+                                                           Visibility="{Binding PeripheralsLightingConflict, Converter={StaticResource NullToVis}}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncPeripherals}" VerticalAlignment="Center">
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding PeripheralsBrightness, Delay=120}" AutomationProperties.Name="Brilho dos periféricos"/>
+                                            <TextBlock Text="{Binding PeripheralsBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Style="{StaticResource DeviceRow}">
+                                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncLcd}">
+                                        <StackPanel>
+                                            <TextBlock Text="Cor do display LCD" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="O anel e os destaques da tela da bomba seguem a cor (ou o efeito)." Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </CheckBox>
+                                </Border>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="Cores rápidas" Style="{StaticResource Label}" Margin="0,14,0,8"/>
-                            <ItemsControl ItemsSource="{Binding QuickColors}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Width="32" Height="32" Margin="0,0,8,8" ToolTip="{Binding Name}" AutomationProperties.Name="{Binding Name}"
-                                                Command="{Binding DataContext.ApplyColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding Hex}" Cursor="Hand" FocusVisualStyle="{StaticResource FocusRing}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="Sw" CornerRadius="16" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
-                                                            Background="{Binding Hex, Converter={StaticResource HexToBrush}}"/>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="Sw" Property="BorderBrush" Value="{StaticResource TextBrush}"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock Text="Recentes" Style="{StaticResource Label}" Margin="0,6,0,8"/>
-                            <ItemsControl ItemsSource="{Binding RecentColors}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Width="28" Height="28" Margin="0,0,8,8" ToolTip="{Binding}" Cursor="Hand"
-                                                Command="{Binding DataContext.ApplyColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="Sw" CornerRadius="7" BorderThickness="1.5" BorderBrush="{StaticResource BorderBrush}"
-                                                            Background="{Binding Converter={StaticResource HexToBrush}}"/>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="Sw" Property="BorderBrush" Value="{StaticResource TextBrush}"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="As cores que você usar aparecem aqui." Style="{StaticResource Caption}"
-                                       Visibility="{Binding RecentColors.Count, Converter={StaticResource BoolToVisInverse}}"/>
-                        </StackPanel>
+                        <Border Style="{StaticResource SystemPanel}" Margin="0">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE713;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Correção de cor dos LEDs" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="Compense a diferença entre a cor escolhida e a cor exibida pelos LEDs." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="76"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider Minimum="0" Maximum="100" Value="{Binding LedVividness, Delay=120}" IsSnapToTickEnabled="True" TickFrequency="5"
+                                            ToolTip="0 = cor crua • 83 = recomendado • 100 = máximo contraste" AutomationProperties.Name="Correção de cor dos LEDs"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding LedVividnessText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                </Border>
-
-                <!-- Dispositivos: onde aplicar + brilho de cada um + correção dos LEDs -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Dispositivos" Style="{StaticResource SectionTitle}"/>
-                            <TextBlock Grid.Column="1" Text="Brilho" Style="{StaticResource Label}" Width="140" TextAlignment="Left" VerticalAlignment="Bottom"/>
-                        </Grid>
-                        <TextBlock Text="Marque onde aplicar. O brilho de cada um equilibra quem acende mais forte." Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,6"/>
-
-                        <Border Style="{StaticResource DeviceRow}">
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncHub}">
-                                    <StackPanel>
-                                        <TextBlock Text="Ventoinhas e bomba (iCUE LINK)"/>
-                                        <TextBlock Text="{Binding ConnectionStatus}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                </CheckBox>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncHub}" VerticalAlignment="Center">
-                                    <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding HubBrightness, Delay=120}" AutomationProperties.Name="Brilho das ventoinhas"/>
-                                    <TextBlock Text="{Binding HubBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource DeviceRow}">
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncGpu}">
-                                    <StackPanel>
-                                        <TextBlock Text="Placa de vídeo (ASUS Aura)"/>
-                                        <TextBlock Text="{Binding GpuRgbStatus}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                </CheckBox>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncGpu}" VerticalAlignment="Center">
-                                    <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding GpuBrightness, Delay=120}" AutomationProperties.Name="Brilho da placa de vídeo"/>
-                                    <TextBlock Text="{Binding GpuBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource DeviceRow}">
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncMotherboard}">
-                                    <StackPanel>
-                                        <TextBlock Text="Placa-mãe e saídas ARGB (MSI)"/>
-                                        <TextBlock Text="{Binding MotherboardRgbStatus}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                </CheckBox>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncMotherboard}" VerticalAlignment="Center">
-                                    <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding MotherboardBrightness, Delay=120}" AutomationProperties.Name="Brilho da placa-mãe"/>
-                                    <TextBlock Text="{Binding MotherboardBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource DeviceRow}">
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncRam}">
-                                    <StackPanel>
-                                        <TextBlock Text="Memórias DDR5 (Corsair)"/>
-                                        <TextBlock Text="{Binding RamRgbStatus}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                </CheckBox>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncRam}" VerticalAlignment="Center">
-                                    <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding RamBrightness, Delay=120}" AutomationProperties.Name="Brilho das memórias"/>
-                                    <TextBlock Text="{Binding RamBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource DeviceRow}">
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncPeripherals}">
-                                    <StackPanel>
-                                        <TextBlock Text="Periféricos Logitech (G HUB)"/>
-                                        <TextBlock Text="{Binding PeripheralsRgbStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </CheckBox>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncPeripherals}" VerticalAlignment="Center">
-                                    <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding PeripheralsBrightness, Delay=120}" AutomationProperties.Name="Brilho dos periféricos"/>
-                                    <TextBlock Text="{Binding PeripheralsBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource DeviceRow}" BorderThickness="0">
-                            <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncLcd}">
-                                <StackPanel>
-                                    <TextBlock Text="Cor do display LCD"/>
-                                    <TextBlock Text="O anel e os destaques da tela da bomba seguem a cor (ou o efeito)." Style="{StaticResource Caption}" TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </CheckBox>
-                        </Border>
-
-                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,12"/>
-
-                        <TextBlock Text="Correção de cor dos LEDs" Style="{StaticResource SectionTitle}" FontSize="14"/>
-                        <TextBlock Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,8"
-                                   Text="Não muda a cor escolhida: só compensa o jeito que o LED acende. Sem correção, roxo, rosa e laranja ficam lavados; 83% deixa a cor dos LEDs igual à da tela."/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="76"/>
-                            </Grid.ColumnDefinitions>
-                            <Slider Minimum="0" Maximum="100" Value="{Binding LedVividness, Delay=120}" IsSnapToTickEnabled="True" TickFrequency="5"
-                                    ToolTip="0 = cor crua • 83 = recomendado • 100 = máximo contraste" AutomationProperties.Name="Correção de cor dos LEDs"/>
-                            <TextBlock Grid.Column="1" Text="{Binding LedVividnessText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </c:AdaptiveUniformGrid>
-        </StackPanel>
-    </ScrollViewer>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </UserControl>

@@ -42,14 +42,18 @@ public partial class MainWindow : Window
         {
             App.Current.Settings.Update(s => s.SelectedPage = p);
             if (p == 5) Settings.RefreshServiceState();
-            if (p == 2) ViewModel.RefreshDynamicLighting();
+            if (p == 2) ViewModel.RefreshLightingDiagnostics();
             UpdateViewActive();
             // Transição: a página que acabou de aparecer entra com fade + deslize
             if (p >= 0 && p < PageHost.Children.Count) Motion.PageIn(PageHost.Children[p]);
         };
         Toast.IsVisibleChanged += (_, e) => { if (e.NewValue is true) Motion.ToastIn(Toast); };
         Motion.UserEnabled = App.Current.Settings.Current.Animations;
-        ViewModel.RefreshDynamicLighting();
+        if (ViewModel.SelectedPage == 2) ViewModel.RefreshLightingDiagnostics();
+        Activated += (_, _) =>
+        {
+            if (ViewModel.SelectedPage == 2) ViewModel.RefreshLightingDiagnostics();
+        };
 
         StateChanged += OnStateChanged;
         SizeChanged += (_, e) => ViewModel.IsCompact = e.NewSize.Width < CompactWidth;
@@ -98,6 +102,7 @@ public partial class MainWindow : Window
         }
         else if (ctrl && e.Key == Key.R && !inText && ViewModel.SelectedPage == 1)
         {
+            ShowFanDevices();
             if (!ViewModel.BeginRenameSelected())
                 ViewModel.ShowToast("Selecione um cartão para renomear (ou use o lápis ao passar o mouse)", canUndo: false);
             e.Handled = true;
@@ -114,6 +119,7 @@ public partial class MainWindow : Window
         }
         else if (ctrl && e.Key == Key.A && !inText && ViewModel.SelectedPage == 1)
         {
+            ShowFanDevices();
             ViewModel.SelectAllCommand.Execute(null);
             e.Handled = true;
         }
@@ -194,6 +200,21 @@ public partial class MainWindow : Window
     }
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
+
+    internal void ShowFanDevices() => FansView.ShowDevices();
+
+    internal void ShowFanAutomation()
+    {
+        SelectPage(1);
+        FansView.ShowAutomation();
+    }
+
+    private void OpenAlerts_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.CloseDetail();
+        SelectPage(0);
+        DashboardView.ShowAlerts();
+    }
 
     public void CloseForExit()
     {

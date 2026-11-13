@@ -1,3 +1,4 @@
+using System.IO;
 using LinkFlow.Core;
 
 namespace LinkFlow.App.ViewModels;
@@ -6,6 +7,7 @@ namespace LinkFlow.App.ViewModels;
 public partial class MainViewModel
 {
     private readonly Queue<double> _netHist = new(), _diskHist = new();
+    private static readonly string? WindowsVolume = Path.GetPathRoot(Environment.SystemDirectory)?.TrimEnd('\\');
     private SensorDemand _sentDemand;
     private Func<SensorDemand>? _widgetDemand;
 
@@ -15,18 +17,25 @@ public partial class MainViewModel
     public string NetDownFormatted => Snapshot.Network is { } n ? SensorCatalog.Rate(n.DownBytesPerSec) : Fmt.Missing;
     public string NetUpFormatted => Snapshot.Network is { } n ? SensorCatalog.Rate(n.UpBytesPerSec) : Fmt.Missing;
     public string NetAdapter => Snapshot.Network is { Adapter.Length: > 0 } n ? n.Adapter : "Sem conexão ativa";
+    public string NetLinkFormatted => Snapshot.Network?.LinkBitsPerSec switch
+    {
+        >= 1_000_000_000 and var bits => $"{bits / 1e9:0.#} Gbps",
+        > 0 and var bits => $"{bits / 1e6:0} Mbps",
+        _ => Fmt.Missing
+    };
 
-    /// <summary>Volume do sistema (C:) ou o primeiro encontrado.</summary>
-    private VolumeState? MainVolume => Snapshot.Volumes.FirstOrDefault(v => v.Letter.StartsWith("C", StringComparison.OrdinalIgnoreCase))
+    private VolumeState? MainVolume => Snapshot.Volumes.FirstOrDefault(v => v.Letter.TrimEnd('\\').Equals(WindowsVolume, StringComparison.OrdinalIgnoreCase))
                                        ?? Snapshot.Volumes.FirstOrDefault();
 
     public string DiskMainFormatted => MainVolume is { } v ? $"{v.UsedPercent:0}%" : Fmt.Missing;
     public string DiskMainDetail => MainVolume is { } v
-        ? $"{v.Letter} • {v.FreeGb:0} GB livres de {v.TotalGb:0}" + (Snapshot.Volumes.Count > 1 ? $" • +{Snapshot.Volumes.Count - 1} volume(s)" : "")
+        ? $"{v.Letter} · {v.FreeGb:0} GB livres de {v.TotalGb:0} GB"
         : "Nenhum volume";
-    public string DiskActivityFormatted => Snapshot.Disks is { Count: > 0 } d
-        ? $"Atividade {d.Max(x => x.ActivityPercent ?? 0):0}%"
-        : "Atividade: abra o painel para medir";
+    public string DiskActivityFormatted => ReadDiskActivity(Snapshot) is { } percent
+        ? $"{percent:0}% de atividade"
+        : "Atividade indisponível";
+
+    private static float? ReadDiskActivity(EngineSnapshot snapshot) => snapshot.Disks?.Max(disk => disk.ActivityPercent);
 
     /// <summary>A aba do widget informa o que precisa (ex.: discos escolhidos no widget).</summary>
     public void SetWidgetDemandSource(Func<SensorDemand> source)
@@ -66,8 +75,8 @@ public partial class MainViewModel
             return q.Count >= 2 ? q.ToArray() : null;
         }
         NetHistory = Push(_netHist, s.Network?.DownBytesPerSec / 1e6);
-        DiskHistory = Push(_diskHist, s.Disks is { Count: > 0 } d ? d.Max(x => x.ActivityPercent ?? 0) : null);
-        OnPropertiesChanged(nameof(NetHistory), nameof(DiskHistory), nameof(NetDownFormatted), nameof(NetUpFormatted), nameof(NetAdapter),
+        DiskHistory = Push(_diskHist, ReadDiskActivity(s));
+        OnPropertiesChanged(nameof(NetHistory), nameof(DiskHistory), nameof(NetDownFormatted), nameof(NetUpFormatted), nameof(NetAdapter), nameof(NetLinkFormatted),
             nameof(DiskMainFormatted), nameof(DiskMainDetail), nameof(DiskActivityFormatted));
         RefreshGroupStatus(s);
     }

@@ -2,215 +2,332 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="8,8,20,24">
-            <TextBlock Text="Configurações" Style="{StaticResource PageTitle}"/>
-            <TextBlock Text="Segundo plano, segurança, atalhos, serviço do Windows e backup." Style="{StaticResource PageSubtitle}"/>
 
-            <c:AdaptiveUniformGrid MinItemWidth="420" MaxColumns="2" Margin="0,16,-12,0">
-                <!-- Segundo plano -->
-                <Border Style="{StaticResource GridCard}" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}">
-                    <StackPanel>
-                        <TextBlock Text="Segundo plano e bandeja" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartWithWindows}">
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="Configurações" Style="{StaticResource SystemPageTitle}"/>
+            <TextBlock Text="Preferências do LinkFlow, proteção do hardware, atalhos e backup." Style="{StaticResource SystemDetail}"/>
+        </StackPanel>
+
+        <TabControl x:Name="SettingsTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Geral" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}">
                             <StackPanel>
-                                <TextBlock Text="Iniciar com o Windows"/>
-                                <TextBlock Text="{Binding AutoStartMessage, TargetNullValue='Abre direto na bandeja ao fazer logon'}" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding CloseToTray}">
-                            <StackPanel>
-                                <TextBlock Text="Fechar mantém na bandeja"/>
-                                <TextBlock Text="O controle das ventoinhas continua rodando" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MinimizeToTray}" Content="Minimizar esconde na bandeja"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowTrayTemperature}" Content="Temperatura da CPU no ícone da bandeja"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AlertNotifications}">
-                            <StackPanel>
-                                <TextBlock Text="Notificações de alerta"/>
-                                <TextBlock Text="Ventoinha parada, bomba lenta, temperatura crítica" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Animations}">
-                            <StackPanel>
-                                <TextBlock Text="Animações e transições"/>
-                                <TextBlock Text="Troca de telas suave; segue também os efeitos de animação do Windows" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                    </StackPanel>
-                </Border>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE713;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Inicialização e interface" Style="{StaticResource SystemSectionTitle}"/>
+                                    </StackPanel>
+                                </DockPanel>
 
-                <!-- Segurança -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <TextBlock Text="Segurança" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding FailSafeEnabled}">
-                            <StackPanel>
-                                <TextBlock Text="Modo de segurança automático"/>
-                                <TextBlock Text="Todas as ventoinhas em 100% ao atingir um limite crítico ou se a bomba falhar" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding FanStopAlert}" Content="Avisar se uma ventoinha ou a bomba parar"/>
-
-                        <Grid Margin="0,12,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="46"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="46"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="34"/>
-                                <RowDefinition Height="34"/>
-                                <RowDefinition Height="34"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Column="1" Text="Alerta" Style="{StaticResource Label}"/>
-                            <TextBlock Grid.Column="3" Text="Crítico" Style="{StaticResource Label}" Margin="8,0,0,0"/>
-
-                            <TextBlock Grid.Row="1" Text="CPU" VerticalAlignment="Center"/>
-                            <Slider Grid.Row="1" Grid.Column="1" Minimum="60" Maximum="100" Value="{Binding CpuWarn}" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource WarningBrush}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding CpuWarn, StringFormat={}{0:0}°}" TextAlignment="Right" VerticalAlignment="Center"/>
-                            <Slider Grid.Row="1" Grid.Column="3" Minimum="70" Maximum="105" Value="{Binding CpuCritical}" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
-                            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding CpuCritical, StringFormat={}{0:0}°}" TextAlignment="Right" VerticalAlignment="Center"/>
-
-                            <TextBlock Grid.Row="2" Text="GPU" VerticalAlignment="Center"/>
-                            <Slider Grid.Row="2" Grid.Column="1" Minimum="60" Maximum="95" Value="{Binding GpuWarn}" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource WarningBrush}"/>
-                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding GpuWarn, StringFormat={}{0:0}°}" TextAlignment="Right" VerticalAlignment="Center"/>
-                            <Slider Grid.Row="2" Grid.Column="3" Minimum="70" Maximum="100" Value="{Binding GpuCritical}" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
-                            <TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding GpuCritical, StringFormat={}{0:0}°}" TextAlignment="Right" VerticalAlignment="Center"/>
-
-                            <TextBlock Grid.Row="3" Text="Líquido" VerticalAlignment="Center"/>
-                            <Slider Grid.Row="3" Grid.Column="1" Minimum="35" Maximum="55" Value="{Binding CoolantWarn}" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource WarningBrush}"/>
-                            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding CoolantWarn, StringFormat={}{0:0}°}" TextAlignment="Right" VerticalAlignment="Center"/>
-                            <Slider Grid.Row="3" Grid.Column="3" Minimum="40" Maximum="60" Value="{Binding CoolantCritical}" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
-                            <TextBlock Grid.Row="3" Grid.Column="4" Text="{Binding CoolantCritical, StringFormat={}{0:0}°}" TextAlignment="Right" VerticalAlignment="Center"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Atalhos -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <TextBlock Text="Atalhos de teclado" Style="{StaticResource SectionTitle}" Margin="0,0,0,8"/>
-                        <CheckBox Style="{StaticResource ToggleSwitch}" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}"
-                                  IsChecked="{Binding GlobalHotkeys}">
-                            <StackPanel>
-                                <TextBlock Text="Atalhos globais (funcionam em qualquer app ou jogo)"/>
-                                <TextBlock Text="Ctrl+Alt+1–5 perfis • Ctrl+Alt+L abrir • Ctrl+Alt+M mini widget" Style="{StaticResource Caption}"/>
-                            </StackPanel>
-                        </CheckBox>
-                        <Grid Margin="0,10,0,0">
-                            <Grid.Resources>
-                                <Style x:Key="Kbd" TargetType="Border">
-                                    <Setter Property="Background" Value="{StaticResource BgBrush}"/>
-                                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-                                    <Setter Property="BorderThickness" Value="1"/>
-                                    <Setter Property="CornerRadius" Value="5"/>
-                                    <Setter Property="Padding" Value="7,2"/>
-                                    <Setter Property="Margin" Value="0,3,12,3"/>
-                                    <Setter Property="HorizontalAlignment" Value="Left"/>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Border Style="{StaticResource Kbd}"><TextBlock Text="F1 … F5" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Column="1" Text="Aplicar perfil (Silencioso … Curva)" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="1" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+1 … 6" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Trocar de página" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="2" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+↑ / Ctrl+↓" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Potência global ±5%" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="3" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+Z" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Desfazer a última alteração" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="4" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+A / Esc" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="Selecionar todas / limpar seleção (Ventoinhas)" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="5" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+M" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="5" Grid.Column="1" Text="Mini widget" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="6" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+L" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="6" Grid.Column="1" Text="Enviar quadro ao LCD" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="7" Style="{StaticResource Kbd}"><TextBlock Text="Esc / Ctrl+W" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="7" Grid.Column="1" Text="Esconder na bandeja • Ctrl+Q sai do app" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                            <Border Grid.Row="8" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+R" FontFamily="Consolas"/></Border>
-                            <TextBlock Grid.Row="8" Grid.Column="1" Text="Renomear o cartão selecionado (Ventoinhas)" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Serviço e aplicativo -->
-                <Border Style="{StaticResource GridCard}">
-                    <StackPanel>
-                        <TextBlock Text="Serviço do Windows" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                        <TextBlock Style="{StaticResource Caption}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,10"
-                                   Text="Com o serviço instalado o controle do hardware roda separado da janela: continua ativo mesmo se o app fechar ou travar, inicia antes do logon e a interface não pede mais permissão de administrador."/>
-                        <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,0,10">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Settings.ServiceStatusText, RelativeSource={RelativeSource AncestorType=Window}}" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Settings.ServiceDetailText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource Caption}"/>
+                                <StackPanel Margin="0,14,0,-8">
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding StartWithWindows}" Margin="0"
+                                                  AutomationProperties.Name="Iniciar com o Windows">
+                                            <StackPanel>
+                                                <TextBlock Text="Iniciar com o Windows" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{Binding AutoStartMessage, TargetNullValue='Abre na bandeja ao entrar no Windows.'}" Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding CloseToTray}" Margin="0"
+                                                  AutomationProperties.Name="Manter na bandeja ao fechar a janela">
+                                            <StackPanel>
+                                                <TextBlock Text="Manter na bandeja ao fechar a janela" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="O LinkFlow continua em segundo plano." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding MinimizeToTray}" Margin="0"
+                                                  AutomationProperties.Name="Minimizar para a bandeja">
+                                            <StackPanel>
+                                                <TextBlock Text="Minimizar para a bandeja" Style="{StaticResource SystemItemTitle}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowTrayTemperature}" Margin="0"
+                                                  AutomationProperties.Name="Exibir a temperatura da CPU no ícone da bandeja">
+                                            <StackPanel>
+                                                <TextBlock Text="Exibir a temperatura da CPU no ícone da bandeja" Style="{StaticResource SystemItemTitle}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Animations}" Margin="0"
+                                                  AutomationProperties.Name="Animações e transições">
+                                            <StackPanel>
+                                                <TextBlock Text="Animações e transições" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="As transições também seguem a preferência de animação do Windows." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
-                        <WrapPanel>
-                            <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço" Margin="0,0,8,8" Click="InstallService_Click"
-                                    Visibility="{Binding Settings.ServiceCanInstall, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
-                            <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Margin="0,0,8,8" Click="RestartAsAdmin_Click"
-                                    Visibility="{Binding Settings.CanRestartAsAdmin, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
-                            <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar serviço" Margin="0,0,8,8" Click="RestartService_Click"
-                                    Visibility="{Binding Settings.ServiceInstalled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
-                            <Button Style="{StaticResource DangerButton}" Content="Remover serviço" Margin="0,0,8,8" Click="UninstallService_Click"
-                                    Visibility="{Binding Settings.ServiceInstalled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
-                        </WrapPanel>
-
-                        <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,8,0,14"/>
-                        <TextBlock Text="Aplicativo" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                        <TextBlock Style="{StaticResource Caption}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,10"
-                                   Text="{Binding Settings.ExitHintText, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                        <WrapPanel>
-                            <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de logs" Margin="0,0,8,8" Click="OpenLogs_Click"/>
-                            <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de configuração" Margin="0,0,8,8" Click="OpenConfig_Click"/>
-                            <Button Style="{StaticResource DangerButton}" Content="{Binding Settings.ExitButtonText, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,8,8" Click="ExitApp_Click"/>
-                        </WrapPanel>
                     </StackPanel>
-                </Border>
-            </c:AdaptiveUniformGrid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Segurança" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE7B8;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Proteção e avisos" Style="{StaticResource SystemSectionTitle}"/>
+                                    </StackPanel>
+                                </DockPanel>
 
-            <!-- Backup: exportar / importar -->
-            <Border Style="{StaticResource Card}" AllowDrop="True" Drop="Backup_Drop" DragOver="Backup_DragOver">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Width="42" Height="42" CornerRadius="12" Background="{StaticResource SurfaceAltBrush}" Margin="0,0,14,0" VerticalAlignment="Top">
-                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8F7;" Foreground="{StaticResource AccentBrush}"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,8">
-                        <TextBlock Text="Backup das configurações e perfis" Style="{StaticResource SectionTitle}"/>
-                        <TextBlock Style="{StaticResource Caption}" FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource TextMutedBrush}"
-                                   Text="Salva perfis, curva, nomes e grupos das ventoinhas, iluminação, quadro do LCD (com as imagens e GIFs), limites de segurança e preferências num arquivo .linkflow. Na importação você escolhe o que trazer. Também dá para arrastar o arquivo para cá."/>
+                                <StackPanel Margin="0,14,0,-8">
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding FailSafeEnabled}" Margin="0"
+                                                  AutomationProperties.Name="Modo de segurança automático">
+                                            <StackPanel>
+                                                <TextBlock Text="Modo de segurança automático" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="Aciona as ventoinhas a 100% em caso de temperatura crítica ou falha da bomba." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding FanStopAlert}" Margin="0"
+                                                  AutomationProperties.Name="Avisar se uma ventoinha ou a bomba parar">
+                                            <StackPanel>
+                                                <TextBlock Text="Avisar se uma ventoinha ou a bomba parar" Style="{StaticResource SystemItemTitle}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AlertNotifications}" Margin="0"
+                                                  AutomationProperties.Name="Exibir notificações de alerta"
+                                                  DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}">
+                                            <StackPanel>
+                                                <TextBlock Text="Exibir notificações de alerta" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="Mostra avisos do LinkFlow na área de notificações do Windows." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SystemPanel}" Margin="0">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE9CA;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Limites de temperatura" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="Configure os limites de alerta e de proteção em graus Celsius." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Grid Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="58"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="58"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="42"/>
+                                        <RowDefinition Height="42"/>
+                                        <RowDefinition Height="42"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Column="1" Text="Alerta" Style="{StaticResource Label}" Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Grid.Column="3" Text="Crítico" Style="{StaticResource Label}" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
+
+                                    <TextBlock Grid.Row="1" Text="CPU" VerticalAlignment="Center"/>
+                                    <Slider Grid.Row="1" Grid.Column="1" Minimum="60" Maximum="100" Value="{Binding CpuWarn}" AutomationProperties.Name="Temperatura de alerta da CPU" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding CpuWarn, StringFormat={}{0:0} °C}" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    <Slider Grid.Row="1" Grid.Column="3" Minimum="70" Maximum="105" Value="{Binding CpuCritical}" AutomationProperties.Name="Temperatura crítica da CPU" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding CpuCritical, StringFormat={}{0:0} °C}" TextAlignment="Right" VerticalAlignment="Center"/>
+
+                                    <TextBlock Grid.Row="2" Text="GPU" VerticalAlignment="Center"/>
+                                    <Slider Grid.Row="2" Grid.Column="1" Minimum="60" Maximum="95" Value="{Binding GpuWarn}" AutomationProperties.Name="Temperatura de alerta da GPU" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding GpuWarn, StringFormat={}{0:0} °C}" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    <Slider Grid.Row="2" Grid.Column="3" Minimum="70" Maximum="100" Value="{Binding GpuCritical}" AutomationProperties.Name="Temperatura crítica da GPU" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding GpuCritical, StringFormat={}{0:0} °C}" TextAlignment="Right" VerticalAlignment="Center"/>
+
+                                    <TextBlock Grid.Row="3" Text="Líquido" VerticalAlignment="Center"/>
+                                    <Slider Grid.Row="3" Grid.Column="1" Minimum="35" Maximum="55" Value="{Binding CoolantWarn}" AutomationProperties.Name="Temperatura de alerta do líquido" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding CoolantWarn, StringFormat={}{0:0} °C}" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    <Slider Grid.Row="3" Grid.Column="3" Minimum="40" Maximum="60" Value="{Binding CoolantCritical}" AutomationProperties.Name="Temperatura crítica do líquido" IsSnapToTickEnabled="True" TickFrequency="1" Foreground="{StaticResource DangerBrush}" Margin="8,0,0,0"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="4" Text="{Binding CoolantCritical, StringFormat={}{0:0} °C}" TextAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
-                    <WrapPanel Grid.Column="2" VerticalAlignment="Center">
-                        <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="ExportBackup_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xEDE1;" FontSize="13" Margin="0,0,8,0"/>
-                                <TextBlock Text="Exportar..."/>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Atalhos" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" Margin="0">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE765;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Atalhos de teclado" Style="{StaticResource SystemSectionTitle}"/>
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <StackPanel Margin="0,14,0,-8">
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding GlobalHotkeys}" Margin="0"
+                                                  AutomationProperties.Name="Atalhos globais"
+                                                  DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}">
+                                            <StackPanel>
+                                                <TextBlock Text="Atalhos globais" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="Ctrl+Alt+1–5 aplica perfis, Ctrl+Alt+L mostra a janela e Ctrl+Alt+M alterna o mini widget." Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                </StackPanel>
+
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.Resources>
+                                        <Style x:Key="Kbd" TargetType="Border">
+                                            <Setter Property="Background" Value="{StaticResource BgBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="CornerRadius" Value="5"/>
+                                            <Setter Property="Padding" Value="7,2"/>
+                                            <Setter Property="Margin" Value="0,3,12,3"/>
+                                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Border Style="{StaticResource Kbd}"><TextBlock Text="F1 … F5" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Column="1" Text="Aplicar perfil (Silencioso … Curva)" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="1" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+1 … 9" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Trocar de página" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="2" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+↑ / Ctrl+↓" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="Potência global ±5%" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="3" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+Z" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="Desfazer a última alteração" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="4" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+A / Esc" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="Selecionar todas / limpar seleção (Ventoinhas)" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="5" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+M" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="Mini widget" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="6" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+L" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="Enviar quadro ao LCD" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="7" Style="{StaticResource Kbd}"><TextBlock Text="Esc / Ctrl+W" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="Fechar a janela. Ctrl+Q encerra o aplicativo." VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                    <Border Grid.Row="8" Style="{StaticResource Kbd}"><TextBlock Text="Ctrl+R" FontFamily="Consolas"/></Border>
+                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="Renomear o cartão selecionado (Ventoinhas)" VerticalAlignment="Center" Style="{StaticResource SystemDetail}" Margin="0"/>
+                                </Grid>
                             </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" Click="ImportBackup_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8B5;" FontSize="13" Margin="0,0,8,0"/>
-                                <TextBlock Text="Importar..."/>
-                            </StackPanel>
-                        </Button>
-                    </WrapPanel>
-                </Grid>
-            </Border>
-        </StackPanel>
-    </ScrollViewer>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Serviço e backup" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <c:AdaptiveUniformGrid MinItemWidth="350" MaxColumns="2" StackColumns="True" Margin="0,0,-12,0">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE950;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Serviço do Windows" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="Mantém o controle de ventoinhas, RGB e LCD ativo sem a janela aberta." Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,14,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Settings.ServiceStatusText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding Settings.ServiceDetailText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <WrapPanel Margin="0,0,-8,-8">
+                                        <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço" Margin="0,0,8,8" Click="InstallService_Click"
+                                                Visibility="{Binding Settings.ServiceCanInstall, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Margin="0,0,8,8" Click="RestartAsAdmin_Click"
+                                                Visibility="{Binding Settings.CanRestartAsAdmin, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar serviço" Margin="0,0,8,8" Click="RestartService_Click"
+                                                Visibility="{Binding Settings.ServiceInstalled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
+                                        <Button Style="{StaticResource DangerButton}" Content="Remover serviço" Margin="0,0,8,8" Click="UninstallService_Click"
+                                                Visibility="{Binding Settings.ServiceInstalled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12" AllowDrop="True" Drop="Backup_Drop" DragOver="Backup_DragOver">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE8F7;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Backup de configurações" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="Reúne perfis, curvas, iluminação, conteúdo do LCD e preferências. Na importação, você escolhe o que restaurar." Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <WrapPanel Margin="0,14,0,0">
+                                        <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="ExportBackup_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Icon}" Text="&#xEDE1;" FontSize="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Exportar"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" Click="ImportBackup_Click">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8B5;" FontSize="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Importar"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </WrapPanel>
+                                    <TextBlock Text="Você também pode arrastar um arquivo .linkflow para cá." Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE8B7;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Arquivos e aplicativo" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="{Binding Settings.ExitHintText, RelativeSource={RelativeSource AncestorType=Window}}" Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <WrapPanel Margin="0,14,-8,-8">
+                                        <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de logs" Margin="0,0,8,8" Click="OpenLogs_Click"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de configuração" Margin="0,0,8,8" Click="OpenConfig_Click"/>
+                                        <Button Style="{StaticResource DangerButton}" Content="{Binding Settings.ExitButtonText, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,8,8" Click="ExitApp_Click"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                        </c:AdaptiveUniformGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
 </UserControl>

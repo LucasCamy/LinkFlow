@@ -98,6 +98,8 @@ public partial class LcdPage : UserControl
         (sender as FrameworkElement)?.ReleaseMouseCapture();
     }
 
+    private void Crop_LostCapture(object sender, MouseEventArgs e) => _dragFrom = null;
+
     private void Crop_MouseWheel(object sender, MouseWheelEventArgs e)
     {
         Vm?.ZoomCropBy(e.Delta);

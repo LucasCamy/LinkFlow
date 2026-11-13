@@ -1,0 +1,294 @@
+<UserControl x:Class="LinkFlow.App.Views.WindowsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:LinkFlow.App.Controls"
+             xmlns:views="clr-namespace:LinkFlow.App.Views">
+    <UserControl.Resources>
+        <Style x:Key="PowerSelector" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Width" Value="172"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="PowerSaveButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+            <Setter Property="Width" Value="74"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <ItemsPanelTemplate x:Key="ShortcutGrid">
+            <c:AdaptiveUniformGrid MinItemWidth="234" MaxColumns="3"/>
+        </ItemsPanelTemplate>
+        <DataTemplate x:Key="SettingsShortcutTile">
+            <Button Style="{StaticResource CardButton}" Tag="{Binding Uri}" Click="OpenSettings_Click"
+                    AutomationProperties.Name="{Binding Title}">
+                <DockPanel Margin="0,0,14,0">
+                    <TextBlock DockPanel.Dock="Left" Text="{Binding Icon}" Style="{StaticResource SystemIcon}" Margin="0,0,12,0"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}"/>
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource SystemDetail}"
+                                   Visibility="{Binding Description, Converter={StaticResource NullToVis}}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="24,20,24,0" MaxWidth="1160">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="Desempenho do Windows" Style="{StaticResource SystemPageTitle}"/>
+            <TextBlock Text="Energia, aplicativos e ferramentas do sistema." Style="{StaticResource SystemDetail}"/>
+        </StackPanel>
+
+        <TabControl x:Name="WindowsTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+            <TabItem Header="Energia e tela" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}">
+                            <StackPanel x:Name="PowerForm">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <Button x:Name="UndoPowerButton" Content="Desfazer" Click="UndoPower_Click"
+                                                Style="{StaticResource SystemLinkButton}" Visibility="Collapsed" Margin="0,0,8,0"
+                                                ToolTip="Desfazer o último ajuste desta sessão"
+                                                AutomationProperties.Name="Desfazer o último ajuste"/>
+                                        <Button x:Name="ReadPowerButton" Content="Ler ajustes" Click="ReadPower_Click"
+                                                Style="{StaticResource PrimaryButton}"/>
+                                    </StackPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE945;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Ajustes do PC" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock x:Name="PowerStatus" Text="Leia o plano, os tempos de inatividade e as animações."
+                                                   Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <StackPanel x:Name="PowerControls" Visibility="Collapsed" Margin="0,16,0,-10">
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <DockPanel>
+                                            <Button x:Name="ActivatePlanButton" DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}"
+                                                    Content="Ativar" Click="ActivatePlan_Click"/>
+                                            <ComboBox x:Name="Plans" DockPanel.Dock="Right" Style="{StaticResource PowerSelector}"
+                                                      DisplayMemberPath="Name" SelectionChanged="PlanSelection_Changed"
+                                                      AutomationProperties.Name="Plano de energia"/>
+                                            <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                                                <TextBlock Text="Plano de energia" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock x:Name="ActivePlanLabel" Style="{StaticResource SystemDetail}"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                    <ItemsControl x:Name="IdleTimeouts">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource SystemRow}">
+                                                    <DockPanel>
+                                                        <Button DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}" Content="Salvar"
+                                                                Tag="{Binding}" Click="SaveTimeout_Click"
+                                                                AutomationProperties.Name="{Binding Label, StringFormat='Salvar tempo para {0}'}"/>
+                                                        <ComboBox DockPanel.Dock="Right" Style="{StaticResource PowerSelector}"
+                                                                  ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}" DisplayMemberPath="Label"
+                                                                  AutomationProperties.Name="{Binding Label}"/>
+                                                        <TextBlock Text="{Binding Label}" Style="{StaticResource SystemItemTitle}"
+                                                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                    </DockPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <DockPanel>
+                                            <Button DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}" Content="Salvar"
+                                                    Click="SaveAnimations_Click" AutomationProperties.Name="Salvar animações da interface"/>
+                                            <CheckBox x:Name="Animations" DockPanel.Dock="Right" Style="{StaticResource ToggleSwitch}"
+                                                      VerticalAlignment="Center" AutomationProperties.Name="Animações da interface"/>
+                                            <TextBlock Text="Animações da interface" Style="{StaticResource SystemItemTitle}"
+                                                       VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        </DockPanel>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Atalhos do Windows" Style="{StaticResource SystemSectionTitle}" Margin="0,22,0,12"/>
+                        <ItemsControl x:Name="SettingsShortcuts" ItemsPanel="{StaticResource ShortcutGrid}"
+                                      ItemTemplate="{StaticResource SettingsShortcutTile}" Margin="0,0,-12,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Aplicativos" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,24" VerticalAlignment="Top">
+                        <StackPanel x:Name="AppsForm">
+                            <DockPanel>
+                                <Button x:Name="ListAppsButton" DockPanel.Dock="Right" Content="Listar apps" Click="ListApps_Click"
+                                        Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xE71D;" Style="{StaticResource SystemIcon}"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Aplicativos opcionais" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock x:Name="AppsStatus" Text="Veja quais apps pré-instalados podem ser removidos desta conta."
+                                               Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <ItemsControl x:Name="AppsList" Margin="0,16,0,0"
+                                          Visibility="{Binding HasItems, RelativeSource={RelativeSource Self}, Converter={StaticResource BoolToVis}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource SystemRow}">
+                                            <DockPanel>
+                                                <Button DockPanel.Dock="Right" Content="Remover" Tag="{Binding}" Click="RemoveApp_Click"
+                                                        Style="{StaticResource DangerButton}" Margin="12,0,0,0"
+                                                        AutomationProperties.Name="{Binding Name, StringFormat='Remover {0}'}"/>
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Content="Abrir aplicativos instalados ↗" Tag="ms-settings:appsfeatures" Click="OpenSettings_Click"
+                                    Style="{StaticResource SystemLinkButton}" HorizontalAlignment="Left" Margin="-8,10,0,-6"/>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Diagnóstico" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <ItemsControl x:Name="DiagnosticActions" Margin="0,0,-12,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <c:AdaptiveUniformGrid MinItemWidth="198" MaxColumns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource CardButton}" Tag="{Binding}" Click="RunDiagnostic_Click"
+                                            AutomationProperties.Name="{Binding Title}">
+                                        <StackPanel Margin="0,0,14,0">
+                                            <Border Style="{StaticResource SystemIconTile}" Width="34" Height="34"
+                                                    HorizontalAlignment="Left" Margin="0,0,0,9">
+                                                <TextBlock Text="{Binding Icon}" Style="{StaticResource SystemIcon}"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource SystemDetail}" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border x:Name="DiagnosticReport" Style="{StaticResource SystemPanel}" Margin="0,4,0,0" Visibility="Collapsed">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Button x:Name="CopyDiagnosticButton" DockPanel.Dock="Right" Content="Copiar relatório"
+                                            Click="CopyDiagnostic_Click" Style="{StaticResource SecondaryButton}"
+                                            VerticalAlignment="Top" Margin="12,0,0,0" Visibility="Collapsed"/>
+                                    <StackPanel>
+                                        <TextBlock x:Name="DiagnosticTitle" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock x:Name="DiagnosticSummary" Style="{StaticResource SystemDetail}"
+                                                   AutomationProperties.LiveSetting="Polite"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="DiagnosticWarning" Style="{StaticResource SystemDetail}"
+                                           Foreground="{StaticResource WarningBrush}" Margin="0,10,0,0"
+                                           AutomationProperties.LiveSetting="Polite" Visibility="Collapsed"/>
+                                <TextBlock x:Name="DiagnosticFeedback" Style="{StaticResource SystemDetail}" Margin="0,6,0,0"
+                                           AutomationProperties.LiveSetting="Polite" Visibility="Collapsed"/>
+                                <ItemsControl x:Name="DiagnosticEntries" Margin="0,14,0,0"
+                                              Visibility="{Binding HasItems, RelativeSource={RelativeSource Self}, Converter={StaticResource BoolToVis}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource SystemRow}">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}"/>
+                                                    <TextBlock Text="{Binding Value}" Style="{StaticResource SystemDetail}"/>
+                                                    <TextBlock Text="{Binding Details}" Style="{StaticResource SystemDetail}"
+                                                               Visibility="{Binding Details, Converter={StaticResource NullToVis}}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Rede" Style="{StaticResource SystemTab}">
+                <views:WindowsNetworkPage x:Name="NetworkPage"/>
+            </TabItem>
+
+            <TabItem Header="Manutenção" Style="{StaticResource SystemTab}">
+                <views:WindowsMaintenancePage/>
+            </TabItem>
+
+            <TabItem Header="Jogos" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <StackPanel Margin="0,0,0,24">
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,18">
+                            <StackPanel x:Name="GamePowerForm">
+                                <DockPanel>
+                                    <WrapPanel DockPanel.Dock="Right" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <Button x:Name="UndoGamePowerButton" Content="Desfazer" Click="UndoPower_Click"
+                                                Style="{StaticResource SystemLinkButton}" Visibility="Collapsed" Margin="0,0,8,0"
+                                                AutomationProperties.Name="Desfazer o último ajuste de energia ou tela"/>
+                                        <Button x:Name="ReadGamePowerButton" Content="Ler planos" Click="ReadPower_Click"
+                                                Style="{StaticResource PrimaryButton}"/>
+                                    </WrapPanel>
+                                    <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                        <TextBlock Text="&#xE7FC;" Style="{StaticResource SystemIcon}"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Energia para jogar" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock x:Name="GamePowerStatus" Text="Veja os planos disponíveis no Windows."
+                                                   Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Border x:Name="GamePlanControls" Style="{StaticResource SystemRow}" Margin="0,14,0,-8" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <Button x:Name="ActivateGamePlanButton" DockPanel.Dock="Right" Content="Ativar"
+                                                Click="ActivatePlan_Click" Style="{StaticResource PowerSaveButton}"
+                                                AutomationProperties.Name="Ativar plano de energia para jogos"/>
+                                        <ComboBox x:Name="GamePlans" DockPanel.Dock="Right" Style="{StaticResource PowerSelector}"
+                                                  DisplayMemberPath="Name" SelectionChanged="PlanSelection_Changed"
+                                                  AutomationProperties.Name="Plano de energia para jogos"/>
+                                        <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                                            <TextBlock Text="Plano de energia" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock x:Name="GameActivePlanLabel" Style="{StaticResource SystemDetail}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Ajustes do Windows para jogos" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                        <ItemsControl x:Name="GameShortcuts" ItemsPanel="{StaticResource ShortcutGrid}"
+                                      ItemTemplate="{StaticResource SettingsShortcutTile}" Margin="0,0,-12,0"/>
+
+                        <Border Style="{StaticResource SystemPanel}">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="Abrir automação" Click="OpenGameAutomation_Click"
+                                        Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xEC4A;" Style="{StaticResource SystemIcon}"/>
+                                </Border>
+                                <StackPanel>
+                                    <TextBlock Text="Refrigeração por jogo" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="Associe um perfil de ventoinhas ao processo do jogo."
+                                               Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

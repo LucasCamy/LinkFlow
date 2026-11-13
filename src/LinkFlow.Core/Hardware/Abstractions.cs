@@ -57,11 +57,15 @@ public interface IRgbDevice : IDisposable
 {
     string Name { get; }
     bool IsAvailable { get; }
+    string? Diagnostic => null;
+    bool NeedsInitializationRetry => false;
+    TimeSpan? MinAnimationInterval => null;
 
     /// <summary>Detecção do dispositivo. Pode ser lenta (I2C/HID).</summary>
     void Initialize();
 
     bool SetColor(byte r, byte g, byte b, byte brightnessPercent);
+    bool SetAnimationColor(byte r, byte g, byte b, byte brightnessPercent) => SetColor(r, g, b, brightnessPercent);
 }
 
 public interface IHardwareFactory

@@ -11,7 +11,7 @@ namespace LinkFlow.App.Services;
 /// <summary>Exportar/importar configurações, perfis e mídias do LCD (arquivo .linkflow).</summary>
 public static class BackupService
 {
-    private static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.0.0";
+    private static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.1.0";
 
     public static string? Export(Window owner, MainViewModel vm)
     {

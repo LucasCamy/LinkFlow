@@ -22,6 +22,9 @@
         <KeyBinding Key="D4" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="3"/>
         <KeyBinding Key="D5" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="4"/>
         <KeyBinding Key="D6" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="5"/>
+        <KeyBinding Key="D7" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="6"/>
+        <KeyBinding Key="D8" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="7"/>
+        <KeyBinding Key="D9" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="8"/>
         <KeyBinding Key="OemComma" Modifiers="Control" Command="{Binding NavigateCommand}" CommandParameter="5"/>
         <KeyBinding Key="F1" Command="{Binding ApplyPresetCommand}" CommandParameter="1"/>
         <KeyBinding Key="F2" Command="{Binding ApplyPresetCommand}" CommandParameter="2"/>
@@ -73,7 +76,7 @@
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
                     <!-- Alertas ativos -->
-                    <Button Style="{StaticResource GhostButton}" Command="{Binding NavigateCommand}" CommandParameter="0"
+                    <Button Style="{StaticResource GhostButton}" Click="OpenAlerts_Click"
                             Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"
                             ToolTip="{Binding TopAlert.Message}" AutomationProperties.Name="Alertas ativos">
                         <StackPanel Orientation="Horizontal">
@@ -168,6 +171,27 @@
                                     <TextBlock Style="{StaticResource NavLabel}" Text="Widget"/>
                                 </StackPanel>
                             </RadioButton>
+                            <RadioButton Style="{StaticResource NavItem}" ToolTip="Hardware (Ctrl+7)" AutomationProperties.Name="Hardware"
+                                         IsChecked="{Binding SelectedPage, Converter={StaticResource EqualsConverter}, ConverterParameter=6}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE950;"/>
+                                    <TextBlock Style="{StaticResource NavLabel}" Text="Hardware"/>
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton Style="{StaticResource NavItem}" ToolTip="Desempenho do Windows (Ctrl+8)" AutomationProperties.Name="Windows"
+                                         IsChecked="{Binding SelectedPage, Converter={StaticResource EqualsConverter}, ConverterParameter=7}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xECAA;"/>
+                                    <TextBlock Style="{StaticResource NavLabel}" Text="Windows"/>
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton Style="{StaticResource NavItem}" ToolTip="Drivers (Ctrl+9)" AutomationProperties.Name="Drivers"
+                                         IsChecked="{Binding SelectedPage, Converter={StaticResource EqualsConverter}, ConverterParameter=8}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE896;"/>
+                                    <TextBlock Style="{StaticResource NavLabel}" Text="Drivers"/>
+                                </StackPanel>
+                            </RadioButton>
                         </StackPanel>
 
                         <RadioButton DockPanel.Dock="Bottom" Style="{StaticResource NavItem}" ToolTip="Configurações (Ctrl+6)" AutomationProperties.Name="Configurações"
@@ -192,12 +216,15 @@
 
                 <!-- Páginas -->
                 <Grid x:Name="PageHost" Grid.Column="1">
-                    <views:DashboardPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=0}"/>
-                    <views:FansPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=1}"/>
+                    <views:DashboardPage x:Name="DashboardView" Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=0}"/>
+                    <views:FansPage x:Name="FansView" Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=1}"/>
                     <views:LightingPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=2}"/>
                     <views:LcdPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=3}"/>
                     <views:WidgetPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=4}"/>
                     <views:SettingsPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=5}"/>
+                    <views:HardwarePage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=6}"/>
+                    <views:WindowsPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=7}"/>
+                    <views:DriversPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=8}"/>
                 </Grid>
 
                 <!-- Detalhes de um cartão do painel -->
@@ -232,7 +259,7 @@
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                     <TextBlock x:Name="ShortcutHint" Grid.Column="1" Foreground="{StaticResource TextSubtleBrush}" FontSize="11.5" VerticalAlignment="Center"
-                               Text="F1–F5 perfis  •  Ctrl+1–6 páginas  •  LinkFlow 2.0"/>
+                               Text="F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow 2.0"/>
                 </Grid>
             </Border>
         </Grid>

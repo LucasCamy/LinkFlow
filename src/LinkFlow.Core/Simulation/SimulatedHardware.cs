@@ -258,9 +258,15 @@ public sealed class SimulatedRgb : IRgbDevice
     public SimulatedRgb(string name) => Name = name;
     public string Name { get; }
     public bool IsAvailable { get; private set; }
+    public bool FailInitialization { get; set; }
+    public bool NeedsInitializationRetry { get; private set; }
     public int Calls { get; private set; }
     public (byte R, byte G, byte B, byte Brightness)? Last { get; private set; }
-    public void Initialize() => IsAvailable = true;
+    public void Initialize()
+    {
+        IsAvailable = !FailInitialization;
+        NeedsInitializationRetry = !IsAvailable;
+    }
     public bool SetColor(byte r, byte g, byte b, byte brightnessPercent) { Calls++; Last = (r, g, b, brightnessPercent); return true; }
     public void Dispose() { }
 }
