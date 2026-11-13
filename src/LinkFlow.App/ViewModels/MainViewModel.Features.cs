@@ -187,11 +187,9 @@ public partial class MainViewModel
         RamHistory = Push(_ramHist, s.RamUsage);
         RecordExtraHistory(s);
         OnPropertiesChanged(nameof(CpuHistory), nameof(GpuHistory), nameof(CoolantHistory), nameof(FanHistory), nameof(RamHistory),
-            nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(TopAlert), nameof(FanCountLabel), nameof(LcdNowShowing), nameof(PreviewFanCount));
+            nameof(CurveCurrentTemp), nameof(CurveCurrentOutput), nameof(FanCountLabel), nameof(LcdNowShowing), nameof(PreviewFanCount));
         RecordHistory(s);
     }
-
-    public EngineAlert? TopAlert => Snapshot.Alerts.FirstOrDefault();
 
     // ------------------------------------------------------------------ Perfis e desfazer
 

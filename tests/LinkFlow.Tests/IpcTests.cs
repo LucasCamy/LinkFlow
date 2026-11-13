@@ -38,15 +38,38 @@ public class IpcTests
         int connects = f.Hw.Hub.ConnectCalls;
         int hubRgb = f.Hw.Hub.SetRgbCalls;
         int gpuRgb = f.Hw.GpuRgb.Calls;
+        int gpuDetection = f.Hw.GpuRgb.InitializationCalls;
         client.RefreshRgb();
         EngineFixture.WaitUntil(() => f.Hw.Hub.SetRgbCalls > hubRgb && f.Hw.GpuRgb.Calls > gpuRgb,
             because: "serviço reaplicou a iluminação");
+        Assert.True(f.Hw.GpuRgb.InitializationCalls > gpuDetection);
         Assert.Equal(connects, f.Hw.Hub.ConnectCalls);
 
         // "Atualizar" na interface: o serviço reabre o hub e relê os dispositivos
         client.RescanDevices();
         EngineFixture.WaitUntil(() => f.Hw.Hub.ConnectCalls > connects, because: "serviço reatualizou os dispositivos");
         EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Count == 11, because: "dispositivos de volta");
+    }
+
+    [Fact]
+    public async Task Gpu_sync_switch_reattaches_even_when_toggled_twice_before_the_pipe_writes()
+    {
+        using var f = new EngineFixture();
+        var pipe = UniquePipe();
+        await using var server = new PipeEngineServer(f.Engine, pipe);
+        server.Start();
+        using var client = PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2), pipe)!;
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true);
+        int detection = f.Hw.GpuRgb.InitializationCalls;
+        int writes = f.Hw.GpuRgb.Calls;
+
+        client.UpdateConfig(c => c.Rgb.SyncGpu = false);
+        client.UpdateConfig(c => c.Rgb.SyncGpu = true);
+        client.Start();
+
+        EngineFixture.WaitUntil(() => f.Hw.GpuRgb.InitializationCalls > detection && f.Hw.GpuRgb.Calls > writes,
+            because: "placa de vídeo redetectada e efeito atual reaplicado");
+        Assert.True(f.Engine.GetConfig().Rgb.SyncGpu);
     }
 
     [Fact]

@@ -1,0 +1,45 @@
+<Window x:Class="LinkFlow.App.Views.AlertHistoryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Histórico de alertas" Width="620" Height="460" MinWidth="380" MinHeight="260"
+        ResizeMode="CanResizeWithGrip" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}" FontFamily="{StaticResource UiFont}"
+        Language="pt-BR" FocusManager.FocusedElement="{Binding ElementName=CloseHistoryButton}">
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Histórico de alertas" Style="{StaticResource PageTitle}" Margin="0,0,0,14"/>
+        <TextBlock Grid.Row="1" Text="Nenhum alerta registrado." Style="{StaticResource SystemDetail}"
+                   Visibility="{Binding HasHistory, Converter={StaticResource BoolToVisInverse}}"/>
+        <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}"
+                      Visibility="{Binding HasHistory, Converter={StaticResource BoolToVis}}">
+            <ItemsControl x:Name="HistoryList" ItemsSource="{Binding History}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="12,9" Margin="0,0,0,6">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" Text="&#xE7BA;" Style="{StaticResource Icon}" Margin="0,2,10,0" VerticalAlignment="Top"
+                                           Foreground="{Binding Alert.Severity, Converter={StaticResource SeverityToBrush}}"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Alert.Title}" Style="{StaticResource SystemItemTitle}"/>
+                                    <TextBlock Text="{Binding Alert.Message}" Style="{StaticResource SystemDetail}"/>
+                                    <WrapPanel Margin="0,5,0,0">
+                                        <TextBlock Text="{Binding Alert.Since, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}"
+                                                   Style="{StaticResource Caption}" Margin="0,0,12,0"/>
+                                        <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <Button x:Name="CloseHistoryButton" Grid.Row="2" Content="Fechar" IsCancel="True" HorizontalAlignment="Right"
+                Style="{StaticResource SecondaryButton}" Margin="0,14,0,0"/>
+    </Grid>
+</Window>

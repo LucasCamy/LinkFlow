@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
+using LinkFlow.App.ViewModels;
 
 namespace LinkFlow.App.Views;
 
@@ -8,11 +8,14 @@ public partial class DashboardPage : UserControl
 {
     public DashboardPage() => InitializeComponent();
 
-    internal void ShowAlerts()
+    internal void ShowAlertHistory()
     {
-        DashboardTabs.SelectedIndex = 0;
-        Dispatcher.InvokeAsync(AlertPanel.BringIntoView, DispatcherPriority.Loaded);
+        if (DataContext is not MainViewModel viewModel || Window.GetWindow(this) is not { } owner) return;
+        var dialog = new AlertHistoryDialog(viewModel.AlertCenter) { Owner = owner };
+        dialog.ShowDialog();
     }
+
+    private void OpenAlertHistory_Click(object sender, RoutedEventArgs e) => ShowAlertHistory();
 
     private void InstallService_Click(object sender, RoutedEventArgs e) => App.Current.SettingsVm.InstallService();
     private void RestartAsAdmin_Click(object sender, RoutedEventArgs e) => App.Current.SettingsVm.RestartAsAdmin();

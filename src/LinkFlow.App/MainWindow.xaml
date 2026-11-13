@@ -75,14 +75,14 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
-                    <!-- Alertas ativos -->
-                    <Button Style="{StaticResource GhostButton}" Click="OpenAlerts_Click"
-                            Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"
-                            ToolTip="{Binding TopAlert.Message}" AutomationProperties.Name="Alertas ativos">
+                    <Button Style="{StaticResource GhostButton}" Click="OpenAlertHistory_Click"
+                            Visibility="{Binding AlertCenter.HasHistory, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"
+                            ToolTip="Histórico de alertas" AutomationProperties.Name="Histórico de alertas">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" FontSize="13" Foreground="{Binding TopAlert.Severity, Converter={StaticResource SeverityToBrush}}"/>
-                            <TextBlock Text="{Binding Alerts.Count}" Margin="6,0,0,0" FontWeight="SemiBold"
-                                       Foreground="{Binding TopAlert.Severity, Converter={StaticResource SeverityToBrush}}"/>
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE81C;" FontSize="14" Foreground="{StaticResource TextMutedBrush}"/>
+                            <TextBlock Text="{Binding AlertCenter.PendingCount}" Margin="6,0,0,0" FontWeight="SemiBold"
+                                       Foreground="{Binding AlertCenter.Top.Severity, Converter={StaticResource SeverityToBrush}}"
+                                       Visibility="{Binding AlertCenter.HasPending, Converter={StaticResource BoolToVis}}"/>
                         </StackPanel>
                     </Button>
 
@@ -258,8 +258,8 @@
                         <TextBlock Text="{Binding ConnectionStatus}" Foreground="{StaticResource TextMutedBrush}" FontSize="11.5" Margin="8,0,0,0"
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
-                    <TextBlock x:Name="ShortcutHint" Grid.Column="1" Foreground="{StaticResource TextSubtleBrush}" FontSize="11.5" VerticalAlignment="Center"
-                               Text="F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow 2.0"/>
+                    <TextBlock Grid.Column="1" Foreground="{StaticResource TextSubtleBrush}" FontSize="11.5" VerticalAlignment="Center"
+                               Text="{Binding ShortcutHint, RelativeSource={RelativeSource AncestorType=Window}}"/>
                 </Grid>
             </Border>
         </Grid>

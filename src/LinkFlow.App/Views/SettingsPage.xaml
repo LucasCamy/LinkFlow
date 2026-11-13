@@ -98,7 +98,7 @@
                                                   AutomationProperties.Name="Modo de segurança automático">
                                             <StackPanel>
                                                 <TextBlock Text="Modo de segurança automático" Style="{StaticResource SystemItemTitle}"/>
-                                                <TextBlock Text="Aciona as ventoinhas a 100% em caso de temperatura crítica ou falha da bomba." Style="{StaticResource SystemDetail}"/>
+                                                <TextBlock Text="Aciona as ventoinhas a 100% em condição crítica e retoma o perfil após 15 segundos de leituras seguras." Style="{StaticResource SystemDetail}"/>
                                             </StackPanel>
                                         </CheckBox>
                                     </Border>

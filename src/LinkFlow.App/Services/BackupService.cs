@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using System.Text.Json;
 using System.Windows;
 using LinkFlow.App.ViewModels;
@@ -11,7 +10,7 @@ namespace LinkFlow.App.Services;
 /// <summary>Exportar/importar configurações, perfis e mídias do LCD (arquivo .linkflow).</summary>
 public static class BackupService
 {
-    private static string AppVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.1.0";
+    private static string AppVersion => typeof(App).Assembly.GetName().Version!.ToString(3);
 
     public static string? Export(Window owner, MainViewModel vm)
     {

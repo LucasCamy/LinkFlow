@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -31,11 +33,18 @@ public partial class WidgetPage : UserControl
 
     private void ToggleWidget_Click(object sender, RoutedEventArgs e)
     {
-        if (Main is { } w) w.SetWidgetVisible(!w.IsMiniWidgetVisible);
+        if (Main is { } w) w.SetWidgetEnabled(!w.Widget.IsWidgetEnabled);
     }
 
     private void Corner_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { Tag: string corner } && Main is { } w) w.MoveWidgetToCorner(corner);
+    }
+
+    private void OpenRtssDownload_Click(object sender, RoutedEventArgs e)
+    {
+        const string url = "https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/";
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })?.Dispose(); }
+        catch (Win32Exception) { Main?.ViewModel.ShowToast("Não foi possível abrir a página do RTSS.", canUndo: false); }
     }
 }

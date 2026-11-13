@@ -110,9 +110,10 @@ public partial class App : Application
         if (!_engine.IsRemote && !Options.Simulate && !testRun) WatchForService();
         SettingsVm.AttachEngine(_engine);
 
-        _vm = new MainViewModel(_engine);
-        // Serviço em sessão 0: periféricos Logitech pela interface (sessão do usuário)
-        if (_engine.IsRemote && !_engine.IsSimulated)
+        _vm = new MainViewModel(_engine, alertHistoryPath: testRun || Options.Simulate
+            ? null : Path.Combine(AppPaths.UserDir, "alerts.json"));
+        // O SDK Logitech fica na sessão do usuário, em uma fila independente.
+        if (!_engine.IsSimulated && !testRun)
         {
             var bridge = _peripheralBridge = new PeripheralRgbBridge(_engine);
             void UpdateStatus() => _vm.SetExternalPeripheralsStatus(bridge.Status, bridge.HasIssue);
@@ -147,6 +148,7 @@ public partial class App : Application
         {
             ShowMainWindow();
         }
+        if (Settings.Current.MiniVisible) MainView.SetWidgetEnabled(true);
     }
 
     /// <summary>
@@ -192,7 +194,7 @@ public partial class App : Application
             }
         }
 
-        IHardwareFactory factory = Options.Simulate ? new SimulatedHardwareFactory() : new RealHardwareFactory();
+        IHardwareFactory factory = Options.Simulate ? new SimulatedHardwareFactory() : new RealHardwareFactory(usePeripheralBridge: true);
         var engine = new LinkFlowEngine(factory, new EngineOptions { ConfigPath = ResolveLocalConfigPath() });
         Log.Info($"Modo local ({(AutoStartManager.IsElevated ? "administrador" : "sem privilégio de administrador")}).");
         return new LocalEngineClient(engine);
@@ -313,7 +315,7 @@ public partial class App : Application
     private void RefreshTrayMenu()
     {
         if (_tray == null || _vm == null || _engine == null) return;
-        _tray.UpdateMenuState(_vm.ActivePreset, _engine.Config.Profiles, MainView?.IsMiniWidgetVisible == true,
+        _tray.UpdateMenuState(_vm.ActivePreset, _engine.Config.Profiles, MainView?.Widget.IsWidgetEnabled == true,
             _vm.IsLcdAutoStream, SettingsVm.StartWithWindows);
     }
 
@@ -360,6 +362,7 @@ public partial class App : Application
         {
             // Após suspender, os handles HID ficam inválidos e o hub volta ao modo hardware
             _engine?.NotifyResume();
+            _peripheralBridge?.RequestResend();
         }
     }
 

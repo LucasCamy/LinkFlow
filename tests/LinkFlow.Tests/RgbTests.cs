@@ -59,4 +59,20 @@ public class RgbTests
             because: "detecção recuperada e cor fixa reenviada");
         Assert.Equal(hubConnections, hardware.Hub.ConnectCalls);
     }
+
+    [Fact]
+    public void Resend_retries_gpu_color_rejected_after_successful_detection()
+    {
+        using var f = new EngineFixture();
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true);
+        int detection = f.Hw.GpuRgb.InitializationCalls;
+        f.Hw.GpuRgb.FailColorWrites = true;
+        f.Engine.RefreshRgb();
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot() is { GpuRgbAvailable: true, GpuRgbApplied: false });
+
+        f.Hw.GpuRgb.FailColorWrites = false;
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true,
+            because: "cor estática reaplicada na nova tentativa");
+        Assert.True(f.Hw.GpuRgb.InitializationCalls >= detection + 2);
+    }
 }

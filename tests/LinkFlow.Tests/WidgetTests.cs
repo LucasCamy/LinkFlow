@@ -1,8 +1,24 @@
 using System.Windows.Threading;
+using System.Drawing;
+using LinkFlow.App;
 using LinkFlow.App.Services;
 using LinkFlow.App.ViewModels;
 
 namespace LinkFlow.Tests;
+
+public sealed class WidgetWindowTests
+{
+    [Theory]
+    [InlineData(2560, -480, 1080, 1920, true)]  // tela cheia no monitor vertical
+    [InlineData(0, 0, 2560, 1440, false)]      // tela cheia no outro monitor
+    [InlineData(2560, -480, 1080, 1860, false)] // área de trabalho, sem cobrir a barra de tarefas
+    [InlineData(2561, -479, 1078, 1918, true)] // arredondamento de um pixel
+    public void Fullscreen_is_measured_against_the_widgets_own_monitor(int x, int y, int width, int height, bool coversMonitor)
+    {
+        var monitor = new Rectangle(2560, -480, 1080, 1920);
+        Assert.Equal(coversMonitor, MiniWidgetWindow.CoversMonitor(new Rectangle(x, y, width, height), monitor));
+    }
+}
 
 /// <summary>Widget: itens do catálogo, % ou valor, ordem, aparência salva e leitura de discos sob demanda.</summary>
 public sealed class WidgetTests : IDisposable
@@ -109,6 +125,23 @@ public sealed class WidgetTests : IDisposable
         _vm.UpdateSensorDemand();
         Assert.Equal(SensorDemand.DiskIo, _vm.CurrentSensorDemand);
         WaitFor(() => _f.Hw.Sensors.StorageEnabled, "discos ligados pelo widget");
+    }
+
+    [Fact]
+    public void Game_overlay_uses_the_selected_sensors_and_saved_display_mode()
+    {
+        _w.Add("ram.usage");
+        _w.ToggleDisplayCommand.Execute(_w.Items.Last());
+        _w.ShowInGames = true;
+        var snapshot = new EngineSnapshot
+        {
+            CpuSensorAvailable = true, CpuTemp = 64, GpuTemp = 48,
+            RamUsedGb = 16, RamTotalGb = 32, RamUsage = 50
+        };
+
+        Assert.True(_settings.ShowInGames);
+        Assert.Equal("LinkFlow\nCPU 64°C\nGPU 48°C\nRAM 50%", WidgetGameOverlay.Format(_w.Items, snapshot, true));
+        Assert.Equal("LinkFlow\nTelemetria indisponível", WidgetGameOverlay.Format(_w.Items, snapshot, false));
     }
 
     [Fact]

@@ -47,7 +47,8 @@
                     <TextBlock Text="Efeitos, cores e brilho dos dispositivos RGB." Style="{StaticResource SystemDetail}"/>
                 </StackPanel>
                 <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Command="{Binding ResendRgbCommand}" VerticalAlignment="Center" Margin="16,0,0,0"
-                        ToolTip="Revê os controladores e reenvia o efeito aos dispositivos selecionados">
+                        AutomationProperties.Name="Reenviar iluminação"
+                        ToolTip="Reconecta a placa de vídeo e o Logitech se estiverem ativados e reaplica o efeito aos dispositivos selecionados">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="13" Margin="0,0,8,0"/>
                         <TextBlock Text="Reenviar iluminação"/>

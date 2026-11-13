@@ -168,6 +168,9 @@
                                 <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
                                     <TextBlock Text="Potência global" Style="{StaticResource SystemSectionTitle}"/>
                                     <TextBlock Text="Ventoinhas vinculadas seguem este valor." Style="{StaticResource SystemDetail}"/>
+                                    <TextBlock Text="Proteção ativa · o perfil volta quando as leituras estabilizarem."
+                                               Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"
+                                               Visibility="{Binding IsFailSafeActive, Converter={StaticResource BoolToVis}}"/>
                                 </StackPanel>
                                 <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}" AutomationProperties.Name="Potência global" ToolTip="Ctrl+↑ / Ctrl+↓ ajusta 5%"/>
                                 <TextBlock Grid.Column="2" Text="{Binding GlobalSpeedFormatted}" FontSize="22" FontWeight="SemiBold" Width="70" TextAlignment="Right"

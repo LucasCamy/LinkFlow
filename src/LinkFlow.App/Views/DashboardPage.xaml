@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
+             xmlns:vm="clr-namespace:LinkFlow.App.ViewModels"
              Language="pt-BR">
     <UserControl.Resources>
         <Style x:Key="TelemetryMeter" TargetType="ProgressBar">
@@ -19,6 +20,14 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style x:Key="DismissNoticeButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Content" Value="&#xE8BB;"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="ToolTip" Value="Dispensar aviso"/>
+            <Setter Property="AutomationProperties.Name" Value="Dispensar aviso"/>
         </Style>
     </UserControl.Resources>
 
@@ -41,49 +50,47 @@
             </StackPanel>
         </DockPanel>
 
-        <StackPanel Grid.Row="1">
-            <Border Style="{StaticResource Banner}" Background="{StaticResource DangerSoftBrush}" BorderBrush="{StaticResource DangerBrush}"
-                    Visibility="{Binding IsFailSafeActive, Converter={StaticResource BoolToVis}}">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource DangerBrush}" Margin="0,0,10,0"/>
-                    <TextBlock TextWrapping="Wrap">
-                        <Run FontWeight="SemiBold" Text="Modo de segurança ativo."/>
-                        <Run Text="Todas as ventoinhas estão em 100% até as temperaturas voltarem ao normal."/>
-                    </TextBlock>
-                </DockPanel>
-            </Border>
-            <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
-                    Visibility="{Binding IsEngineDisconnected, Converter={StaticResource BoolToVis}}">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0"/>
-                    <TextBlock TextWrapping="Wrap">
-                        <Run FontWeight="SemiBold" Text="O serviço LinkFlow não está respondendo."/>
-                        <Run Text="As leituras exibidas podem estar desatualizadas."/>
-                    </TextBlock>
-                </DockPanel>
-            </Border>
-        </StackPanel>
+        <ContentControl x:Name="DashboardNotice" Grid.Row="1" Content="{Binding AlertCenter.Banner}"
+                        Visibility="{Binding AlertCenter.Banner, Converter={StaticResource NullToVis}}"
+                        HorizontalContentAlignment="Stretch">
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource Banner}" Padding="14,4"
+                            Background="{Binding Severity, Converter={StaticResource SeverityToSoftBrush}}"
+                            BorderBrush="{Binding Severity, Converter={StaticResource SeverityToBrush}}">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource DismissNoticeButton}"
+                                    Command="{Binding DataContext.AlertCenter.DismissCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"/>
+                            <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;" Margin="0,0,10,0"
+                                       VerticalAlignment="Center" Foreground="{Binding Severity, Converter={StaticResource SeverityToBrush}}"/>
+                            <StackPanel VerticalAlignment="Center" Margin="0,4">
+                                <TextBlock TextWrapping="Wrap">
+                                    <Run FontWeight="SemiBold" Text="{Binding Title, Mode=OneWay}"/><Run Text=". "/><Run Text="{Binding Message, Mode=OneWay}"/>
+                                </TextBlock>
+                                <ContentControl Content="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                Visibility="{Binding Key, Converter={StaticResource EqualsToVis}, ConverterParameter={x:Static vm:AlertsViewModel.CpuSensorKey}}">
+                                    <ContentControl.ContentTemplate>
+                                        <DataTemplate>
+                                            <WrapPanel Margin="0,8,0,0" Visibility="{Binding IsLimitedLocal, Converter={StaticResource BoolToVis}}">
+                                                <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço" Margin="0,0,8,4" Click="InstallService_Click"
+                                                        Visibility="{Binding ServiceCanInstall, Converter={StaticResource BoolToVis}}"/>
+                                                <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Margin="0,0,0,4" Click="RestartAsAdmin_Click"/>
+                                            </WrapPanel>
+                                        </DataTemplate>
+                                    </ContentControl.ContentTemplate>
+                                </ContentControl>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
 
         <TabControl x:Name="DashboardTabs" Grid.Row="2" Style="{StaticResource SystemTabs}" SelectedIndex="0">
             <TabItem Header="Visão geral" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
-                        <Border Style="{StaticResource Banner}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"
-                                Visibility="{Binding CpuSensorHint, Converter={StaticResource NullToVis}}">
-                            <DockPanel>
-                                <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE946;" Foreground="{StaticResource WarningBrush}" Margin="0,2,10,0" VerticalAlignment="Top"/>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding CpuSensorHint}" TextWrapping="Wrap"/>
-                                    <WrapPanel Margin="0,8,0,0" DataContext="{Binding Settings, RelativeSource={RelativeSource AncestorType=Window}}"
-                                               Visibility="{Binding IsLimitedLocal, Converter={StaticResource BoolToVis}}">
-                                        <Button Style="{StaticResource PrimaryButton}" Content="Instalar serviço" Margin="0,0,8,4" Click="InstallService_Click"
-                                                Visibility="{Binding ServiceCanInstall, Converter={StaticResource BoolToVis}}"/>
-                                        <Button Style="{StaticResource SecondaryButton}" Content="Reiniciar como administrador" Margin="0,0,0,4" Click="RestartAsAdmin_Click"/>
-                                    </WrapPanel>
-                                </StackPanel>
-                            </DockPanel>
-                        </Border>
-
                         <c:AdaptiveUniformGrid MinItemWidth="275" MaxColumns="2" Margin="0,0,-12,0">
                             <Button Style="{StaticResource CardButton}" Command="{Binding OpenDetailCommand}" CommandParameter="cpu"
                                     AutomationProperties.Name="Abrir detalhes do processador">
@@ -237,24 +244,43 @@
                                     </DockPanel>
                                 </StackPanel>
                             </Border>
-                            <Border x:Name="AlertPanel" Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
                                 <StackPanel>
-                                    <TextBlock Text="Alertas" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock Text="Nenhum alerta ativo." Style="{StaticResource SystemDetail}" Margin="0,8,0,0"
-                                               Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisInverse}}"/>
-                                    <ItemsControl ItemsSource="{Binding Alerts}" Margin="0,10,0,0"
-                                                  Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVis}}">
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Content="{Binding AlertCenter.HistoryLabel}"
+                                                Style="{StaticResource SystemLinkButton}" VerticalAlignment="Center"
+                                                Click="OpenAlertHistory_Click" AutomationProperties.Name="Histórico de alertas"/>
+                                        <TextBlock Text="Alertas" Style="{StaticResource SystemSectionTitle}" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding AlertCenter.PanelMessage}" Style="{StaticResource SystemDetail}" Margin="0,6,0,0"
+                                               Visibility="{Binding AlertCenter.PanelMessage, Converter={StaticResource NullToVis}}"/>
+                                    <ItemsControl x:Name="DashboardAlerts" ItemsSource="{Binding AlertCenter.Preview}">
+                                        <ItemsControl.Style>
+                                            <Style TargetType="ItemsControl">
+                                                <Setter Property="Margin" Value="0,8,0,0"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="HasItems" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ItemsControl.Style>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Background="{Binding Severity, Converter={StaticResource SeverityToSoftBrush}}"
-                                                        CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                                                        CornerRadius="8" Padding="12,7" Margin="0,0,0,6">
                                                     <DockPanel>
+                                                        <Button DockPanel.Dock="Right" Style="{StaticResource DismissNoticeButton}" VerticalAlignment="Top"
+                                                                Command="{Binding DataContext.AlertCenter.DismissCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"/>
                                                         <TextBlock DockPanel.Dock="Left" Style="{StaticResource Icon}" Text="&#xE7BA;"
                                                                    VerticalAlignment="Top" Margin="0,2,10,0"
                                                                    Foreground="{Binding Severity, Converter={StaticResource SeverityToBrush}}"/>
                                                         <StackPanel>
-                                                            <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}"/>
-                                                            <TextBlock Text="{Binding Message}" Style="{StaticResource SystemDetail}"/>
+                                                            <TextBlock Text="{Binding Title}" Style="{StaticResource SystemItemTitle}" MaxHeight="36"
+                                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Title}"/>
+                                                            <TextBlock Text="{Binding Message}" Style="{StaticResource SystemDetail}"
+                                                                       TextTrimming="CharacterEllipsis" MaxHeight="34" ToolTip="{Binding Message}"/>
                                                         </StackPanel>
                                                     </DockPanel>
                                                 </Border>

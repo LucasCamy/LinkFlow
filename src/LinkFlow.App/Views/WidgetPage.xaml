@@ -41,13 +41,13 @@
 
         <DockPanel Margin="0,0,0,16">
             <ToggleButton DockPanel.Dock="Right" VerticalAlignment="Center" Margin="12,0,0,0"
-                          IsChecked="{Binding IsWidgetVisible, Mode=OneWay}" Click="ToggleWidget_Click"
+                          IsChecked="{Binding IsWidgetEnabled, Mode=OneWay}" Click="ToggleWidget_Click"
                           ToolTip="Alternar o widget flutuante (Ctrl+Alt+M)">
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton" BasedOn="{StaticResource Chip}">
                         <Setter Property="Content" Value="Mostrar widget"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsWidgetVisible}" Value="True">
+                            <DataTrigger Binding="{Binding IsWidgetEnabled}" Value="True">
                                 <Setter Property="Content" Value="Ocultar widget"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -337,7 +337,7 @@
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AlwaysOnTop}">
                                             <StackPanel>
                                                 <TextBlock Text="Sempre no topo" Style="{StaticResource SystemItemTitle}"/>
-                                                <TextBlock Text="Mantém o widget acima das outras janelas." Style="{StaticResource SystemDetail}"/>
+                                                <TextBlock Text="Mantém o widget acima das janelas, inclusive ao usar outro monitor." Style="{StaticResource SystemDetail}"/>
                                             </StackPanel>
                                         </CheckBox>
                                     </Border>
@@ -345,7 +345,7 @@
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HideInFullscreen}">
                                             <StackPanel>
                                                 <TextBlock Text="Ocultar em tela cheia" Style="{StaticResource SystemItemTitle}"/>
-                                                <TextBlock Text="Volta a aparecer ao sair do jogo, vídeo ou apresentação." Style="{StaticResource SystemDetail}"/>
+                                                <TextBlock Text="Oculta só quando a tela cheia está no monitor do widget. Desative para manter sobre janelas sem bordas." Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </CheckBox>
                                     </Border>
@@ -358,6 +358,23 @@
                                             </StackPanel>
                                         </CheckBox>
                                     </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding ShowInGames}">
+                                        <StackPanel>
+                                            <TextBlock Text="Overlay em jogos (RTSS)" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="Mostra as leituras do widget em jogos compatíveis, inclusive em tela cheia exclusiva. A posição é ajustada no RTSS."
+                                                       Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <TextBlock Text="{Binding GameOverlayStatus}" Style="{StaticResource SystemDetail}"
+                                               Margin="44,8,0,0" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"
+                                               Visibility="{Binding ShowInGames, Converter={StaticResource BoolToVis}}"/>
+                                    <Button Style="{StaticResource SystemLinkButton}" Content="Baixar RTSS" Click="OpenRtssDownload_Click"
+                                            HorizontalAlignment="Left" Margin="44,4,0,0"/>
                                 </StackPanel>
                             </Border>
 

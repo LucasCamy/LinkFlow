@@ -10,7 +10,10 @@ namespace LinkFlow.Core;
 public sealed class LogitechPeripheralsRgb : IRgbDevice
 {
     private const int AllDeviceTypes = 0x07;
+    private const int ConnectionSettleMs = 1000;
+    private static readonly int[] ResendDelaysMs = [0, 300, 900];
     private readonly object _syncLock = new();
+    private readonly CancellationToken _lifetimeToken;
     private NativeSdk? _native;
     private bool _initialized;
     private bool _disposed;
@@ -19,11 +22,17 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
     public string? Diagnostic { get; private set; }
     public string Name => "Periféricos Logitech G";
 
-    public void Initialize()
+    public LogitechPeripheralsRgb() { }
+
+    public LogitechPeripheralsRgb(CancellationToken lifetimeToken) => _lifetimeToken = lifetimeToken;
+
+    public void Initialize() => Initialize(legacy: false);
+
+    private void Initialize(bool legacy)
     {
         lock (_syncLock)
         {
-            if (_disposed || IsAvailable) return;
+            if (_disposed || _initialized) return;
 
             try
             {
@@ -58,9 +67,10 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                     _native = new NativeSdk(sdkPath);
                 }
 
-                _initialized = _native.Initialize();
+                _initialized = _native.Initialize(legacy);
                 if (!_initialized)
                 {
+                    ReleaseSdk();
                     Report(IsAgentInSession(sessionId) switch
                     {
                         true => "Agente do G HUB em execução. O SDK não iniciou. Confira se jogos e aplicativos podem controlar a iluminação no G HUB.",
@@ -70,12 +80,16 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                     return;
                 }
 
+                if (_lifetimeToken.WaitHandle.WaitOne(ConnectionSettleMs))
+                {
+                    ReleaseSdk();
+                    return;
+                }
                 if (!_native.SelectTarget(AllDeviceTypes))
                 {
                     Fail("O SDK iniciou, mas o G HUB recusou a seleção dos dispositivos LIGHTSYNC.");
                     return;
                 }
-
                 Diagnostic = null;
                 IsAvailable = true;
             }
@@ -91,7 +105,7 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         double scale = Math.Min((int)brightnessPercent, 100) / 255.0;
         lock (_syncLock)
         {
-            if (_disposed || !IsAvailable) return false;
+            if (_disposed || !IsAvailable || _lifetimeToken.IsCancellationRequested) return false;
 
             try
             {
@@ -108,11 +122,30 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         }
     }
 
+    public (byte R, byte G, byte B, byte Brightness)? Resend(
+        Func<(byte R, byte G, byte B, byte Brightness)?> readColor, Action<int, int> onAttempt)
+    {
+        for (int index = 0; index < ResendDelaysMs.Length && !_lifetimeToken.IsCancellationRequested; index++)
+        {
+            if (readColor() == null) break;
+            onAttempt(index + 1, ResendDelaysMs.Length);
+            Disconnect();
+            if (_lifetimeToken.WaitHandle.WaitOne(ResendDelaysMs[index])) break;
+
+            // A última tentativa também cobre versões do SDK que só aceitam a inicialização padrão.
+            Initialize(legacy: index == ResendDelaysMs.Length - 1);
+            if (!IsAvailable || _lifetimeToken.IsCancellationRequested) continue;
+            if (readColor() is not { } color) break;
+            if (SetColor(color.R, color.G, color.B, color.Brightness)) return color;
+        }
+        return null;
+    }
+
     public void Disconnect()
     {
         lock (_syncLock)
         {
-            CloseSession();
+            ReleaseSdk();
             Diagnostic = null;
         }
     }
@@ -123,9 +156,7 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         {
             if (_disposed) return;
             _disposed = true;
-            CloseSession();
-            _native?.Dispose();
-            _native = null;
+            ReleaseSdk();
         }
     }
 
@@ -141,8 +172,15 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
 
     private void Fail(string diagnostic, Exception? exception = null)
     {
-        CloseSession();
+        ReleaseSdk();
         Report(diagnostic, exception);
+    }
+
+    private void ReleaseSdk()
+    {
+        CloseSession();
+        _native?.Dispose();
+        _native = null;
     }
 
     private void Report(string diagnostic, Exception? exception = null)
@@ -218,8 +256,10 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
             {
                 if (NativeLibrary.TryGetExport(_library, "LogiLedInitWithName", out var namedInit))
                     _namedInit = Marshal.GetDelegateForFunctionPointer<InitWithName>(namedInit);
-                else
-                    _legacyInit = GetExport<Init>("LogiLedInit");
+                if (NativeLibrary.TryGetExport(_library, "LogiLedInit", out var legacyInit))
+                    _legacyInit = Marshal.GetDelegateForFunctionPointer<Init>(legacyInit);
+                if (_namedInit == null && _legacyInit == null)
+                    throw new EntryPointNotFoundException("LogiLedInitWithName / LogiLedInit");
                 _target = GetExport<SetTargetDevice>("LogiLedSetTargetDevice");
                 _color = GetExport<SetColorPercent>("LogiLedSetLighting");
                 _shutdown = GetExport<EndSession>("LogiLedShutdown");
@@ -234,7 +274,8 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         private T GetExport<T>(string name) where T : Delegate =>
             Marshal.GetDelegateForFunctionPointer<T>(NativeLibrary.GetExport(_library, name));
 
-        public bool Initialize() => _namedInit != null ? _namedInit("LinkFlow") : _legacyInit!();
+        public bool Initialize(bool legacy) => (legacy || _namedInit == null) && _legacyInit != null
+            ? _legacyInit() : _namedInit!("LinkFlow");
         public bool SelectTarget(int type) => _target(type);
         public bool SetLighting(int r, int g, int b) => _color(r, g, b);
         public void Shutdown() => _shutdown();

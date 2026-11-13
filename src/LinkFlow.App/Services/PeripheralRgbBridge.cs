@@ -3,16 +3,18 @@ using LinkFlow.Core;
 
 namespace LinkFlow.App.Services;
 
-/// <summary>Aplica a iluminação LIGHTSYNC na sessão do usuário quando o engine está no serviço.</summary>
+/// <summary>Aplica a iluminação LIGHTSYNC na sessão interativa do Windows.</summary>
 public sealed class PeripheralRgbBridge : IDisposable
 {
     private const int RetryDelayMs = 10_000;
     private readonly IEngineClient _engine;
-    private readonly LogitechPeripheralsRgb _device = new();
+    private readonly CancellationTokenSource _shutdown = new();
+    private readonly LogitechPeripheralsRgb _device;
     private readonly AutoResetEvent _wake = new(false);
     private readonly object _lifetime = new();
     private readonly Thread _thread;
     private volatile bool _disposed;
+    private bool _syncPeripherals;
     private int _resendRequested;
     private volatile BridgeStatus _status = new("Procurando o SDK do G HUB…", false);
 
@@ -21,6 +23,8 @@ public sealed class PeripheralRgbBridge : IDisposable
     public PeripheralRgbBridge(IEngineClient engine)
     {
         _engine = engine;
+        _device = new LogitechPeripheralsRgb(_shutdown.Token);
+        _syncPeripherals = engine.Config.Rgb.SyncPeripherals;
         _engine.AnyConfigChanged += OnConfigChanged;
         _thread = new Thread(Run) { IsBackground = true, Name = "LinkFlow Logitech", Priority = ThreadPriority.BelowNormal };
         _thread.Start();
@@ -35,18 +39,28 @@ public sealed class PeripheralRgbBridge : IDisposable
     {
         lock (_lifetime)
         {
-            if (_disposed) return;
+            if (_disposed || !_engine.Config.Rgb.SyncPeripherals) return;
             Interlocked.Exchange(ref _resendRequested, 1);
             _wake.Set();
         }
     }
 
-    private void OnConfigChanged(ControlConfig config)
+    private void OnConfigChanged(ControlConfig _)
     {
         lock (_lifetime)
         {
-            if (!_disposed) _wake.Set();
+            if (_disposed) return;
+            bool enabled = _engine.Config.Rgb.SyncPeripherals;
+            if (enabled && !_syncPeripherals) Interlocked.Exchange(ref _resendRequested, 1);
+            _syncPeripherals = enabled;
+            _wake.Set();
         }
+    }
+
+    private (byte R, byte G, byte B, byte Brightness)? ReadColor(RgbFrameClock clock, int interval)
+    {
+        var rgb = _engine.Config.Rgb;
+        return rgb.SyncPeripherals ? rgb.OutputFor(RgbTargets.Peripherals, clock.FrameTime(RgbEffects.Now, interval), 0) : null;
     }
 
     private void SetStatus(string text, bool hasIssue = false)
@@ -63,17 +77,19 @@ public sealed class PeripheralRgbBridge : IDisposable
         (byte R, byte G, byte B, byte Brightness)? applied = null;
         bool syncing = false;
         long nextAttempt = 0;
+        long nextReapply = 0;
         try
         {
             while (!_disposed)
             {
                 TimeSpan wait = Timeout.InfiniteTimeSpan;
                 bool animated = false;
+                bool resend = false;
                 try
                 {
+                    resend = Interlocked.Exchange(ref _resendRequested, 0) != 0;
                     var rgb = _engine.Config.Rgb;
                     animated = rgb.IsAnimated;
-                    bool resend = Interlocked.Exchange(ref _resendRequested, 0) != 0;
                     if (!rgb.SyncPeripherals)
                     {
                         if (syncing) _device.Disconnect();
@@ -87,13 +103,29 @@ public sealed class PeripheralRgbBridge : IDisposable
                         syncing = true;
                         if (resend)
                         {
-                            _device.Disconnect();
                             applied = null;
-                            nextAttempt = 0;
-                            SetStatus("Reconectando ao SDK do G HUB…");
+                            applied = _device.Resend(() => ReadColor(rgbClock, interval),
+                                (attempt, total) => SetStatus($"Reconectando ao G HUB · tentativa {attempt} de {total}…"));
+                            if (applied != null)
+                            {
+                                nextAttempt = 0;
+                                nextReapply = Environment.TickCount64 + RetryDelayMs;
+                                SetStatus("Iluminação reenviada pelo G HUB.");
+                                Log.Info("RGB Logitech: G HUB aceitou o reenvio.");
+                            }
+                            else if (_engine.Config.Rgb.SyncPeripherals && !_disposed)
+                            {
+                                nextAttempt = Environment.TickCount64 + RetryDelayMs;
+                                SetStatus(_device.Diagnostic ?? "O G HUB não aceitou o reenvio. Abra o G HUB para conferir a integração.", hasIssue: true);
+                            }
+                            if (_disposed || !_engine.Config.Rgb.SyncPeripherals) continue;
+                            rgb = _engine.Config.Rgb;
+                            animated = rgb.IsAnimated;
+                            if (animated && applied != null)
+                                rgbClock.RecordFrame(rgbClock.FrameTime(RgbEffects.Now, interval), interval);
                         }
 
-                        if (Environment.TickCount64 >= nextAttempt)
+                        if (!resend && Environment.TickCount64 >= nextAttempt)
                         {
                             if (!_device.IsAvailable) _device.Initialize();
                             if (!_device.IsAvailable)
@@ -105,16 +137,21 @@ public sealed class PeripheralRgbBridge : IDisposable
                             }
                             else
                             {
+                                rgb = _engine.Config.Rgb;
+                                if (!rgb.SyncPeripherals) continue;
+                                animated = rgb.IsAnimated;
                                 long frame = rgbClock.FrameTime(RgbEffects.Now, interval);
                                 var color = rgb.OutputFor(RgbTargets.Peripherals, frame, 0);
                                 TimeSpan? writeTime = null;
-                                if (color != applied)
+                                if (color != applied || Environment.TickCount64 >= nextReapply)
                                 {
                                     long started = Stopwatch.GetTimestamp();
                                     if (_device.SetColor(color.R, color.G, color.B, color.Brightness))
                                     {
                                         writeTime = Stopwatch.GetElapsedTime(started);
+                                        if (applied == null) Log.Info("RGB Logitech: G HUB aceitou a iluminação.");
                                         applied = color;
+                                        nextReapply = Environment.TickCount64 + RetryDelayMs;
                                         SetStatus("Último envio aceito pelo G HUB.");
                                     }
                                     else
@@ -131,6 +168,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                         long retryIn = nextAttempt - Environment.TickCount64;
                         if (retryIn > 0) wait = TimeSpan.FromMilliseconds(retryIn);
                         else if (animated) wait = rgbClock.UntilNextFrame(RgbEffects.Now, interval);
+                        else wait = TimeSpan.FromMilliseconds(Math.Max(0, nextReapply - Environment.TickCount64));
                     }
                 }
                 catch (Exception ex)
@@ -143,7 +181,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                 }
 
                 // Para cores estáticas, consolida os eventos rápidos do seletor de cor.
-                if (!_disposed && _wake.WaitOne(wait) && !animated && !_disposed)
+                if (!_disposed && _wake.WaitOne(wait) && !animated && !_disposed && Volatile.Read(ref _resendRequested) == 0)
                     Thread.Sleep(100);
             }
         }
@@ -155,7 +193,8 @@ public sealed class PeripheralRgbBridge : IDisposable
                 _disposed = true;
                 _wake.Dispose();
             }
-            _device.Dispose();
+            try { _device.Dispose(); }
+            finally { _shutdown.Dispose(); }
         }
     }
 
@@ -165,6 +204,7 @@ public sealed class PeripheralRgbBridge : IDisposable
         {
             if (_disposed) return;
             _disposed = true;
+            _shutdown.Cancel();
             _wake.Set();
         }
         if (Thread.CurrentThread != _thread) _thread.Join(500);

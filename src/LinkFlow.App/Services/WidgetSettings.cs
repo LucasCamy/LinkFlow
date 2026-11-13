@@ -31,7 +31,8 @@ public sealed class WidgetSettings
 
     public bool AlwaysOnTop { get; set; } = true;
     public bool ClickThrough { get; set; }
-    public bool HideInFullscreen { get; set; } = true;
+    public bool HideInFullscreen { get; set; }
+    public bool ShowInGames { get; set; }
     public bool SnapToEdges { get; set; } = true;
     public bool LockPosition { get; set; }
 

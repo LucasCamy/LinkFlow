@@ -38,19 +38,20 @@ public sealed class WidgetItemViewModel : ObservableObject
 
     public void Update(EngineSnapshot s)
     {
-        Def ??= SensorCatalog.Find(Setting.Id, s); // discos/ventoinhas podem aparecer depois
-        if (Def == null)
-        {
-            Text = "--";
-            IsAvailable = false;
-            return;
-        }
-        var display = Def.HasPercent && !Def.HasValue ? SensorDisplay.Percent : Def.HasValue && !Def.HasPercent ? SensorDisplay.Value : Setting.Display;
-        var r = Def.Read(s, display);
+        var r = Read(s);
         Text = r.Text;
         Ratio = r.Ratio ?? 0;
         IsAvailable = r.Available;
         OnPropertyChanged(nameof(HasRatio));
+    }
+
+    internal SensorReading Read(EngineSnapshot snapshot)
+    {
+        var sensor = Def ??= SensorCatalog.Find(Id, snapshot); // discos/ventoinhas podem aparecer depois
+        if (sensor == null) return SensorReading.Missing;
+        var display = sensor.HasPercent && !sensor.HasValue ? SensorDisplay.Percent :
+            sensor.HasValue && !sensor.HasPercent ? SensorDisplay.Value : Setting.Display;
+        return sensor.Read(snapshot, display);
     }
 
     public void RefreshStyle() => OnPropertiesChanged(nameof(Color), nameof(Label), nameof(FullLabel), nameof(DisplayLabel), nameof(IsPercent), nameof(CanToggleDisplay));
@@ -69,7 +70,8 @@ public sealed class WidgetViewModel : ObservableObject
     private readonly MainViewModel _main;
     private IReadOnlyList<WidgetPickerGroup> _picker = Array.Empty<WidgetPickerGroup>();
     private string _pickerSignature = string.Empty;
-    private bool _isVisible;
+    private bool _isEnabled;
+    private RtssOverlayStatus? _gameOverlayStatus;
 
     public WidgetViewModel(WidgetSettings settings, Action save, MainViewModel main)
     {
@@ -106,11 +108,15 @@ public sealed class WidgetViewModel : ObservableObject
 
     public event Action? BehaviorChanged;
 
-    /// <summary>A janela do widget está aberta (para pedir leitura de discos só quando preciso).</summary>
-    public bool IsWidgetVisible
+    /// <summary>O widget continua ligado enquanto estiver oculto temporariamente em tela cheia.</summary>
+    public bool IsWidgetEnabled
     {
-        get => _isVisible;
-        set => SetProperty(ref _isVisible, value);
+        get => _isEnabled;
+        set
+        {
+            if (!SetProperty(ref _isEnabled, value)) return;
+            BehaviorChanged?.Invoke();
+        }
     }
 
     public SensorDemand Demand => SensorCatalog.DemandFor(_s.Items.Select(i => i.Id));
@@ -190,7 +196,7 @@ public sealed class WidgetViewModel : ObservableObject
     private void Changed()
     {
         _save();
-        OnPropertiesChanged(nameof(HasItems), nameof(Picker), nameof(Demand));
+        OnPropertiesChanged(nameof(HasItems), nameof(Picker), nameof(Demand), nameof(GameOverlayStatus));
         _main.UpdateSensorDemand();
     }
 
@@ -282,8 +288,30 @@ public sealed class WidgetViewModel : ObservableObject
     public bool AlwaysOnTop { get => _s.AlwaysOnTop; set => Set(_s.AlwaysOnTop, value, v => _s.AlwaysOnTop = v, behavior: true); }
     public bool ClickThrough { get => _s.ClickThrough; set => Set(_s.ClickThrough, value, v => _s.ClickThrough = v, behavior: true); }
     public bool HideInFullscreen { get => _s.HideInFullscreen; set => Set(_s.HideInFullscreen, value, v => _s.HideInFullscreen = v, behavior: true); }
+    public bool ShowInGames { get => _s.ShowInGames; set => Set(_s.ShowInGames, value, v => _s.ShowInGames = v, behavior: true); }
     public bool SnapToEdges { get => _s.SnapToEdges; set => Set(_s.SnapToEdges, value, v => _s.SnapToEdges = v); }
     public bool LockPosition { get => _s.LockPosition; set => Set(_s.LockPosition, value, v => _s.LockPosition = v); }
+
+    internal bool IsGameOverlayPublishing => _gameOverlayStatus is RtssOverlayStatus.Publishing or RtssOverlayStatus.Busy;
+    public string GameOverlayStatus => !IsWidgetEnabled ? "Mostre o widget para enviar as leituras ao RTSS." :
+        !HasItems ? "Adicione uma leitura ao widget para exibir no jogo." : _gameOverlayStatus switch
+    {
+        RtssOverlayStatus.Publishing => "Leituras enviadas ao RTSS.",
+        RtssOverlayStatus.NotRunning => "Abra o RivaTuner Statistics Server para receber as leituras.",
+        RtssOverlayStatus.Unavailable => "Sem acesso ao OSD. Confira se o RTSS está atualizado e acessível nesta sessão.",
+        RtssOverlayStatus.NoFreeSlot => "O RTSS está sem espaço para mais informações no OSD.",
+        RtssOverlayStatus.Busy => "Aguardando o RTSS liberar a atualização.",
+        _ => "Aguardando o envio das leituras ao RTSS."
+    };
+
+    internal void SetGameOverlayStatus(RtssOverlayStatus? status)
+    {
+        if (_gameOverlayStatus == status) return;
+        bool wasPublishing = IsGameOverlayPublishing;
+        _gameOverlayStatus = status;
+        if (wasPublishing != IsGameOverlayPublishing) _main.UpdateSensorDemand();
+        OnPropertyChanged(nameof(GameOverlayStatus));
+    }
 
     public WidgetSettings Settings => _s;
 

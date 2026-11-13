@@ -13,11 +13,13 @@ public sealed class PipeEngineClient : IEngineClient
     private readonly string _pipeName;
     private readonly object _lock = new();
     private readonly CancellationTokenSource _cts = new();
-    private readonly Channel<string> _outgoing = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true });
+    private readonly Channel<OutgoingMessage> _outgoing = Channel.CreateUnbounded<OutgoingMessage>(new UnboundedChannelOptions { SingleReader = true });
     private ControlConfig _config = new();
     private NamedPipeClientStream? _pipe;
     private Task? _loop;
     private volatile bool _connected;
+
+    private readonly record struct OutgoingMessage(string Json, bool Coalesce = false);
 
     private PipeEngineClient(string pipeName) => _pipeName = pipeName;
 
@@ -117,7 +119,7 @@ public sealed class PipeEngineClient : IEngineClient
                     continue;
                 }
                 Log.Info("Reconectado ao serviço LinkFlow.");
-                if (_demand != SensorDemand.None) _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Demand, (int)_demand));
+                if (_demand != SensorDemand.None) QueueMessage(PipeProtocol.Demand, (int)_demand);
                 ConnectionChanged?.Invoke(true);
             }
 
@@ -166,12 +168,11 @@ public sealed class PipeEngineClient : IEngineClient
             {
                 // Coalescência: durante arrastes envia só a configuração mais recente
                 var latest = msg;
-                while (latest.StartsWith("{\"t\":\"setConfig\"", StringComparison.Ordinal) && _outgoing.Reader.TryPeek(out var next) &&
-                       next.StartsWith("{\"t\":\"setConfig\"", StringComparison.Ordinal) && _outgoing.Reader.TryRead(out next))
+                while (latest.Coalesce && _outgoing.Reader.TryPeek(out var next) && next.Coalesce && _outgoing.Reader.TryRead(out next))
                 {
                     latest = next;
                 }
-                var bytes = Encoding.UTF8.GetBytes(latest + "\n");
+                var bytes = Encoding.UTF8.GetBytes(latest.Json + "\n");
                 await pipe.WriteAsync(bytes, ct).ConfigureAwait(false);
                 await pipe.FlushAsync(ct).ConfigureAwait(false);
             }
@@ -223,9 +224,8 @@ public sealed class PipeEngineClient : IEngineClient
             next = Json.Clone(_config);
             mutate(next);
             next.Normalize();
-            _config = next;
+            QueueConfig(next);
         }
-        _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.SetConfig, next));
         AnyConfigChanged?.Invoke(next);
     }
 
@@ -233,22 +233,32 @@ public sealed class PipeEngineClient : IEngineClient
     {
         var next = Json.Clone(config);
         next.Normalize();
-        lock (_lock) _config = next;
-        _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.SetConfig, next));
+        lock (_lock) QueueConfig(next);
         AnyConfigChanged?.Invoke(next);
     }
 
-    public void RequestLcdFrame() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.LcdFrame, null));
-    public void NotifyResume() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Resume, null));
-    public void RefreshRgb() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.RefreshRgb, null));
-    public void RescanDevices() => _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Rescan, null));
+    // Mantém cada troca do interruptor da GPU, inclusive desligar e ligar em sequência.
+    private void QueueConfig(ControlConfig next)
+    {
+        bool gpuSyncChanged = next.Rgb.SyncGpu != _config.Rgb.SyncGpu;
+        _config = next;
+        QueueMessage(PipeProtocol.SetConfig, next, coalesce: !gpuSyncChanged);
+    }
+
+    private void QueueMessage(string type, object? payload = null, bool coalesce = false) =>
+        _outgoing.Writer.TryWrite(new OutgoingMessage(PipeProtocol.Encode(type, payload), coalesce));
+
+    public void RequestLcdFrame() => QueueMessage(PipeProtocol.LcdFrame);
+    public void NotifyResume() => QueueMessage(PipeProtocol.Resume);
+    public void RefreshRgb() => QueueMessage(PipeProtocol.RefreshRgb);
+    public void RescanDevices() => QueueMessage(PipeProtocol.Rescan);
 
     private SensorDemand _demand;
 
     public void SetSensorDemand(SensorDemand demand)
     {
         _demand = demand;
-        _outgoing.Writer.TryWrite(PipeProtocol.Encode(PipeProtocol.Demand, (int)demand));
+        QueueMessage(PipeProtocol.Demand, (int)demand);
     }
 
     /// <summary>Fecha só a conexão: o serviço continua controlando o hardware.</summary>
