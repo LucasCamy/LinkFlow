@@ -119,14 +119,14 @@ public class EngineTests
         EngineFixture.WaitUntil(() => Speed(f, 1) == 30);
 
         f.Hw.Sensors.ForcedCpuTemp = 97;
-        EngineFixture.WaitUntil(() => Speed(f, 1) == 100, because: "modo de segurança em 100%");
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 100 && f.Hw.Sensors.GpuFanManual == 100,
+            because: "hub e GPU em 100% no modo de segurança");
         Assert.True(f.Engine.GetSnapshot().FailSafeActive);
-        Assert.Equal((byte?)100, f.Hw.Sensors.GpuFanManual);
         EngineFixture.WaitUntil(() => { lock (alerts) return alerts.Any(a => a.Key == "failsafe"); });
 
         f.Hw.Sensors.ForcedCpuTemp = 60;
-        EngineFixture.WaitUntil(() => Speed(f, 1) == 30, because: "volta ao normal");
-        Assert.Null(f.Hw.Sensors.GpuFanManual);
+        EngineFixture.WaitUntil(() => Speed(f, 1) == 30 && f.Hw.Sensors.GpuFanManual == null,
+            because: "hub em 30% e GPU em modo automático");
     }
 
     [Fact]

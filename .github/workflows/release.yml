@@ -76,9 +76,15 @@ jobs:
             test -s "$asset"
           done
 
-          if is_draft=$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft'); then
-            if [[ "$is_draft" != true ]]; then
+          if release=$(gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft,assets); then
+            if [[ $(jq -r '.isDraft' <<< "$release") != true ]]; then
               echo "O release $GITHUB_REF_NAME já foi publicado."
+              exit 0
+            fi
+            if jq -e --arg setup "${assets[0]}" --arg zip "${assets[1]}" --arg sums "${assets[2]}" \
+              '[$setup, $zip, $sums] - [.assets[] | select(.state == "uploaded" and .size > 0) | .name] | length == 0' \
+              <<< "$release" > /dev/null; then
+              echo "O rascunho $GITHUB_REF_NAME já tem todos os arquivos."
               exit 0
             fi
             gh release upload "$GITHUB_REF_NAME" "${assets[@]}" --repo "$GITHUB_REPOSITORY" --clobber
