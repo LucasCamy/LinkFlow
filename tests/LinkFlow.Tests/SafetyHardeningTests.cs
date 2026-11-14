@@ -65,6 +65,25 @@ public class HubResponseTests
     }
 
     [Fact]
+    public void Temperatures_use_the_same_channel_numbering_as_speeds()
+    {
+        // Leitura real: bomba TITAN no canal 13 com o líquido a 42,7 °C; o registro 0 é o sensor do hub (41,2 °C)
+        var records = Enumerable.Repeat(((byte)0x01, (short)0), 15).ToArray();
+        records[0] = (0x00, 412);
+        records[13] = (0x00, 427);
+        var temps = LinkHubProtocol.ParseTemperatures(Response(LinkHubProtocol.DataTypeTemperatures, 0x00, records));
+
+        Assert.NotNull(temps);
+        Assert.Equal(42.7f, temps![13], 3);
+        Assert.False(temps.ContainsKey(14), "o líquido não pode aparecer no canal seguinte");
+        Assert.False(temps.ContainsKey(1), "o sensor do hub não pertence à ventoinha do canal 1");
+
+        var speedRecords = Enumerable.Repeat(((byte)0x01, (short)0), 15).ToArray();
+        speedRecords[13] = (0x00, 2953);
+        Assert.Equal(2953, LinkHubProtocol.ParseSpeeds(Response(LinkHubProtocol.DataTypeSpeeds, 0x00, speedRecords))![13]);
+    }
+
+    [Fact]
     public void Truncated_packet_is_rejected()
     {
         Assert.Null(LinkHubProtocol.ParseSpeeds(new byte[6]));

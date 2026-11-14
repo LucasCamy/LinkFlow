@@ -56,12 +56,13 @@ public sealed class CorsairLinkHub : IFanHub
 
     private void InitializeHub()
     {
-        var fwResp = SendCommandInternal(LinkHubProtocol.ReadFirmwareVersion);
-        if (fwResp != null && fwResp.Length > 7)
+        var fwResp = SendCommandInternal(LinkHubProtocol.ReadFirmwareVersion, checkStatus: true);
+        if (fwResp != null && fwResp.Length > 8)
         {
-            int v1 = fwResp[4];
-            int v2 = fwResp[5];
-            int v3 = BinaryPrimitives.ReadUInt16LittleEndian(fwResp.AsSpan(6, 2));
+            // [4] é o status; a versão vem depois (antes lia o status como primeiro número: "0.4.36865")
+            int v1 = fwResp[5];
+            int v2 = fwResp[6];
+            int v3 = BinaryPrimitives.ReadUInt16LittleEndian(fwResp.AsSpan(7, 2));
             FirmwareVersion = $"{v1}.{v2}.{v3}";
         }
 

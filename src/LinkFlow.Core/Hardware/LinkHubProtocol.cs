@@ -174,8 +174,10 @@ public static class LinkHubProtocol
         if (rawPacket.Length < 16 || !IsResponse(rawPacket, DataTypeTemperatures)) return null;
         var temps = new Dictionary<int, float>();
 
-        // Valores a partir de [9], status no byte anterior
-        int startOffset = 9;
+        // Mesmo layout das velocidades: o registro 0 é o próprio hub e o canal N é o registro N, valor em
+        // [12 + 3(N-1)] e status no byte anterior. Antes lia a partir de [9] e deslocava tudo um canal: a
+        // temperatura do líquido (bomba no canal 13) aparecia no canal 14 e a do hub no canal 1.
+        int startOffset = 12;
 
         for (int ch = 0; ch < 24 && startOffset + 2 <= rawPacket.Length; ch++, startOffset += 3)
         {
