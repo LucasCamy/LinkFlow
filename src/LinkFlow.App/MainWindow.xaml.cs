@@ -68,6 +68,7 @@ public partial class MainWindow : Window
 
     public MainViewModel ViewModel { get; }
     public SettingsViewModel Settings => App.Current.SettingsVm;
+    public AppUpdateViewModel Updates => App.Current.Updates;
     public bool IsMiniWidgetVisible => _miniWidget?.IsVisible == true;
     public WidgetViewModel Widget { get; }
     public string ShortcutHint => $"F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow {typeof(App).Assembly.GetName().Version!.ToString(3)}";
@@ -203,6 +204,15 @@ public partial class MainWindow : Window
     }
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
+
+    public void ShowAppUpdates()
+    {
+        SelectPage(5);
+        AppSettingsPage.ShowUpdates();
+        ShowFromTray();
+    }
+
+    private void ShowAppUpdates_Click(object sender, RoutedEventArgs e) => ShowAppUpdates();
 
     internal void ShowFanDevices() => FansView.ShowDevices();
 

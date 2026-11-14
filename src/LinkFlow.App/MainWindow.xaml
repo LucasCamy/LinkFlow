@@ -75,6 +75,9 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Style="{StaticResource GhostButton}" Content="Atualização disponível" Click="ShowAppUpdates_Click"
+                            Visibility="{Binding Updates.HasUpdate, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"
+                            Foreground="{StaticResource AccentBrush}" Margin="0,0,6,0"/>
                     <Button Style="{StaticResource GhostButton}" Click="OpenAlertHistory_Click"
                             Visibility="{Binding AlertCenter.HasHistory, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"
                             ToolTip="Histórico de alertas" AutomationProperties.Name="Histórico de alertas">
@@ -221,7 +224,7 @@
                     <views:LightingPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=2}"/>
                     <views:LcdPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=3}"/>
                     <views:WidgetPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=4}"/>
-                    <views:SettingsPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=5}"/>
+                    <views:SettingsPage x:Name="AppSettingsPage" Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=5}"/>
                     <views:HardwarePage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=6}"/>
                     <views:WindowsPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=7}"/>
                     <views:DriversPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=8}"/>

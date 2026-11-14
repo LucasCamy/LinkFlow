@@ -9,6 +9,7 @@ public sealed class UiSettings
     public bool MinimizeToTray { get; set; } = true;
     public bool ShowTrayTemperature { get; set; } = true;
     public bool AlertNotifications { get; set; } = true;
+    public bool CheckForAppUpdates { get; set; } = true;
     public bool GlobalHotkeys { get; set; } = true;
     public bool TrayHintShown { get; set; }
 

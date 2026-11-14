@@ -25,6 +25,7 @@ public partial class App : Application
     public MainWindow? MainView { get; private set; }
     public UiSettingsService Settings { get; private set; } = null!;
     public SettingsViewModel SettingsVm { get; private set; } = null!;
+    public AppUpdateViewModel Updates { get; private set; } = null!;
     public bool IsServiceMode => _engine?.IsRemote == true;
     private PeripheralRgbBridge? _peripheralBridge;
     private AutomationService? _automation;
@@ -70,11 +71,12 @@ public partial class App : Application
             _instance = new SingleInstance(Options.Simulate ? "LinkFlow.App.Sim" : "LinkFlow.App");
             if (!_instance.IsFirstInstance)
             {
+                int exitCode = 0;
                 if (Options.ExitRunning)
                 {
                     Log.Info("--exit: pedindo encerramento da instância em execução.");
                     _instance.SignalExit();
-                    _instance.WaitForFirstInstanceExit(TimeSpan.FromSeconds(15));
+                    if (!_instance.WaitForFirstInstanceExit(TimeSpan.FromSeconds(15))) exitCode = 1460;
                 }
                 else
                 {
@@ -83,7 +85,7 @@ public partial class App : Application
                 }
                 _instance.Dispose();
                 _instance = null;
-                Shutdown();
+                Shutdown(exitCode);
                 return;
             }
             if (Options.ExitRunning)
@@ -104,6 +106,7 @@ public partial class App : Application
 
         Settings = new UiSettingsService();
         SettingsVm = new SettingsViewModel(Settings);
+        Updates = new AppUpdateViewModel(Settings, allowInstall: !Options.Simulate && !testRun);
 
         _engine = CreateEngineClient();
         _engine.Start();
@@ -149,6 +152,12 @@ public partial class App : Application
             ShowMainWindow();
         }
         if (Settings.Current.MiniVisible) MainView.SetWidgetEnabled(true);
+        if (!Options.Simulate)
+        {
+            Updates.UpdateFound += version => _tray?.ShowNotification($"LinkFlow {version} disponível",
+                "Abra Configurações → Atualizações para baixar a nova versão.");
+            _ = Updates.WatchAsync();
+        }
     }
 
     /// <summary>
@@ -301,6 +310,7 @@ public partial class App : Application
     {
         _tray = new TrayIconService();
         _tray.OpenRequested += ShowMainWindow;
+        _tray.UpdatesRequested += () => MainView?.ShowAppUpdates();
         _tray.ExitRequested += ExitApplication;
         _tray.MiniWidgetToggled += () => MainView?.ToggleMiniWidget(fromTray: true);
         _tray.PresetRequested += key => _vm?.ApplyPreset(key);
@@ -427,6 +437,7 @@ public partial class App : Application
         try
         {
             SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+            Updates?.Dispose();
             Settings?.Flush();
             _tray?.Dispose();
             _peripheralBridge?.Dispose();
