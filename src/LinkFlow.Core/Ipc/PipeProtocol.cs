@@ -14,7 +14,9 @@ public static class PipeProtocol
     public const int MaxMessageBytes = 1024 * 1024;
 
     /// <summary>LINKFLOW_PIPE permite isolar testes do serviço real.</summary>
-    public static string PipeName { get; } = Environment.GetEnvironmentVariable("LINKFLOW_PIPE") ?? "LinkFlow.Engine.v1";
+    public static string PipeName { get; } = Environment.GetEnvironmentVariable("LINKFLOW_PIPE") ?? DefaultPipeName;
+
+    public const string DefaultPipeName = "LinkFlow.Engine.v1";
 
     // Servidor → cliente
     public const string Hello = "hello";

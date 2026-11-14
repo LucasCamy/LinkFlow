@@ -5,7 +5,7 @@ namespace LinkFlow.Service;
 
 public static class ServiceInfo
 {
-    public const string Name = "LinkFlowService";
+    public const string Name = PipeIdentity.ServiceName;
     public const string DisplayName = "LinkFlow";
 }
 
@@ -18,10 +18,16 @@ public sealed record WorkerOptions(bool Simulate);
 public sealed class EngineWorker : BackgroundService
 {
     private readonly WorkerOptions _options;
+    private readonly PowerEvents _power;
     private LinkFlowEngine? _engine;
     private PipeEngineServer? _server;
 
-    public EngineWorker(WorkerOptions options) => _options = options;
+    public EngineWorker(WorkerOptions options, PowerEvents power)
+    {
+        _options = options;
+        _power = power;
+        _power.Resumed += () => _engine?.NotifyResume();
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

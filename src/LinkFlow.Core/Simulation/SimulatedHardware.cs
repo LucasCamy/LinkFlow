@@ -193,9 +193,15 @@ public sealed class SimulatedSensors : ISensorSource
     /// <summary>Teste: o LibreHardwareMonitor parou de entregar temperaturas (ex.: após suspender).</summary>
     public bool TemperaturesLost { get; set; }
 
+    public int OpenCalls { get; private set; }
+
+    /// <summary>Teste: reabrir os sensores faz as temperaturas voltarem (como no LibreHardwareMonitor real).</summary>
+    public bool ReopenRestoresTemperatures { get; set; }
+
     public void Open()
     {
         Thread.Sleep(OpenDelay);
+        if (OpenCalls++ > 0 && ReopenRestoresTemperatures) TemperaturesLost = false;
         IsOpen = true;
     }
 

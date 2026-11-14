@@ -58,11 +58,15 @@ public sealed class JsonFileStore<T> where T : class, new()
     /// <summary>True quando o último <see cref="Load"/> encontrou o arquivo principal inválido.</summary>
     public bool LoadedFromFallback { get; private set; }
 
+    /// <summary>True quando o arquivo principal estava inválido e a cópia <see cref="BackupPath"/> foi usada.</summary>
+    public bool RecoveredFromBackup { get; private set; }
+
     public T Load()
     {
         lock (_lock)
         {
             LoadedFromFallback = false;
+            RecoveredFromBackup = false;
             if (!File.Exists(FilePath) && !File.Exists(BackupPath)) return new T();
             if (TryRead(FilePath, out var value)) return value;
 
@@ -74,6 +78,7 @@ public sealed class JsonFileStore<T> where T : class, new()
             }
             if (TryRead(BackupPath, out var backup))
             {
+                RecoveredFromBackup = true;
                 Log.Warn($"Configuração inválida em {FilePath}: usando a cópia {BackupPath}.");
                 return backup;
             }

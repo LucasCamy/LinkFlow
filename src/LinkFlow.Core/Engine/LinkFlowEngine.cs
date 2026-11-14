@@ -38,6 +38,10 @@ public sealed class EngineOptions
     /// </summary>
     public bool MediaLibraryOnly { get; set; }
 
+    /// <summary>Programas que disputam o hub (iCUE, SignalRGB...). Null = processos reais, exceto na simulação.</summary>
+    public Func<IReadOnlyList<string>>? ConflictProbe { get; set; }
+    public TimeSpan ConflictCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
+
     /// <summary>Arquivo onde a configuração é persistida. Null = não persiste (testes).</summary>
     public string? ConfigPath { get; set; } = AppPaths.ControlConfigFile;
 }
@@ -166,6 +170,20 @@ public sealed class LinkFlowEngine : IDisposable
 
         _config = initialConfig ?? _store?.Load() ?? new ControlConfig();
         _config.Normalize();
+        if (initialConfig == null && _store is { LoadedFromFallback: true })
+        {
+            // Antes o arquivo inválido virava padrão em silêncio (perfis e curvas sumiam sem explicação)
+            _alerts["config-recovered"] = new EngineAlert
+            {
+                Key = "config-recovered",
+                Severity = AlertSeverity.Warning,
+                Title = _store.RecoveredFromBackup ? "Configuração recuperada da cópia" : "Configuração redefinida",
+                Message = _store.RecoveredFromBackup
+                    ? "O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas."
+                    : "O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido.",
+                Since = DateTime.Now
+            };
+        }
 
         _hub = factory.CreateHub();
         _sensors = factory.CreateSensors();
@@ -265,6 +283,11 @@ public sealed class LinkFlowEngine : IDisposable
             catch (OperationCanceledException) { }
             catch (Exception ex) { Log.Error($"Fila '{name}' encerrou com erro", ex); }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+    public bool FailSafeEnabled
+    {
+        get { lock (_configLock) return _config.Safety.FailSafeEnabled; }
+    }
 
     public ControlConfig GetConfig()
     {
@@ -463,6 +486,8 @@ public sealed class LinkFlowEngine : IDisposable
         int failures = 0;
         Dictionary<int, byte>? lastSent = null;
         var zeroReads = new Dictionary<string, int>();
+        long nextConflictCheck = 0;
+        var conflictProbe = _opt.ConflictProbe ?? (IsSimulated ? null : ConflictDetector.FindRunning);
 
         while (!ct.IsCancellationRequested)
         {
@@ -470,6 +495,12 @@ public sealed class LinkFlowEngine : IDisposable
             long now = Stopwatch.GetTimestamp();
             try
             {
+                if (conflictProbe != null && now >= nextConflictCheck)
+                {
+                    nextConflictCheck = now + Ticks(_opt.ConflictCheckInterval);
+                    UpdateConflictAlert(conflictProbe());
+                }
+
                 if (Interlocked.Exchange(ref _forceReconnectHub, 0) == 1)
                 {
                     if (_hub.IsConnected) _hub.Disconnect(restoreHardwareMode: false);
@@ -603,6 +634,27 @@ public sealed class LinkFlowEngine : IDisposable
         }
     }
 
+    private string? _conflict;
+
+    private void UpdateConflictAlert(IReadOnlyList<string> programs)
+    {
+        string? conflict = programs.Count > 0 ? ConflictDetector.Describe(programs) : null;
+        if (conflict == _conflict) return;
+        _conflict = conflict;
+        lock (_stateLock)
+        {
+            if (conflict == null)
+            {
+                ClearAlert("conflict");
+                Log.Info("Nenhum outro programa disputando o hub.");
+                return;
+            }
+            RaiseAlert("conflict", AlertSeverity.Warning, "Outro programa controla o hub",
+                $"{conflict} está em execução. Dois programas no iCUE LINK Hub embaralham os comandos (cores trocadas, " +
+                "leituras de 0 RPM e modo de segurança sem motivo). Feche-o ou desative o controle do hub nele.");
+        }
+    }
+
     private void OnHubConnected()
     {
         var devices = _hub.SubDevices;
@@ -648,7 +700,9 @@ public sealed class LinkFlowEngine : IDisposable
             _failSafeRecoveryStarted = null;
             _hubStatus = _hubEverConnected
                 ? "Reconectando ao iCUE LINK Hub..."
-                : "iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)";
+                : _conflict != null
+                    ? $"iCUE LINK Hub não encontrado: feche {_conflict}"
+                    : "iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)";
             if (wasConnected || _hubEverConnected)
             {
                 RaiseAlert("hub-lost", AlertSeverity.Warning, "Hub desconectado",
@@ -675,7 +729,8 @@ public sealed class LinkFlowEngine : IDisposable
                 }
                 else
                 {
-                    // Alguns coolers LINK publicam a temperatura do líquido em outro canal.
+                    // Reserva: bomba sem leitura própria. (O caso "líquido em outro canal" vinha de um erro de
+                    // leitura que deslocava as temperaturas um canal, corrigido em LinkHubProtocol.)
                     foreach (var (channel, temperature) in temps)
                     {
                         if (temperature is not (> 15 and < 80) || temperature <= _coolant) continue;
@@ -835,6 +890,9 @@ public sealed class LinkFlowEngine : IDisposable
         string? lastCurve = null;
         long? curveInputMissingSince = null;
         TimeSpan? curveInputMissingFor = null;
+        bool sensorsEverReported = false;
+        long? sensorsMissingSince = null;
+        long lastSensorReopen = 0;
 
         while (!ct.IsCancellationRequested)
         {
@@ -867,6 +925,24 @@ public sealed class LinkFlowEngine : IDisposable
                     lastCpu = t.CpuSensorAvailable ? t.CpuTemperature : null;
                     lastGpu = t.GpuTemperature;
                     lastCoolant = coolant;
+
+                    // O LibreHardwareMonitor às vezes para de responder (ex.: após suspender): CPU e GPU que
+                    // funcionavam somem. Reabre os sensores, no máximo uma vez por minuto.
+                    if (lastCpu != null || lastGpu != null)
+                    {
+                        sensorsEverReported = true;
+                        sensorsMissingSince = null;
+                    }
+                    else if (sensorsEverReported)
+                    {
+                        long since = sensorsMissingSince ??= Stopwatch.GetTimestamp();
+                        if (Stopwatch.GetElapsedTime(since) >= _opt.SensorLossTimeout &&
+                            (lastSensorReopen == 0 || Stopwatch.GetElapsedTime(lastSensorReopen) >= TimeSpan.FromMinutes(1)))
+                        {
+                            lastSensorReopen = Stopwatch.GetTimestamp();
+                            ReopenSensors();
+                        }
+                    }
                     lastTemp = CurveController.SelectTemp(cfg.Curve.Source, lastCpu, lastGpu, coolant);
 
                     // Curva sem temperatura nenhuma: sem isso ela ficaria parada no último valor para sempre
@@ -936,6 +1012,18 @@ public sealed class LinkFlowEngine : IDisposable
             var wait = Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextRead);
             await WaitAsync(_sensorSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
+    }
+
+    /// <summary>Fecha e abre de novo o LibreHardwareMonitor (chamado na fila de sensores).</summary>
+    private void ReopenSensors()
+    {
+        Log.Warn("Sensores de CPU e GPU pararam de responder: reabrindo o LibreHardwareMonitor.");
+        try { _sensors.Dispose(); } catch (Exception ex) { Log.Warn($"Falha ao fechar os sensores: {ex.Message}"); }
+        try { _sensors.Open(); } catch (Exception ex) { Log.Warn($"Sensores indisponíveis: {ex.Message}"); }
+        // Reaplica o que dependia da instância anterior: leitura de discos e fan manual da GPU
+        _storageOn = false;
+        Interlocked.Increment(ref _gpuFanVersion);
+        Signal(_sensorSignal);
     }
 
     /// <summary>A curva global (no modo Curva) ou alguma curva de grupo não tem nenhuma temperatura disponível.</summary>
