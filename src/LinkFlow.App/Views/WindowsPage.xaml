@@ -119,7 +119,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Aplicativos" Style="{StaticResource SystemTab}">
+            <TabItem Header="Aplicativos" Style="{StaticResource SystemTab}" Visibility="{Binding DataContext.AdvancedToolsEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,24" VerticalAlignment="Top">
                         <StackPanel x:Name="AppsForm">
@@ -225,7 +225,7 @@
                 <views:WindowsNetworkPage x:Name="NetworkPage"/>
             </TabItem>
 
-            <TabItem Header="Manutenção" Style="{StaticResource SystemTab}">
+            <TabItem Header="Manutenção" Style="{StaticResource SystemTab}" Visibility="{Binding DataContext.AdvancedToolsEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}">
                 <views:WindowsMaintenancePage/>
             </TabItem>
 

@@ -69,6 +69,12 @@ public partial class WindowsPage : UserControl
         SettingsShortcuts.ItemsSource = Shortcuts;
         GameShortcuts.ItemsSource = GamingShortcuts;
         DiagnosticActions.ItemsSource = Diagnostics;
+        // Ferramentas avançadas desligadas em Configurações: não deixa uma aba escondida aberta
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible && WindowsTabs.SelectedItem is TabItem { Visibility: not Visibility.Visible })
+                WindowsTabs.SelectedIndex = 0;
+        };
     }
 
     private async void ReadPower_Click(object sender, RoutedEventArgs e) => await RefreshPowerAsync();

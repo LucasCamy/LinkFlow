@@ -137,7 +137,9 @@ public partial class MainViewModel
         get => _selectedPage;
         set
         {
-            if (value < 0 || value >= PageTitles.Length || !SetProperty(ref _selectedPage, value)) return;
+            if (value < 0 || value >= PageTitles.Length) return;
+            if (value == DriversPageIndex && !_advancedToolsEnabled) return;   // Ctrl+9 com as ferramentas desligadas
+            if (!SetProperty(ref _selectedPage, value)) return;
             CloseDetail();
             OnPropertyChanged(nameof(PageTitle));
             UpdateSensorDemand();
@@ -146,6 +148,20 @@ public partial class MainViewModel
     }
 
     public event Action<int>? PageChanged;
+
+    public const int DriversPageIndex = 8;
+    private bool _advancedToolsEnabled = true;
+
+    /// <summary>Ferramentas avançadas do sistema visíveis (página Drivers, abas Aplicativos e Manutenção).</summary>
+    public bool AdvancedToolsEnabled
+    {
+        get => _advancedToolsEnabled;
+        set
+        {
+            if (!SetProperty(ref _advancedToolsEnabled, value)) return;
+            if (!value && _selectedPage == DriversPageIndex) SelectedPage = 0;
+        }
+    }
     public string PageTitle => PageTitles[_selectedPage];
 
     /// <summary>Janela estreita: navegação lateral mostra só ícones.</summary>

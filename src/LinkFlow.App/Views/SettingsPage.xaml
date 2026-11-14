@@ -72,6 +72,16 @@
                                             </StackPanel>
                                         </CheckBox>
                                     </Border>
+                                    <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AdvancedSystemTools}" Margin="0"
+                                                  AutomationProperties.Name="Habilitar ferramentas avançadas do sistema">
+                                            <StackPanel>
+                                                <TextBlock Text="Habilitar ferramentas avançadas do sistema" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="Mostra a página Drivers e as abas Aplicativos e Manutenção do Windows. Elas instalam drivers, removem apps e alteram o sistema."
+                                                           Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
                                 </StackPanel>
                             </StackPanel>
                         </Border>

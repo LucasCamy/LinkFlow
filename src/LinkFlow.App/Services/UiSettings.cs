@@ -16,6 +16,12 @@ public sealed class UiSettings
     /// <summary>Transições entre telas e diálogos (também respeita "Efeitos de animação" do Windows).</summary>
     public bool Animations { get; set; } = true;
 
+    /// <summary>
+    /// Mostra as ferramentas avançadas do sistema: página Drivers e as abas Aplicativos (remoção)
+    /// e Manutenção. null = ainda não decidido (ver <see cref="UiSettingsService"/>).
+    /// </summary>
+    public bool? AdvancedSystemTools { get; set; }
+
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
     public double? WindowWidth { get; set; }
@@ -45,7 +51,11 @@ public sealed class UiSettingsService
 
     public UiSettingsService()
     {
+        // Quem já usava o app (ui.json existente) mantém as ferramentas avançadas visíveis na
+        // atualização; instalação nova começa sem elas
+        bool upgrading = System.IO.File.Exists(AppPaths.UiSettingsFile);
         Current = _store.Load();
+        Current.AdvancedSystemTools ??= upgrading;
         _saveTimer = new Timer(_ => _store.Save(Current), null, Timeout.Infinite, Timeout.Infinite);
     }
 

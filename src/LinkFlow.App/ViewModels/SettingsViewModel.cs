@@ -30,7 +30,7 @@ public sealed class SettingsViewModel : ObservableObject
 
     /// <summary>Após importar preferências: atualiza todos os interruptores da tela.</summary>
     public void NotifyAllChanged() => OnPropertiesChanged(nameof(CloseToTray), nameof(MinimizeToTray),
-        nameof(ShowTrayTemperature), nameof(AlertNotifications), nameof(GlobalHotkeys));
+        nameof(ShowTrayTemperature), nameof(AlertNotifications), nameof(GlobalHotkeys), nameof(AdvancedSystemTools));
 
     public bool CloseToTray
     {
@@ -65,6 +65,13 @@ public sealed class SettingsViewModel : ObservableObject
             Services.Motion.UserEnabled = value;
             OnPropertyChanged();
         }
+    }
+
+    /// <summary>Drivers, remoção de apps e manutenção do Windows (desligado em instalações novas).</summary>
+    public bool AdvancedSystemTools
+    {
+        get => _settings.Current.AdvancedSystemTools == true;
+        set { _settings.Update(s => s.AdvancedSystemTools = value); OnPropertyChanged(); }
     }
 
     public bool GlobalHotkeys

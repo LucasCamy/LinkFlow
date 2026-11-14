@@ -304,4 +304,20 @@ public sealed class ViewModelTests : IDisposable
         Assert.Contains("RPM", _vm.AverageFanRpmFormatted);
         Assert.False(string.IsNullOrEmpty(_vm.RamDetail));
     }
+
+    [Fact]
+    public void Drivers_page_is_unreachable_while_advanced_tools_are_off()
+    {
+        _vm.AdvancedToolsEnabled = false;
+        _vm.NavigateCommand.Execute(MainViewModel.DriversPageIndex.ToString());   // Ctrl+9
+        Assert.NotEqual(MainViewModel.DriversPageIndex, _vm.SelectedPage);
+
+        _vm.AdvancedToolsEnabled = true;
+        _vm.NavigateCommand.Execute(MainViewModel.DriversPageIndex.ToString());
+        Assert.Equal(MainViewModel.DriversPageIndex, _vm.SelectedPage);
+
+        // Desligar com a página aberta volta para o Painel
+        _vm.AdvancedToolsEnabled = false;
+        Assert.Equal(0, _vm.SelectedPage);
+    }
 }
