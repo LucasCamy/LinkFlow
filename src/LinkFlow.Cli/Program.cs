@@ -3,9 +3,21 @@ using LinkFlow.Core;
 
 class Program
 {
-    static void Main()
+    static int Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+        // O diagnóstico abre o hardware direto: com o serviço rodando, os dois disputariam GPU, placa-mãe e SMBus
+        bool serviceRunning;
+        try { serviceRunning = System.IO.Directory.EnumerateFiles(@"\\.\pipe\", LinkFlow.Core.Ipc.PipeProtocol.PipeName).Any(); }
+        catch { serviceRunning = false; }
+        if (serviceRunning && !args.Contains("--force", StringComparer.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("O serviço LinkFlow está em execução e controla o hardware.");
+            Console.WriteLine("Pare o serviço antes do diagnóstico ou use --force (pode causar cores e leituras erradas).");
+            return 2;
+        }
+
         Console.WriteLine("==================================================");
         Console.WriteLine("   LinkFlow - Diagnóstico de Hardware e RGB");
         Console.WriteLine("==================================================");
@@ -35,5 +47,6 @@ class Program
 
         Console.WriteLine();
         Console.WriteLine("Diagnóstico concluído.");
+        return 0;
     }
 }
