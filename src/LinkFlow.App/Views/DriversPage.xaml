@@ -214,15 +214,33 @@
                         </StackPanel>
                     </Border>
 
-                    <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}">
-                        <Border Style="{StaticResource SystemPanel}" Padding="0" Margin="0,0,0,24" VerticalAlignment="Top"
-                                Visibility="{Binding HasItems, ElementName=InstalledList, Converter={StaticResource BoolToVis}}">
-                            <StackPanel>
-                                <DockPanel Margin="16,11,43,11">
+                    <!-- Centenas de drivers: a lista rola sozinha e só cria as linhas visíveis (virtualização).
+                         Recycling ficaria de fora: reaproveitar linhas levaria o estado aberto do Expander para outro driver. -->
+                    <Border Grid.Row="1" Style="{StaticResource SystemPanel}" Padding="0" Margin="0,0,8,24" VerticalAlignment="Top"
+                            Visibility="{Binding HasItems, ElementName=InstalledList, Converter={StaticResource BoolToVis}}">
+                            <DockPanel>
+                                <DockPanel DockPanel.Dock="Top" Margin="16,11,43,11">
                                     <TextBlock DockPanel.Dock="Right" Text="Versão" Style="{StaticResource Label}"/>
                                     <TextBlock Text="Dispositivo" Style="{StaticResource Label}"/>
                                 </DockPanel>
-                                <ItemsControl x:Name="InstalledList">
+                                <ItemsControl x:Name="InstalledList"
+                                              VirtualizingPanel.IsVirtualizing="True"
+                                              VirtualizingPanel.VirtualizationMode="Standard"
+                                              VirtualizingPanel.ScrollUnit="Pixel"
+                                              ScrollViewer.CanContentScroll="True">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.Template>
+                                        <ControlTemplate TargetType="ItemsControl">
+                                            <ScrollViewer CanContentScroll="True" Focusable="False"
+                                                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                <ItemsPresenter/>
+                                            </ScrollViewer>
+                                        </ControlTemplate>
+                                    </ItemsControl.Template>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Expander Style="{StaticResource InstalledDriverRow}" Header="{Binding}" AutomationProperties.Name="{Binding Name}">
@@ -268,9 +286,8 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                    </ScrollViewer>
+                            </DockPanel>
+                    </Border>
                 </Grid>
             </TabItem>
         </TabControl>

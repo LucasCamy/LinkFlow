@@ -108,6 +108,20 @@ public sealed class FanCurveConfig
         new(40, 30), new(55, 45), new(70, 65), new(80, 85), new(90, 100)
     };
 
+    /// <summary>
+    /// Mesma curva (fonte, pontos, histerese e suavização). A fila de sensores compara a cada ciclo para saber
+    /// se a curva foi editada; antes serializava a curva em JSON a cada leitura.
+    /// </summary>
+    public bool SameAs(FanCurveConfig? other)
+    {
+        if (ReferenceEquals(this, other)) return true;
+        if (other == null || Source != other.Source || Hysteresis != other.Hysteresis || Smoothing != other.Smoothing) return false;
+        if (Points.Count != other.Points.Count) return false;
+        for (int i = 0; i < Points.Count; i++)
+            if (Points[i].Temp != other.Points[i].Temp || Points[i].Percent != other.Points[i].Percent) return false;
+        return true;
+    }
+
     public void Normalize()
     {
         Points ??= DefaultPoints();

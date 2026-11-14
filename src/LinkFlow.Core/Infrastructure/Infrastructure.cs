@@ -200,18 +200,61 @@ public static class Log
     /// <summary>Pasta onde este processo está gravando o log.</summary>
     public static string CurrentLogDir => _logDir ?? AppPaths.LogsDir;
 
+    /// <summary>Tamanho máximo de um arquivo de log; ao passar, ele vira <c>.1.log</c> e recomeça.</summary>
+    public static long MaxFileBytes { get; set; } = 20L * 1024 * 1024;
+
+    // O arquivo fica aberto entre as linhas (antes abria e fechava a cada linha). Chamar com Lock adquirido.
+    private static StreamWriter? _writer;
+    private static string? _writerPath;
+
     private static bool TryAppend(string dir, string name, string line)
     {
+        var path = Path.Combine(dir, name);
         try
         {
-            Directory.CreateDirectory(dir);
-            File.AppendAllText(Path.Combine(dir, name), line, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+            if (_writer == null || _writerPath != path) OpenWriter(dir, path);
+            var stream = _writer!.BaseStream;
+            if (stream.Length >= MaxFileBytes)
+            {
+                // Um laço de erros não enche o disco: guarda só o arquivo anterior
+                CloseWriter();
+                File.Move(path, Path.ChangeExtension(path, ".1.log"), overwrite: true);
+                OpenWriter(dir, path);
+                stream = _writer!.BaseStream;
+            }
+            // Outro processo da mesma origem (ex.: segunda instância avisando a primeira) pode ter escrito
+            stream.Seek(0, SeekOrigin.End);
+            _writer.Write(line);
             return true;
         }
         catch
         {
+            CloseWriter();
             return false;
         }
+    }
+
+    private static void OpenWriter(string dir, string path)
+    {
+        CloseWriter();
+        Directory.CreateDirectory(dir);
+        // OpenOrCreate + Seek(End) antes de cada linha (Append proíbe voltar se outro processo rotacionou o arquivo)
+        var stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
+        _writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true)) { AutoFlush = true };
+        _writerPath = path;
+    }
+
+    private static void CloseWriter()
+    {
+        try { _writer?.Dispose(); } catch { }
+        _writer = null;
+        _writerPath = null;
+    }
+
+    /// <summary>Fecha o arquivo de log (testes e encerramento). A próxima linha reabre.</summary>
+    public static void Flush()
+    {
+        lock (Lock) CloseWriter();
     }
 
     public static void CleanupOldLogs(int keepDays = 7)
