@@ -26,6 +26,7 @@ public sealed class TrayIconService : IDisposable
     private string _lastIconKey = string.Empty;
 
     public event Action? OpenRequested;
+    public event Action? UpdatesRequested;
     public event Action? ExitRequested;
     public event Action? MiniWidgetToggled;
     public event Action<string>? PresetRequested;
@@ -49,6 +50,7 @@ public sealed class TrayIconService : IDisposable
 
         _header = new ToolStripMenuItem("LinkFlow") { Enabled = false };
         var open = new ToolStripMenuItem("Abrir LinkFlow", null, (_, _) => OpenRequested?.Invoke()) { Font = new Font("Segoe UI", 9.5f, FontStyle.Bold) };
+        var updates = new ToolStripMenuItem("Atualizações do LinkFlow", null, (_, _) => UpdatesRequested?.Invoke());
         _profilesMenu = new ToolStripMenuItem("Perfis de ventoinha");
         _miniItem = new ToolStripMenuItem("Mini widget", null, (_, _) => MiniWidgetToggled?.Invoke());
         _lcdItem = new ToolStripMenuItem("Transmitir métricas no LCD", null, (_, _) => LcdStreamToggled?.Invoke(!_lcdItem!.Checked));
@@ -59,7 +61,7 @@ public sealed class TrayIconService : IDisposable
         {
             _header, new ToolStripSeparator(),
             open, _profilesMenu, _miniItem, _lcdItem, new ToolStripSeparator(),
-            _autostartItem, new ToolStripSeparator(),
+            _autostartItem, updates, new ToolStripSeparator(),
             _exitItem
         });
         _menu.Opening += (_, _) => MenuOpening?.Invoke();

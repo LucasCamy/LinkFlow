@@ -21,7 +21,7 @@
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <AssemblyName>LinkFlow.App</AssemblyName>
     <Product>LinkFlow</Product>
-    <Version>2.2.0</Version>
+    <Version>2.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Company>LinkFlow</Company>
     <Description>LinkFlow - controle de ventoinhas, RGB e LCD para Corsair iCUE LINK</Description>

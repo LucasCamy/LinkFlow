@@ -35,9 +35,18 @@ Baixe o **`LinkFlow-Setup-<versão>.exe`** na página de [Releases](https://gith
 - O Windows pode mostrar "O Windows protegeu o computador" (o instalador não é assinado): clique em **Mais informações → Executar assim mesmo**.
 - **Feche o iCUE** antes de usar: os dois não podem controlar o hub ao mesmo tempo.
 - Opcional: **RGB das memórias Corsair DDR5** precisa do [PawnIO](https://pawnio.eu/) instalado; **periféricos Logitech** precisam do G HUB aberto com "Permitir que jogos e aplicativos controlem a iluminação" ligado.
-- Para atualizar, rode o instalador da versão nova por cima (as configurações ficam em `%ProgramData%\LinkFlow`). Para remover, use **Configurações do Windows → Aplicativos**.
+- Para remover, use **Configurações do Windows → Aplicativos**.
 
 Também há a versão **portátil** (`LinkFlow-<versão>-portable.zip`): descompacte e abra `LinkFlow.App.exe`.
+
+### Atualizar
+
+Instale a versão 2.3.0 ou posterior por cima da anterior uma vez para ter acesso ao atualizador. As configurações continuam em `%ProgramData%\LinkFlow` e as preferências da interface em `%AppData%\LinkFlow`.
+
+O LinkFlow consulta as releases estáveis do GitHub ao iniciar e periodicamente enquanto estiver aberto, inclusive na bandeja. Você pode desativar essa consulta ou usar **Verificar atualização** em **Configurações → Atualizações**.
+
+- Na versão instalada, escolha **Baixar atualização**. O LinkFlow verifica o tamanho e o SHA-256 publicado pelo GitHub. Depois, **Instalar e reiniciar** abre o instalador, que pode pedir permissão de administrador. Durante a atualização, a interface fecha e o serviço instalado em execução é pausado. Ao terminar, o serviço é iniciado novamente e a interface reabre.
+- Na versão portátil, escolha **Baixar no navegador** e extraia o ZIP em uma nova pasta.
 
 ## Arquitetura
 

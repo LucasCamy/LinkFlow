@@ -11,6 +11,13 @@ public partial class SettingsPage : UserControl
 {
     public SettingsPage() => InitializeComponent();
 
+    public void ShowUpdates() => SettingsTabs.SelectedItem = UpdatesTab;
+
+    private async void CheckUpdate_Click(object sender, RoutedEventArgs e) => await App.Current.Updates.CheckAsync();
+    private async void UpdateAction_Click(object sender, RoutedEventArgs e) => await App.Current.Updates.RunActionAsync();
+    private void CancelUpdateDownload_Click(object sender, RoutedEventArgs e) => App.Current.Updates.CancelDownload();
+    private void OpenUpdateDownloads_Click(object sender, RoutedEventArgs e) => App.Current.Updates.OpenDownloads();
+
     private static void OpenFolder(string path)
     {
         try

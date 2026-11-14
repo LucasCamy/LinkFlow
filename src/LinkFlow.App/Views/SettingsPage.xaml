@@ -328,6 +328,50 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+            <TabItem x:Name="UpdatesTab" Header="Atualizações" Style="{StaticResource SystemTab}">
+                <ScrollViewer Style="{StaticResource SystemScroll}">
+                    <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,24" VerticalAlignment="Top"
+                            DataContext="{Binding Updates, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <StackPanel>
+                            <DockPanel>
+                                <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                    <TextBlock Text="&#xE72C;" Style="{StaticResource SystemIcon}"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Atualizações do LinkFlow" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="{Binding VersionText}" Style="{StaticResource SystemDetail}"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <Border Style="{StaticResource SystemRow}" Margin="0,16,0,0">
+                                <CheckBox Style="{StaticResource ToggleSwitch}" Margin="0" IsChecked="{Binding AutomaticCheck}"
+                                          AutomationProperties.Name="Buscar atualizações automaticamente">
+                                    <StackPanel>
+                                        <TextBlock Text="Buscar atualizações automaticamente" Style="{StaticResource SystemItemTitle}"/>
+                                        <TextBlock Text="O LinkFlow avisa quando uma nova versão está disponível." Style="{StaticResource SystemDetail}"/>
+                                    </StackPanel>
+                                </CheckBox>
+                            </Border>
+                            <TextBlock Text="{Binding Status}" Style="{StaticResource SystemDetail}" Margin="0,12,0,0"
+                                       AutomationProperties.LiveSetting="Polite"/>
+                            <ProgressBar Height="5" Maximum="100" Value="{Binding Progress, Mode=OneWay}" Margin="0,8,0,0"
+                                         Foreground="{StaticResource AccentBrush}" Background="{StaticResource BgBrush}"
+                                         Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"
+                                         AutomationProperties.Name="Progresso do download da atualização"/>
+                            <WrapPanel Margin="0,14,-8,-8">
+                                <Button Style="{StaticResource PrimaryButton}" Content="{Binding ActionText}" Click="UpdateAction_Click"
+                                        Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding CanCheck}"
+                                        Margin="0,0,8,8"/>
+                                <Button Style="{StaticResource SecondaryButton}" Content="Verificar atualização" Click="CheckUpdate_Click"
+                                        IsEnabled="{Binding CanCheck}" Margin="0,0,8,8"/>
+                                <Button Style="{StaticResource SecondaryButton}" Content="Cancelar download" Click="CancelUpdateDownload_Click"
+                                        Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}" Margin="0,0,8,8"/>
+                                <Button Style="{StaticResource SecondaryButton}" Content="Abrir página de downloads" Click="OpenUpdateDownloads_Click"
+                                        Visibility="{Binding ShowDownloadsLink, Converter={StaticResource BoolToVis}}" Margin="0,0,8,8"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>
