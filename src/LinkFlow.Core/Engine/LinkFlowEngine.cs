@@ -20,6 +20,28 @@ public sealed class EngineOptions
     public int PumpLowReadsBeforeAlert { get; set; } = 3;
     public TimeSpan FailSafeRecoveryDelay { get; set; } = TimeSpan.FromSeconds(15);
 
+    /// <summary>Curva sem nenhuma temperatura (CPU, GPU e líquido) por este tempo → modo de segurança.</summary>
+    public TimeSpan SensorLossTimeout { get; set; } = TimeSpan.FromSeconds(10);
+
+    /// <summary>Fila do hub ou dos sensores sem completar um ciclo por este tempo → considerada travada.</summary>
+    public TimeSpan LaneStallTimeout { get; set; } = TimeSpan.FromSeconds(60);
+
+    /// <summary>
+    /// Chamado (uma vez) quando uma fila crítica trava ou termina sozinha, depois de devolver o hub ao modo
+    /// hardware. O serviço encerra o processo para o Windows reiniciá-lo.
+    /// </summary>
+    public Action<string>? LaneStalled { get; set; }
+
+    /// <summary>
+    /// True no serviço (SYSTEM): o LCD só abre imagens de %ProgramData%\LinkFlow\media, porque a configuração
+    /// pode vir de qualquer processo da sessão.
+    /// </summary>
+    public bool MediaLibraryOnly { get; set; }
+
+    /// <summary>Programas que disputam o hub (iCUE, SignalRGB...). Null = processos reais, exceto na simulação.</summary>
+    public Func<IReadOnlyList<string>>? ConflictProbe { get; set; }
+    public TimeSpan ConflictCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
+
     /// <summary>Arquivo onde a configuração é persistida. Null = não persiste (testes).</summary>
     public string? ConfigPath { get; set; } = AppPaths.ControlConfigFile;
 }
@@ -35,7 +57,7 @@ public sealed class EngineOptions
 /// A configuração é tratada como "último valor vence": arrastar um slider gera muitas atualizações,
 /// mas cada fila aplica apenas o estado mais recente quando acorda.
 /// </summary>
-public sealed class LinkFlowEngine : IDisposable
+public sealed partial class LinkFlowEngine : IDisposable
 {
     private const int GpuRgbResendAttempts = 3;
     private static readonly TimeSpan GpuRgbResendDelay = TimeSpan.FromMilliseconds(350);
@@ -148,6 +170,20 @@ public sealed class LinkFlowEngine : IDisposable
 
         _config = initialConfig ?? _store?.Load() ?? new ControlConfig();
         _config.Normalize();
+        if (initialConfig == null && _store is { LoadedFromFallback: true })
+        {
+            // Antes o arquivo inválido virava padrão em silêncio (perfis e curvas sumiam sem explicação)
+            _alerts["config-recovered"] = new EngineAlert
+            {
+                Key = "config-recovered",
+                Severity = AlertSeverity.Warning,
+                Title = _store.RecoveredFromBackup ? "Configuração recuperada da cópia" : "Configuração redefinida",
+                Message = _store.RecoveredFromBackup
+                    ? "O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas."
+                    : "O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido.",
+                Since = DateTime.Now
+            };
+        }
 
         _hub = factory.CreateHub();
         _sensors = factory.CreateSensors();
@@ -158,7 +194,10 @@ public sealed class LinkFlowEngine : IDisposable
         _peripheralsRgb = factory.CreatePeripheralsRgb();
 
         _saveTimer = new Timer(_ => SaveNow(), null, Timeout.Infinite, Timeout.Infinite);
+        _watchdog = new Timer(CheckLanes, null, Timeout.Infinite, Timeout.Infinite);
     }
+
+    private readonly Timer _watchdog;
 
     // ------------------------------------------------------------------ API pública
 
@@ -172,6 +211,8 @@ public sealed class LinkFlowEngine : IDisposable
         _lanes.Add(RunLane("memórias", () => RamLoopAsync(ct)));
         _lanes.Add(RunLane("snapshot", () => PublishLoopAsync(ct)));
         if (!IsSimulated) WatchUsb();
+        var period = Min(TimeSpan.FromSeconds(5), _opt.LaneStallTimeout / 4);
+        _watchdog.Change(period, period);
         Log.Info($"Engine iniciado ({(IsSimulated ? "simulação" : "hardware real")}).");
     }
 
@@ -182,6 +223,11 @@ public sealed class LinkFlowEngine : IDisposable
             catch (OperationCanceledException) { }
             catch (Exception ex) { Log.Error($"Fila '{name}' encerrou com erro", ex); }
         }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+    public bool FailSafeEnabled
+    {
+        get { lock (_configLock) return _config.Safety.FailSafeEnabled; }
+    }
 
     public ControlConfig GetConfig()
     {
@@ -368,917 +414,6 @@ public sealed class LinkFlowEngine : IDisposable
         }
     }
 
-    // ------------------------------------------------------------------ Fila do hub
-
-    private async Task HubLoopAsync(CancellationToken ct)
-    {
-        var rgbClock = new RgbFrameClock();
-        int rgbInterval = RgbFrameClock.IntervalMs(_opt.HubRgbMinInterval);
-        long nextRead = 0, nextReconnect = 0, lastSpeedApply = 0, lastRgbApply = 0;
-        long nextDeviceCheck = Stopwatch.GetTimestamp() + Ticks(_opt.SubDeviceCheckInterval);
-        long appliedRgbVersion = -1;
-        int failures = 0;
-        Dictionary<int, byte>? lastSent = null;
-        var zeroReads = new Dictionary<string, int>();
-
-        while (!ct.IsCancellationRequested)
-        {
-            long now = Stopwatch.GetTimestamp();
-            try
-            {
-                if (Interlocked.Exchange(ref _forceReconnectHub, 0) == 1)
-                {
-                    if (_hub.IsConnected) _hub.Disconnect(restoreHardwareMode: false);
-                    nextReconnect = 0;
-                }
-
-                if (Interlocked.Exchange(ref _usbChangedHub, 0) == 1 && !_hub.IsConnected) nextReconnect = 0;
-                if (!_hub.IsConnected && now >= nextReconnect)
-                {
-                    bool ok = SafeCall(() => _hub.Connect());
-                    nextReconnect = now + Ticks(_opt.ReconnectInterval);
-                    if (ok)
-                    {
-                        failures = 0;
-                        zeroReads.Clear();
-                        lastSent = null;
-                        appliedRgbVersion = -1;
-                        nextRead = 0;
-                        OnHubConnected();
-                    }
-                    else
-                    {
-                        OnHubDisconnected();
-                    }
-                }
-
-                if (_hub.IsConnected)
-                {
-                    ControlConfig cfg;
-                    lock (_configLock) cfg = _config;
-
-                    // 1. Telemetria do hub
-                    if (now >= nextRead)
-                    {
-                        nextRead = now + Ticks(_opt.TelemetryInterval);
-                        var speeds = _hub.ReadSpeeds();
-                        var temps = _hub.ReadTemperatures();
-
-                        if (speeds == null && temps == null) failures++;
-                        else failures = 0;
-
-                        if (failures >= _opt.HubFailuresBeforeReconnect || !_hub.IsConnected)
-                        {
-                            Log.Warn("Hub sem resposta: reconectando.");
-                            _hub.Disconnect(restoreHardwareMode: false);
-                            OnHubDisconnected();
-                            nextReconnect = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(1));
-                            continue;
-                        }
-
-                        UpdateHubTelemetry(cfg, speeds, temps, zeroReads);
-
-                        // Ventoinha conectada/removida na corrente do hub (o USB do hub não muda)
-                        if (now >= nextDeviceCheck)
-                        {
-                            nextDeviceCheck = now + Ticks(_opt.SubDeviceCheckInterval);
-                            if (_hub.RefreshSubDevices())
-                            {
-                                Log.Info("Dispositivos do hub mudaram: atualizando a lista.");
-                                OnHubConnected();
-                                lastSent = null;
-                            }
-                        }
-                    }
-
-                    // 2. Velocidades (somente quando mudam, ou reafirmação periódica)
-                    var desired = ComputeDesiredSpeeds(cfg);
-                    bool reassert = Stopwatch.GetElapsedTime(lastSpeedApply) >= _opt.SpeedReassertInterval;
-                    if (desired.Count > 0 && (lastSent == null || reassert || !SameSpeeds(desired, lastSent)))
-                    {
-                        if (_hub.SetSpeedsPercent(desired))
-                        {
-                            lastSent = desired;
-                            lastSpeedApply = Stopwatch.GetTimestamp();
-                            lock (_stateLock)
-                            {
-                                foreach (var f in _fans)
-                                    if (desired.TryGetValue(f.Channel, out var p)) f.AppliedPercent = p;
-                            }
-                        }
-                    }
-
-                    // 3. RGB do hub (limitado a ~16 atualizações/s durante arrastes e efeitos)
-                    long rgbVersion = Interlocked.Read(ref _rgbVersion);
-                    bool hubAnimated = cfg.Rgb.SyncHub && cfg.Rgb.IsAnimated;
-                    long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
-                    bool nextRgbFrame = hubAnimated && rgbClock.IsDue(frame, rgbInterval);
-                    if ((appliedRgbVersion != rgbVersion || nextRgbFrame) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
-                    {
-                        bool changed = appliedRgbVersion != rgbVersion;
-                        appliedRgbVersion = rgbVersion;
-                        lastRgbApply = Stopwatch.GetTimestamp();
-                        if (cfg.Rgb.SyncHub)
-                        {
-                            bool ok;
-                            if (hubAnimated)
-                            {
-                                ok = ApplyHubFrame(cfg.Rgb, frame);
-                                rgbClock.RecordFrame(frame, rgbInterval, ok ? Stopwatch.GetElapsedTime(lastRgbApply) : null);
-                            }
-                            else
-                            {
-                                var o = cfg.Rgb.OutputFor(RgbTargets.Hub);
-                                ok = _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
-                            }
-                            if (changed || _rgbHubOk != ok) lock (_stateLock) _rgbHubOk = ok;
-                        }
-                        else
-                        {
-                            lock (_stateLock) _rgbHubOk = null;
-                        }
-                    }
-                }
-            }
-            catch (OperationCanceledException) { break; }
-            catch (Exception ex)
-            {
-                Log.Error("Erro na fila do hub", ex);
-                await Task.Delay(1000, ct).ConfigureAwait(false);
-            }
-
-            // Espera até a próxima leitura, ou acorda antes se a configuração mudar
-            var wait = _hub.IsConnected
-                ? Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextRead)
-                : Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextReconnect);
-            if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion && _hub.IsConnected)
-                wait = Min(wait, _opt.HubRgbMinInterval);
-            if (_hub.IsConnected && CurrentRgb is { SyncHub: true, IsAnimated: true })
-                wait = Min(wait, RgbFrameWait(rgbClock, rgbInterval, lastRgbApply, _opt.HubRgbMinInterval));
-            await WaitAsync(_hubSignal, Clamp(wait), ct).ConfigureAwait(false);
-        }
-    }
-
-    private void OnHubConnected()
-    {
-        var devices = _hub.SubDevices;
-        lock (_stateLock)
-        {
-            _hubConnected = true;
-            _hubEverConnected = true;
-            _hubFirmware = _hub.FirmwareVersion;
-            _hubStatus = $"Conectado • FW {_hub.FirmwareVersion} • {devices.Count} dispositivos";
-            _fans = devices.Select(d => new FanState
-            {
-                Key = FanState.KeyFor(d),
-                Channel = d.Channel,
-                DeviceId = d.DeviceId,
-                DefaultName = d.Name,
-                Model = d.Model.ToString(),
-                IsPump = d.IsPump,
-                Rpm = d.CurrentRpm
-            }).ToList();
-            foreach (var key in _alerts.Keys.Where(k => k.StartsWith("pump:", StringComparison.Ordinal) &&
-                         !_fans.Any(f => f.IsPump && $"pump:{f.Key}" == k)).ToArray())
-                ClearAlert(key);
-            ClearAlert("hub-lost");
-        }
-        Log.Info($"Hub conectado: FW {_hub.FirmwareVersion}, {devices.Count} dispositivos.");
-    }
-
-    private void OnHubDisconnected()
-    {
-        lock (_stateLock)
-        {
-            bool wasConnected = _hubConnected;
-            _hubConnected = false;
-            _coolant = null;
-            _coolantChannel = null;
-            _hubTemperatures = null;
-            _hasHubSpeeds = false;
-            foreach (var fan in _fans)
-            {
-                fan.Rpm = 0;
-                fan.Temperature = null;
-            }
-            _failSafeRecoveryStarted = null;
-            _hubStatus = _hubEverConnected
-                ? "Reconectando ao iCUE LINK Hub..."
-                : "iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)";
-            if (wasConnected || _hubEverConnected)
-            {
-                RaiseAlert("hub-lost", AlertSeverity.Warning, "Hub desconectado",
-                    "O iCUE LINK Hub parou de responder. Tentando reconectar automaticamente.");
-            }
-        }
-    }
-
-    private void UpdateHubTelemetry(ControlConfig cfg, IReadOnlyDictionary<int, int>? speeds,
-        IReadOnlyDictionary<int, float>? temps, Dictionary<string, int> zeroReads)
-    {
-        lock (_stateLock)
-        {
-            var pump = _fans.FirstOrDefault(f => f.IsPump);
-            _hubTemperatures = temps;
-            _coolant = null;
-            _coolantChannel = null;
-            if (temps != null)
-            {
-                if (pump != null && temps.TryGetValue(pump.Channel, out var pt) && pt > 0 && float.IsFinite(pt))
-                {
-                    _coolant = pt;
-                    _coolantChannel = pump.Channel;
-                }
-                else
-                {
-                    // Alguns coolers LINK publicam a temperatura do líquido em outro canal.
-                    foreach (var (channel, temperature) in temps)
-                    {
-                        if (temperature is not (> 15 and < 80) || temperature <= _coolant) continue;
-                        _coolant = temperature;
-                        _coolantChannel = channel;
-                    }
-                }
-            }
-            foreach (var f in _fans)
-                f.Temperature = temps != null && temps.TryGetValue(f.Channel, out var t) ? t : null;
-
-            _hasHubSpeeds = speeds != null;
-            if (speeds == null) return;
-
-            foreach (var f in _fans)
-            {
-                f.Rpm = speeds.TryGetValue(f.Channel, out var rpm) ? rpm : 0;
-
-                string name = cfg.GetFan(f.Key).Name ?? f.DefaultName;
-                if (f.IsPump)
-                {
-                    bool low = f.Rpm < cfg.Safety.PumpMinRpm;
-                    int n = low ? zeroReads.GetValueOrDefault(f.Key) + 1 : 0;
-                    zeroReads[f.Key] = n;
-                    if (n >= _opt.PumpLowReadsBeforeAlert && (cfg.Safety.FailSafeEnabled || cfg.Safety.FanStopAlert))
-                        RaiseAlert($"pump:{f.Key}", AlertSeverity.Critical, "Bomba com rotação baixa",
-                            $"{name}: {f.Rpm} RPM (mínimo {cfg.Safety.PumpMinRpm}). Verifique a bomba!");
-                    else ClearAlert($"pump:{f.Key}");
-                }
-                else
-                {
-                    if (!cfg.Safety.FanStopAlert)
-                    {
-                        zeroReads.Remove(f.Key);
-                        ClearAlert($"fan:{f.Key}");
-                        continue;
-                    }
-
-                    // Dispositivos de modelo desconhecido podem não ter tacômetro (ex.: módulos sem ventoinha)
-                    bool stopped = f.Rpm == 0 && f.AppliedPercent >= FanLimits.MinPercent &&
-                                   f.Model != nameof(LinkDeviceModel.Unknown);
-                    int n = stopped ? zeroReads.GetValueOrDefault(f.Key) + 1 : 0;
-                    zeroReads[f.Key] = n;
-                    if (n >= _opt.FanStopReadsBeforeAlert)
-                        RaiseAlert($"fan:{f.Key}", AlertSeverity.Warning, "Ventoinha parada",
-                            $"{name} está em 0 RPM com {f.AppliedPercent}% de potência.");
-                    else if (n == 0) ClearAlert($"fan:{f.Key}");
-                }
-            }
-        }
-    }
-
-    private byte EffectiveGlobal(ControlConfig cfg)
-    {
-        if (_failSafe) return 100;
-        if (cfg.Mode == FanControlMode.Curve && _curveOutput >= 0) return (byte)_curveOutput;
-        return cfg.GlobalPercent;
-    }
-
-    /// <summary>Velocidade desejada por canal, considerando vínculo global, ajustes manuais, bomba e modo de segurança.</summary>
-    public Dictionary<int, byte> ComputeDesiredSpeeds(ControlConfig cfg)
-    {
-        var result = new Dictionary<int, byte>();
-        byte global = EffectiveGlobal(cfg);
-        bool failSafe = _failSafe;
-        var groupOutputs = _groupOutputs;
-        foreach (var dev in _hub.SubDevices)
-        {
-            var ov = cfg.GetFan(FanState.KeyFor(dev));
-            // Vinculada: segue a curva do seu grupo (se houver) ou a potência global/curva global
-            byte linked = ov.Group != null && groupOutputs.TryGetValue(ov.Group, out var go) ? (byte)go : global;
-            byte p = failSafe ? (byte)100 : ov.Linked ? linked : ov.Percent;
-            if (dev.IsPump) p = Math.Max((byte)FanLimits.PumpMinPercent, p);
-            result[dev.Channel] = Math.Clamp(p, (byte)FanLimits.MinPercent, (byte)100);
-        }
-        return result;
-    }
-
-    private static bool SameSpeeds(Dictionary<int, byte> a, Dictionary<int, byte> b) =>
-        a.Count == b.Count && a.All(kv => b.TryGetValue(kv.Key, out var v) && v == kv.Value);
-
-
-
-    // ------------------------------------------------------------------ Conexão de dispositivos (USB)
-
-    private int _usbChangedHub, _usbChangedAux;
-
-    /// <summary>
-    /// Avisado pelo Windows quando algo USB/HID é conectado: hub/LCD reconectam na hora
-    /// em vez de esperar a próxima tentativa (que fica mais espaçada e consome menos).
-    /// </summary>
-    private void WatchUsb()
-    {
-        try
-        {
-            HidSharp.DeviceList.Local.Changed += (_, _) =>
-            {
-                Interlocked.Exchange(ref _usbChangedHub, 1);
-                Interlocked.Exchange(ref _usbChangedAux, 1);
-                Signal(_hubSignal);
-                Signal(_auxSignal);
-                Signal(_ramSignal);
-            };
-        }
-        catch (Exception ex)
-        {
-            Log.Debug($"Aviso de USB indisponível: {ex.Message}");
-        }
-    }
-    // ------------------------------------------------------------------ Curvas por grupo
-
-    private volatile Dictionary<string, int> _groupOutputs = new();
-
-    /// <summary>Cada grupo com curva própria tem seu controlador (suavização/histerese independentes).</summary>
-    private void EvaluateGroupCurves(ControlConfig cfg, Dictionary<string, (CurveController Controller, string Json)> controllers,
-        float? cpu, float? gpu, float? coolant, bool newSample)
-    {
-        var outputs = new Dictionary<string, int>();
-        foreach (var (group, curveCfg) in cfg.GroupCurves)
-        {
-            string json = System.Text.Json.JsonSerializer.Serialize(curveCfg, Json.Compact);
-            if (!controllers.TryGetValue(group, out var entry) || entry.Json != json)
-            {
-                entry = (new CurveController(), json); // curva editada: aplica sem esperar a histerese
-                controllers[group] = entry;
-            }
-            var temp = CurveController.SelectTemp(curveCfg.Source, cpu, gpu, coolant);
-            if (temp is { } t && (newSample || entry.Controller.Current == null)) outputs[group] = entry.Controller.Evaluate(curveCfg, t);
-            else if (entry.Controller.Current is { } cur) outputs[group] = cur;
-        }
-        foreach (var removed in controllers.Keys.Where(k => !cfg.GroupCurves.ContainsKey(k)).ToList()) controllers.Remove(removed);
-
-        var prev = _groupOutputs;
-        if (prev.Count != outputs.Count || outputs.Any(kv => !prev.TryGetValue(kv.Key, out var v) || v != kv.Value))
-        {
-            _groupOutputs = outputs;
-            Signal(_hubSignal);
-        }
-    }
-    // ------------------------------------------------------------------ Fila de sensores
-
-    private async Task SensorLoopAsync(CancellationToken ct)
-    {
-        await Task.Yield();
-        try { _sensors.Open(); }
-        catch (Exception ex) { Log.Warn($"Sensores indisponíveis: {ex.Message}"); }
-        lock (_stateLock) _sensorsReady = true;
-
-        var curve = new CurveController();
-        var groupControllers = new Dictionary<string, (CurveController Controller, string Json)>();
-        float? lastCpu = null, lastGpu = null, lastCoolant = null;
-        var lastMode = (FanControlMode)(-1);
-        long appliedGpuVersion = -1;
-        bool? gpuFailSafeApplied = null;
-        long nextRead = 0;
-        float? lastTemp = null;
-        string? lastCurve = null;
-
-        while (!ct.IsCancellationRequested)
-        {
-            try
-            {
-                ControlConfig cfg;
-                long gpuVersion;
-                lock (_configLock) { cfg = _config; gpuVersion = _gpuFanVersion; }
-
-                bool safetyChanged = false;
-                bool newSample = Stopwatch.GetTimestamp() >= nextRead;
-                if (newSample)
-                {
-                    nextRead = Stopwatch.GetTimestamp() + Ticks(_opt.TelemetryInterval);
-                    var t = _sensors.Read();
-                    var network = _stats.ReadNetwork();
-                    var volumes = _stats.ReadVolumes();
-                    UpdateStorageDemand();
-                    var disks = _sensors.ReadDisks();
-                    float? coolant;
-                    lock (_stateLock)
-                    {
-                        _telemetry = t;
-                        _network = network;
-                        _volumes = volumes;
-                        _disks = disks;
-                        coolant = _coolant;
-                    }
-                    lastCpu = t.CpuSensorAvailable ? t.CpuTemperature : null;
-                    lastGpu = t.GpuTemperature;
-                    lastCoolant = coolant;
-                    lastTemp = CurveController.SelectTemp(cfg.Curve.Source, lastCpu, lastGpu, coolant);
-                    safetyChanged = EvaluateSafety(cfg.Safety, lastCpu, lastGpu);
-                }
-                else if (_failSafe && !cfg.Safety.FailSafeEnabled)
-                {
-                    safetyChanged = EvaluateSafety(cfg.Safety, lastCpu, lastGpu);
-                }
-
-                // Curva automática
-                int previousOutput = _curveOutput;
-                if (safetyChanged && !_failSafe)
-                {
-                    curve.Reset();
-                    groupControllers.Clear();
-                }
-                string curveJson = System.Text.Json.JsonSerializer.Serialize(cfg.Curve, Json.Compact);
-                bool curveEdited = lastCurve != null && curveJson != lastCurve;
-                if (cfg.Mode != lastMode || curveEdited)
-                {
-                    // Mudou o modo ou a curva foi editada: aplica imediatamente, sem histerese pendente
-                    float? smoothed = curve.SmoothedTemp;
-                    curve.Reset();
-                    if (smoothed != null && cfg.Mode == lastMode) lastTemp ??= smoothed;
-                    lastMode = cfg.Mode;
-                    lastCurve = curveJson;
-                }
-
-                if (cfg.Mode != FanControlMode.Curve) _curveOutput = -1;
-                else if (lastTemp is { } temp && (newSample || curve.Current == null)) _curveOutput = curve.Evaluate(cfg.Curve, temp);
-                lock (_stateLock) _curveInputTemp = curve.SmoothedTemp ?? lastTemp;
-                EvaluateGroupCurves(cfg, groupControllers, lastCpu, lastGpu, lastCoolant, newSample);
-                if (safetyChanged || previousOutput != _curveOutput) Signal(_hubSignal);
-
-                // Fan da GPU (LibreHardwareMonitor)
-                bool failSafe = _failSafe;
-                if (gpuFailSafeApplied != failSafe || (!failSafe && appliedGpuVersion != gpuVersion))
-                {
-                    bool applied = failSafe ? _sensors.SetGpuFanSpeed(100) :
-                        cfg.GpuFanAuto ? _sensors.SetGpuFanAuto() : _sensors.SetGpuFanSpeed(cfg.GpuFanPercent);
-                    if (applied)
-                    {
-                        gpuFailSafeApplied = failSafe;
-                        appliedGpuVersion = gpuVersion;
-                    }
-                    else gpuFailSafeApplied = null;
-                }
-            }
-            catch (OperationCanceledException) { break; }
-            catch (Exception ex)
-            {
-                Log.Error("Erro na fila de sensores", ex);
-                await Task.Delay(1000, ct).ConfigureAwait(false);
-            }
-
-            var wait = Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextRead);
-            await WaitAsync(_sensorSignal, Clamp(wait), ct).ConfigureAwait(false);
-        }
-    }
-
-    private bool EvaluateSafety(SafetyConfig s, float? cpu, float? gpu)
-    {
-        lock (_stateLock)
-        {
-            float? coolant = _coolant;
-            TempAlert("cpu-temp", "CPU", cpu, s.CpuWarn, s.CpuCritical);
-            TempAlert("gpu-temp", "GPU", gpu, s.GpuWarn, s.GpuCritical);
-            if (s.FailSafeEnabled && coolant >= s.CoolantCritical && _coolantChannel is { } channel)
-                _failSafeCoolantChannels.Add(channel);
-            bool coolantReadingsValid = true;
-            foreach (int source in _failSafeCoolantChannels)
-            {
-                if (_hubTemperatures != null && _hubTemperatures.TryGetValue(source, out var temperature) &&
-                    temperature > 0 && float.IsFinite(temperature))
-                {
-                    if (coolant == null || temperature > coolant) coolant = temperature;
-                }
-                else coolantReadingsValid = false;
-            }
-            TempAlert("coolant-temp", "Líquido", coolant, s.CoolantWarn, s.CoolantCritical);
-
-            EngineAlert? critical = null;
-            if (s.FailSafeEnabled)
-            {
-                foreach (var alert in _alerts.Values)
-                {
-                    if (alert.Severity != AlertSeverity.Critical) continue;
-                    bool isTemperature = alert.Key is "cpu-temp" or "gpu-temp" or "coolant-temp";
-                    if (!isTemperature && !(_hubConnected && alert.Key.StartsWith("pump:", StringComparison.Ordinal))) continue;
-                    _failSafeCauses.Add(alert.Key);
-                    critical ??= alert;
-                }
-            }
-
-            bool wasActive = _failSafe;
-            if (!s.FailSafeEnabled)
-                _failSafe = false;
-            else if (critical != null)
-            {
-                _failSafe = true;
-                _failSafeRecoveryStarted = null;
-                RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativado",
-                    $"{critical.Message} Ventoinhas em 100%.");
-            }
-            else if (_failSafe)
-            {
-                // Aguarda leituras estáveis abaixo dos limites, mesmo com um aviso de temperatura ainda ativo.
-                bool hasReadings = _failSafeCauses.All(cause => cause switch
-                {
-                    "cpu-temp" => cpu is { } cpuTemp && float.IsFinite(cpuTemp),
-                    "gpu-temp" => gpu is { } gpuTemp && float.IsFinite(gpuTemp),
-                    "coolant-temp" => coolantReadingsValid,
-                    _ => _hubConnected && _hasHubSpeeds && _fans.Any(f => f.IsPump && $"pump:{f.Key}" == cause &&
-                                                                          f.Rpm >= s.PumpMinRpm)
-                });
-                if (hasReadings)
-                {
-                    long started = _failSafeRecoveryStarted ??= Stopwatch.GetTimestamp();
-                    if (Stopwatch.GetElapsedTime(started) >= _opt.FailSafeRecoveryDelay) _failSafe = false;
-                    else RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativo",
-                        "Leituras abaixo do limite crítico. Aguardando estabilização para retomar o perfil selecionado.");
-                }
-                else
-                {
-                    _failSafeRecoveryStarted = null;
-                    RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativo",
-                        "Aguardando leituras válidas dos sensores que acionaram a proteção.");
-                }
-            }
-
-            if (_failSafe && !wasActive)
-            {
-                Log.Warn("Modo de segurança ATIVADO.");
-            }
-            else if (!_failSafe && wasActive)
-            {
-                ClearAlert("failsafe");
-                _failSafeCauses.Clear();
-                _failSafeCoolantChannels.Clear();
-                _failSafeRecoveryStarted = null;
-                Log.Info($"Modo de segurança desativado. {(s.FailSafeEnabled ? "Leituras abaixo dos limites críticos." : "Proteção desativada nas configurações.")}");
-            }
-            return _failSafe != wasActive;
-        }
-    }
-
-    private void TempAlert(string key, string label, float? value, float warn, float critical)
-    {
-        if (value is not { } v || !float.IsFinite(v))
-        {
-            ClearAlert(key);
-            return;
-        }
-
-        if (v >= critical)
-        {
-            RaiseAlert(key, AlertSeverity.Critical, $"{label} em temperatura crítica", $"{label} a {Degrees(v)} (limite {Degrees(critical)}).");
-        }
-        else if (v >= warn)
-        {
-            RaiseAlert(key, AlertSeverity.Warning, $"{label} muito quente", $"{label} a {Degrees(v)} (alerta em {Degrees(warn)}).");
-        }
-        else if (v < warn - 3 || _alerts.GetValueOrDefault(key)?.Severity == AlertSeverity.Critical)
-        {
-            ClearAlert(key);
-        }
-    }
-
-    private static string Degrees(float value) => value.ToString("0.#", CultureInfo.GetCultureInfo("pt-BR")) + " °C";
-
-    // ------------------------------------------------------------------ Fila de periféricos
-
-    private async Task AuxLoopAsync(CancellationToken ct)
-    {
-        await Task.Yield();
-        SafeCall(() => { _gpuRgb.Initialize(); return true; });
-        SafeCall(() => { _mbRgb.Initialize(); return true; });
-        SafeCall(() => { _ramRgb.Initialize(); return true; });
-        SafeCall(() => { _peripheralsRgb.Initialize(); return true; });
-        lock (_stateLock) _rgbReady = true;
-        Log.Info($"RGB: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")} • RAM={(_ramRgb.IsAvailable ? _ramRgb.Name : "não detectada")} • Periféricos={(_peripheralsRgb.IsAvailable ? _peripheralsRgb.Name : "não detectados")}");
-        if (_gpuRgb.Diagnostic is { } initialGpuDiagnostic) Log.Info($"RGB GPU: {initialGpuDiagnostic}");
-
-        using var composer = new LcdComposer();
-        var rgbClock = new RgbFrameClock();
-        int rgbInterval = RgbFrameClock.IntervalMs(_opt.AuxRgbMinInterval);
-        long appliedRgbVersion = -1, lastRgbApply = 0, nextFrame = 0, nextLcdReconnect = 0;
-        long nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
-        long handledGpuResendVersion = 0, nextGpuResend = 0;
-        int gpuResendRemaining = 0;
-        long nextPeripheralRetry = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(30));
-        LcdConfig? lastLcd = null;
-
-        while (!ct.IsCancellationRequested)
-        {
-            try
-            {
-                bool rescanRgb = Interlocked.Exchange(ref _rescanRgb, 0) == 1;
-                ControlConfig cfg;
-                long rgbVersion, gpuResendVersion;
-                lock (_configLock)
-                {
-                    cfg = _config;
-                    rgbVersion = Interlocked.Read(ref _rgbVersion);
-                    gpuResendVersion = _gpuRgbResendVersion;
-                }
-                long now = Stopwatch.GetTimestamp();
-
-                if (Interlocked.Exchange(ref _forceReconnectAux, 0) == 1)
-                {
-                    _lcd.Disconnect();
-                    nextLcdReconnect = 0;
-                }
-
-                // G HUB costuma abrir depois do LinkFlow no logon: tenta os periféricos de novo a cada 30 s
-                if (!_peripheralsRgb.IsAvailable && now >= nextPeripheralRetry)
-                {
-                    nextPeripheralRetry = now + Ticks(TimeSpan.FromSeconds(30));
-                    if (SafeCall(() => { _peripheralsRgb.Initialize(); return _peripheralsRgb.IsAvailable; }))
-                    {
-                        Log.Info($"Periféricos detectados: {_peripheralsRgb.Name}");
-                        appliedRgbVersion = -1;
-                    }
-                }
-
-                bool newGpuResend = handledGpuResendVersion != gpuResendVersion;
-                handledGpuResendVersion = gpuResendVersion;
-                if (!cfg.Rgb.SyncGpu) gpuResendRemaining = 0;
-                else if (newGpuResend || rescanRgb)
-                {
-                    gpuResendRemaining = GpuRgbResendAttempts;
-                    nextGpuResend = now;
-                }
-                bool retryGpu = cfg.Rgb.SyncGpu && gpuResendRemaining == 0 && _gpuRgb.NeedsInitializationRetry && now >= nextGpuRetry;
-                if (retryGpu)
-                {
-                    bool found = SafeCall(() => { _gpuRgb.Initialize(); return _gpuRgb.IsAvailable; });
-                    nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
-                    if (found)
-                    {
-                        Log.Info($"RGB GPU: conexão recuperada com {_gpuRgb.Name}.");
-                        appliedRgbVersion = -1;
-                    }
-                }
-
-                if (rescanRgb)
-                {
-                    if (!_mbRgb.IsAvailable) SafeCall(() => { _mbRgb.Initialize(); return true; });
-                    if (!_ramRgb.IsAvailable) SafeCall(() => { _ramRgb.Initialize(); return true; });
-                    if (!_peripheralsRgb.IsAvailable) SafeCall(() => { _peripheralsRgb.Initialize(); return true; });
-                    Interlocked.Increment(ref _rgbVersion);
-                    Log.Info($"RGB redetectado: GPU={(_gpuRgb.IsAvailable ? _gpuRgb.Name : "não detectada")} • Placa-mãe={(_mbRgb.IsAvailable ? _mbRgb.Name : "não detectada")} • RAM={(_ramRgb.IsAvailable ? _ramRgb.Name : "não detectada")} • Periféricos={(_peripheralsRgb.IsAvailable ? _peripheralsRgb.Name : "não detectados")}");
-                }
-
-                // Configuração do LCD mudou: novo quadro imediatamente e libera imagens que saíram da lista
-                if (!ReferenceEquals(lastLcd, cfg.Lcd))
-                {
-                    if (lastLcd != null) composer.Prune(cfg.Lcd);
-                    lastLcd = cfg.Lcd;
-                    nextFrame = 0;
-                }
-
-                // RGB da GPU, placa-mãe e periféricos (a RAM, lenta, tem fila própria)
-                var rgb = cfg.Rgb;
-                bool gpuResendDue = gpuResendRemaining > 0 && Stopwatch.GetTimestamp() >= nextGpuResend;
-                bool animated = rgb.IsAnimated && HasAuxRgb(rgb);
-                long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
-                if ((appliedRgbVersion != rgbVersion || gpuResendDue || (animated && rgbClock.IsDue(frame, rgbInterval))) &&
-                    Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
-                {
-                    bool changed = appliedRgbVersion != rgbVersion;
-                    appliedRgbVersion = rgbVersion;
-                    lastRgbApply = Stopwatch.GetTimestamp();
-                    bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard, frame)) : null;
-                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals, frame)) : null;
-                    var previousGpuOk = _rgbGpuOk;
-                    var previousGpuDiagnostic = _gpuRgb.Diagnostic;
-                    bool? gpuOk = rgb.SyncGpu ? previousGpuOk : null;
-                    bool gpuWritten = false;
-                    if (gpuResendDue)
-                    {
-                        int attempt = GpuRgbResendAttempts - gpuResendRemaining + 1;
-                        gpuOk = ResendGpuRgb(rgbClock, rgbInterval, attempt);
-                        gpuResendRemaining = gpuOk == false ? gpuResendRemaining - 1 : 0;
-                        nextGpuResend = Stopwatch.GetTimestamp() + Ticks(GpuRgbResendDelay);
-                        nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
-                    }
-                    else if (rgb.SyncGpu && gpuResendRemaining == 0 && _gpuRgb.IsAvailable)
-                    {
-                        gpuOk = SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu, frame));
-                        gpuWritten = gpuOk == true;
-                        if (gpuOk == false && (previousGpuOk != false || previousGpuDiagnostic != _gpuRgb.Diagnostic))
-                            Log.Warn($"RGB GPU: {_gpuRgb.Diagnostic ?? "O controlador recusou o envio da cor."}");
-                        else if (gpuWritten && previousGpuOk != true)
-                            Log.Info($"RGB GPU: cor aceita pelo controlador {_gpuRgb.Name}.");
-                    }
-                    if (animated)
-                    {
-                        var writeTime = !gpuResendDue && (gpuWritten || mbOk == true || periphOk == true)
-                            ? Stopwatch.GetElapsedTime(lastRgbApply) : (TimeSpan?)null;
-                        rgbClock.RecordFrame(frame, rgbInterval, writeTime);
-                    }
-                    lock (_stateLock)
-                    {
-                        _rgbGpuOk = gpuOk;
-                        _rgbMbOk = mbOk;
-                        _rgbPeripheralsOk = periphOk;
-                    }
-                    // O anel do LCD segue a cor; durante efeitos ele acompanha no ritmo normal dos quadros
-                    if (rgb.SyncLcd && changed) Interlocked.Exchange(ref _lcdRequested, 1);
-                }
-
-                // LCD
-                if (Interlocked.Exchange(ref _usbChangedAux, 0) == 1) nextLcdReconnect = 0; // algo foi conectado: tenta já
-                if (!_lcd.IsConnected && now >= nextLcdReconnect)
-                {
-                    SafeCall(() => _lcd.Connect());
-                    nextLcdReconnect = now + Ticks(_opt.ReconnectInterval);
-                }
-                lock (_stateLock) _lcdConnected = _lcd.IsConnected;
-
-                bool requested = Interlocked.Exchange(ref _lcdRequested, 0) == 1;
-                if (_lcd.IsConnected && (requested || (cfg.Lcd.AutoStream && now >= nextFrame)))
-                {
-                    var (jpeg, next) = composer.ComposeJpeg(cfg.Lcd, GetSnapshot(), RgbForLcd(cfg.Rgb));
-                    // Métricas: 1 quadro/s (opção do engine); GIFs: o atraso do próprio quadro
-                    bool fast = composer.IsAnimating || (cfg.Lcd.Mode == LcdMode.Media && cfg.Lcd.Media.Count > 1);
-                    var lcdInterval = fast ? next : _opt.LcdFrameInterval;
-                    nextFrame = Stopwatch.GetTimestamp() + Ticks(lcdInterval);
-                    bool ok = _lcd.SendJpegFrame(jpeg);
-                    lock (_stateLock)
-                    {
-                        _lcdConnected = _lcd.IsConnected;
-                        _lcdStatus = composer.Status;
-                        _rgbLcdOk = cfg.Rgb.SyncLcd ? ok : null;
-                    }
-                }
-            }
-            catch (OperationCanceledException) { break; }
-            catch (Exception ex)
-            {
-                Log.Error("Erro na fila de periféricos", ex);
-                await Task.Delay(1000, ct).ConfigureAwait(false);
-            }
-
-            ControlConfig c2;
-            lock (_configLock) c2 = _config;
-            var wait = c2.Lcd.AutoStream && _lcd.IsConnected
-                ? Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextFrame)
-                : _opt.TelemetryInterval;
-            if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion) wait = Min(wait, _opt.AuxRgbMinInterval);
-            if (c2.Rgb.IsAnimated && HasAuxRgb(c2.Rgb))
-                wait = Min(wait, RgbFrameWait(rgbClock, rgbInterval, lastRgbApply, _opt.AuxRgbMinInterval));
-            if (c2.Rgb.SyncGpu && gpuResendRemaining > 0)
-            {
-                var untilResend = Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextGpuResend);
-                var untilWrite = _opt.AuxRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply);
-                wait = Min(wait, untilResend > untilWrite ? untilResend : untilWrite);
-            }
-            else if (c2.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry)
-                wait = Min(wait, Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextGpuRetry));
-            await WaitAsync(_auxSignal, Clamp(wait), ct).ConfigureAwait(false);
-        }
-    }
-
-    private bool? ResendGpuRgb(RgbFrameClock clock, int interval, int attempt)
-    {
-        if (!CurrentRgb.SyncGpu) return null;
-        bool found = SafeCall(() => { _gpuRgb.Initialize(); return _gpuRgb.IsAvailable; });
-        var rgb = CurrentRgb;
-        if (!rgb.SyncGpu) return null;
-
-        bool applied = found && SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu, clock.FrameTime(RgbEffects.Now, interval)));
-        if (applied) Log.Info($"RGB GPU: reenvio aceito pelo controlador {_gpuRgb.Name} (tentativa {attempt}).");
-        else Log.Warn($"RGB GPU: tentativa {attempt} de {GpuRgbResendAttempts}. {_gpuRgb.Diagnostic ?? "O controlador não confirmou a cor."}");
-        return applied;
-    }
-
-    /// <summary>
-    /// A fila da memória usa a cadência do controlador sem atrasar os outros dispositivos.
-    /// </summary>
-    private async Task RamLoopAsync(CancellationToken ct)
-    {
-        var rgbClock = new RgbFrameClock();
-        long applied = -1, lastApply = 0;
-        while (!ct.IsCancellationRequested)
-        {
-            ControlConfig cfg;
-            lock (_configLock) cfg = _config;
-            bool ready;
-            lock (_stateLock) ready = _rgbReady;
-            var rgb = cfg.Rgb;
-            long version = Interlocked.Read(ref _rgbVersion);
-            bool animated = rgb.IsAnimated && rgb.SyncRam && _ramRgb.IsAvailable;
-            var minInterval = animated && _ramRgb.MinAnimationInterval is { } streamingInterval
-                ? Min(_opt.RamRgbMinInterval, streamingInterval)
-                : _opt.RamRgbMinInterval;
-            int interval = RgbFrameClock.IntervalMs(minInterval);
-            long frame = rgbClock.FrameTime(RgbEffects.Now, interval);
-            try
-            {
-                if (ready && (applied != version || (animated && rgbClock.IsDue(frame, interval))) &&
-                    Stopwatch.GetElapsedTime(lastApply) >= minInterval)
-                {
-                    bool changed = applied != version;
-                    applied = version;
-                    lastApply = Stopwatch.GetTimestamp();
-                    bool? ok = rgb.SyncRam && _ramRgb.IsAvailable ? SafeCall(() => Apply(_ramRgb, rgb, RgbTargets.Ram, frame)) : null;
-                    if (animated) rgbClock.RecordFrame(frame, interval, ok == true ? Stopwatch.GetElapsedTime(lastApply) : null);
-                    if (changed || _rgbRamOk != ok) lock (_stateLock) _rgbRamOk = ok;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"RGB da RAM: {ex.Message}");
-            }
-
-            var wait = !ready ? TimeSpan.FromMilliseconds(200)
-                : applied != Interlocked.Read(ref _rgbVersion) ? minInterval - Stopwatch.GetElapsedTime(lastApply)
-                : animated ? RgbFrameWait(rgbClock, interval, lastApply, minInterval)
-                : TimeSpan.FromSeconds(5);
-            try { await WaitAsync(_ramSignal, Clamp(wait), ct).ConfigureAwait(false); }
-            catch (OperationCanceledException) { break; }
-        }
-    }
-
-    private RgbConfig CurrentRgb
-    {
-        get { lock (_configLock) return _config.Rgb; }
-    }
-
-    private bool HasAuxRgb(RgbConfig rgb) =>
-        (rgb.SyncGpu && _gpuRgb.IsAvailable) || (rgb.SyncMotherboard && _mbRgb.IsAvailable) ||
-        (rgb.SyncPeripherals && _peripheralsRgb.IsAvailable);
-
-    private static TimeSpan RgbFrameWait(RgbFrameClock clock, int intervalMs, long lastSend, TimeSpan minInterval)
-    {
-        var frameWait = clock.UntilNextFrame(RgbEffects.Now, intervalMs);
-        var rateWait = minInterval - Stopwatch.GetElapsedTime(lastSend);
-        return frameWait > rateWait ? frameWait : rateWait;
-    }
-
-    private byte[] _hubFrame = Array.Empty<byte>();
-
-    /// <summary>Um quadro do efeito nas ventoinhas: igual em todas, ou espalhado LED a LED pela corrente.</summary>
-    private bool ApplyHubFrame(RgbConfig rgb, long frame)
-    {
-        if (!rgb.SpreadOnFans)
-        {
-            var o = rgb.OutputFor(RgbTargets.Hub, frame, 0);
-            return _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
-        }
-
-        int devices = Math.Max(_hub.SubDevices.Count, 1);
-        int leds = Math.Max(devices * CorsairLinkHub.LedsPerDevice, 400);
-        if (_hubFrame.Length != leds * 3) _hubFrame = new byte[leds * 3];
-        var (_, _, _, brightness) = rgb.Finish(RgbTargets.Hub, 0, 0, 0);
-        for (int i = 0; i < leds; i++)
-        {
-            double phase = RgbEffects.LedPhase(rgb.Effect, i, CorsairLinkHub.LedsPerDevice, devices);
-            var (r, g, b, level) = RgbEffects.ColorAt(rgb, frame, phase);
-            var (cr, cg, cb, _) = rgb.Finish(RgbTargets.Hub, r, g, b);
-            _hubFrame[i * 3] = (byte)(cr * level);
-            _hubFrame[i * 3 + 1] = (byte)(cg * level);
-            _hubFrame[i * 3 + 2] = (byte)(cb * level);
-        }
-        return _hub.SetRgbLeds(_hubFrame, brightness);
-    }
-
-    /// <summary>O anel do LCD acompanha a cor do efeito no momento do quadro.</summary>
-    private static RgbConfig RgbForLcd(RgbConfig rgb)
-    {
-        if (!rgb.IsAnimated) return rgb;
-        var (r, g, b, _) = RgbEffects.ColorAt(rgb, RgbEffects.Now);
-        return new RgbConfig { R = r, G = g, B = b, Brightness = rgb.Brightness, SyncLcd = rgb.SyncLcd };
-    }
-
-    private string BuildRgbStatus(RgbConfig rgb)
-    {
-        if (!_rgbReady) return "Detectando dispositivos RGB...";
-        var ok = new List<string>();
-        var fail = new List<string>();
-        void Add(bool enabled, bool? r, string name)
-        {
-            if (!enabled) return;
-            if (r == true) ok.Add(name);
-            else if (r == false) fail.Add(name);
-        }
-        Add(rgb.SyncHub, _rgbHubOk, "Fans/Bomba");
-        Add(rgb.SyncGpu, _rgbGpuOk, "GPU");
-        Add(rgb.SyncMotherboard, _rgbMbOk, "Placa-mãe");
-        Add(rgb.SyncRam, _rgbRamOk, "RAM DDR5");
-        Add(rgb.SyncPeripherals, _rgbPeripheralsOk, "Periféricos");
-        Add(rgb.SyncLcd, _rgbLcdOk, "LCD");
-        if (ok.Count == 0 && fail.Count == 0) return "Nenhum dispositivo sincronizado";
-        var s = ok.Count > 0 ? $"Sincronizado: {string.Join(", ", ok)}" : string.Empty;
-        if (fail.Count > 0) s += (s.Length > 0 ? " • " : string.Empty) + $"Falhou: {string.Join(", ", fail)}";
-        return s;
-    }
-
     // ------------------------------------------------------------------ Snapshot e alertas
 
     private async Task PublishLoopAsync(CancellationToken ct)
@@ -1333,6 +468,7 @@ public sealed class LinkFlowEngine : IDisposable
     public async Task StopAsync(bool restoreHardwareMode = true)
     {
         if (Interlocked.Exchange(ref _stopped, 1) == 1) return;
+        _watchdog.Change(Timeout.Infinite, Timeout.Infinite);
         _cts.Cancel();
         try { await Task.WhenAll(_lanes).WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false); }
         catch (Exception ex) { Log.Warn($"Filas não encerraram a tempo: {ex.Message}"); }
@@ -1355,6 +491,7 @@ public sealed class LinkFlowEngine : IDisposable
     public void Dispose()
     {
         try { StopAsync().GetAwaiter().GetResult(); } catch { }
+        _watchdog.Dispose();
         _saveTimer.Dispose();
         _cts.Dispose();
     }

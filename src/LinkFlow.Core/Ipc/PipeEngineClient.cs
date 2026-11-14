@@ -21,7 +21,16 @@ public sealed class PipeEngineClient : IEngineClient
 
     private readonly record struct OutgoingMessage(string Json, bool Coalesce = false);
 
-    private PipeEngineClient(string pipeName) => _pipeName = pipeName;
+    private PipeEngineClient(string pipeName)
+    {
+        _pipeName = pipeName;
+        // Pipe padrão = serviço instalado: confere quem responde. Pipes de teste (LINKFLOW_PIPE ou nome
+        // explícito) são servidores do próprio processo de teste.
+        _verifyServer = pipeName == PipeProtocol.DefaultPipeName && Environment.GetEnvironmentVariable("LINKFLOW_PIPE") == null;
+    }
+
+    private readonly bool _verifyServer;
+    private string? _lastRejection;
 
     public bool IsRemote => true;
     public bool IsConnected => _connected;
@@ -91,6 +100,14 @@ public sealed class PipeEngineClient : IEngineClient
         {
             var pipe = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
             pipe.Connect((int)timeout.TotalMilliseconds);
+            if (_verifyServer && !PipeIdentity.IsLinkFlowService(pipe, out var reason))
+            {
+                pipe.Dispose();
+                if (reason != _lastRejection) Log.Warn($"Pipe do LinkFlow recusado: {reason}.");
+                _lastRejection = reason;
+                return false;
+            }
+            _lastRejection = null;
             _pipe = pipe;
             _connected = true;
             return true;

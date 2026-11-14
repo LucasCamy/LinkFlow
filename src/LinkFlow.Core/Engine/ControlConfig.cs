@@ -59,6 +59,7 @@ public sealed class ControlConfig
         Lcd ??= new LcdConfig();
         Lcd.Normalize();
         Safety ??= new SafetyConfig();
+        Safety.Normalize();
         Profiles ??= new();
         GroupCurves ??= new();
         foreach (var gc in GroupCurves.Values) gc.Normalize();
@@ -106,6 +107,20 @@ public sealed class FanCurveConfig
     {
         new(40, 30), new(55, 45), new(70, 65), new(80, 85), new(90, 100)
     };
+
+    /// <summary>
+    /// Mesma curva (fonte, pontos, histerese e suavização). A fila de sensores compara a cada ciclo para saber
+    /// se a curva foi editada; antes serializava a curva em JSON a cada leitura.
+    /// </summary>
+    public bool SameAs(FanCurveConfig? other)
+    {
+        if (ReferenceEquals(this, other)) return true;
+        if (other == null || Source != other.Source || Hysteresis != other.Hysteresis || Smoothing != other.Smoothing) return false;
+        if (Points.Count != other.Points.Count) return false;
+        for (int i = 0; i < Points.Count; i++)
+            if (Points[i].Temp != other.Points[i].Temp || Points[i].Percent != other.Points[i].Percent) return false;
+        return true;
+    }
 
     public void Normalize()
     {
@@ -318,6 +333,25 @@ public sealed class SafetyConfig
     public float CoolantCritical { get; set; } = 50;
     public bool FanStopAlert { get; set; } = true;
     public int PumpMinRpm { get; set; } = 800;
+
+    /// <summary>
+    /// Limites aceitos pelo engine, iguais aos da tela de Configurações. A configuração pode chegar pelo pipe
+    /// de qualquer processo da sessão: "crítico = 500 °C" ou "bomba mínima = 0 RPM" desligariam a proteção
+    /// sem o usuário ver. Desligar o modo de segurança continua possível, mas de forma explícita.
+    /// </summary>
+    public void Normalize()
+    {
+        CpuCritical = Clamp(CpuCritical, 70, 105, 95);
+        CpuWarn = Math.Min(Clamp(CpuWarn, 60, 100, 90), CpuCritical);
+        GpuCritical = Clamp(GpuCritical, 70, 100, 88);
+        GpuWarn = Math.Min(Clamp(GpuWarn, 60, 95, 83), GpuCritical);
+        CoolantCritical = Clamp(CoolantCritical, 40, 60, 50);
+        CoolantWarn = Math.Min(Clamp(CoolantWarn, 35, 55, 45), CoolantCritical);
+        PumpMinRpm = Math.Clamp(PumpMinRpm, 300, 2000);
+    }
+
+    private static float Clamp(float value, float min, float max, float fallback) =>
+        float.IsFinite(value) ? Math.Clamp(value, min, max) : fallback;
 }
 
 public sealed class FanProfile

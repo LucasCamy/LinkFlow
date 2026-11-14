@@ -189,6 +189,7 @@
                                 </StackPanel>
                             </RadioButton>
                             <RadioButton Style="{StaticResource NavItem}" ToolTip="Drivers (Ctrl+9)" AutomationProperties.Name="Drivers"
+                                         Visibility="{Binding AdvancedToolsEnabled, Converter={StaticResource BoolToVis}}"
                                          IsChecked="{Binding SelectedPage, Converter={StaticResource EqualsConverter}, ConverterParameter=8}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE896;"/>

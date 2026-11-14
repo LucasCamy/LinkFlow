@@ -112,7 +112,16 @@ public sealed class PipeEngineServer : IAsyncDisposable
                 switch (type)
                 {
                     case PipeProtocol.SetConfig:
-                        if (PipeProtocol.Read<ControlConfig>(payload) is { } cfg) _engine.ReplaceConfig(cfg, conn);
+                        if (PipeProtocol.Read<ControlConfig>(payload) is { } cfg)
+                        {
+                            // Qualquer processo da sessão pode mandar configuração: desligar a proteção fica registrado
+                            if (!cfg.Safety.FailSafeEnabled && _engine.FailSafeEnabled)
+                            {
+                                var pid = PipeIdentity.ClientProcessId(conn.Pipe);
+                                Log.Warn($"Modo de segurança DESLIGADO pelo processo {(pid is { } p ? PipeIdentity.Describe(p) : "desconhecido")}.");
+                            }
+                            _engine.ReplaceConfig(cfg, conn);
+                        }
                         break;
                     case PipeProtocol.LcdFrame:
                         _engine.RequestLcdFrame();
@@ -177,11 +186,20 @@ public sealed class PipeEngineServer : IAsyncDisposable
     /// <summary>Uma interface conectada. Escritas passam por uma fila; snapshots antigos são descartados se o cliente estiver lento.</summary>
     private sealed class Connection : IDisposable
     {
-        private readonly Channel<(string Msg, bool Snapshot)> _queue =
-            Channel.CreateBounded<(string, bool)>(new BoundedChannelOptions(64) { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true });
+        private readonly Channel<(string Msg, bool Snapshot)> _queue;
         private int _pendingSnapshots;
 
-        public Connection(NamedPipeServerStream pipe) => Pipe = pipe;
+        public Connection(NamedPipeServerStream pipe)
+        {
+            Pipe = pipe;
+            // Fila cheia descarta a mensagem mais antiga; se for um snapshot, o contador precisa acompanhar,
+            // senão ele nunca volta a zero e o cliente deixa de receber snapshots para sempre.
+            _queue = Channel.CreateBounded<(string Msg, bool Snapshot)>(
+                new BoundedChannelOptions(64) { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true },
+                dropped => { if (dropped.Snapshot) Interlocked.Decrement(ref _pendingSnapshots); });
+        }
+
+        internal int PendingSnapshots => Volatile.Read(ref _pendingSnapshots);
         public NamedPipeServerStream Pipe { get; }
 
         public void Enqueue(string message, bool isSnapshot = false)

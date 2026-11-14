@@ -26,6 +26,9 @@ public partial class MainWindow : Window
         DataContext = viewModel;
         RestoreSavedBounds();
 
+        // Captura de tela da página Drivers (--screenshot) mostra a página mesmo com a opção desligada
+        ViewModel.AdvancedToolsEnabled = App.Current.Settings.Current.AdvancedSystemTools == true ||
+            (App.Current.Options.ScreenshotPath != null && App.Current.Options.ScreenshotPage == MainViewModel.DriversPageIndex);
         ViewModel.SelectedPage = Math.Clamp(App.Current.Settings.Current.SelectedPage, 0, MainViewModel.PageTitles.Length - 1);
         _lcdPreview = new LcdPreviewService(viewModel, Dispatcher);
         // Widget flutuante: configurações (migra as opções antigas) e atualização só quando visível
@@ -63,7 +66,12 @@ public partial class MainWindow : Window
         IsVisibleChanged += (_, _) => UpdateViewActive();
         SourceInitialized += (_, _) => SetupHotkeys();
         PreviewKeyDown += OnPreviewKeyDown;
-        App.Current.Settings.Changed += () => _hotkeys?.SetEnabled(App.Current.Settings.Current.GlobalHotkeys);
+        App.Current.Settings.Changed += () =>
+        {
+            _hotkeys?.SetEnabled(App.Current.Settings.Current.GlobalHotkeys);
+            if (App.Current.Options.ScreenshotPath == null)
+                ViewModel.AdvancedToolsEnabled = App.Current.Settings.Current.AdvancedSystemTools == true;
+        };
     }
 
     public MainViewModel ViewModel { get; }

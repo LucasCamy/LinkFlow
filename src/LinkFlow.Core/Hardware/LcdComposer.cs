@@ -55,8 +55,15 @@ public sealed class LcdComposer : IDisposable
     private long _frameStarted;
     private string _playlistKey = string.Empty;
 
-    public LcdComposer()
+    /// <summary>
+    /// True no serviço (SYSTEM): só abre imagens da biblioteca de mídia. A prévia da interface e o modo local
+    /// rodam com a conta do usuário e aceitam qualquer arquivo local.
+    /// </summary>
+    private readonly bool _libraryOnly;
+
+    public LcdComposer(bool libraryOnly = false)
     {
+        _libraryOnly = libraryOnly;
         _g = Graphics.FromImage(_bmp);
         _g.SmoothingMode = SmoothingMode.AntiAlias;
         _g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
@@ -464,10 +471,10 @@ public sealed class LcdComposer : IDisposable
     {
         if (_media.TryGetValue(path, out var cached))
         {
-            if (cached != null || !File.Exists(path)) return cached;
+            if (cached != null || !MediaFiles.Exists(path, _libraryOnly)) return cached;
             _media.Remove(path); // arquivo apareceu depois: tenta de novo
         }
-        var entry = MediaEntry.TryLoad(path);
+        var entry = MediaEntry.TryLoad(path, _libraryOnly);
         if (_media.Count > 32)
         {
             foreach (var e in _media.Values) e?.Dispose();
@@ -513,14 +520,23 @@ public sealed class LcdComposer : IDisposable
             Dimension = dimension;
         }
 
-        public static MediaEntry? TryLoad(string path)
+        public static MediaEntry? TryLoad(string path, bool libraryOnly)
         {
+            MemoryStream? ms = null;
+            Image? img = null;
             try
             {
-                if (!File.Exists(path)) return null;
                 // Carrega em memória: o arquivo não fica bloqueado e o GDI+ exige o stream aberto
-                var ms = new MemoryStream(File.ReadAllBytes(path));
-                var img = Image.FromStream(ms, useEmbeddedColorManagement: false, validateImageData: true);
+                var bytes = MediaFiles.TryRead(path, libraryOnly, out var reason);
+                if (bytes == null)
+                {
+                    if (reason != "arquivo não encontrado") Log.Warn($"Imagem do LCD recusada ({reason}): {path}");
+                    return null;
+                }
+                ms = new MemoryStream(bytes);
+                img = Image.FromStream(ms, useEmbeddedColorManagement: false, validateImageData: true);
+                if ((long)img.Width * img.Height > MediaFiles.MaxPixels)
+                    throw new InvalidDataException($"imagem grande demais ({img.Width}x{img.Height})");
                 int frames = 1;
                 int[] delays = { 1000 };
                 // GIFs normais usam a dimensão "tempo"; alguns gravadores (sem atraso por quadro) usam "página"
@@ -542,6 +558,8 @@ public sealed class LcdComposer : IDisposable
             }
             catch (Exception ex)
             {
+                img?.Dispose();
+                ms?.Dispose();
                 Log.Warn($"Não foi possível abrir a imagem do LCD {path}: {ex.Message}");
                 return null;
             }

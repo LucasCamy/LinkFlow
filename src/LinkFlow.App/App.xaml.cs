@@ -32,7 +32,7 @@ public partial class App : Application
 
     public static new App Current => (App)Application.Current;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         Options = StartupOptions.Parse(e.Args);
@@ -46,6 +46,10 @@ public partial class App : Application
 
         Log.Configure(Options.ServiceCommand != null || Options.InstallDriverRequested ? "app-admin" : "app",
             Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
+        // Como administrador o app grava configuração e logs na pasta compartilhada: protege antes
+        // (inclusive ao instalar o serviço, antes de ele existir). Sem privilégio, não faz nada.
+        if (!Options.Simulate && Environment.GetEnvironmentVariable("LINKFLOW_DATA_DIR") == null)
+            SharedDataSecurity.TryHarden(AppPaths.SharedDir);
 
         if (Options.WaitPid is { } waitPid) WaitForProcessExit(waitPid);
 
@@ -108,8 +112,38 @@ public partial class App : Application
         SettingsVm = new SettingsViewModel(Settings);
         Updates = new AppUpdateViewModel(Settings, allowInstall: !Options.Simulate && !testRun);
 
-        _engine = CreateEngineClient();
-        _engine.Start();
+        // A espera pelo serviço roda fora da thread da interface (pode durar minutos logo após o logon)
+        StartupFeedback? feedback = null;
+        try
+        {
+            var client = await Task.Run(() => CreateEngineClient(onWaiting: () => Dispatcher.Invoke(() =>
+                feedback ??= new StartupFeedback(showWindow: !Options.StartInTray && !testRun)), _startupCancel.Token));
+            feedback?.Dispose();
+            feedback = null;
+            if (Volatile.Read(ref _exiting) == 1)
+            {
+                // Pediram para sair durante a espera: o engine nem começou a controlar o hardware
+                await client.ShutdownAsync(restoreHardwareMode: true);
+                return;
+            }
+            _engine = client;
+            CompleteStartup(testRun);
+        }
+        catch (Exception ex)
+        {
+            feedback?.Dispose();
+            Log.Error("Falha ao iniciar a interface", ex);
+            MessageBox.Show($"O LinkFlow não conseguiu iniciar.\n\n{ex.Message}", "LinkFlow", MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown(1);
+        }
+    }
+
+    private readonly CancellationTokenSource _startupCancel = new();
+    private bool _activateWhenReady;
+
+    private void CompleteStartup(bool testRun)
+    {
+        _engine!.Start();
         if (!_engine.IsRemote && !Options.Simulate && !testRun) WatchForService();
         SettingsVm.AttachEngine(_engine);
 
@@ -142,7 +176,7 @@ public partial class App : Application
         SetupTray();
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
 
-        if (Options.StartInTray)
+        if (Options.StartInTray && !_activateWhenReady)
         {
             Log.Info("Iniciado na bandeja.");
             MainView.InitializeHidden();
@@ -164,7 +198,8 @@ public partial class App : Application
     /// Serviço do Windows rodando → a interface vira cliente (não toca no hardware).
     /// Caso contrário, o engine roda dentro do próprio app (modo local).
     /// </summary>
-    private IEngineClient CreateEngineClient()
+    /// <param name="onWaiting">Chamado uma vez se for preciso esperar o serviço subir (para mostrar o aviso).</param>
+    private IEngineClient CreateEngineClient(Action onWaiting, CancellationToken cancel)
     {
         bool tryService = !Options.Simulate || Environment.GetEnvironmentVariable("LINKFLOW_PIPE") != null;
         if (tryService)
@@ -189,7 +224,8 @@ public partial class App : Application
                 }
                 var wait = Options.StartInTray ? TimeSpan.FromMinutes(3) : TimeSpan.FromSeconds(20);
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                while (sw.Elapsed < wait)
+                onWaiting();
+                while (sw.Elapsed < wait && !cancel.IsCancellationRequested)
                 {
                     remote = Core.Ipc.PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2));
                     if (remote != null)
@@ -197,7 +233,7 @@ public partial class App : Application
                         Log.Info($"Conectado ao serviço LinkFlow após {sw.Elapsed.TotalSeconds:0} s (modo serviço).");
                         return remote;
                     }
-                    Thread.Sleep(1000);
+                    cancel.WaitHandle.WaitOne(1000);
                 }
                 Log.Warn("Serviço instalado mas sem resposta; usando modo local até ele aparecer.");
             }
@@ -355,7 +391,12 @@ public partial class App : Application
                 : "O controle das ventoinhas e do RGB continua na bandeja. Clique no ícone para abrir; use \"Sair\" no menu para encerrar.");
     }
 
-    public void ShowMainWindow() => MainView?.ShowFromTray();
+    public void ShowMainWindow()
+    {
+        // Pedido de abrir a janela (novo clique no atalho) enquanto ainda espera o serviço: abre ao terminar
+        if (MainView == null) _activateWhenReady = true;
+        else MainView.ShowFromTray();
+    }
 
     /// <summary>Confirma na bandeja um perfil aplicado por atalho global (útil dentro de jogos).</summary>
     public void NotifyPresetChanged(string preset)
@@ -394,7 +435,9 @@ public partial class App : Application
         _serviceWatch = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(5) };
         _serviceWatch.Tick += (_, _) =>
         {
-            if (!ServicePipeExists()) return;
+            // O Windows precisa confirmar que o serviço está rodando: outro programa poderia criar um pipe com o
+            // mesmo nome e fazer a interface largar o hardware e reabrir em ciclo.
+            if (!ServicePipeExists() || ServiceManager.Query() != ServiceState.Running) return;
             _serviceWatch.Stop();
             Log.Warn("Serviço LinkFlow apareceu com a interface em modo local: devolvendo o hardware ao serviço.");
             _handoffToService = true;
@@ -428,6 +471,7 @@ public partial class App : Application
     {
         if (Interlocked.Exchange(ref _exiting, 1) == 1) return;
         Log.Info("Encerrando LinkFlow.");
+        _startupCancel.Cancel();
         try { MainView?.CloseForExit(); } catch { }
         Shutdown();
     }

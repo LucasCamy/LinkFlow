@@ -56,12 +56,13 @@ public sealed class CorsairLinkHub : IFanHub
 
     private void InitializeHub()
     {
-        var fwResp = SendCommandInternal(LinkHubProtocol.ReadFirmwareVersion);
-        if (fwResp != null && fwResp.Length > 7)
+        var fwResp = SendCommandInternal(LinkHubProtocol.ReadFirmwareVersion, checkStatus: true);
+        if (fwResp != null && fwResp.Length > 8)
         {
-            int v1 = fwResp[4];
-            int v2 = fwResp[5];
-            int v3 = BinaryPrimitives.ReadUInt16LittleEndian(fwResp.AsSpan(6, 2));
+            // [4] é o status; a versão vem depois (antes lia o status como primeiro número: "0.4.36865")
+            int v1 = fwResp[5];
+            int v2 = fwResp[6];
+            int v3 = BinaryPrimitives.ReadUInt16LittleEndian(fwResp.AsSpan(7, 2));
             FirmwareVersion = $"{v1}.{v2}.{v3}";
         }
 
@@ -103,13 +104,15 @@ public sealed class CorsairLinkHub : IFanHub
         lock (_syncLock)
         {
             if (_stream == null) return null;
+            EnsureSoftwareMode();
 
             SendCommandInternal(LinkHubProtocol.CloseEndpoint, LinkHubProtocol.EndpointSpeeds);
             SendCommandInternal(LinkHubProtocol.OpenEndpoint, LinkHubProtocol.EndpointSpeeds);
-            var resp = SendCommandInternal(LinkHubProtocol.Read);
+            var resp = ReadResponse(LinkHubProtocol.DataTypeSpeeds);
             if (resp == null) return null;
 
             var speeds = LinkHubProtocol.ParseSpeeds(resp);
+            if (speeds == null) return null;
             foreach (var dev in _subDevices)
             {
                 dev.CurrentRpm = speeds.TryGetValue(dev.Channel, out int rpm) ? rpm : 0;
@@ -126,10 +129,11 @@ public sealed class CorsairLinkHub : IFanHub
 
             SendCommandInternal(LinkHubProtocol.CloseEndpoint, LinkHubProtocol.EndpointTemperatures);
             SendCommandInternal(LinkHubProtocol.OpenEndpoint, LinkHubProtocol.EndpointTemperatures);
-            var resp = SendCommandInternal(LinkHubProtocol.Read);
+            var resp = ReadResponse(LinkHubProtocol.DataTypeTemperatures);
             if (resp == null) return null;
 
             var temps = LinkHubProtocol.ParseTemperatures(resp);
+            if (temps == null) return null;
             foreach (var dev in _subDevices)
             {
                 if (temps.TryGetValue(dev.Channel, out float t)) dev.CurrentTemperature = t;
@@ -143,13 +147,15 @@ public sealed class CorsairLinkHub : IFanHub
         lock (_syncLock)
         {
             if (_stream == null || channelSpeeds.Count == 0) return false;
+            EnsureSoftwareMode();
 
             var rawData = LinkHubProtocol.CreateSoftwareSpeedFixedPercentData(channelSpeeds);
             var writePayload = LinkHubProtocol.CreateWriteData(LinkHubProtocol.DataTypeSoftwareSpeedFixedPercent, rawData);
 
             SendCommandInternal(LinkHubProtocol.CloseEndpoint, LinkHubProtocol.EndpointSoftwareSpeedFixedPercent);
             SendCommandInternal(LinkHubProtocol.OpenEndpoint, LinkHubProtocol.EndpointSoftwareSpeedFixedPercent);
-            var ok = SendCommandInternal(LinkHubProtocol.Write, writePayload) != null;
+            // Só conta como aplicado se o hub confirmar com status ok (antes, qualquer resposta valia)
+            var ok = SendCommandInternal(LinkHubProtocol.Write, writePayload, checkStatus: true) != null;
             SendCommandInternal(LinkHubProtocol.CloseEndpoint, LinkHubProtocol.EndpointSoftwareSpeedFixedPercent);
 
             if (ok)
@@ -233,7 +239,17 @@ public sealed class CorsairLinkHub : IFanHub
         }
     }
 
-    private byte[]? SendCommandInternal(ReadOnlySpan<byte> command, ReadOnlySpan<byte> data = default)
+    // Uma resposta que chega depois do timeout fica na fila do driver HID e seria lida pelo PRÓXIMO comando
+    // (ex.: temperaturas interpretadas como RPM, escondendo uma bomba parada). Depois de um timeout, a fila
+    // é esvaziada antes de enviar o próximo comando.
+    private bool _drainPending;
+    private bool _needsSoftwareMode;
+    private const int DrainTimeoutMs = 15;
+    private const int MaxDrainReports = 16;
+    private const int ExpectedResponseWaitMs = 500;
+
+    /// <param name="checkStatus">Rejeita respostas com status de erro (padrão: qualquer resposta vale).</param>
+    private byte[]? SendCommandInternal(ReadOnlySpan<byte> command, ReadOnlySpan<byte> data = default, bool checkStatus = false)
     {
         if (_stream == null) return null;
 
@@ -242,16 +258,17 @@ public sealed class CorsairLinkHub : IFanHub
 
         try
         {
+            if (_drainPending) DrainStaleResponses();
             _stream.Write(packet);
             int bytesRead = _stream.Read(_readBuf);
-            if (bytesRead > 0)
-            {
-                return (byte[])_readBuf.Clone();
-            }
+            if (bytesRead <= LinkHubProtocol.StatusOffset) return null;
+            if (checkStatus && !StatusOk(_readBuf)) return null;
+            return (byte[])_readBuf.Clone();
         }
         catch (TimeoutException)
         {
             // Timeout transitório: o engine conta falhas consecutivas e reconecta se necessário.
+            _drainPending = true;
         }
         catch (Exception ex) when (ex is IOException or ObjectDisposedException or UnauthorizedAccessException)
         {
@@ -263,10 +280,86 @@ public sealed class CorsairLinkHub : IFanHub
         return null;
     }
 
+    /// <summary>
+    /// Envia o comando de leitura e só aceita a resposta do tipo esperado com status ok. Respostas de outros
+    /// comandos que estavam atrasadas na fila são descartadas (até 500 ms), como na implementação de referência.
+    /// </summary>
+    private byte[]? ReadResponse(ReadOnlySpan<byte> dataType)
+    {
+        var resp = SendCommandInternal(LinkHubProtocol.Read);
+        if (resp == null || _stream == null) return null;
+        if (LinkHubProtocol.IsResponse(resp, dataType)) return resp;
+        if (!StatusOk(resp))
+        {
+            _drainPending = true;
+            return null;
+        }
+
+        long deadline = Environment.TickCount64 + ExpectedResponseWaitMs;
+        try
+        {
+            while (Environment.TickCount64 < deadline)
+            {
+                if (_stream.Read(_readBuf) <= LinkHubProtocol.DataTypeOffset + 1) continue;
+                if (LinkHubProtocol.IsResponse(_readBuf, dataType)) return (byte[])_readBuf.Clone();
+            }
+        }
+        catch (TimeoutException) { }
+        catch (Exception ex) when (ex is IOException or ObjectDisposedException or UnauthorizedAccessException)
+        {
+            Log.Warn($"Hub iCUE LINK perdeu a conexão: {ex.Message}");
+            CloseStream();
+            return null;
+        }
+
+        Log.Debug($"Hub: resposta do tipo {Convert.ToHexString(dataType)} não chegou; descartando leitura.");
+        _drainPending = true;
+        return null;
+    }
+
+    private bool StatusOk(byte[] response)
+    {
+        byte status = response[LinkHubProtocol.StatusOffset];
+        if (status == LinkHubProtocol.StatusOk) return true;
+        if (status == LinkHubProtocol.StatusIncorrectMode) _needsSoftwareMode = true;
+        Log.Debug($"Hub: comando recusado com status 0x{status:X2}.");
+        return false;
+    }
+
+    /// <summary>O hub avisou que saiu do modo software (ex.: depois de suspender): volta antes do próximo comando.</summary>
+    private void EnsureSoftwareMode()
+    {
+        if (!_needsSoftwareMode) return;
+        _needsSoftwareMode = false;
+        Log.Info("Hub fora do modo software: reativando.");
+        SendCommandInternal(LinkHubProtocol.EnterSoftwareMode);
+    }
+
+    private void DrainStaleResponses()
+    {
+        _drainPending = false;
+        var stream = _stream!;
+        int previous = stream.ReadTimeout;
+        int drained = 0;
+        try
+        {
+            stream.ReadTimeout = DrainTimeoutMs;
+            while (drained < MaxDrainReports && stream.Read(_readBuf) > 0) drained++;
+        }
+        catch (TimeoutException) { /* fila vazia */ }
+        finally
+        {
+            stream.ReadTimeout = previous;
+        }
+        if (drained > 0) Log.Debug($"Hub: {drained} resposta(s) atrasada(s) descartada(s).");
+    }
+
     private void CloseStream()
     {
         try { _stream?.Dispose(); } catch { }
         _commandsSinceColor = int.MaxValue;
+        _drainPending = false;
+        _needsSoftwareMode = false;
         _stream = null;
     }
 
