@@ -46,6 +46,10 @@ public partial class App : Application
 
         Log.Configure(Options.ServiceCommand != null || Options.InstallDriverRequested ? "app-admin" : "app",
             Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
+        // Como administrador o app grava configuração e logs na pasta compartilhada: protege antes
+        // (inclusive ao instalar o serviço, antes de ele existir). Sem privilégio, não faz nada.
+        if (!Options.Simulate && Environment.GetEnvironmentVariable("LINKFLOW_DATA_DIR") == null)
+            SharedDataSecurity.TryHarden(AppPaths.SharedDir);
 
         if (Options.WaitPid is { } waitPid) WaitForProcessExit(waitPid);
 

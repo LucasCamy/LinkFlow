@@ -11,4 +11,6 @@ builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSe
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Warning);
 
 Log.Configure("service", Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LinkFlow.Core.LogLevel.Debug : LinkFlow.Core.LogLevel.Info);
+// Antes de qualquer gravação como SYSTEM (inclusive o log): a pasta não pode ficar sob controle de usuários
+SharedDataSecurity.TryHarden(AppPaths.SharedDir);
 await builder.Build().RunAsync();

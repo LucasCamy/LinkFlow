@@ -52,24 +52,52 @@ public sealed class JsonFileStore<T> where T : class, new()
 
     public JsonFileStore(string filePath) => FilePath = filePath;
 
+    /// <summary>Cópia da última versão boa, mantida a cada gravação.</summary>
+    public string BackupPath => FilePath + ".bak";
+
+    /// <summary>True quando o último <see cref="Load"/> encontrou o arquivo principal inválido.</summary>
+    public bool LoadedFromFallback { get; private set; }
+
     public T Load()
     {
         lock (_lock)
         {
-            try
+            LoadedFromFallback = false;
+            if (!File.Exists(FilePath) && !File.Exists(BackupPath)) return new T();
+            if (TryRead(FilePath, out var value)) return value;
+
+            // Arquivo vazio ou cortado (queda de energia, disco cheio): usa a cópia anterior
+            LoadedFromFallback = true;
+            if (File.Exists(FilePath))
             {
-                if (File.Exists(FilePath))
-                {
-                    var json = File.ReadAllText(FilePath);
-                    return JsonSerializer.Deserialize<T>(json, Json.Options) ?? new T();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Configuração inválida em {FilePath}: {ex.Message}. Usando padrão.");
                 try { File.Copy(FilePath, FilePath + ".corrompido", overwrite: true); } catch { }
             }
+            if (TryRead(BackupPath, out var backup))
+            {
+                Log.Warn($"Configuração inválida em {FilePath}: usando a cópia {BackupPath}.");
+                return backup;
+            }
+            Log.Warn($"Configuração inválida em {FilePath} e sem cópia válida: usando padrão.");
             return new T();
+        }
+    }
+
+    private static bool TryRead(string path, out T value)
+    {
+        value = null!;
+        try
+        {
+            if (!File.Exists(path)) return false;
+            var json = File.ReadAllText(path);
+            if (string.IsNullOrWhiteSpace(json)) return false;
+            if (JsonSerializer.Deserialize<T>(json, Json.Options) is not { } parsed) return false;
+            value = parsed;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Não foi possível ler {path}: {ex.Message}");
+            return false;
         }
     }
 
@@ -81,7 +109,26 @@ public sealed class JsonFileStore<T> where T : class, new()
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
                 var tmp = FilePath + ".tmp";
-                File.WriteAllText(tmp, JsonSerializer.Serialize(value, Json.Options), Encoding.UTF8);
+                var bytes = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true).GetBytes(JsonSerializer.Serialize(value, Json.Options));
+                // WriteThrough + Flush(true): o conteúdo chega ao disco antes da troca de nome
+                using (var stream = new FileStream(tmp, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+                {
+                    stream.Write(bytes);
+                    stream.Flush(flushToDisk: true);
+                }
+                if (File.Exists(FilePath))
+                {
+                    try
+                    {
+                        File.Replace(tmp, FilePath, BackupPath, ignoreMetadataErrors: true);
+                        return true;
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
+                    {
+                        Log.Debug($"File.Replace falhou ({ex.Message}); usando cópia e troca simples.");
+                        try { File.Copy(FilePath, BackupPath, overwrite: true); } catch { }
+                    }
+                }
                 File.Move(tmp, FilePath, overwrite: true);
                 return true;
             }
@@ -167,8 +214,11 @@ public static class Log
         try
         {
             if (!Directory.Exists(AppPaths.LogsDir)) return;
+            if (SharedDataSecurity.IsReparsePoint(AppPaths.LogsDir)) return;
             foreach (var f in Directory.GetFiles(AppPaths.LogsDir, "linkflow-*.log"))
             {
+                // Nunca segue links: apagar pelo SYSTEM através de um link apagaria o destino
+                if ((File.GetAttributes(f) & FileAttributes.ReparsePoint) != 0) continue;
                 if (File.GetLastWriteTime(f) < DateTime.Now.AddDays(-keepDays)) File.Delete(f);
             }
         }

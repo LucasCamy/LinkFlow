@@ -134,17 +134,30 @@ public static class LinkHubProtocol
         return devices;
     }
 
-    public static Dictionary<int, int> ParseSpeeds(ReadOnlySpan<byte> rawPacket)
-    {
-        var speeds = new Dictionary<int, int>();
-        if (rawPacket.Length < 20) return speeds;
+    // Resposta (com o Report ID em [0]): [4] = status (0x00 = ok), [5..6] = tipo de dado, [7] = quantidade,
+    // depois um registro de 3 bytes por sensor: [STATUS, LSB, MSB] (status 0x00 = disponível).
+    public const int StatusOffset = 4;
+    public const int DataTypeOffset = 5;
+    public const byte StatusOk = 0x00;
+    public const byte StatusIncorrectMode = 0x03;
 
-        // In iCUE LINK firmware, data type 0x25 0x00 is followed by length byte at [7]
-        // Channels 0 to N start at offset 12, each 3 bytes: [LSB, MSB, STATUS]
+    /// <summary>True quando a resposta tem status ok e é do tipo esperado (evita usar a resposta de outro comando).</summary>
+    public static bool IsResponse(ReadOnlySpan<byte> rawPacket, ReadOnlySpan<byte> dataType) =>
+        rawPacket.Length > DataTypeOffset + 1 && rawPacket[StatusOffset] == StatusOk &&
+        rawPacket.Slice(DataTypeOffset, 2).SequenceEqual(dataType);
+
+    /// <summary>RPM por canal; null se o pacote não for uma resposta de velocidades válida.</summary>
+    public static Dictionary<int, int>? ParseSpeeds(ReadOnlySpan<byte> rawPacket)
+    {
+        if (rawPacket.Length < 20 || !IsResponse(rawPacket, DataTypeSpeeds)) return null;
+        var speeds = new Dictionary<int, int>();
+
+        // Canal N: valor em [12 + 3(N-1)], status no byte anterior
         int startOffset = 12;
 
-        for (int ch = 0; ch < 24 && startOffset + 3 <= rawPacket.Length; ch++, startOffset += 3)
+        for (int ch = 0; ch < 24 && startOffset + 2 <= rawPacket.Length; ch++, startOffset += 3)
         {
+            if (rawPacket[startOffset - 1] != StatusOk) continue;
             short rpm = BinaryPrimitives.ReadInt16LittleEndian(rawPacket.Slice(startOffset, 2));
             if (rpm > 0)
             {
@@ -155,19 +168,18 @@ public static class LinkHubProtocol
         return speeds;
     }
 
-    public static Dictionary<int, float> ParseTemperatures(ReadOnlySpan<byte> rawPacket)
+    /// <summary>Temperatura por canal; null se o pacote não for uma resposta de temperaturas válida.</summary>
+    public static Dictionary<int, float>? ParseTemperatures(ReadOnlySpan<byte> rawPacket)
     {
+        if (rawPacket.Length < 16 || !IsResponse(rawPacket, DataTypeTemperatures)) return null;
         var temps = new Dictionary<int, float>();
-        if (rawPacket.Length < 16) return temps;
 
-        // In raw packet from endpoint 0x21:
-        // [5..6] is 0x10 0x00, [7] is payload length (e.g. 52 bytes)
-        // Sensor slots start at offset 9, each 3 bytes: [LSB, MSB, STATUS]
+        // Valores a partir de [9], status no byte anterior
         int startOffset = 9;
 
-        for (int ch = 0; ch < 24 && startOffset + 3 <= rawPacket.Length; ch++, startOffset += 3)
+        for (int ch = 0; ch < 24 && startOffset + 2 <= rawPacket.Length; ch++, startOffset += 3)
         {
-            byte status = rawPacket[startOffset + 2];
+            if (rawPacket[startOffset - 1] != StatusOk) continue;
             short rawTemp = BinaryPrimitives.ReadInt16LittleEndian(rawPacket.Slice(startOffset, 2));
             if (rawTemp > 0)
             {

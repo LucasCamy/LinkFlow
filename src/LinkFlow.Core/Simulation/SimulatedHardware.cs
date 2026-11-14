@@ -85,8 +85,12 @@ public sealed class SimulatedHub : IFanHub
         }
     }
 
+    /// <summary>Teste: enquanto fechado, a leitura de RPM trava (simula um driver USB que não responde).</summary>
+    public ManualResetEventSlim ReadGate { get; } = new(initialState: true);
+
     public IReadOnlyDictionary<int, int>? ReadSpeeds()
     {
+        ReadGate.Wait();
         lock (_lock)
         {
             if (!IsConnected || FailReads) return null;
@@ -186,6 +190,9 @@ public sealed class SimulatedSensors : ISensorSource
     public byte? GpuFanManual { get; private set; }
     public TimeSpan OpenDelay { get; set; } = TimeSpan.FromMilliseconds(300);
 
+    /// <summary>Teste: o LibreHardwareMonitor parou de entregar temperaturas (ex.: após suspender).</summary>
+    public bool TemperaturesLost { get; set; }
+
     public void Open()
     {
         Thread.Sleep(OpenDelay);
@@ -194,6 +201,7 @@ public sealed class SimulatedSensors : ISensorSource
 
     public HardwareTelemetry Read()
     {
+        if (TemperaturesLost) return new HardwareTelemetry { CpuName = "AMD Ryzen 9 7900X3D (simulado)", CpuSensorAvailable = false };
         double s = (DateTime.Now - _start).TotalSeconds;
         float load = (float)(25 + 20 * Math.Sin(s / 9));
         return new HardwareTelemetry

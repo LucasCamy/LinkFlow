@@ -29,7 +29,18 @@ public sealed class EngineWorker : BackgroundService
         Log.Info($"Serviço LinkFlow iniciando ({(_options.Simulate ? "simulação" : "hardware real")}, PID {Environment.ProcessId}).");
 
         IHardwareFactory factory = _options.Simulate ? new SimulatedHardwareFactory() : new RealHardwareFactory();
-        _engine = new LinkFlowEngine(factory, new EngineOptions { ConfigPath = AppPaths.ControlConfigFile });
+        _engine = new LinkFlowEngine(factory, new EngineOptions
+        {
+            ConfigPath = AppPaths.ControlConfigFile,
+            MediaLibraryOnly = true,
+            // Fila travada: o engine já devolveu o hub ao modo hardware; encerrar o processo faz o Windows
+            // reiniciar o serviço (ações de recuperação configuradas na instalação).
+            LaneStalled = problem =>
+            {
+                if (System.Diagnostics.Debugger.IsAttached) return;
+                Environment.FailFast($"LinkFlow: {problem}");
+            }
+        });
         _engine.Start();
 
         _server = new PipeEngineServer(_engine);
