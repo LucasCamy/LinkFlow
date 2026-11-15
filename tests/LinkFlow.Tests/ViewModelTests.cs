@@ -26,7 +26,7 @@ public sealed class ViewModelTests : IDisposable
     /// <summary>Processa a fila do Dispatcher até a condição ser verdadeira.</summary>
     private static void WaitFor(Func<bool> condition, string because)
     {
-        var deadline = DateTime.Now.AddSeconds(4);
+        var deadline = DateTime.Now.AddMilliseconds(EngineFixture.DefaultTimeoutMs);
         while (!condition())
         {
             if (DateTime.Now > deadline) Assert.Fail($"Tempo esgotado: {because}");

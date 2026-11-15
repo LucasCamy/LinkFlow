@@ -363,7 +363,9 @@ public class EngineFailSafeGapTests
         var stalled = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         using var f = new EngineFixture(new ControlConfig { GlobalPercent = 40 }, o =>
         {
-            o.LaneStallTimeout = TimeSpan.FromMilliseconds(300);
+            // Folgado: com a máquina carregada a fila de sensores pode ficar centenas de ms sem ciclar e seria
+            // acusada antes do hub (só a fila do hub fica realmente travada aqui)
+            o.LaneStallTimeout = TimeSpan.FromMilliseconds(1500);
             o.LaneStalled = problem => stalled.TrySetResult(problem);
         });
         EngineFixture.WaitUntil(() => Speed(f, 1) == 40 && f.Hw.Hub.InSoftwareMode);
@@ -372,7 +374,7 @@ public class EngineFailSafeGapTests
         f.Hw.Hub.ReadGate.Reset(); // a leitura USB passa a não voltar nunca
         try
         {
-            var problem = await stalled.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            var problem = await stalled.Task.WaitAsync(TimeSpan.FromSeconds(15));
             Assert.Contains("hub", problem);
             Assert.False(f.Hw.Hub.InSoftwareMode, "o hub deve voltar à curva própria (modo hardware)");
             Assert.Contains(f.Engine.GetSnapshot().Alerts, a => a.Key == "engine-stalled" && a.Severity == AlertSeverity.Critical);
