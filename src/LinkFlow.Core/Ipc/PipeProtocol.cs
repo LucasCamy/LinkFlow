@@ -31,6 +31,7 @@ public static class PipeProtocol
     public const string RefreshRgb = "refreshRgb";
     public const string Rescan = "rescan";
     public const string Demand = "demand";
+    public const string CurveTest = "curveTest";
 
     public sealed class HelloInfo
     {

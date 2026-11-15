@@ -155,6 +155,14 @@
                             </StackPanel>
                         </Border>
 
+                        <c:EmptyState x:Name="ManufacturerEmpty" Visibility="Collapsed" Icon="&#xE721;"
+                                      Title="Nenhuma fonte oficial encontrada"
+                                      Detail="O catálogo não tem um site de fabricante para as peças detectadas. O Windows Update ainda pode oferecer drivers."/>
+
+                        <c:EmptyState x:Name="DriverEmpty" Visibility="Collapsed" Icon="&#xE73E;"
+                                      Title="Todos os drivers estão atualizados"
+                                      Detail="O Windows Update não ofereceu nenhuma atualização de driver para este PC."/>
+
                         <Border Style="{StaticResource SystemPanel}" Margin="0,4,0,0"
                                 Visibility="{Binding HasItems, ElementName=DriverList, Converter={StaticResource BoolToVis}}">
                             <StackPanel>
@@ -288,6 +296,9 @@
                                 </ItemsControl>
                             </DockPanel>
                     </Border>
+                    <c:EmptyState x:Name="InstalledEmpty" Grid.Row="1" Visibility="Collapsed" Icon="&#xE721;" VerticalAlignment="Top"
+                                  Title="Nenhum driver corresponde ao filtro"
+                                  Detail="Tente o nome do dispositivo, o fabricante, a versão ou parte do ID de hardware."/>
                 </Grid>
             </TabItem>
         </TabControl>

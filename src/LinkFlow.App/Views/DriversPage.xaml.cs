@@ -108,6 +108,7 @@ public partial class DriversPage : UserControl
     {
         _updates = updates;
         DriverList.ItemsSource = updates;
+        DriverEmpty.Visibility = updates.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void RemoveResult(DriverUpdate driver) => SetResults(_updates.Where(update => update.Identity != driver.Identity).ToArray());
@@ -116,6 +117,7 @@ public partial class DriversPage : UserControl
     {
         SetBusy(true);
         ManufacturerList.ItemsSource = null;
+        ManufacturerEmpty.Visibility = Visibility.Collapsed;
         ManufacturerStatus.Text = "Identificando as peças e consultando os fabricantes…";
         try
         {
@@ -129,6 +131,7 @@ public partial class DriversPage : UserControl
                 ], DemoInstalled, false)
                 : await ManufacturerDrivers.SearchAsync();
             ManufacturerList.ItemsSource = result.Sources;
+            ManufacturerEmpty.Visibility = result.Sources.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             ManufacturerStatus.Text = result.Sources.Count == 0
                 ? "Nenhuma fonte oficial do catálogo foi associada ao hardware detectado."
                 : $"{result.Sources.Count} {(result.Sources.Count == 1 ? "fonte encontrada" : "fontes encontradas")}.";
@@ -190,6 +193,17 @@ public partial class DriversPage : UserControl
         var entries = filter.Length == 0 ? inventory.Entries : inventory.Entries.Where(entry =>
             Contains(entry.Name) || Contains(entry.Details) || Contains(entry.HardwareId)).ToArray();
         InstalledList.ItemsSource = entries;
+        InstalledEmpty.Visibility = entries.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (entries.Count == 0 && filter.Length == 0)
+        {
+            InstalledEmpty.Title = "Nenhum driver de dispositivo encontrado";
+            InstalledEmpty.Detail = "O Windows não informou drivers para os dispositivos conectados. Tente atualizar a lista.";
+        }
+        else
+        {
+            InstalledEmpty.Title = "Nenhum driver corresponde ao filtro";
+            InstalledEmpty.Detail = "Tente o nome do dispositivo, o fabricante, a versão ou parte do ID de hardware.";
+        }
         InstalledStatus.Text = filter.Length == 0 ? $"{entries.Count} drivers de dispositivos conectados." :
             $"{entries.Count} de {inventory.Entries.Count} drivers correspondem ao filtro.";
         if (inventory.Incomplete) InstalledStatus.Text += " Parte do inventário ficou indisponível.";

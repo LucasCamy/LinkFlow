@@ -1,6 +1,7 @@
 <Window x:Class="LinkFlow.App.Views.AlertHistoryDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:LinkFlow.App.Controls"
         Title="Histórico de alertas" Width="620" Height="460" MinWidth="380" MinHeight="260"
         ResizeMode="CanResizeWithGrip" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
         Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}" FontFamily="{StaticResource UiFont}"
@@ -12,8 +13,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Text="Histórico de alertas" Style="{StaticResource PageTitle}" Margin="0,0,0,14"/>
-        <TextBlock Grid.Row="1" Text="Nenhum alerta registrado." Style="{StaticResource SystemDetail}"
-                   Visibility="{Binding HasHistory, Converter={StaticResource BoolToVisInverse}}"/>
+        <c:EmptyState Grid.Row="1" Icon="&#xE73E;" Title="Nenhum alerta recente registrado"
+                      Detail="Avisos de temperatura, bomba, sensores e conexão com o hub aparecem aqui."
+                      Visibility="{Binding HasHistory, Converter={StaticResource BoolToVisInverse}}"/>
         <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}"
                       Visibility="{Binding HasHistory, Converter={StaticResource BoolToVis}}">
             <ItemsControl x:Name="HistoryList" ItemsSource="{Binding History}">

@@ -320,4 +320,49 @@ public sealed class ViewModelTests : IDisposable
         _vm.AdvancedToolsEnabled = false;
         Assert.Equal(0, _vm.SelectedPage);
     }
+
+    [Fact]
+    public void Disabling_fail_safe_asks_first_and_cancel_keeps_it_on()
+    {
+        Assert.True(_vm.FailSafeEnabled);
+        int asked = 0;
+        _vm.ConfirmDisableFailSafe = () => { asked++; return false; };
+        _vm.FailSafeEnabled = false;
+        Assert.Equal(1, asked);
+        Assert.True(_vm.FailSafeEnabled);
+        Assert.True(_client.Config.Safety.FailSafeEnabled);
+
+        _vm.ConfirmDisableFailSafe = () => { asked++; return true; };
+        _vm.FailSafeEnabled = false;
+        Assert.Equal(2, asked);
+        Assert.False(_client.Config.Safety.FailSafeEnabled);
+
+        // Religar não pergunta
+        _vm.FailSafeEnabled = true;
+        Assert.Equal(2, asked);
+        Assert.True(_client.Config.Safety.FailSafeEnabled);
+    }
+
+    [Fact]
+    public void Leaving_the_fans_page_ends_the_curve_test()
+    {
+        _vm.SelectedPage = 1;
+        _vm.CurveTest.Temperature = 75;
+        _vm.CurveTest.IsActive = true;
+        WaitFor(() => _f.Engine.GetSnapshot().CurveTestTemp != null, "teste de curva no engine");
+
+        _vm.SelectedPage = 0;
+        Assert.False(_vm.CurveTest.IsActive);
+        WaitFor(() => _f.Engine.GetSnapshot().CurveTestTemp == null, "teste encerrado ao sair da tela");
+    }
+
+    [Fact]
+    public void Fail_safe_banner_follows_the_snapshot()
+    {
+        _f.Hw.Sensors.ForcedCpuTemp = 97;
+        WaitFor(() => _vm.FailSafeBanner.IsVisible, "faixa do modo de segurança");
+        Assert.Contains("CPU", _vm.FailSafeBanner.Reason);
+        _f.Hw.Sensors.ForcedCpuTemp = 50;
+        WaitFor(() => !_vm.FailSafeBanner.IsVisible, "faixa some após a recuperação");
+    }
 }
