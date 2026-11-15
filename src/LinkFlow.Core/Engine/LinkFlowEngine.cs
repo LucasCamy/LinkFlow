@@ -26,6 +26,18 @@ public sealed class EngineOptions
     /// <summary>"Testar curva" termina sozinho se a interface parar de renovar o pedido (ex.: fechou ou travou).</summary>
     public TimeSpan CurveTestTimeout { get; set; } = TimeSpan.FromSeconds(6);
 
+    /// <summary>Calibração: espera mínima em cada potência antes de ler o RPM (aceleração/desaceleração).</summary>
+    public TimeSpan CalibrationSettle { get; set; } = TimeSpan.FromSeconds(3);
+
+    /// <summary>Calibração: espera máxima por uma leitura estável (ou pelo hub aplicar a potência).</summary>
+    public TimeSpan CalibrationSettleMax { get; set; } = TimeSpan.FromSeconds(10);
+
+    /// <summary>Desgaste: leituras seguidas abaixo do esperado pela calibração antes do alerta (~1 por segundo).</summary>
+    public int FanWearReadsBeforeAlert { get; set; } = 60;
+
+    /// <summary>Desgaste: só compara depois que a potência fica este tempo sem mudar (rotação já estabilizada).</summary>
+    public TimeSpan FanWearSteadyTime { get; set; } = TimeSpan.FromSeconds(10);
+
     /// <summary>Fila do hub ou dos sensores sem completar um ciclo por este tempo → considerada travada.</summary>
     public TimeSpan LaneStallTimeout { get; set; } = TimeSpan.FromSeconds(60);
 
@@ -433,6 +445,7 @@ public sealed partial class LinkFlowEngine : IDisposable
                 FailSafeReason = _failSafe ? _failSafeReason : null,
                 FailSafeRecovering = _failSafe && _failSafeRecoveryStarted != null,
                 CurveTestTemp = _curveTestTemp,
+                Calibration = _calibrationStatus,
                 Fans = _fans.Select(f => new FanState
                 {
                     Key = f.Key, Channel = f.Channel, DeviceId = f.DeviceId, DefaultName = f.DefaultName,

@@ -53,7 +53,11 @@ public sealed partial class ControlConfig
         Curve ??= new FanCurveConfig();
         Curve.Normalize();
         Fans ??= new();
-        foreach (var f in Fans.Values) f.Percent = Math.Clamp(f.Percent, (byte)FanLimits.MinPercent, (byte)100);
+        foreach (var f in Fans.Values)
+        {
+            f.Percent = Math.Clamp(f.Percent, (byte)FanLimits.MinPercent, (byte)100);
+            f.Calibration?.Normalize();
+        }
         Rgb ??= new RgbConfig();
         Rgb.Normalize();
         Lcd ??= new LcdConfig();
@@ -81,6 +85,9 @@ public sealed partial class FanOverride
     public byte Percent { get; set; } = 55;
     public string? Name { get; set; }
     public string? Group { get; set; }
+
+    /// <summary>Resultado da última calibração desta ventoinha (null = nunca calibrada).</summary>
+    public FanCalibration? Calibration { get; set; }
 }
 
 public sealed partial class CurvePoint

@@ -141,6 +141,15 @@ public sealed class PipeEngineServer : IAsyncDisposable
                     case PipeProtocol.CurveTest:
                         _engine.SetCurveTest(PipeProtocol.Read<float?>(payload));
                         break;
+                    case PipeProtocol.CalibrationStart:
+                        // Mexe nas ventoinhas por cerca de um minuto: fica registrado quem pediu
+                        var starter = PipeIdentity.ClientProcessId(conn.Pipe);
+                        Log.Info($"Calibração pedida pelo processo {(starter is { } sp ? PipeIdentity.Describe(sp) : "desconhecido")}.");
+                        _engine.StartCalibration();
+                        break;
+                    case PipeProtocol.CalibrationCancel:
+                        _engine.CancelCalibration();
+                        break;
                 }
             }
         }

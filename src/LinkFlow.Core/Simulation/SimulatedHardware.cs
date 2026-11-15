@@ -34,6 +34,17 @@ public sealed class SimulatedHub : IFanHub
     public bool Present { get; set; } = true;
     public bool FailReads { get; set; }
     public HashSet<int> StoppedChannels { get; } = new();
+
+    /// <summary>Ventoinha que para abaixo desta potência (calibração). Sem entrada: gira em qualquer potência.</summary>
+    public Dictionary<int, byte> StallBelowPercent { get; } = new();
+
+    /// <summary>Potência necessária para voltar a girar depois de parada (padrão: a mesma de <see cref="StallBelowPercent"/>).</summary>
+    public Dictionary<int, byte> StartPercent { get; } = new();
+
+    /// <summary>Fator do RPM (ex.: 0,6 = ventoinha gasta girando 40% abaixo do normal).</summary>
+    public Dictionary<int, double> RpmScale { get; } = new();
+
+    private readonly HashSet<int> _stalled = new();
     public int SetSpeedsCalls { get; private set; }
     public int SetRgbCalls { get; private set; }
     public int ConnectCalls { get; private set; }
@@ -48,6 +59,21 @@ public sealed class SimulatedHub : IFanHub
         _devices = new List<ConnectedSubDevice>();
         foreach (var s in (Environment.GetEnvironmentVariable("LINKFLOW_SIM_STOPPED") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
             if (int.TryParse(s, out var stopped)) StoppedChannels.Add(stopped);
+        // LINKFLOW_SIM_STALL=3:30:40 (canal:para abaixo de:volta a girar em) e LINKFLOW_SIM_WORN=5:0.6 (canal:fator do RPM)
+        foreach (var s in (Environment.GetEnvironmentVariable("LINKFLOW_SIM_STALL") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = s.Split(':');
+            if (parts.Length < 2 || !int.TryParse(parts[0], out var ch) || !byte.TryParse(parts[1], out var below)) continue;
+            StallBelowPercent[ch] = below;
+            if (parts.Length > 2 && byte.TryParse(parts[2], out var start)) StartPercent[ch] = start;
+        }
+        foreach (var s in (Environment.GetEnvironmentVariable("LINKFLOW_SIM_WORN") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = s.Split(':');
+            if (parts.Length == 2 && int.TryParse(parts[0], out var ch) &&
+                double.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scale))
+                RpmScale[ch] = scale;
+        }
         for (int ch = 1; ch <= 10; ch++)
         {
             _devices.Add(new ConnectedSubDevice
@@ -98,7 +124,14 @@ public sealed class SimulatedHub : IFanHub
             foreach (var d in _devices)
             {
                 byte pct = LastSpeeds.TryGetValue(d.Channel, out var p) ? p : (byte)50;
-                double target = StoppedChannels.Contains(d.Channel) ? 0 : d.IsPump ? 1200 + pct * 18 : 250 + pct * 19;
+                if (!d.IsPump && StallBelowPercent.TryGetValue(d.Channel, out var stallBelow))
+                {
+                    // Para abaixo do limite e, parada, só volta a girar com mais força (inércia do rotor)
+                    if (!_stalled.Contains(d.Channel) && pct < stallBelow) _stalled.Add(d.Channel);
+                    else if (_stalled.Contains(d.Channel) && pct >= StartPercent.GetValueOrDefault(d.Channel, stallBelow)) _stalled.Remove(d.Channel);
+                }
+                double target = StoppedChannels.Contains(d.Channel) || _stalled.Contains(d.Channel) ? 0
+                    : (d.IsPump ? 1200 + pct * 18 : 250 + pct * 19) * RpmScale.GetValueOrDefault(d.Channel, 1.0);
                 _rpm.TryGetValue(d.Channel, out var cur);
                 cur += (target - cur) * 0.6;
                 _rpm[d.Channel] = cur;
