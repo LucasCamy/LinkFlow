@@ -105,7 +105,7 @@ public sealed class CalibrationViewModel : ObservableObject
     /// <summary>Atualiza a partir do snapshot do engine (chamado a cada snapshot enquanto o assistente está aberto).</summary>
     public void Update(EngineSnapshot s)
     {
-        FanCount = s.Fans.Count(f => !f.IsPump && f.Model != nameof(LinkDeviceModel.Unknown));
+        FanCount = s.Fans.Count(f => !f.IsPump && LinkDeviceCatalog.IsFan(f.Model));
         var dates = _engine.Config.Fans.Values.Select(f => f.Calibration?.Date).Where(d => d != null).ToList();
         LastCalibration = dates.Count == 0 ? null : $"Última calibração: {dates.Max()!.Value.ToString("dd/MM/yyyy 'às' HH:mm", PtBr)}";
 

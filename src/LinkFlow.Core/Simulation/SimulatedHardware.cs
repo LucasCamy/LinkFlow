@@ -123,6 +123,8 @@ public sealed class SimulatedHub : IFanHub
             var result = new Dictionary<int, int>();
             foreach (var d in _devices)
             {
+                // Telas LCD, blocos de água e afins não têm tacômetro: o hub não informa rotação
+                if (!LinkDeviceCatalog.HasTachometer(d.Model.ToString())) continue;
                 byte pct = LastSpeeds.TryGetValue(d.Channel, out var p) ? p : (byte)50;
                 if (!d.IsPump && StallBelowPercent.TryGetValue(d.Channel, out var stallBelow))
                 {
@@ -165,10 +167,13 @@ public sealed class SimulatedHub : IFanHub
     }
 
     /// <summary>Teste: simula conectar uma ventoinha nova na corrente do hub.</summary>
-    public void PlugFan(int channel)
+    public void PlugFan(int channel) =>
+        PlugDevice(new ConnectedSubDevice { Channel = channel, DeviceId = $"SIMNEW{channel:D2}", Model = LinkDeviceModel.FanRxSeries, Name = $"RX Fan #{channel}" });
+
+    /// <summary>Teste: simula conectar qualquer dispositivo na corrente do hub (ex.: a tela LCD da bomba).</summary>
+    public void PlugDevice(ConnectedSubDevice device)
     {
-        lock (_lock)
-            _devices.Add(new ConnectedSubDevice { Channel = channel, DeviceId = $"SIMNEW{channel:D2}", Model = LinkDeviceModel.FanRxSeries, Name = $"RX Fan #{channel}" });
+        lock (_lock) _devices.Add(device);
         _pendingChange = true;
     }
 

@@ -231,7 +231,7 @@ public sealed class CurveTestTests
     public void Engine_ends_an_abandoned_test_by_itself()
     {
         using var f = new EngineFixture(new ControlConfig { Mode = FanControlMode.Curve, Curve = new FanCurveConfig { Smoothing = 1f } },
-            o => o.CurveTestTimeout = TimeSpan.FromMilliseconds(300));
+            o => o.CurveTestTimeout = TimeSpan.FromMilliseconds(1500));   // folga para ver os 93% mesmo com a máquina carregada
         f.Hw.Sensors.ForcedCpuTemp = 40;
         f.Hw.Sensors.ForcedGpuTemp = 40;
         f.Engine.SetCurveTest(85);

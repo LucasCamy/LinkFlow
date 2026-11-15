@@ -249,3 +249,52 @@ public class CalibrationViewModelTests
         Assert.Contains("segurança", vm.Message);
     }
 }
+
+/// <summary>Tela LCD da bomba e calibração com o PC já quente.</summary>
+public class PumpLcdAndHotStartTests
+{
+    private static readonly ConnectedSubDevice PumpLcd = new()
+    {
+        Channel = 12, DeviceId = "SIM-PUMP-LCD", Model = LinkDeviceModel.PumpLcd, Name = "Pump LCD #12"
+    };
+
+    private static EngineFixture Fixture() => new(new ControlConfig { GlobalPercent = 55 }, o =>
+    {
+        o.SubDeviceCheckInterval = TimeSpan.FromMilliseconds(50);
+        o.CalibrationSettle = TimeSpan.FromMilliseconds(60);
+        o.CalibrationSettleMax = TimeSpan.FromSeconds(2);
+    });
+
+    [Fact]
+    public void Pump_lcd_is_not_a_stopped_fan_and_is_not_calibrated()
+    {
+        using var f = Fixture();
+        f.Hw.Hub.PlugDevice(PumpLcd);
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Any(x => x.Key == "SIM-PUMP-LCD"), because: "LCD na lista");
+        Thread.Sleep(600);   // várias leituras com 0 RPM
+
+        var snapshot = f.Engine.GetSnapshot();
+        Assert.Equal(nameof(LinkDeviceModel.PumpLcd), snapshot.Fans.Single(x => x.Key == "SIM-PUMP-LCD").Model);
+        Assert.DoesNotContain(snapshot.Alerts, a => a.Key == "fan:SIM-PUMP-LCD");
+
+        Assert.True(f.Engine.StartCalibration());
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Calibration is { Outcome: CalibrationOutcome.Completed }, 20000, "calibração");
+        Assert.DoesNotContain(f.Engine.GetSnapshot().Calibration!.Results, r => r.Key == "SIM-PUMP-LCD");
+        Assert.False(f.Engine.GetConfig().Fans.TryGetValue("SIM-PUMP-LCD", out var lcd) && lcd.Calibration != null);
+    }
+
+    [Fact]
+    public void Calibration_is_refused_upfront_when_the_coolant_is_already_hot()
+    {
+        using var f = Fixture();
+        f.Hw.Hub.CoolantTemp = 46.5f;   // acima do alerta (45 °C), abaixo do crítico (50 °C)
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().CoolantTemp >= 46, because: "líquido quente");
+
+        Assert.False(f.Engine.StartCalibration());
+        var status = f.Engine.GetSnapshot().Calibration!;
+        Assert.Equal(CalibrationOutcome.Aborted, status.Outcome);
+        Assert.Matches(@"O líquido está a 46,\d °C, acima do alerta \(45 °C\)\.", status.Message);   // o simulador soma até 0,2 °C
+        Assert.Contains("PC ocioso", status.Message);
+        Assert.Equal(55, f.Hw.Hub.LastSpeeds.GetValueOrDefault(1));   // nenhuma ventoinha mexida
+    }
+}
