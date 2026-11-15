@@ -8,6 +8,8 @@ using Microsoft.Win32;
 
 namespace LinkFlow.App.Services;
 
+public enum AutoStartMigration { NotNeeded, Migrated, NeedsElevation, Failed }
+
 /// <summary>
 /// "Iniciar com o Windows".
 /// Com privilégio de administrador usa uma tarefa agendada "ao fazer logon / executar com privilégios mais altos"
@@ -78,6 +80,40 @@ public static class AutoStartManager
         catch (Exception ex)
         {
             return ex.Message;
+        }
+    }
+
+    /// <summary>
+    /// Com o serviço instalado a interface não precisa de administrador, e aberta elevada ela perde a
+    /// iluminação Logitech (o G HUB recusa o SDK de apps elevados). Troca a tarefa elevada, criada quando o
+    /// app rodava em modo local, pela chave Run do usuário. Só um processo elevado consegue apagar a tarefa.
+    /// </summary>
+    public static AutoStartMigration MigrateTaskToRunValue()
+    {
+        try
+        {
+            if (!TaskExists()) return AutoStartMigration.NotNeeded;
+            if (!IsElevated)
+            {
+                Log.Warn("Início automático por tarefa elevada: será trocado pela chave Run quando o LinkFlow abrir como administrador.");
+                return AutoStartMigration.NeedsElevation;
+            }
+
+            using (var key = Registry.CurrentUser.CreateSubKey(RunKey))
+                key.SetValue(RunValue, $"\"{ExePath}\" --tray");
+            DeleteTask();
+            if (TaskExists())
+            {
+                Log.Warn("Não foi possível remover a tarefa agendada do LinkFlow.");
+                return AutoStartMigration.Failed;
+            }
+            Log.Info("Início automático migrado da tarefa elevada para a chave Run (interface sem administrador).");
+            return AutoStartMigration.Migrated;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or System.ComponentModel.Win32Exception)
+        {
+            Log.Warn($"Falha ao migrar o início automático: {ex.Message}");
+            return AutoStartMigration.Failed;
         }
     }
 

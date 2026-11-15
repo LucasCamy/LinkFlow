@@ -44,6 +44,15 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                     return;
                 }
 
+                // O G HUB recusa o SDK de um app elevado quando ele mesmo roda como usuário comum. Nem tenta:
+                // a tentativa só deixa os periféricos esperando uma cor que nunca chega.
+                if (IsBlockedByElevation(Environment.IsPrivilegedProcess, IsAgentElevatedInSession(sessionId)))
+                {
+                    ReleaseSdk();
+                    Report(ElevatedDiagnostic);
+                    return;
+                }
+
                 if (_native == null)
                 {
                     string? sdkFile = RuntimeInformation.ProcessArchitecture switch
@@ -218,6 +227,80 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         }
         return null;
     }
+
+    public const string ElevatedDiagnostic =
+        "O LinkFlow está aberto como administrador e o G HUB não aceita iluminação de apps elevados. " +
+        "Feche o LinkFlow pela bandeja e abra de novo pelo menu Iniciar.";
+
+    /// <summary>Elevado, o SDK só funciona se o agente do G HUB também estiver elevado.</summary>
+    public static bool IsBlockedByElevation(bool selfElevated, bool? agentElevated) => selfElevated && agentElevated != true;
+
+    /// <summary>True se algum agente do G HUB nesta sessão roda elevado; null se não foi possível ler.</summary>
+    private static bool? IsAgentElevatedInSession(int sessionId)
+    {
+        try
+        {
+            var agents = Process.GetProcessesByName("lghub_agent");
+            try
+            {
+                bool unknown = false;
+                foreach (var agent in agents)
+                {
+                    try
+                    {
+                        if (agent.SessionId != sessionId) continue;
+                        switch (IsElevated(agent.Id))
+                        {
+                            case true: return true;
+                            case null: unknown = true; break;
+                        }
+                    }
+                    catch (InvalidOperationException) { /* O agente encerrou entre a enumeração e a leitura. */ }
+                    catch (Win32Exception) { unknown = true; }
+                }
+                return unknown ? null : false;
+            }
+            finally { foreach (var agent in agents) agent.Dispose(); }
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or Win32Exception) { return null; }
+    }
+
+    private static bool? IsElevated(int processId)
+    {
+        const uint QueryLimitedInformation = 0x1000, TokenQuery = 0x0008;
+        const int TokenElevationClass = 20;
+        nint process = OpenProcess(QueryLimitedInformation, false, processId);
+        if (process == 0) return null;
+        try
+        {
+            if (!OpenProcessToken(process, TokenQuery, out nint token)) return null;
+            try
+            {
+                return GetTokenInformation(token, TokenElevationClass, out int elevated, sizeof(int), out _) ? elevated != 0 : null;
+            }
+            finally { CloseHandle(token); }
+        }
+        finally { CloseHandle(process); }
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static extern nint OpenProcess(uint access, bool inherit, int processId);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool OpenProcessToken(nint process, uint access, out nint token);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetTokenInformation(nint token, int infoClass, out int info, int length, out int returned);
+
+    [DllImport("kernel32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CloseHandle(nint handle);
 
     private static bool? IsAgentInSession(int sessionId)
     {

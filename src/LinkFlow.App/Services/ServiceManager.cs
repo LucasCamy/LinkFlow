@@ -180,6 +180,7 @@ public static class ServiceManager
     /// <summary>Abre a interface como usuário comum (sem herdar a elevação), via Explorer.</summary>
     public static void LaunchUiAsUser()
     {
+        if (UnelevatedLauncher.Start(AutoStartManager.ExePath, string.Empty, AppContext.BaseDirectory)) return;
         try
         {
             Process.Start(new ProcessStartInfo("explorer.exe", $"\"{AutoStartManager.ExePath}\"") { UseShellExecute = false });

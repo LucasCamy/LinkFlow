@@ -82,6 +82,13 @@ public partial class App : Application
                     _instance.SignalExit();
                     if (!_instance.WaitForFirstInstanceExit(TimeSpan.FromSeconds(15))) exitCode = 1460;
                 }
+                else if (Options.StartInTray)
+                {
+                    // Início automático duplicado (tarefa antiga + chave Run): não abre a janela de quem já está na bandeja.
+                    Log.Info("LinkFlow já está aberto: início automático repetido ignorado.");
+                    if (AutoStartManager.IsElevated && !Options.Simulate && ServiceManager.Query() != ServiceState.NotInstalled)
+                        AutoStartManager.MigrateTaskToRunValue();
+                }
                 else
                 {
                     Log.Info("LinkFlow já está aberto: trazendo a janela existente.");
@@ -145,6 +152,7 @@ public partial class App : Application
     {
         _engine!.Start();
         if (!_engine.IsRemote && !Options.Simulate && !testRun) WatchForService();
+        if (_engine.IsRemote && !Options.Simulate && !testRun) _ = Task.Run(LeaveElevatedAutoStart);
         SettingsVm.AttachEngine(_engine);
 
         _vm = new MainViewModel(_engine, alertHistoryPath: testRun || Options.Simulate
@@ -304,9 +312,29 @@ public partial class App : Application
         catch (Exception ex) { Log.Warn($"Falha aguardando processo {pid}: {ex.Message}"); }
     }
 
+    /// <summary>
+    /// Modo serviço: troca a tarefa elevada antiga pela chave Run. Se foi essa tarefa que abriu esta
+    /// instância, reabre a interface sem administrador para a iluminação Logitech já funcionar nesta sessão.
+    /// </summary>
+    private void LeaveElevatedAutoStart()
+    {
+        var result = AutoStartManager.MigrateTaskToRunValue();
+        if (result == AutoStartMigration.NotNeeded) return;
+        SettingsVm.RefreshAutoStart();
+        if (result != AutoStartMigration.Migrated || !Options.StartInTray || !AutoStartManager.IsElevated) return;
+
+        if (UnelevatedLauncher.Start(AutoStartManager.ExePath, $"--tray --wait-pid {Environment.ProcessId}", AppContext.BaseDirectory))
+        {
+            Log.Info("Reabrindo a interface sem administrador.");
+            Dispatcher.BeginInvoke(ExitApplication);
+        }
+    }
+
     private void RunServiceCommand(string command)
     {
         int code = ServiceManager.Execute(command);
+        // O serviço passa a ser o dono do hardware: a interface não deve mais abrir elevada no logon.
+        if (code == 0 && command == "install-service") AutoStartManager.MigrateTaskToRunValue();
         if (code == 0 && command is "install-service" or "restart-service" or "start-service")
         {
             ServiceManager.WaitForPipe(TimeSpan.FromSeconds(15));
@@ -454,14 +482,9 @@ public partial class App : Application
 
     private void RelaunchAsServiceClient()
     {
-        try
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(AutoStartManager.ExePath, "--tray") { UseShellExecute = false, WorkingDirectory = AppContext.BaseDirectory });
-        }
-        catch (Exception ex)
-        {
-            Log.Warn($"Não foi possível reabrir a interface: {ex.Message}");
-        }
+        // Como cliente do serviço a interface não precisa de administrador: não herda a elevação do modo local.
+        if (!UnelevatedLauncher.Start(AutoStartManager.ExePath, $"--tray --wait-pid {Environment.ProcessId}", AppContext.BaseDirectory))
+            Log.Warn("Não foi possível reabrir a interface. Abra o LinkFlow pelo menu Iniciar.");
     }
 
     // ------------------------------------------------------------------ Encerramento
