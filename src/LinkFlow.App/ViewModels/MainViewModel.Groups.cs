@@ -73,7 +73,7 @@ public partial class MainViewModel
         if (_curveTarget == null) return c.Curve;
         if (!c.GroupCurves.TryGetValue(_curveTarget, out var g))
         {
-            g = Json.Clone(c.Curve);
+            g = c.Curve.Clone();
             c.GroupCurves[_curveTarget] = g;
         }
         return g;
@@ -96,7 +96,7 @@ public partial class MainViewModel
         WithUndo(enabled ? $"Grupo \"{group}\" agora segue a própria curva" : $"Grupo \"{group}\" voltou a seguir o global", () =>
             _engine.UpdateConfig(c =>
             {
-                if (enabled) c.GroupCurves.TryAdd(group, Json.Clone(c.Curve));
+                if (enabled) c.GroupCurves.TryAdd(group, c.Curve.Clone());
                 else c.GroupCurves.Remove(group);
             }));
         if (!enabled && _curveTarget == group) _curveTarget = null;

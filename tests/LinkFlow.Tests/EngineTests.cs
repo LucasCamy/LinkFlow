@@ -221,6 +221,23 @@ public class EngineTests
     }
 
     [Fact]
+    public void Last_color_of_a_fast_drag_reaches_every_target()
+    {
+        // Regressão: as filas do hub e da RAM liam a configuração e a versão do RGB em momentos diferentes;
+        // uma alteração entre as duas leituras deixava o dispositivo com a cor antiga para sempre
+        using var f = new EngineFixture(new ControlConfig { Rgb = new RgbConfig { LedGamma = 1 } });
+        for (int i = 0; i < 200; i++)
+        {
+            byte v = (byte)i;
+            f.Engine.UpdateConfig(c => { c.Rgb.R = v; c.Rgb.G = (byte)(255 - v); c.Rgb.B = 7; });
+        }
+        var last = ((byte)199, (byte)56, (byte)7, (byte)100);
+        EngineFixture.WaitUntil(() =>
+            f.Hw.Hub.LastRgb == last && f.Hw.GpuRgb.Last == last && f.Hw.MotherboardRgb.Last == last &&
+            f.Hw.RamRgb.Last == last && f.Hw.PeripheralsRgb.Last == last, because: "última cor do arraste em todos os dispositivos");
+    }
+
+    [Fact]
     public void Rgb_target_disabled_is_not_written()
     {
         using var f = new EngineFixture(new ControlConfig { Rgb = new RgbConfig { SyncGpu = false, LedGamma = 1 } });

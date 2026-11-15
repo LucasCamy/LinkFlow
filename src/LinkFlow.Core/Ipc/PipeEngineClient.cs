@@ -238,7 +238,7 @@ public sealed class PipeEngineClient : IEngineClient
         ControlConfig next;
         lock (_lock)
         {
-            next = Json.Clone(_config);
+            next = _config.Clone();
             mutate(next);
             next.Normalize();
             QueueConfig(next);
@@ -248,7 +248,7 @@ public sealed class PipeEngineClient : IEngineClient
 
     public void ReplaceConfig(ControlConfig config)
     {
-        var next = Json.Clone(config);
+        var next = config.Clone();
         next.Normalize();
         lock (_lock) QueueConfig(next);
         AnyConfigChanged?.Invoke(next);

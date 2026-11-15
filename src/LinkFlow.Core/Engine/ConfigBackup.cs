@@ -48,7 +48,7 @@ public sealed class ConfigBackup
         var backup = new ConfigBackup
         {
             Format = FormatId,
-            Config = Json.Clone(config),
+            Config = config.Clone(),
             Ui = ui,
             AppVersion = appVersion,
             Machine = Environment.MachineName
@@ -161,7 +161,7 @@ public sealed class ConfigBackup
     public static void ApplyTo(ControlConfig target, ControlConfig source, BackupSections sections,
         IReadOnlyDictionary<string, string>? mediaMap = null)
     {
-        var src = Json.Clone(source);
+        var src = source.Clone();
 
         if (sections.HasFlag(BackupSections.Profiles))
         {

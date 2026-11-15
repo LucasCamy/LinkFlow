@@ -231,7 +231,7 @@ public sealed partial class LinkFlowEngine : IDisposable
 
     public ControlConfig GetConfig()
     {
-        lock (_configLock) return Json.Clone(_config);
+        lock (_configLock) return _config.Clone();
     }
 
     /// <summary>Aplica uma alteração sobre uma cópia da configuração atual (último valor vence).</summary>
@@ -240,7 +240,7 @@ public sealed partial class LinkFlowEngine : IDisposable
         ControlConfig updated;
         lock (_configLock)
         {
-            var next = Json.Clone(_config);
+            var next = _config.Clone();
             mutate(next);
             next.Normalize();
             updated = Commit(next);
@@ -253,7 +253,7 @@ public sealed partial class LinkFlowEngine : IDisposable
         ControlConfig updated;
         lock (_configLock)
         {
-            var next = Json.Clone(config);
+            var next = config.Clone();
             next.Normalize();
             updated = Commit(next);
         }
@@ -282,7 +282,7 @@ public sealed partial class LinkFlowEngine : IDisposable
         var handler = ConfigChanged;
         if (handler != null)
         {
-            var copy = Json.Clone(updated);
+            var copy = updated.Clone();
             try { handler(copy, origin); } catch (Exception ex) { Log.Warn($"ConfigChanged handler: {ex.Message}"); }
         }
     }
