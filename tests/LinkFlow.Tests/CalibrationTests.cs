@@ -46,6 +46,7 @@ public class CalibrationTests
     {
         o.CalibrationSettle = TimeSpan.FromMilliseconds(60);
         o.CalibrationSettleMax = TimeSpan.FromSeconds(2);
+        o.CalibrationStableWindow = TimeSpan.FromMilliseconds(100);
         o.FanWearReadsBeforeAlert = 3;
         o.FanWearSteadyTime = TimeSpan.FromMilliseconds(150);
     });
@@ -172,6 +173,7 @@ public class CalibrationViewModelTests
     {
         o.CalibrationSettle = TimeSpan.FromMilliseconds(60);
         o.CalibrationSettleMax = TimeSpan.FromSeconds(2);
+        o.CalibrationStableWindow = TimeSpan.FromMilliseconds(100);
     });
 
     private static void Follow(LinkFlow.App.ViewModels.CalibrationViewModel vm, EngineFixture f, Func<bool> until, string because)
@@ -263,6 +265,7 @@ public class PumpLcdAndHotStartTests
         o.SubDeviceCheckInterval = TimeSpan.FromMilliseconds(50);
         o.CalibrationSettle = TimeSpan.FromMilliseconds(60);
         o.CalibrationSettleMax = TimeSpan.FromSeconds(2);
+        o.CalibrationStableWindow = TimeSpan.FromMilliseconds(100);
     });
 
     [Fact]
@@ -296,5 +299,75 @@ public class PumpLcdAndHotStartTests
         Assert.Matches(@"O líquido está a 46,\d °C, acima do alerta \(45 °C\)\.", status.Message);   // o simulador soma até 0,2 °C
         Assert.Contains("PC ocioso", status.Message);
         Assert.Equal(55, f.Hw.Hub.LastSpeeds.GetValueOrDefault(1));   // nenhuma ventoinha mexida
+    }
+}
+
+/// <summary>
+/// Rampa do firmware real: o hub muda a rotação ~45 RPM/s, então leituras seguidas diferem pouco mesmo acelerando.
+/// Na primeira calibração no hardware, o degrau de 100% passou do prazo no meio da rampa e abortou.
+/// </summary>
+public class CalibrationRampTests
+{
+    // 750 RPM/s com leituras a cada 40 ms: 30 RPM por leitura, que o critério antigo (leitura a leitura) já
+    // achava "estável" no meio da rampa. Numa janela de 300 ms são 225 RPM.
+    private static EngineFixture Fixture(Action<EngineOptions>? extra = null) => new(new ControlConfig { GlobalPercent = 55 }, o =>
+    {
+        o.CalibrationSettle = TimeSpan.FromMilliseconds(60);
+        o.CalibrationStableWindow = TimeSpan.FromMilliseconds(300);
+        o.CalibrationSettleMax = TimeSpan.FromSeconds(10);
+        extra?.Invoke(o);
+    });
+
+    /// <summary>RPM do simulador quando a ventoinha chega ao alvo.</summary>
+    private static int Model(byte percent) => 250 + percent * 19;
+
+    [Fact]
+    public void Slow_ramp_is_measured_at_the_plateau_not_midway()
+    {
+        using var f = Fixture();
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Any(x => x.Rpm > 0) && f.Hw.Hub.LastSpeeds.GetValueOrDefault(1) == 55);
+        f.Hw.Hub.RampRpmPerSecond = 750;
+
+        Assert.True(f.Engine.StartCalibration());
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Calibration is { Running: false, Outcome: not CalibrationOutcome.None },
+            40000, "fim da calibração");
+
+        var status = f.Engine.GetSnapshot().Calibration!;
+        Assert.True(status.Outcome == CalibrationOutcome.Completed, status.Message);
+        var cal = f.Engine.GetConfig().Fans["SIM-RX-01"].Calibration!;
+        // Cada ponto no patamar (ruído do simulador ±12), nunca no meio da rampa
+        Assert.All(cal.Points, p => Assert.InRange(p.Rpm, Model(p.Percent) - 45, Model(p.Percent) + 45));
+    }
+
+    [Fact]
+    public void Hub_without_new_readings_aborts_the_calibration()
+    {
+        using var f = Fixture(o => o.CalibrationReadTimeout = TimeSpan.FromMilliseconds(400));
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Any(x => x.Rpm > 0) && f.Hw.Hub.LastSpeeds.GetValueOrDefault(1) == 55);
+        f.Hw.Hub.RampRpmPerSecond = 750;
+        Assert.True(f.Engine.StartCalibration());
+        EngineFixture.WaitUntil(() => f.Hw.Hub.LastSpeeds.GetValueOrDefault(1) == 100, because: "primeiro degrau");
+
+        f.Hw.Hub.ReadGate.Reset();   // o hub trava no meio da rampa
+        try
+        {
+            EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Calibration is { Running: false, Outcome: not CalibrationOutcome.None },
+                20000, "calibração interrompida");
+            var status = f.Engine.GetSnapshot().Calibration!;
+            Assert.Equal(CalibrationOutcome.Aborted, status.Outcome);
+            Assert.Contains("parou de informar", status.Message);
+            Assert.All(f.Engine.GetConfig().Fans.Values, o => Assert.Null(o.Calibration));
+        }
+        finally { f.Hw.Hub.ReadGate.Set(); }
+    }
+
+    [Theory]
+    [InlineData(2112, 42)]   // patamar a 100%: ruído real de ±5 RPM cabe; 2 s de rampa (~90 RPM) não
+    [InlineData(759, 30)]
+    [InlineData(0, 30)]
+    public void Stable_tolerance_is_below_two_seconds_of_ramp(int rpm, int expected)
+    {
+        Assert.Equal(expected, LinkFlowEngine.StableTolerance(rpm));
+        Assert.True(LinkFlowEngine.StableTolerance(rpm) < 90);
     }
 }
