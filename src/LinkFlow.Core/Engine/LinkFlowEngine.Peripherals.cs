@@ -224,11 +224,16 @@ public sealed partial class LinkFlowEngine
         while (!ct.IsCancellationRequested)
         {
             ControlConfig cfg;
-            lock (_configLock) cfg = _config;
+            long version;
+            // Lidas juntas (ver a fila do hub): senão a RAM pode ficar com a cor antiga
+            lock (_configLock)
+            {
+                cfg = _config;
+                version = Interlocked.Read(ref _rgbVersion);
+            }
             bool ready;
             lock (_stateLock) ready = _rgbReady;
             var rgb = cfg.Rgb;
-            long version = Interlocked.Read(ref _rgbVersion);
             bool animated = rgb.IsAnimated && rgb.SyncRam && _ramRgb.IsAvailable;
             var minInterval = animated && _ramRgb.MinAnimationInterval is { } streamingInterval
                 ? Min(_opt.RamRgbMinInterval, streamingInterval)

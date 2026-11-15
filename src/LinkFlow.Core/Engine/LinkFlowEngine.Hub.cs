@@ -62,7 +62,14 @@ public sealed partial class LinkFlowEngine
                 if (_hub.IsConnected)
                 {
                     ControlConfig cfg;
-                    lock (_configLock) cfg = _config;
+                    long rgbVersion;
+                    // Configuração e versão do RGB lidas juntas: lidas em separado, uma alteração entre as duas
+                    // marcaria a versão nova como aplicada com a cor antiga, e a cor nova nunca chegaria ao hub
+                    lock (_configLock)
+                    {
+                        cfg = _config;
+                        rgbVersion = Interlocked.Read(ref _rgbVersion);
+                    }
 
                     // 1. Telemetria do hub
                     if (now >= nextRead)
@@ -116,7 +123,6 @@ public sealed partial class LinkFlowEngine
                     }
 
                     // 3. RGB do hub (limitado a ~16 atualizações/s durante arrastes e efeitos)
-                    long rgbVersion = Interlocked.Read(ref _rgbVersion);
                     bool hubAnimated = cfg.Rgb.SyncHub && cfg.Rgb.IsAnimated;
                     long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
                     bool nextRgbFrame = hubAnimated && rgbClock.IsDue(frame, rgbInterval);

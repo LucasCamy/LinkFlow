@@ -8,7 +8,7 @@ public enum CurveSource { MaxCpuGpu, Cpu, Gpu, Coolant }
 /// Configuração de controle persistida (compartilhada entre app e serviço).
 /// O engine trata cada instância como imutável: alterações são feitas sobre um clone.
 /// </summary>
-public sealed class ControlConfig
+public sealed partial class ControlConfig
 {
     public int SchemaVersion { get; set; } = 1;
 
@@ -74,7 +74,7 @@ public static class FanLimits
     public const int PumpMinPercent = 60;
 }
 
-public sealed class FanOverride
+public sealed partial class FanOverride
 {
     /// <summary>True = segue a potência global/curva. False = usa <see cref="Percent"/>.</summary>
     public bool Linked { get; set; } = true;
@@ -83,7 +83,7 @@ public sealed class FanOverride
     public string? Group { get; set; }
 }
 
-public sealed class CurvePoint
+public sealed partial class CurvePoint
 {
     public float Temp { get; set; }
     public byte Percent { get; set; }
@@ -92,7 +92,7 @@ public sealed class CurvePoint
     public CurvePoint(float temp, byte percent) { Temp = temp; Percent = percent; }
 }
 
-public sealed class FanCurveConfig
+public sealed partial class FanCurveConfig
 {
     public CurveSource Source { get; set; } = CurveSource.MaxCpuGpu;
     public List<CurvePoint> Points { get; set; } = DefaultPoints();
@@ -157,7 +157,7 @@ public sealed class FanCurveConfig
     }
 }
 
-public sealed class RgbConfig
+public sealed partial class RgbConfig
 {
     public byte R { get; set; } = 0;
     public byte G { get; set; } = 240;
@@ -263,7 +263,7 @@ public enum LcdMetric
     CoolantTemp, PumpRpm, FanRpm, FanPower, RamUsage, Clock, NetDown, NetUp, DiskUsage, CpuCoreMax
 }
 
-public sealed class LcdMediaItem
+public sealed partial class LcdMediaItem
 {
     /// <summary>Caminho absoluto (normalmente em %ProgramData%\LinkFlow\media).</summary>
     public string Path { get; set; } = string.Empty;
@@ -276,7 +276,7 @@ public sealed class LcdMediaItem
     public LcdCrop Crop { get; set; } = new();
 }
 
-public sealed class LcdConfig
+public sealed partial class LcdConfig
 {
     public bool AutoStream { get; set; } = true;
     public LcdMode Mode { get; set; } = LcdMode.Metrics;
@@ -321,7 +321,7 @@ public sealed class LcdConfig
     }
 }
 
-public sealed class SafetyConfig
+public sealed partial class SafetyConfig
 {
     /// <summary>Força 100% em todas as ventoinhas quando alguma temperatura crítica é atingida.</summary>
     public bool FailSafeEnabled { get; set; } = true;
@@ -354,7 +354,7 @@ public sealed class SafetyConfig
         float.IsFinite(value) ? Math.Clamp(value, min, max) : fallback;
 }
 
-public sealed class FanProfile
+public sealed partial class FanProfile
 {
     public string Name { get; set; } = "Perfil";
     public FanControlMode Mode { get; set; }
@@ -374,21 +374,21 @@ public sealed class FanProfile
         Name = name,
         Mode = c.Mode,
         GlobalPercent = c.GlobalPercent,
-        Curve = Json.Clone(c.Curve),
+        Curve = c.Curve.Clone(),
         GpuFanAuto = c.GpuFanAuto,
         GpuFanPercent = c.GpuFanPercent,
         Fans = c.Fans.ToDictionary(kv => kv.Key, kv => new FanOverride { Linked = kv.Value.Linked, Percent = kv.Value.Percent }),
-        GroupCurves = Json.Clone(c.GroupCurves)
+        GroupCurves = ConfigCopy.Dictionary(c.GroupCurves, g => g.Clone())
     };
 
     public void ApplyTo(ControlConfig c)
     {
         c.Mode = Mode;
         c.GlobalPercent = GlobalPercent;
-        c.Curve = Json.Clone(Curve);
+        c.Curve = Curve.Clone();
         c.GpuFanAuto = GpuFanAuto;
         c.GpuFanPercent = GpuFanPercent;
-        if (GroupCurves != null) c.GroupCurves = Json.Clone(GroupCurves);
+        if (GroupCurves != null) c.GroupCurves = ConfigCopy.Dictionary(GroupCurves, g => g.Clone());
         foreach (var (key, f) in c.Fans)
         {
             if (Fans.TryGetValue(key, out var saved))
@@ -458,7 +458,7 @@ public static class FanPresets
 }
 
 /// <summary>Regra: enquanto o programa estiver aberto (em primeiro plano ao começar), usa o perfil.</summary>
-public sealed class AppRule
+public sealed partial class AppRule
 {
     /// <summary>Nome do processo sem ".exe" (ex.: "cs2", "Cyberpunk2077").</summary>
     public string Process { get; set; } = string.Empty;
@@ -467,7 +467,7 @@ public sealed class AppRule
     public bool Enabled { get; set; } = true;
 }
 
-public sealed class QuietHours
+public sealed partial class QuietHours
 {
     public bool Enabled { get; set; }
     public int StartHour { get; set; } = 23;
@@ -480,7 +480,7 @@ public sealed class QuietHours
         : now.Hour >= StartHour || now.Hour < EndHour;
 }
 
-public sealed class AutomationConfig
+public sealed partial class AutomationConfig
 {
     public List<AppRule> Rules { get; set; } = new();
     public QuietHours Quiet { get; set; } = new();
@@ -500,7 +500,7 @@ public sealed class AutomationConfig
 /// Enquadramento de uma imagem no LCD: zoom (1 = encaixe escolhido) e deslocamento normalizado
 /// (-1..1 = até a borda da imagem), então qualquer valor salvo é sempre válido.
 /// </summary>
-public sealed class LcdCrop
+public sealed partial class LcdCrop
 {
     public double Zoom { get; set; } = 1;
     public double OffsetX { get; set; }

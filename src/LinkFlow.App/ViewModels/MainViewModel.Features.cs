@@ -267,7 +267,7 @@ public partial class MainViewModel
     /// <summary>Executa uma alteração e oferece "Desfazer" por alguns segundos.</summary>
     public void WithUndo(string message, Action action)
     {
-        var before = Json.Clone(_engine.Config);
+        var before = _engine.Config.Clone();
         action();
         LoadConfig(_engine.Config);
         _undoConfig = before;
