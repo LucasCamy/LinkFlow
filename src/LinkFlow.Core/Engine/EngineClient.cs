@@ -42,6 +42,12 @@ public interface IEngineClient : IDisposable
     /// </summary>
     void SetCurveTest(float? temperature);
 
+    /// <summary>Inicia a calibração das ventoinhas (o progresso aparece em <see cref="EngineSnapshot.Calibration"/>).</summary>
+    void StartCalibration();
+
+    /// <summary>Interrompe a calibração em andamento; as ventoinhas voltam ao perfil.</summary>
+    void CancelCalibration();
+
     /// <summary>Informa o que a interface está exibindo (ex.: discos), para o engine só ler o necessário.</summary>
     void SetSensorDemand(SensorDemand demand);
 
@@ -97,6 +103,8 @@ public sealed class LocalEngineClient : IEngineClient
     public void RefreshRgb() => _engine.RefreshRgb();
     public void RescanDevices() => _engine.RescanDevices();
     public void SetCurveTest(float? temperature) => _engine.SetCurveTest(temperature);
+    public void StartCalibration() => _engine.StartCalibration();
+    public void CancelCalibration() => _engine.CancelCalibration();
     public void SetSensorDemand(SensorDemand demand) => _engine.SetSensorDemand(this, demand);
     public Task ShutdownAsync(bool restoreHardwareMode = true) => _engine.StopAsync(restoreHardwareMode);
     public void Dispose() => _engine.Dispose();

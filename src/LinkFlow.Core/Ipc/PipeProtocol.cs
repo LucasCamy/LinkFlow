@@ -32,6 +32,8 @@ public static class PipeProtocol
     public const string Rescan = "rescan";
     public const string Demand = "demand";
     public const string CurveTest = "curveTest";
+    public const string CalibrationStart = "calibrationStart";
+    public const string CalibrationCancel = "calibrationCancel";
 
     public sealed class HelloInfo
     {

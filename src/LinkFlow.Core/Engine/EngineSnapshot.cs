@@ -86,6 +86,9 @@ public sealed class EngineSnapshot
 
     /// <summary>Temperatura simulada do "Testar curva" em andamento (null = curvas seguindo os sensores).</summary>
     public float? CurveTestTemp { get; set; }
+
+    /// <summary>Calibração das ventoinhas: em andamento ou o resultado da última (null = não rodou desde que o engine iniciou).</summary>
+    public CalibrationStatus? Calibration { get; set; }
     public List<FanState> Fans { get; set; } = new();
 
     // Periféricos

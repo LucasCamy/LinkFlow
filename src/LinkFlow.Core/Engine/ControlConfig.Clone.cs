@@ -25,7 +25,27 @@ public sealed partial class ControlConfig
 
 public sealed partial class FanOverride
 {
-    public FanOverride Clone() => (FanOverride)MemberwiseClone();
+    public FanOverride Clone()
+    {
+        var c = (FanOverride)MemberwiseClone();
+        c.Calibration = Calibration?.Clone();
+        return c;
+    }
+}
+
+public sealed partial class FanCalibration
+{
+    public FanCalibration Clone()
+    {
+        var c = (FanCalibration)MemberwiseClone();
+        c.Points = ConfigCopy.List(Points, p => p.Clone());
+        return c;
+    }
+}
+
+public sealed partial class CalibrationPoint
+{
+    public CalibrationPoint Clone() => (CalibrationPoint)MemberwiseClone();
 }
 
 public sealed partial class CurvePoint

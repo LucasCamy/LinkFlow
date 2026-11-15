@@ -22,7 +22,15 @@ public class ConfigCloneTests
             Curve = new FanCurveConfig { Source = CurveSource.Coolant, Hysteresis = 4, Smoothing = 0.5f },
             GpuFanAuto = false,
             GpuFanPercent = 60,
-            Fans = { ["ch1"] = new FanOverride { Linked = false, Percent = 80, Name = "Frontal", Group = "Radiador" } },
+            Fans =
+            {
+                ["ch1"] = new FanOverride
+                {
+                    Linked = false, Percent = 80, Name = "Frontal", Group = "Radiador",
+                    Calibration = new FanCalibration { Date = new DateTime(2026, 11, 15), MaxRpm = 2150, MinPercent = 30, StartPercent = 25,
+                                                       Points = { new CalibrationPoint(100, 2150), new CalibrationPoint(30, 820) } }
+                }
+            },
             Rgb = new RgbConfig
             {
                 R = 1, G = 2, B = 3, Brightness = 90, RecentColors = { "#112233" }, DeviceBrightness = { ["hub"] = 70 },
@@ -43,6 +51,8 @@ public class ConfigCloneTests
             }
         };
         c.Profiles.Add(FanProfile.Capture("Salvo", c));
+        // Perfis não guardam a calibração (é do hardware, não do perfil); a amostra preenche para o teste de cópia
+        c.Profiles[0].Fans["ch1"].Calibration = c.Fans["ch1"].Calibration!.Clone();
         return c;
     }
 

@@ -270,6 +270,8 @@ public sealed class PipeEngineClient : IEngineClient
     public void RefreshRgb() => QueueMessage(PipeProtocol.RefreshRgb);
     public void RescanDevices() => QueueMessage(PipeProtocol.Rescan);
     public void SetCurveTest(float? temperature) => QueueMessage(PipeProtocol.CurveTest, temperature);
+    public void StartCalibration() => QueueMessage(PipeProtocol.CalibrationStart);
+    public void CancelCalibration() => QueueMessage(PipeProtocol.CalibrationCancel);
 
     private SensorDemand _demand;
 

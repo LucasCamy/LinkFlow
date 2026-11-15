@@ -18,6 +18,12 @@ public partial class FansPage : UserControl
 
     private MainViewModel? Vm => DataContext as MainViewModel;
 
+    private void Calibrate_Click(object sender, RoutedEventArgs e)
+    {
+        if (Vm is not { } vm) return;
+        new CalibrationDialog(vm) { Owner = Window.GetWindow(this) }.ShowDialog();
+    }
+
     internal void ShowDevices() => DevicesTab.IsSelected = true;
     internal void ShowAutomation() => AutomationTab.IsSelected = true;
 

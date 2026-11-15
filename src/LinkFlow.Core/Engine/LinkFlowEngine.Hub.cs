@@ -18,6 +18,7 @@ public sealed partial class LinkFlowEngine
         int failures = 0;
         Dictionary<int, byte>? lastSent = null;
         var zeroReads = new Dictionary<string, int>();
+        var wearReads = new Dictionary<string, int>();
         long nextConflictCheck = 0;
         var conflictProbe = _opt.ConflictProbe ?? (IsSimulated ? null : ConflictDetector.FindRunning);
 
@@ -90,7 +91,7 @@ public sealed partial class LinkFlowEngine
                             continue;
                         }
 
-                        UpdateHubTelemetry(cfg, speeds, temps, zeroReads);
+                        UpdateHubTelemetry(cfg, speeds, temps, zeroReads, wearReads);
 
                         // Ventoinha conectada/removida na corrente do hub (o USB do hub não muda)
                         if (now >= nextDeviceCheck)
@@ -117,7 +118,11 @@ public sealed partial class LinkFlowEngine
                             lock (_stateLock)
                             {
                                 foreach (var f in _fans)
-                                    if (desired.TryGetValue(f.Channel, out var p)) f.AppliedPercent = p;
+                                {
+                                    if (!desired.TryGetValue(f.Channel, out var p)) continue;
+                                    if (f.AppliedPercent != p) _appliedSince[f.Channel] = Stopwatch.GetTimestamp();
+                                    f.AppliedPercent = p;
+                                }
                             }
                         }
                     }
@@ -250,7 +255,7 @@ public sealed partial class LinkFlowEngine
     }
 
     private void UpdateHubTelemetry(ControlConfig cfg, IReadOnlyDictionary<int, int>? speeds,
-        IReadOnlyDictionary<int, float>? temps, Dictionary<string, int> zeroReads)
+        IReadOnlyDictionary<int, float>? temps, Dictionary<string, int> zeroReads, Dictionary<string, int> wearReads)
     {
         lock (_stateLock)
         {
@@ -307,6 +312,15 @@ public sealed partial class LinkFlowEngine
                         continue;
                     }
 
+                    // Calibração mede justamente as paradas: alertas suspensos no canal enquanto ela roda
+                    if (IsCalibrating(f.Channel))
+                    {
+                        zeroReads.Remove(f.Key);
+                        wearReads.Remove(f.Key);
+                        continue;
+                    }
+                    CheckFanWear(f, cfg.GetFan(f.Key).Calibration, name, wearReads);
+
                     // Dispositivos de modelo desconhecido podem não ter tacômetro (ex.: módulos sem ventoinha)
                     bool stopped = f.Rpm == 0 && f.AppliedPercent >= FanLimits.MinPercent &&
                                    f.Model != nameof(LinkDeviceModel.Unknown);
@@ -335,12 +349,17 @@ public sealed partial class LinkFlowEngine
         byte global = EffectiveGlobal(cfg);
         bool failSafe = _failSafe;
         var groupOutputs = _groupOutputs;
+        var calibration = _calibrationOverride;
         foreach (var dev in _hub.SubDevices)
         {
             var ov = cfg.GetFan(FanState.KeyFor(dev));
             // Vinculada: segue a curva do seu grupo (se houver) ou a potência global/curva global
             byte linked = ov.Group != null && groupOutputs.TryGetValue(ov.Group, out var go) ? (byte)go : global;
             byte p = failSafe ? (byte)100 : ov.Linked ? linked : ov.Percent;
+            // Calibração em andamento: a potência do degrau sendo medido (o modo de segurança continua mandando)
+            if (!failSafe && calibration != null && calibration.TryGetValue(dev.Channel, out var measuring)) p = measuring;
+            // Piso calibrado: abaixo dele a ventoinha para ou fica sem força para voltar a girar
+            else if (!dev.IsPump && ov.Calibration is { } cal && p < cal.MinPercent) p = cal.MinPercent;
             if (dev.IsPump) p = Math.Max((byte)FanLimits.PumpMinPercent, p);
             result[dev.Channel] = Math.Clamp(p, (byte)FanLimits.MinPercent, (byte)100);
         }
