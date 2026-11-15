@@ -13,18 +13,21 @@ public sealed class SettingsViewModel : ObservableObject
     public SettingsViewModel(UiSettingsService settings)
     {
         _settings = settings;
-        Task.Run(() =>
-        {
-            bool enabled = AutoStartManager.IsEnabled();
-            bool task = AutoStartManager.IsTaskMode;
-            System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
-            {
-                _startWithWindows = enabled;
-                _autoStartMessage = enabled ? (task ? "Ativo • tarefa agendada com privilégios elevados, inicia na bandeja" : "Ativo • inicia na bandeja ao fazer logon") : null;
-                OnPropertiesChanged(nameof(StartWithWindows), nameof(AutoStartMessage));
-            });
-        });
+        RefreshAutoStart();
     }
+
+    /// <summary>Relê o início automático (ex.: depois de trocar a tarefa elevada pela chave Run).</summary>
+    public void RefreshAutoStart() => Task.Run(() =>
+    {
+        bool enabled = AutoStartManager.IsEnabled();
+        bool task = AutoStartManager.IsTaskMode;
+        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            _startWithWindows = enabled;
+            _autoStartMessage = enabled ? (task ? "Ativo • tarefa agendada com privilégios elevados, inicia na bandeja" : "Ativo • inicia na bandeja ao fazer logon") : null;
+            OnPropertiesChanged(nameof(StartWithWindows), nameof(AutoStartMessage));
+        });
+    });
 
     public UiSettings Current => _settings.Current;
 
