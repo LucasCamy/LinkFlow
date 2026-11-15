@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -215,21 +216,27 @@ public sealed class LcdTests : IDisposable
     public void Engine_streams_gif_to_lcd_faster_than_metrics()
     {
         var gif = CreateImage(_dir, "fast.gif", 96, Colors.Cyan, frames: 3);
-        var metricsInterval = TimeSpan.FromSeconds(2);
+        // Intervalo de métricas bem maior que qualquer espera do teste: no modo de métricas não chegaria nenhum
+        // quadro novo durante o teste, então vários quadros só podem vir do ritmo do próprio GIF (sem depender
+        // de quão rápido a máquina está).
+        var metricsInterval = TimeSpan.FromMinutes(1);
         using var f = new EngineFixture(configure: o => o.LcdFrameInterval = metricsInterval);
-        EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames > 0, because: "primeiro quadro de métricas");
+        EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames > 0, timeoutMs: 15000, because: "primeiro quadro de métricas");
 
         f.Engine.UpdateConfig(c =>
         {
             c.Lcd.Mode = LcdMode.Media;
             c.Lcd.Media.Add(new LcdMediaItem { Path = gif });
         });
-        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().LcdStatus?.Contains("GIF") == true,
+        f.Engine.RequestLcdFrame(); // como a interface faz ao trocar o conteúdo do LCD
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().LcdStatus?.Contains("GIF") == true, timeoutMs: 15000,
             because: "primeiro quadro do GIF");
 
         int start = f.Hw.Lcd.Frames;
-        EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames - start >= 5, timeoutMs: (int)metricsInterval.TotalMilliseconds,
-            because: "cinco quadros do GIF dentro de um intervalo de métricas");
+        var sw = Stopwatch.StartNew();
+        EngineFixture.WaitUntil(() => f.Hw.Lcd.Frames - start >= 5, timeoutMs: 15000,
+            because: "cinco quadros do GIF sem esperar o intervalo de métricas");
+        Assert.True(sw.Elapsed < metricsInterval, $"quadros do GIF levaram {sw.Elapsed}");
     }
 
     [Fact]

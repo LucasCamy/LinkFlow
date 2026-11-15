@@ -67,8 +67,9 @@ public class PipeResilienceTests
         server.Start();
 
         using var pipe = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
-        await pipe.ConnectAsync(2000);
-        EngineFixture.WaitUntil(() => server.ClientCount == 1);
+        // Prazo folgado: sob carga o laço que aceita conexões pode demorar a criar o pipe
+        await pipe.ConnectAsync(15000);
+        EngineFixture.WaitUntil(() => server.ClientCount == 1, timeoutMs: 10000);
 
         // Cliente parado (interface travada) por mais de 1 s: o pipe enche e a fila descarta as mensagens mais
         // antigas, inclusive vários snapshots (o bug travava de vez a partir do terceiro descartado)
@@ -80,26 +81,34 @@ public class PipeResilienceTests
             await Task.Delay(3);
         }
 
+        // Marca o fim da enxurrada: tudo o que o cliente ler depois desta configuração foi enfileirado depois
+        // do transbordo (é a mensagem mais nova da fila, então não é descartada)
+        const byte marker = 100;
+        f.Engine.UpdateConfig(c => c.GlobalPercent = marker);
+
         // Volta a ler: depois de esvaziar o atraso, snapshots novos precisam continuar chegando
-        var received = new List<(long At, string Type)>();
-        using var stop = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-        var started = Stopwatch.GetTimestamp();
+        // (com o bug, nenhum snapshot chegava depois da marca, por mais que se esperasse)
+        int total = 0, afterMarker = 0;
+        bool sawMarker = false;
+        using var stop = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var buffer = new byte[16 * 1024];
         using var pending = new MemoryStream();
         try
         {
-            while (true)
+            while (afterMarker < 5)
             {
                 var line = await PipeProtocol.ReadLineAsync(pipe, buffer, pending, stop.Token);
                 if (line == null) break;
-                if (PipeProtocol.TryDecode(line, out var type, out _)) received.Add((Stopwatch.GetTimestamp(), type));
+                if (!PipeProtocol.TryDecode(line, out var type, out var payload)) continue;
+                total++;
+                if (type == PipeProtocol.Config && PipeProtocol.Read<ControlConfig>(payload)?.GlobalPercent == marker) sawMarker = true;
+                else if (sawMarker && type == PipeProtocol.Snapshot) afterMarker++;
             }
         }
         catch (OperationCanceledException) { }
 
-        var late = received.Count(r => r.Type == PipeProtocol.Snapshot &&
-                                        Stopwatch.GetElapsedTime(started, r.At) > TimeSpan.FromSeconds(1.5));
-        Assert.True(late >= 5, $"snapshots depois do atraso: {late} (total recebido: {received.Count})");
+        Assert.True(sawMarker, $"configuração de marca não chegou (total recebido: {total})");
+        Assert.True(afterMarker >= 5, $"snapshots depois do atraso: {afterMarker} (total recebido: {total})");
     }
 
     [Fact]
@@ -111,7 +120,7 @@ public class PipeResilienceTests
         server.Start();
 
         using var pipe = new NamedPipeClientStream(".", name, PipeDirection.InOut);
-        await pipe.ConnectAsync(2000);
+        await pipe.ConnectAsync(15000);
 
         Assert.Equal(Environment.ProcessId, PipeIdentity.ServerProcessId(pipe));
         Assert.False(PipeIdentity.IsLinkFlowService(pipe, out var reason), "o processo de teste não é o serviço LinkFlow");

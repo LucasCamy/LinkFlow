@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LinkFlow.Core.Ipc;
 
 namespace LinkFlow.Tests;
@@ -5,6 +6,22 @@ namespace LinkFlow.Tests;
 public class IpcTests
 {
     private static string UniquePipe() => $"LinkFlow.Test.{Guid.NewGuid():N}";
+
+    // Com a suíte rodando em paralelo, o laço que aceita conexões (Task.Run) pode levar segundos para criar o pipe,
+    // e a resposta inicial do serviço também: prazo folgado em vez dos 2 s de antes.
+    private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(15);
+
+    private static PipeEngineClient Connect(string pipe)
+    {
+        var sw = Stopwatch.StartNew();
+        while (true)
+        {
+            var remaining = ConnectTimeout - sw.Elapsed;
+            var client = PipeEngineClient.TryConnect(remaining > TimeSpan.FromSeconds(1) ? remaining : TimeSpan.FromSeconds(1), pipe);
+            if (client != null) return client;
+            if (sw.Elapsed >= ConnectTimeout) Assert.Fail($"Tempo esgotado: cliente não conectou ao pipe em {ConnectTimeout.TotalSeconds:0} s");
+        }
+    }
 
     [Fact]
     public async Task Client_receives_state_and_controls_engine()
@@ -14,9 +31,8 @@ public class IpcTests
         await using var server = new PipeEngineServer(f.Engine, pipe);
         server.Start();
 
-        using var client = PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2), pipe);
-        Assert.NotNull(client);
-        Assert.True(client!.IsRemote);
+        using var client = Connect(pipe);
+        Assert.True(client.IsRemote);
         Assert.True(client.IsSimulated);
         Assert.Equal(45, client.Config.GlobalPercent);
         Assert.NotNull(client.Snapshot);
@@ -58,7 +74,7 @@ public class IpcTests
         var pipe = UniquePipe();
         await using var server = new PipeEngineServer(f.Engine, pipe);
         server.Start();
-        using var client = PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2), pipe)!;
+        using var client = Connect(pipe);
         EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true);
         int detection = f.Hw.GpuRgb.InitializationCalls;
         int writes = f.Hw.GpuRgb.Calls;
@@ -80,8 +96,8 @@ public class IpcTests
         await using var server = new PipeEngineServer(f.Engine, pipe);
         server.Start();
 
-        using var a = PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2), pipe)!;
-        using var b = PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2), pipe)!;
+        using var a = Connect(pipe);
+        using var b = Connect(pipe);
         int aEcho = 0;
         ControlConfig? bSeen = null;
         a.ConfigChanged += _ => Interlocked.Increment(ref aEcho);
@@ -105,24 +121,24 @@ public class IpcTests
         var server = new PipeEngineServer(f.Engine, pipe);
         server.Start();
 
-        using var client = PipeEngineClient.TryConnect(TimeSpan.FromSeconds(2), pipe)!;
+        using var client = Connect(pipe);
         var states = new List<bool>();
         client.ConnectionChanged += s => { lock (states) states.Add(s); };
         client.Start();
 
         await server.DisposeAsync();
-        EngineFixture.WaitUntil(() => !client.IsConnected, because: "detectou queda do serviço");
+        EngineFixture.WaitUntil(() => !client.IsConnected, timeoutMs: 10000, because: "detectou queda do serviço");
 
         await using var server2 = new PipeEngineServer(f.Engine, pipe);
         server2.Start();
         EngineFixture.WaitUntil(() =>
         {
             lock (states) return client.IsConnected && states.Count >= 2;
-        }, timeoutMs: 6000, because: "reconectou e publicou o evento");
+        }, timeoutMs: 20000, because: "reconectou e publicou o evento"); // 1 s de pausa + tentativas a cada 1,5 s
         lock (states) Assert.Equal(new[] { false, true }, states);
 
         client.UpdateConfig(c => c.GlobalPercent = 66);
-        EngineFixture.WaitUntil(() => f.Engine.GetConfig().GlobalPercent == 66, because: "comandos voltam a funcionar");
+        EngineFixture.WaitUntil(() => f.Engine.GetConfig().GlobalPercent == 66, timeoutMs: 10000, because: "comandos voltam a funcionar");
     }
 
     [Fact]

@@ -12,7 +12,7 @@ public sealed class AutomationTests : IDisposable
 
     private static void Pump(Func<bool> condition, string because)
     {
-        var deadline = DateTime.Now.AddSeconds(4);
+        var deadline = DateTime.Now.AddMilliseconds(EngineFixture.DefaultTimeoutMs);
         while (!condition())
         {
             if (DateTime.Now > deadline) Assert.Fail($"Tempo esgotado: {because}");

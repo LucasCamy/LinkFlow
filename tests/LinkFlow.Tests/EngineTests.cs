@@ -29,7 +29,14 @@ public sealed class EngineFixture : IDisposable
         Engine.Start();
     }
 
-    public static void WaitUntil(Func<bool> condition, int timeoutMs = 3000, string? because = null)
+    /// <summary>
+    /// Prazo padrão das esperas por condição. Folgado porque a suíte roda em paralelo (e no CI): com a máquina
+    /// carregada, laços do engine que normalmente respondem em milissegundos podem levar segundos. Só deixa
+    /// mais lentas as falhas de verdade; quem passa sai assim que a condição vale.
+    /// </summary>
+    public const int DefaultTimeoutMs = 10000;
+
+    public static void WaitUntil(Func<bool> condition, int timeoutMs = DefaultTimeoutMs, string? because = null)
     {
         var sw = Stopwatch.StartNew();
         while (!condition())
