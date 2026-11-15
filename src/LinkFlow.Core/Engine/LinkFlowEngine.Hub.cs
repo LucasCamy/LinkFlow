@@ -286,6 +286,7 @@ public sealed partial class LinkFlowEngine
                 f.Temperature = temps != null && temps.TryGetValue(f.Channel, out var t) ? t : null;
 
             _hasHubSpeeds = speeds != null;
+            if (speeds != null) _hubSpeedReads++;
             if (speeds == null) return;
 
             foreach (var f in _fans)
@@ -321,9 +322,8 @@ public sealed partial class LinkFlowEngine
                     }
                     CheckFanWear(f, cfg.GetFan(f.Key).Calibration, name, wearReads);
 
-                    // Dispositivos de modelo desconhecido podem não ter tacômetro (ex.: módulos sem ventoinha)
-                    bool stopped = f.Rpm == 0 && f.AppliedPercent >= FanLimits.MinPercent &&
-                                   f.Model != nameof(LinkDeviceModel.Unknown);
+                    // Só ventoinhas: módulos (LCD, blocos de água) e modelos desconhecidos não informam rotação
+                    bool stopped = f.Rpm == 0 && f.AppliedPercent >= FanLimits.MinPercent && LinkDeviceCatalog.IsFan(f.Model);
                     int n = stopped ? zeroReads.GetValueOrDefault(f.Key) + 1 : 0;
                     zeroReads[f.Key] = n;
                     if (n >= _opt.FanStopReadsBeforeAlert)

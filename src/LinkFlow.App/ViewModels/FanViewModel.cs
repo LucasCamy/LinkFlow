@@ -56,6 +56,9 @@ public sealed class FanViewModel : ObservableObject
 
     public bool IsUnknownModel => Model == nameof(LinkDeviceModel.Unknown);
 
+    /// <summary>Informa rotação (ventoinha ou bomba): sem isso, 0 RPM não é "parada" (ex.: tela LCD da bomba).</summary>
+    public bool HasTachometer => LinkDeviceCatalog.HasTachometer(Model);
+
     public string ChannelLabel =>
         $"Canal {Channel:D2}{(Group is { Length: > 0 } g ? $" • {g}" : string.Empty)}{(IsUnknownModel ? " • modelo não identificado" : string.Empty)}";
 
@@ -95,7 +98,7 @@ public sealed class FanViewModel : ObservableObject
     public bool IsStopped => _rpm == 0;
 
     /// <summary>Borda vermelha só para ventoinhas reais (modelos desconhecidos podem não ter tacômetro).</summary>
-    public bool ShowStoppedWarning => _rpm == 0 && !IsUnknownModel;
+    public bool ShowStoppedWarning => _rpm == 0 && HasTachometer;
 
     public float? Temperature
     {
@@ -163,7 +166,7 @@ public sealed class FanViewModel : ObservableObject
     {
         get
         {
-            if (_rpm == 0) return IsUnknownModel ? "#64748B" : "#F43F5E";
+            if (_rpm == 0) return HasTachometer ? "#F43F5E" : "#64748B";
             if (IsPump) return "#38BDF8";
             if (_rpm < 1100) return "#10B981";
             if (_rpm < 1800) return "#06B6D4";

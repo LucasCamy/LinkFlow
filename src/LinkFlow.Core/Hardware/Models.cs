@@ -6,11 +6,15 @@ public enum LinkDeviceModel : byte
     FanLxSeries = 0x02,
     FanRxMaxRgbSeries = 0x03,
     FanRxMaxSeries = 0x04,
+    /// <summary>Tela LCD da bomba (iCUE LINK COOLER PUMP LCD): sem tacômetro.</summary>
+    PumpLcd = 0x06,
     LiquidCoolerHSeries = 0x07,
     WaterBlockXc7Series = 0x09,
     WaterBlockXg3Series = 0x0a,
     PsuHxiShiftSeries = 0x0b,
     PumpXd5Series = 0x0c,
+    /// <summary>Tela LCD da XD5 Elite: sem tacômetro.</summary>
+    Xd5EliteLcd = 0x0e,
     FanRxRgbSeries = 0x0f,
     CapSwapModuleVrmFan = 0x10,
     LiquidCoolerTitanSeries = 0x11,

@@ -18,6 +18,9 @@ public sealed partial class LinkFlowEngine
     private CancellationTokenSource? _calibrationCts;
     private int _calibrationRunId;
 
+    /// <summary>Leituras de RPM do hub (com _stateLock): a calibração só compara leituras novas, nunca a mesma duas vezes.</summary>
+    private long _hubSpeedReads;
+
     /// <summary>Quando a potência de cada canal mudou pela última vez (com _stateLock).</summary>
     private readonly Dictionary<int, long> _appliedSince = new();
 
@@ -68,14 +71,19 @@ public sealed partial class LinkFlowEngine
     /// </summary>
     public bool StartCalibration()
     {
+        // Lida antes da trava de estado (HotReading usa a de configuração; as duas nunca ficam aninhadas)
+        string? hot = HotReading(starting: true);
         lock (_stateLock)
         {
             if (_calibrationStatus?.Running == true) return false;
             int run = ++_calibrationRunId;
             string? refusal = !_hubConnected || !_hasHubSpeeds ? "O hub precisa estar conectado e informando a rotação."
                 : _failSafe ? "O modo de segurança está ativo. Aguarde as temperaturas normalizarem."
+                // A varredura desce as ventoinhas até 20%: já no alerta, ela pararia logo no começo
+                : hot != null ? $"{hot} A calibração baixa as ventoinhas até 20% e seria interrompida. " +
+                                "Tente com o PC ocioso, depois que a temperatura cair."
                 : null;
-            var targets = _fans.Where(f => !f.IsPump && f.Model != nameof(LinkDeviceModel.Unknown)).Select(f => (f.Channel, f.Key)).ToList();
+            var targets = _fans.Where(f => !f.IsPump && LinkDeviceCatalog.IsFan(f.Model)).Select(f => (f.Channel, f.Key)).ToList();
             refusal ??= targets.Count == 0 ? "Nenhuma ventoinha com tacômetro foi encontrada no hub." : null;
             if (refusal != null)
             {
@@ -252,17 +260,35 @@ public sealed partial class LinkFlowEngine
         // Tempo mínimo para acelerar ou desacelerar; depois, até duas leituras seguidas concordarem
         await Task.Delay(_opt.CalibrationSettle, ct).ConfigureAwait(false);
         deadline = Stopwatch.GetTimestamp() + Ticks(_opt.CalibrationSettleMax);
+        long lastRead;
+        lock (_stateLock) lastRead = _hubSpeedReads;
         Dictionary<int, int>? previous = null;
         while (true)
         {
-            CheckCalibrationSafety();
-            Dictionary<int, int> current;
-            lock (_stateLock) current = speeds.Keys.ToDictionary(ch => ch, ch => _fans.FirstOrDefault(f => f.Channel == ch)?.Rpm ?? 0);
+            // Espera uma leitura nova do hub: duas amostras da mesma leitura pareceriam "estáveis"
+            // com a ventoinha ainda acelerando ou desacelerando
+            Dictionary<int, int>? current = null;
+            while (current == null)
+            {
+                CheckCalibrationSafety();
+                lock (_stateLock)
+                {
+                    if (_hubSpeedReads != lastRead)
+                    {
+                        lastRead = _hubSpeedReads;
+                        current = speeds.Keys.ToDictionary(ch => ch, ch => _fans.FirstOrDefault(f => f.Channel == ch)?.Rpm ?? 0);
+                    }
+                }
+                if (current != null) break;
+                if (Stopwatch.GetTimestamp() > deadline)
+                    throw new CalibrationAbortedException("O hub parou de informar a rotação durante a calibração.");
+                await Task.Delay(Poll, ct).ConfigureAwait(false);
+            }
+
             bool stable = previous != null && current.All(kv =>
                 Math.Abs(kv.Value - previous[kv.Key]) <= Math.Max(30, kv.Value * 0.03));
             if (stable || Stopwatch.GetTimestamp() > deadline) return current;
             previous = current;
-            await Task.Delay(_opt.TelemetryInterval, ct).ConfigureAwait(false);
         }
     }
 
@@ -271,26 +297,37 @@ public sealed partial class LinkFlowEngine
     /// <summary>Interrompe se o PC esquentar, o modo de segurança disparar ou o hub sumir durante a calibração.</summary>
     private void CheckCalibrationSafety()
     {
-        ControlConfig cfg;
-        lock (_configLock) cfg = _config;
-        float? cpu, gpu, coolant;
         bool hub, failSafe;
+        lock (_stateLock)
+        {
+            hub = _hubConnected && _hasHubSpeeds;
+            failSafe = _failSafe;
+        }
+        string? reason = failSafe ? "O modo de segurança foi acionado."
+            : !hub ? "O hub deixou de responder."
+            : HotReading(starting: false);
+        if (reason != null) throw new CalibrationAbortedException(reason);
+    }
+
+    /// <summary>
+    /// CPU, GPU ou líquido na temperatura de alerta (ou acima): o texto do motivo, ou null se todas estão abaixo.
+    /// Toma as travas de configuração e de estado uma depois da outra, nunca aninhadas.
+    /// </summary>
+    private string? HotReading(bool starting)
+    {
+        SafetyConfig s;
+        lock (_configLock) s = _config.Safety;
+        float? cpu, gpu, coolant;
         lock (_stateLock)
         {
             cpu = _telemetry.CpuSensorAvailable ? _telemetry.CpuTemperature : null;
             gpu = _telemetry.GpuTemperature;
             coolant = _coolant;
-            hub = _hubConnected && _hasHubSpeeds;
-            failSafe = _failSafe;
         }
-        var s = cfg.Safety;
-        string? reason = failSafe ? "O modo de segurança foi acionado."
-            : !hub ? "O hub deixou de responder."
-            : cpu >= s.CpuWarn ? $"A CPU chegou a {cpu:0} °C."
-            : gpu >= s.GpuWarn ? $"A GPU chegou a {gpu:0} °C."
-            : coolant >= s.CoolantWarn ? $"O líquido chegou a {coolant:0.#} °C."
+        string? Hot(string what, float? value, float warn) => value is { } v && float.IsFinite(v) && v >= warn
+            ? starting ? $"{what} está a {Degrees(v)}, acima do alerta ({Degrees(warn)})." : $"{what} chegou a {Degrees(v)}."
             : null;
-        if (reason != null) throw new CalibrationAbortedException(reason);
+        return Hot("A CPU", cpu, s.CpuWarn) ?? Hot("A GPU", gpu, s.GpuWarn) ?? Hot("O líquido", coolant, s.CoolantWarn);
     }
 
     private void SetCalibrationProgress(double progress, byte? percent, string message)
