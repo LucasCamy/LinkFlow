@@ -184,6 +184,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -198,7 +199,46 @@
                                 </Grid>
                                 <c:CurveEditor x:Name="CurveEditorControl" Grid.Row="1" Height="240" Margin="0,12,0,12"
                                                Points="{Binding CurvePoints}" CurrentTemp="{Binding CurveCurrentTemp}" CurrentOutput="{Binding CurveCurrentOutput}"/>
-                                <c:AdaptiveUniformGrid Grid.Row="2" MinItemWidth="300" MaxColumns="2">
+
+                                <!-- Testar curva: temperatura simulada aplicada às ventoinhas -->
+                                <Border Grid.Row="2" DataContext="{Binding CurveTest}" CornerRadius="10" Padding="12,10" Margin="0,0,0,14" BorderThickness="1">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{StaticResource BgBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource AccentDimBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsActive}" Margin="0,0,16,0" VerticalAlignment="Center"
+                                                  AutomationProperties.Name="Testar curva">
+                                            <TextBlock Text="Testar curva" FontWeight="SemiBold"/>
+                                        </CheckBox>
+                                        <Slider Grid.Column="1" Minimum="20" Maximum="100" SmallChange="1" LargeChange="5" IsSnapToTickEnabled="True" TickFrequency="1"
+                                                Value="{Binding Temperature}" IsEnabled="{Binding IsActive}" VerticalAlignment="Center"
+                                                AutomationProperties.Name="Temperatura simulada"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Summary}" FontWeight="SemiBold" MinWidth="110" TextAlignment="Right"
+                                                   Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}"/>
+                                        <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource Caption}" Margin="0,6,0,0" TextWrapping="Wrap"
+                                                   Text="Arraste a temperatura para ouvir as ventoinhas em cada ponto da curva. Ao sair da tela ou desligar, o controle volta às leituras reais. O modo de segurança continua usando as temperaturas reais."/>
+                                    </Grid>
+                                </Border>
+
+                                <c:AdaptiveUniformGrid Grid.Row="3" MinItemWidth="300" MaxColumns="2">
                                     <StackPanel Margin="0,0,16,8">
                                         <TextBlock Text="Sensor de referência" Style="{StaticResource Label}" Margin="0,0,0,6"/>
                                         <ComboBox AutomationProperties.Name="Sensor de referência" ItemsSource="{Binding CurveSources}" SelectedValuePath="Value" DisplayMemberPath="Label"
@@ -375,7 +415,10 @@
                             </StackPanel>
                         </Border>
 
-                        <ItemsControl ItemsSource="{Binding Fans}" Margin="0,0,-12,0" Focusable="False">
+                        <c:EmptyState Icon="&#xE9F5;" Title="Nenhum dispositivo encontrado no hub"
+                                      Detail="Confira se o iCUE LINK Hub está ligado ao USB da placa-mãe e se o iCUE está fechado. Depois, clique em Atualizar no topo da página."
+                                      Visibility="{Binding HasItems, ElementName=FanCards, Converter={StaticResource BoolToVisInverse}}"/>
+                        <ItemsControl x:Name="FanCards" ItemsSource="{Binding Fans}" Margin="0,0,-12,0" Focusable="False">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <c:AdaptiveUniformGrid MinItemWidth="276" MaxColumns="4" BalanceRows="False"/>
@@ -583,7 +626,10 @@
                                         <TextBlock Text="Aplique um perfil ao abrir um jogo ou aplicativo. Ao fechar, o LinkFlow retoma o perfil anterior." Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
-                                <ItemsControl ItemsSource="{Binding AppRules}" Focusable="False" Margin="0,14,0,0">
+                                <c:EmptyState Icon="&#xE7FC;" Margin="0,18,0,6" Title="Nenhuma regra por aplicativo"
+                                              Detail="Adicione um jogo ou programa para trocar de perfil automaticamente quando ele abrir."
+                                              Visibility="{Binding HasItems, ElementName=AppRuleList, Converter={StaticResource BoolToVisInverse}}"/>
+                                <ItemsControl x:Name="AppRuleList" ItemsSource="{Binding AppRules}" Focusable="False" Margin="0,14,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,6,6,6" Margin="0,0,0,6">

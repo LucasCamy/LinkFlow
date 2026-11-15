@@ -118,6 +118,16 @@ public partial class MainViewModel
         });
 
         PresetItems = FanPresets.All.Select(p => new PresetItem(this, p)).ToList();
+        CurveTest = new CurveTestViewModel(t => _engine.SetCurveTest(t), () => CurvePoints, () => Snapshot.CurveInputTemp);
+        // Renova o teste no engine (que encerra sozinho após alguns segundos sem notícias da interface)
+        _curveTestTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        _curveTestTimer.Tick += (_, _) => CurveTest.Renew();
+        CurveTest.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(CurveTestViewModel.IsActive)) return;
+            if (CurveTest.IsActive) _curveTestTimer.Start();
+            else _curveTestTimer.Stop();
+        };
         _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(7) };
         _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); ToastVisible = false; };
         _recentTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
@@ -138,6 +148,7 @@ public partial class MainViewModel
         set
         {
             if (value < 0 || value >= PageTitles.Length) return;
+            if (value != _selectedPage) CurveTest?.Stop();   // saiu do editor: volta às temperaturas reais
             if (value == DriversPageIndex && !_advancedToolsEnabled) return;   // Ctrl+9 com as ferramentas desligadas
             if (!SetProperty(ref _selectedPage, value)) return;
             CloseDetail();
@@ -450,8 +461,15 @@ public partial class MainViewModel
     public IReadOnlyList<CurvePoint> CurvePoints
     {
         get => _curvePoints;
-        private set => SetProperty(ref _curvePoints, value);
+        private set
+        {
+            if (SetProperty(ref _curvePoints, value)) CurveTest?.CurveChanged();
+        }
     }
+
+    /// <summary>"Testar curva" do editor (temperatura simulada aplicada às ventoinhas).</summary>
+    public CurveTestViewModel CurveTest { get; private set; } = null!;
+    private DispatcherTimer _curveTestTimer = null!;
 
     public CurveSource CurveSourceValue
     {
@@ -476,7 +494,7 @@ public partial class MainViewModel
 
     public string CurveHysteresisFormatted => $"{_curveHysteresis:0}°C";
 
-    public double? CurveCurrentTemp => _curveTarget != null && _engine.Config.GroupCurves.TryGetValue(_curveTarget, out var gc)
+    public double? CurveCurrentTemp => Snapshot.CurveTestTemp is { } test ? test : _curveTarget != null && _engine.Config.GroupCurves.TryGetValue(_curveTarget, out var gc)
         ? CurveController.SelectTemp(gc.Source, Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null, Snapshot.GpuTemp, Snapshot.CoolantTemp)
         : Snapshot.CurveInputTemp;
     public double? CurveCurrentOutput => _curveTarget != null
@@ -496,6 +514,7 @@ public partial class MainViewModel
     private void SetMode(FanControlMode mode)
     {
         if (mode == Mode) return;
+        CurveTest.Stop();
         WithUndo(mode == FanControlMode.Curve ? "Curva automática ativada" : "Potência fixa ativada", () =>
             _engine.UpdateConfig(c =>
             {
@@ -668,7 +687,28 @@ public partial class MainViewModel
     private bool _failSafeEnabled, _fanStopAlert;
     private float _cpuWarn, _cpuCritical, _gpuWarn, _gpuCritical, _coolantWarn, _coolantCritical;
 
-    public bool FailSafeEnabled { get => _failSafeEnabled; set => SetSafety(ref _failSafeEnabled, value, (c, v) => c.Safety.FailSafeEnabled = v); }
+    public bool FailSafeEnabled
+    {
+        get => _failSafeEnabled;
+        set
+        {
+            // Desligar a proteção pede confirmação; cancelado, o interruptor volta a ficar ligado
+            if (!value && _failSafeEnabled && !IsLoadingConfig && ConfirmDisableFailSafe?.Invoke() == false)
+            {
+                _dispatcher.BeginInvoke(() => OnPropertyChanged(nameof(FailSafeEnabled)));
+                return;
+            }
+            if (value != _failSafeEnabled && !IsLoadingConfig)
+                Log.Warn(value ? "Modo de segurança automático ligado pelo usuário." : "Modo de segurança automático DESLIGADO pelo usuário (confirmado).");
+            SetSafety(ref _failSafeEnabled, value, (c, v) => c.Safety.FailSafeEnabled = v);
+        }
+    }
+
+    /// <summary>
+    /// Pergunta antes de desligar o modo de segurança (a janela mostra o diálogo; null = sem pergunta, ex.: testes).
+    /// Retorna true para desligar.
+    /// </summary>
+    public Func<bool>? ConfirmDisableFailSafe { get; set; }
     public bool FanStopAlert { get => _fanStopAlert; set => SetSafety(ref _fanStopAlert, value, (c, v) => c.Safety.FanStopAlert = v); }
     public float CpuWarn { get => _cpuWarn; set => SetSafety(ref _cpuWarn, value, (c, v) => c.Safety.CpuWarn = v); }
     public float CpuCritical { get => _cpuCritical; set => SetSafety(ref _cpuCritical, value, (c, v) => c.Safety.CpuCritical = v); }

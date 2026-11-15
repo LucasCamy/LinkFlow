@@ -48,6 +48,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public IEngineClient Engine => _engine;
     public AlertsViewModel AlertCenter { get; }
+
+    /// <summary>Faixa do modo de segurança no topo da janela.</summary>
+    public FailSafeBannerViewModel FailSafeBanner { get; } = new();
     public event Action<EngineAlert>? AlertRaised;
     public event Action? SnapshotApplied;
 
@@ -81,6 +84,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             if (_isViewActive == value) return;
             _isViewActive = value;
+            if (!value) CurveTest?.Stop();   // janela escondida: ninguém está ouvindo o teste
             if (value) ApplySnapshot(Snapshot);
             UpdateSensorDemand();
         }
@@ -91,6 +95,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         bool wasFailSafeActive = Snapshot.FailSafeActive;
         Snapshot = s;
         AlertCenter.Update(s, IsEngineDisconnected);
+        FailSafeBanner.Update(s);
         if (!_isViewActive)
         {
             SnapshotApplied?.Invoke();

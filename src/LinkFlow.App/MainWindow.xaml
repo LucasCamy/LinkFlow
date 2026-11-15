@@ -55,6 +55,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="44"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -105,8 +106,12 @@
                 </StackPanel>
             </Grid>
 
+            <!-- ======================================================== Modo de segurança -->
+            <views:FailSafeBanner x:Name="FailSafeBar" Grid.Row="1" DataContext="{Binding FailSafeBanner}" Visibility="Collapsed"
+                                  Margin="12,0,12,6"/>
+
             <!-- ======================================================== Corpo -->
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -251,7 +256,7 @@
             </Grid>
 
             <!-- ======================================================== Barra de status -->
-            <Border Grid.Row="2" Background="#080D19" Padding="14,5" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Border Grid.Row="3" Background="#080D19" Padding="14,5" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

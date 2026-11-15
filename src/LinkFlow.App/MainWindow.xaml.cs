@@ -43,6 +43,12 @@ public partial class MainWindow : Window
             if (IsMiniWidgetVisible || page) Widget.Update(ViewModel.Snapshot);
             if (page) Widget.RefreshPicker();
         };
+        ViewModel.ConfirmDisableFailSafe = ConfirmDisableFailSafe;
+        ViewModel.FailSafeBanner.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(FailSafeBannerViewModel.IsVisible)) UpdateFailSafeBar();
+        };
+        UpdateFailSafeBar();
         ViewModel.SetWidgetDemandSource(() => IsMiniWidgetVisible || Widget.IsGameOverlayPublishing ? Widget.Demand : Core.SensorDemand.None);
         ViewModel.PageChanged += p =>
         {
@@ -212,6 +218,34 @@ public partial class MainWindow : Window
     }
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
+
+    private bool ConfirmDisableFailSafe() => MessageBox.Show(this,
+        "Desligar o modo de segurança automático?\n\n" +
+        "Sem ele, o LinkFlow NÃO leva as ventoinhas e a bomba a 100% quando a CPU, a GPU ou o líquido " +
+        "atingem a temperatura crítica, quando a bomba para ou quando os sensores deixam de responder. " +
+        "Isso pode causar superaquecimento e danificar o hardware.\n\n" +
+        "Os alertas continuam aparecendo, e a alteração fica registrada no log.",
+        "Desligar a proteção", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+
+    /// <summary>Faixa do modo de segurança: entra deslizando e some em fade quando a proteção termina.</summary>
+    private void UpdateFailSafeBar()
+    {
+        if (ViewModel.FailSafeBanner.IsVisible)
+        {
+            FailSafeBar.BeginAnimation(OpacityProperty, null);
+            FailSafeBar.Opacity = 1;
+            if (FailSafeBar.Visibility == Visibility.Visible) return;
+            FailSafeBar.Visibility = Visibility.Visible;
+            Services.Motion.BannerIn(FailSafeBar);
+        }
+        else if (FailSafeBar.Visibility == Visibility.Visible)
+        {
+            Services.Motion.FadeOut(FailSafeBar, () =>
+            {
+                if (!ViewModel.FailSafeBanner.IsVisible) FailSafeBar.Visibility = Visibility.Collapsed;
+            });
+        }
+    }
 
     public void ShowAppUpdates()
     {

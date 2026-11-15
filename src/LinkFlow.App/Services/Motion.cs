@@ -22,6 +22,26 @@ public static class Motion
     /// <summary>Aviso inferior: sobe 16 px.</summary>
     public static void ToastIn(UIElement element) => FadeMove(element, 0, 16, 200);
 
+    /// <summary>Faixa de aviso no topo: desce 8 px.</summary>
+    public static void BannerIn(UIElement element) => FadeMove(element, 0, -8, 220);
+
+    /// <summary>Some em fade (300 ms) e então executa <paramref name="done"/> (ex.: recolher o elemento).</summary>
+    public static void FadeOut(UIElement element, Action done)
+    {
+        if (!Enabled)
+        {
+            done();
+            return;
+        }
+        var a = new DoubleAnimation(element.Opacity, 0, TimeSpan.FromMilliseconds(300)) { EasingFunction = Ease, FillBehavior = FillBehavior.Stop };
+        a.Completed += (_, _) =>
+        {
+            done();
+            element.Opacity = 1;
+        };
+        element.BeginAnimation(UIElement.OpacityProperty, a);
+    }
+
     /// <summary>Painel de diálogo: fundo em fade e conteúdo cresce de 96% para 100%.</summary>
     public static void DialogIn(UIElement backdrop, UIElement panel)
     {

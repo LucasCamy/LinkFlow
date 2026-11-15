@@ -36,6 +36,12 @@ public interface IEngineClient : IDisposable
     /// <summary>Procura de novo ventoinhas, bomba, LCD e RGB.</summary>
     void RescanDevices();
 
+    /// <summary>
+    /// "Testar curva": as curvas usam esta temperatura em vez dos sensores por alguns segundos (renove enquanto
+    /// o teste estiver aberto). null encerra o teste.
+    /// </summary>
+    void SetCurveTest(float? temperature);
+
     /// <summary>Informa o que a interface está exibindo (ex.: discos), para o engine só ler o necessário.</summary>
     void SetSensorDemand(SensorDemand demand);
 
@@ -90,6 +96,7 @@ public sealed class LocalEngineClient : IEngineClient
     public void NotifyResume() => _engine.NotifyResume();
     public void RefreshRgb() => _engine.RefreshRgb();
     public void RescanDevices() => _engine.RescanDevices();
+    public void SetCurveTest(float? temperature) => _engine.SetCurveTest(temperature);
     public void SetSensorDemand(SensorDemand demand) => _engine.SetSensorDemand(this, demand);
     public Task ShutdownAsync(bool restoreHardwareMode = true) => _engine.StopAsync(restoreHardwareMode);
     public void Dispose() => _engine.Dispose();

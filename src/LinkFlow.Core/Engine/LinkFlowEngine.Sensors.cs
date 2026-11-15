@@ -12,7 +12,7 @@ public sealed partial class LinkFlowEngine
 
     /// <summary>Cada grupo com curva própria tem seu controlador (suavização/histerese independentes).</summary>
     private void EvaluateGroupCurves(ControlConfig cfg, Dictionary<string, (CurveController Controller, FanCurveConfig Curve)> controllers,
-        float? cpu, float? gpu, float? coolant, bool newSample)
+        float? cpu, float? gpu, float? coolant, bool newSample, float? testTemp = null)
     {
         var outputs = new Dictionary<string, int>();
         foreach (var (group, curveCfg) in cfg.GroupCurves)
@@ -22,6 +22,11 @@ public sealed partial class LinkFlowEngine
                 // A configuração é substituída inteira a cada alteração (nunca editada no lugar): guardar a referência é seguro
                 entry = (new CurveController(), curveCfg); // curva editada: aplica sem esperar a histerese
                 controllers[group] = entry;
+            }
+            if (testTemp is { } test)
+            {
+                outputs[group] = curveCfg.Evaluate(test);
+                continue;
             }
             var temp = CurveController.SelectTemp(curveCfg.Source, cpu, gpu, coolant);
             if (temp is { } t && (newSample || entry.Controller.Current == null)) outputs[group] = entry.Controller.Evaluate(curveCfg, t);
@@ -59,6 +64,7 @@ public sealed partial class LinkFlowEngine
         bool sensorsEverReported = false;
         long? sensorsMissingSince = null;
         long lastSensorReopen = 0;
+        bool curveTestWasActive = false;
 
         while (!ct.IsCancellationRequested)
         {
@@ -147,10 +153,21 @@ public sealed partial class LinkFlowEngine
                     lastCurve = cfg.Curve;
                 }
 
+                // "Testar curva": temperatura simulada, aplicada direto (sem histerese nem suavização)
+                float? testTemp = ActiveCurveTest();
+                if (testTemp == null && curveTestWasActive)
+                {
+                    // Fim do teste: volta às leituras reais na hora, sem a histerese do valor simulado
+                    curve.Reset();
+                    groupControllers.Clear();
+                }
+                curveTestWasActive = testTemp != null;
+
                 if (cfg.Mode != FanControlMode.Curve) _curveOutput = -1;
+                else if (testTemp is { } test) _curveOutput = cfg.Curve.Evaluate(test);
                 else if (lastTemp is { } temp && (newSample || curve.Current == null)) _curveOutput = curve.Evaluate(cfg.Curve, temp);
-                lock (_stateLock) _curveInputTemp = curve.SmoothedTemp ?? lastTemp;
-                EvaluateGroupCurves(cfg, groupControllers, lastCpu, lastGpu, lastCoolant, newSample);
+                lock (_stateLock) _curveInputTemp = testTemp ?? curve.SmoothedTemp ?? lastTemp;
+                EvaluateGroupCurves(cfg, groupControllers, lastCpu, lastGpu, lastCoolant, newSample, testTemp);
                 if (safetyChanged || previousOutput != _curveOutput) Signal(_hubSignal);
 
                 // Fan da GPU (LibreHardwareMonitor)
@@ -254,6 +271,7 @@ public sealed partial class LinkFlowEngine
             {
                 _failSafe = true;
                 _failSafeRecoveryStarted = null;
+                _failSafeReason = critical.Message;   // atualizado a cada leitura (ex.: "há 12 s")
                 RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativado",
                     $"{critical.Message} Ventoinhas em 100%.");
             }
@@ -294,6 +312,7 @@ public sealed partial class LinkFlowEngine
                 _failSafeCauses.Clear();
                 _failSafeCoolantChannels.Clear();
                 _failSafeRecoveryStarted = null;
+                _failSafeReason = null;
                 Log.Info($"Modo de segurança desativado. {(s.FailSafeEnabled ? "Leituras abaixo dos limites críticos." : "Proteção desativada nas configurações.")}");
             }
             return _failSafe != wasActive;

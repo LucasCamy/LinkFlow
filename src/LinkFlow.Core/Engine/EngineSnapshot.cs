@@ -77,6 +77,15 @@ public sealed class EngineSnapshot
     public Dictionary<string, int> GroupOutputs { get; set; } = new();
     public float? CurveInputTemp { get; set; }
     public bool FailSafeActive { get; set; }
+
+    /// <summary>O que acionou o modo de segurança (ex.: "CPU a 98 °C (limite 95 °C)."). Null fora dele.</summary>
+    public string? FailSafeReason { get; set; }
+
+    /// <summary>Leituras já voltaram ao normal; aguardando estabilizar para retomar o perfil.</summary>
+    public bool FailSafeRecovering { get; set; }
+
+    /// <summary>Temperatura simulada do "Testar curva" em andamento (null = curvas seguindo os sensores).</summary>
+    public float? CurveTestTemp { get; set; }
     public List<FanState> Fans { get; set; } = new();
 
     // Periféricos

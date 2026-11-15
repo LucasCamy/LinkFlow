@@ -34,6 +34,7 @@ public partial class SettingsPage : UserControl
     private void OpenLogs_Click(object sender, RoutedEventArgs e) => OpenFolder(Log.CurrentLogDir);
     private void OpenConfig_Click(object sender, RoutedEventArgs e) => OpenFolder(AppPaths.SharedDir);
     private void ExitApp_Click(object sender, RoutedEventArgs e) => App.Current.ExitApplication();
+    private async void Diagnostic_Click(object sender, RoutedEventArgs e) => await DiagnosticService.GenerateAsync(Owner, Owner.ViewModel);
 
     private MainWindow Owner => (MainWindow)Window.GetWindow(this);
 

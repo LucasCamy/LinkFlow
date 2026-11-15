@@ -330,6 +330,14 @@
                                     <WrapPanel Margin="0,14,-8,-8">
                                         <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de logs" Margin="0,0,8,8" Click="OpenLogs_Click"/>
                                         <Button Style="{StaticResource SecondaryButton}" Content="Abrir pasta de configuração" Margin="0,0,8,8" Click="OpenConfig_Click"/>
+                                        <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="Diagnostic_Click"
+                                                ToolTip="Logs recentes, config.json e resumo do hardware, para suporte ou issues no GitHub"
+                                                AutomationProperties.Name="Gerar pacote de diagnóstico">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Icon}" Text="&#xE9D9;" FontSize="13" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Gerar pacote de diagnóstico (.zip)"/>
+                                            </StackPanel>
+                                        </Button>
                                         <Button Style="{StaticResource DangerButton}" Content="{Binding Settings.ExitButtonText, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,8,8" Click="ExitApp_Click"/>
                                     </WrapPanel>
                                 </StackPanel>

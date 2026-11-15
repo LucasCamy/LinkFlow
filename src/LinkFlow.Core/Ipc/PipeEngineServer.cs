@@ -138,6 +138,9 @@ public sealed class PipeEngineServer : IAsyncDisposable
                     case PipeProtocol.Rescan:
                         _engine.RescanDevices();
                         break;
+                    case PipeProtocol.CurveTest:
+                        _engine.SetCurveTest(PipeProtocol.Read<float?>(payload));
+                        break;
                 }
             }
         }

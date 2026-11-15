@@ -23,6 +23,9 @@ public sealed class EngineOptions
     /// <summary>Curva sem nenhuma temperatura (CPU, GPU e líquido) por este tempo → modo de segurança.</summary>
     public TimeSpan SensorLossTimeout { get; set; } = TimeSpan.FromSeconds(10);
 
+    /// <summary>"Testar curva" termina sozinho se a interface parar de renovar o pedido (ex.: fechou ou travou).</summary>
+    public TimeSpan CurveTestTimeout { get; set; } = TimeSpan.FromSeconds(6);
+
     /// <summary>Fila do hub ou dos sensores sem completar um ciclo por este tempo → considerada travada.</summary>
     public TimeSpan LaneStallTimeout { get; set; } = TimeSpan.FromSeconds(60);
 
@@ -111,6 +114,9 @@ public sealed partial class LinkFlowEngine : IDisposable
     private volatile int _curveOutput = -1;
     private volatile bool _failSafe;
     private long? _failSafeRecoveryStarted;
+    private string? _failSafeReason;
+    private float? _curveTestTemp;
+    private long _curveTestUntil;
     private readonly HashSet<string> _failSafeCauses = new();
     private readonly HashSet<int> _failSafeCoolantChannels = new();
     private float? _curveInputTemp;
@@ -323,6 +329,45 @@ public sealed partial class LinkFlowEngine : IDisposable
     /// Procura de novo todos os dispositivos: reabre o hub (relê a lista de ventoinhas/bomba),
     /// reconecta o LCD e tenta detectar o RGB da GPU/placa-mãe que não foi encontrado.
     /// </summary>
+    /// <summary>
+    /// "Testar curva": as curvas passam a usar <paramref name="temperature"/> no lugar da leitura real, sem histerese
+    /// nem suavização, para ouvir o ruído de cada ponto. Vale por <see cref="EngineOptions.CurveTestTimeout"/>;
+    /// a interface renova enquanto o teste está aberto. null encerra. O modo de segurança continua usando as
+    /// temperaturas reais e tem prioridade.
+    /// </summary>
+    public void SetCurveTest(float? temperature)
+    {
+        lock (_stateLock)
+        {
+            if (temperature is { } t && float.IsFinite(t))
+            {
+                if (_curveTestTemp == null) Log.Info("Teste de curva iniciado pela interface.");
+                _curveTestTemp = Math.Clamp(t, 0f, 110f);
+                _curveTestUntil = Stopwatch.GetTimestamp() + (long)(_opt.CurveTestTimeout.TotalSeconds * Stopwatch.Frequency);
+            }
+            else
+            {
+                if (_curveTestTemp != null) Log.Info("Teste de curva encerrado.");
+                _curveTestTemp = null;
+            }
+        }
+        Signal(_sensorSignal);
+    }
+
+    /// <summary>Temperatura do teste de curva em andamento (null = sem teste ou expirado).</summary>
+    private float? ActiveCurveTest()
+    {
+        lock (_stateLock)
+        {
+            if (_curveTestTemp != null && Stopwatch.GetTimestamp() > _curveTestUntil)
+            {
+                Log.Info("Teste de curva expirado: voltando às temperaturas reais.");
+                _curveTestTemp = null;
+            }
+            return _curveTestTemp;
+        }
+    }
+
     public void RescanDevices()
     {
         Log.Info("Reatualizando dispositivos a pedido do usuário.");
@@ -385,6 +430,9 @@ public sealed partial class LinkFlowEngine : IDisposable
                 GroupOutputs = new Dictionary<string, int>(_groupOutputs),
                 CurveInputTemp = _curveInputTemp,
                 FailSafeActive = _failSafe,
+                FailSafeReason = _failSafe ? _failSafeReason : null,
+                FailSafeRecovering = _failSafe && _failSafeRecoveryStarted != null,
+                CurveTestTemp = _curveTestTemp,
                 Fans = _fans.Select(f => new FanState
                 {
                     Key = f.Key, Channel = f.Channel, DeviceId = f.DeviceId, DefaultName = f.DefaultName,
