@@ -257,40 +257,54 @@ public sealed partial class LinkFlowEngine
             await Task.Delay(Poll, ct).ConfigureAwait(false);
         }
 
-        // Tempo mínimo para acelerar ou desacelerar; depois, até duas leituras seguidas concordarem
+        // Tempo mínimo para a rampa começar; depois, até o RPM ficar igual ao de uma janela atrás
         await Task.Delay(_opt.CalibrationSettle, ct).ConfigureAwait(false);
         deadline = Stopwatch.GetTimestamp() + Ticks(_opt.CalibrationSettleMax);
         long lastRead;
         lock (_stateLock) lastRead = _hubSpeedReads;
-        Dictionary<int, int>? previous = null;
+        long lastReadAt = Stopwatch.GetTimestamp();
+        var samples = new List<(long At, Dictionary<int, int> Rpm)>();
         while (true)
         {
-            // Espera uma leitura nova do hub: duas amostras da mesma leitura pareceriam "estáveis"
-            // com a ventoinha ainda acelerando ou desacelerando
+            // Só leituras novas do hub: a mesma leitura duas vezes pareceria "estável" no meio da rampa
             Dictionary<int, int>? current = null;
-            while (current == null)
+            lock (_stateLock)
             {
-                CheckCalibrationSafety();
-                lock (_stateLock)
+                if (_hubSpeedReads != lastRead)
                 {
-                    if (_hubSpeedReads != lastRead)
-                    {
-                        lastRead = _hubSpeedReads;
-                        current = speeds.Keys.ToDictionary(ch => ch, ch => _fans.FirstOrDefault(f => f.Channel == ch)?.Rpm ?? 0);
-                    }
+                    lastRead = _hubSpeedReads;
+                    current = speeds.Keys.ToDictionary(ch => ch, ch => _fans.FirstOrDefault(f => f.Channel == ch)?.Rpm ?? 0);
                 }
-                if (current != null) break;
-                if (Stopwatch.GetTimestamp() > deadline)
-                    throw new CalibrationAbortedException("O hub parou de informar a rotação durante a calibração.");
-                await Task.Delay(Poll, ct).ConfigureAwait(false);
             }
 
-            bool stable = previous != null && current.All(kv =>
-                Math.Abs(kv.Value - previous[kv.Key]) <= Math.Max(30, kv.Value * 0.03));
-            if (stable || Stopwatch.GetTimestamp() > deadline) return current;
-            previous = current;
+            long now = Stopwatch.GetTimestamp();
+            if (current != null)
+            {
+                lastReadAt = now;
+                // O hub muda a rotação em rampa (~45 RPM/s): leituras seguidas diferem pouco mesmo acelerando.
+                // Estável só quando o RPM bate com o de pelo menos uma janela atrás.
+                var reference = samples.LastOrDefault(s => now - s.At >= Ticks(_opt.CalibrationStableWindow)).Rpm;
+                if (reference != null && current.All(kv => Math.Abs(kv.Value - reference[kv.Key]) <= StableTolerance(kv.Value)))
+                    return current;
+                samples.Add((now, current));
+            }
+
+            if (now > deadline && samples.Count > 0)
+            {
+                // Ainda variando no limite (ex.: ventoinha oscilando): fica a última leitura
+                Log.Warn($"Calibração: RPM não estabilizou em {_opt.CalibrationSettleMax.TotalSeconds:0} s; usando a última leitura.");
+                return samples[^1].Rpm;
+            }
+            if (now - lastReadAt > Ticks(_opt.CalibrationReadTimeout))
+                throw new CalibrationAbortedException("O hub parou de informar a rotação durante a calibração.");
+
+            CheckCalibrationSafety();
+            await Task.Delay(Poll, ct).ConfigureAwait(false);
         }
     }
+
+    /// <summary>Diferença de RPM aceita como "mesma rotação" (ruído do tacômetro, ±5 RPM no hub real).</summary>
+    public static int StableTolerance(int rpm) => Math.Max(30, (int)(rpm * 0.02));
 
     private TimeSpan Poll => _opt.TelemetryInterval < TimeSpan.FromMilliseconds(200) ? _opt.TelemetryInterval : TimeSpan.FromMilliseconds(200);
 

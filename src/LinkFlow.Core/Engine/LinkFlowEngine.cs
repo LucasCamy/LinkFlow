@@ -26,17 +26,26 @@ public sealed class EngineOptions
     /// <summary>"Testar curva" termina sozinho se a interface parar de renovar o pedido (ex.: fechou ou travou).</summary>
     public TimeSpan CurveTestTimeout { get; set; } = TimeSpan.FromSeconds(6);
 
-    /// <summary>Calibração: espera mínima em cada potência antes de ler o RPM (aceleração/desaceleração).</summary>
+    // O firmware do hub muda a rotação em rampa linear de ~45 RPM/s (medido com RX RGB, FW 4.1.656):
+    // de 50% a 100% leva ~23 s, e de 100% a 40% ~30 s. Os tempos abaixo partem disso.
+
+    /// <summary>Calibração: espera mínima em cada potência antes de ler o RPM (a rampa começar).</summary>
     public TimeSpan CalibrationSettle { get; set; } = TimeSpan.FromSeconds(3);
 
-    /// <summary>Calibração: espera máxima por uma leitura estável (ou pelo hub aplicar a potência).</summary>
-    public TimeSpan CalibrationSettleMax { get; set; } = TimeSpan.FromSeconds(10);
+    /// <summary>Calibração: estável = RPM igual (com folga) ao de pelo menos este tempo atrás. Na rampa, 2 s dão ~90 RPM.</summary>
+    public TimeSpan CalibrationStableWindow { get; set; } = TimeSpan.FromSeconds(2);
+
+    /// <summary>Calibração: espera máxima pela rotação estabilizar (depois, usa a última leitura) ou pelo hub aplicar a potência.</summary>
+    public TimeSpan CalibrationSettleMax { get; set; } = TimeSpan.FromSeconds(45);
+
+    /// <summary>Calibração: sem nenhuma leitura nova de RPM por este tempo, o hub parou de responder e ela é interrompida.</summary>
+    public TimeSpan CalibrationReadTimeout { get; set; } = TimeSpan.FromSeconds(5);
 
     /// <summary>Desgaste: leituras seguidas abaixo do esperado pela calibração antes do alerta (~1 por segundo).</summary>
     public int FanWearReadsBeforeAlert { get; set; } = 60;
 
-    /// <summary>Desgaste: só compara depois que a potência fica este tempo sem mudar (rotação já estabilizada).</summary>
-    public TimeSpan FanWearSteadyTime { get; set; } = TimeSpan.FromSeconds(10);
+    /// <summary>Desgaste: só compara depois que a potência fica este tempo sem mudar (a rampa do hub leva até ~40 s).</summary>
+    public TimeSpan FanWearSteadyTime { get; set; } = TimeSpan.FromSeconds(40);
 
     /// <summary>Fila do hub ou dos sensores sem completar um ciclo por este tempo → considerada travada.</summary>
     public TimeSpan LaneStallTimeout { get; set; } = TimeSpan.FromSeconds(60);

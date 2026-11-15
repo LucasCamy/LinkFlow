@@ -44,6 +44,14 @@ public sealed class SimulatedHub : IFanHub
     /// <summary>Fator do RPM (ex.: 0,6 = ventoinha gasta girando 40% abaixo do normal).</summary>
     public Dictionary<int, double> RpmScale { get; } = new();
 
+    /// <summary>
+    /// Rampa linear como a do firmware real (~45 RPM/s): a rotação anda no máximo isto por segundo até o alvo.
+    /// Null: aproximação rápida (padrão dos testes).
+    /// </summary>
+    public double? RampRpmPerSecond { get; set; }
+
+    private readonly Dictionary<int, long> _rpmAt = new();
+
     private readonly HashSet<int> _stalled = new();
     public int SetSpeedsCalls { get; private set; }
     public int SetRgbCalls { get; private set; }
@@ -135,8 +143,15 @@ public sealed class SimulatedHub : IFanHub
                 double target = StoppedChannels.Contains(d.Channel) || _stalled.Contains(d.Channel) ? 0
                     : (d.IsPump ? 1200 + pct * 18 : 250 + pct * 19) * RpmScale.GetValueOrDefault(d.Channel, 1.0);
                 _rpm.TryGetValue(d.Channel, out var cur);
-                cur += (target - cur) * 0.6;
+                long now = System.Diagnostics.Stopwatch.GetTimestamp();
+                if (RampRpmPerSecond is { } ramp && _rpmAt.TryGetValue(d.Channel, out var at))
+                {
+                    double step = ramp * System.Diagnostics.Stopwatch.GetElapsedTime(at, now).TotalSeconds;
+                    cur += Math.Clamp(target - cur, -step, step);
+                }
+                else cur += (target - cur) * 0.6;
                 _rpm[d.Channel] = cur;
+                _rpmAt[d.Channel] = now;
                 int rpm = target == 0 ? 0 : (int)(cur + _rnd.Next(-12, 12));
                 if (rpm > 0) result[d.Channel] = rpm;
             }
