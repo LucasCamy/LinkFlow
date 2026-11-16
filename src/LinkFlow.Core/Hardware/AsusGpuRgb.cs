@@ -68,6 +68,8 @@ public sealed class AsusGpuRgb : IRgbDevice
     private NvApiI2c? _write;
     private bool _directConfigured;
     private bool _byteWrites;
+    private int _blockWriteFailures;
+    private const int BlockFailuresBeforeByteWrites = 3;
 
     public bool IsAvailable { get; private set; }
     public string ControllerName { get; private set; } = string.Empty;
@@ -271,7 +273,11 @@ public sealed class AsusGpuRgb : IRgbDevice
             if (!SelectRegister(register)) return false;
             _data[0] = (byte)color.Length;
             color.CopyTo(_data.AsSpan(1));
-            if (Transfer(_write, WriteBlockCommand, _data.Length, register)) return true;
+            if (Transfer(_write, WriteBlockCommand, _data.Length, register))
+            {
+                _blockWriteFailures = 0;
+                return true;
+            }
             if (!IsAvailable) return false;
         }
 
@@ -281,7 +287,13 @@ public sealed class AsusGpuRgb : IRgbDevice
             if (!WriteRegister((ushort)(register + channel), color[channel])) return false;
         }
 
-        _byteWrites = true;
+        // O barramento I²C da GPU fica ocupado por instantes (NVAPI -1): uma falha do bloco não prova que o
+        // controlador não aceita bloco. Só troca de vez (3x mais transferências) se o bloco falhar seguido.
+        if (!_byteWrites && ++_blockWriteFailures >= BlockFailuresBeforeByteWrites)
+        {
+            _byteWrites = true;
+            Log.Info($"RGB GPU: a escrita em bloco falhou {BlockFailuresBeforeByteWrites} vezes seguidas; usando escrita byte a byte.");
+        }
         return true;
     }
 
@@ -355,6 +367,7 @@ public sealed class AsusGpuRgb : IRgbDevice
         _gpu = IntPtr.Zero;
         _directConfigured = false;
         _byteWrites = false;
+        _blockWriteFailures = 0;
     }
 
     public void Dispose()

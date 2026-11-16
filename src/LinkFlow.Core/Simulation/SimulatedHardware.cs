@@ -328,6 +328,9 @@ public sealed class SimulatedRgb : IRgbDevice
     public bool IsAvailable { get; private set; }
     public bool FailInitialization { get; set; }
     public bool FailColorWrites { get; set; }
+
+    /// <summary>Recusa os próximos N envios e depois volta a aceitar (barramento I²C ocupado por instantes).</summary>
+    public int FailNextColorWrites { get; set; }
     public bool NeedsInitializationRetry { get; private set; }
     public int InitializationCalls { get; private set; }
     public int Calls { get; private set; }
@@ -340,7 +343,8 @@ public sealed class SimulatedRgb : IRgbDevice
     }
     public bool SetColor(byte r, byte g, byte b, byte brightnessPercent)
     {
-        bool accepted = !FailColorWrites;
+        bool accepted = !FailColorWrites && FailNextColorWrites == 0;
+        if (FailNextColorWrites > 0) FailNextColorWrites--;
         Calls++;
         if (accepted) Last = (r, g, b, brightnessPercent);
         return accepted;

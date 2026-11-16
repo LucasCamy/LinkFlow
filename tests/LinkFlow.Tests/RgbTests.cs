@@ -75,4 +75,52 @@ public class RgbTests
             because: "cor estática reaplicada na nova tentativa");
         Assert.True(f.Hw.GpuRgb.InitializationCalls >= detection + 2);
     }
+
+    [Fact]
+    public void Static_gpu_color_refused_by_a_busy_bus_is_retried_without_redetection()
+    {
+        using var f = new EngineFixture();
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().GpuRgbApplied == true);
+        int detection = f.Hw.GpuRgb.InitializationCalls;
+        int motherboard = f.Hw.MotherboardRgb.Calls;
+
+        // Barramento ocupado: os dois primeiros envios da cor nova são recusados
+        f.Hw.GpuRgb.FailNextColorWrites = 2;
+        f.Engine.UpdateConfig(c => { c.Rgb.R = 200; c.Rgb.G = 10; c.Rgb.B = 30; c.Rgb.LedGamma = 1f; });
+
+        // Cor fixa: sem a nova tentativa, a GPU ficaria com a cor anterior até a próxima mudança
+        EngineFixture.WaitUntil(() => f.Hw.GpuRgb.Last is { R: 200, G: 10, B: 30 } && f.Engine.GetSnapshot().GpuRgbApplied == true,
+            because: "cor reenviada depois do barramento liberar");
+        Assert.Equal(detection, f.Hw.GpuRgb.InitializationCalls);   // sem redetectar o controlador
+        Assert.Equal(motherboard + 1, f.Hw.MotherboardRgb.Calls);    // só a GPU é repetida
+        Assert.True(f.Hw.GpuRgb.Calls >= 3);
+    }
+
+    [Fact]
+    public void Busy_episode_backs_off_and_reports_once()
+    {
+        var episode = new GpuBusyEpisode();
+        long t0 = 1_000_000;
+        long Ms(int ms) => t0 + ms * System.Diagnostics.Stopwatch.Frequency / 1000;
+
+        Assert.Null(episode.Failed(t0, TimeSpan.FromSeconds(10)));
+        Assert.Equal(Ms(250), episode.RetryAt);
+        Assert.False(episode.RetryDue(Ms(249)));
+        Assert.True(episode.RetryDue(Ms(250)));
+        Assert.Null(episode.Failed(Ms(250), TimeSpan.FromSeconds(10)));
+        Assert.Equal(Ms(750), episode.RetryAt);                      // 500 ms depois
+
+        for (int i = 0; i < 10; i++) episode.Failed(Ms(1000 + i), TimeSpan.FromSeconds(10));
+        Assert.Equal(Ms(1009 + 2000), episode.RetryAt);              // teto de 2 s
+
+        var warn = episode.Failed(Ms(10_000), TimeSpan.FromSeconds(10));
+        Assert.Equal(13, warn?.Failures);
+        Assert.Null(episode.Failed(Ms(12_000), TimeSpan.FromSeconds(10)));   // avisa uma vez por episódio
+
+        var done = episode.Recovered(Ms(12_500));
+        Assert.Equal(14, done?.Failures);
+        Assert.Equal(12.5, done!.Value.Duration.TotalSeconds, 2);
+        Assert.Null(episode.RetryAt);
+        Assert.Null(episode.Recovered(Ms(13_000)));
+    }
 }

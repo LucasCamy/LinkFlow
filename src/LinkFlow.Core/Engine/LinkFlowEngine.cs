@@ -85,6 +85,9 @@ public sealed partial class LinkFlowEngine : IDisposable
 {
     private const int GpuRgbResendAttempts = 3;
     private static readonly TimeSpan GpuRgbResendDelay = TimeSpan.FromMilliseconds(350);
+
+    /// <summary>Barramento da GPU ocupado por mais que isto (as rajadas normais duram até ~4 s): vira aviso no log.</summary>
+    private static readonly TimeSpan GpuRgbBusyWarnAfter = TimeSpan.FromSeconds(10);
     private readonly IHardwareFactory _factory;
     private readonly EngineOptions _opt;
     private readonly JsonFileStore<ControlConfig>? _store;
