@@ -26,6 +26,7 @@ public sealed partial class LinkFlowEngine
         long nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
         long handledGpuResendVersion = 0, nextGpuResend = 0;
         int gpuResendRemaining = 0;
+        var gpuBusy = new GpuBusyEpisode();
         long nextPeripheralRetry = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(30));
         LcdConfig? lastLcd = null;
 
@@ -103,14 +104,22 @@ public sealed partial class LinkFlowEngine
                 bool gpuResendDue = gpuResendRemaining > 0 && Stopwatch.GetTimestamp() >= nextGpuResend;
                 bool animated = rgb.IsAnimated && HasAuxRgb(rgb);
                 long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
-                if ((appliedRgbVersion != rgbVersion || gpuResendDue || (animated && rgbClock.IsDue(frame, rgbInterval))) &&
-                    Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
+                if (!rgb.SyncGpu || !_gpuRgb.IsAvailable) gpuBusy.Reset();
+                // Cor recusada com o controlador presente: tenta de novo só a GPU (cor fixa não teria outro envio)
+                bool gpuRetryDue = rgb.SyncGpu && gpuResendRemaining == 0 && gpuBusy.RetryDue(Stopwatch.GetTimestamp());
+                bool due = appliedRgbVersion != rgbVersion || gpuResendDue || (animated && rgbClock.IsDue(frame, rgbInterval));
+                if ((due || gpuRetryDue) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.AuxRgbMinInterval)
                 {
                     bool changed = appliedRgbVersion != rgbVersion;
                     appliedRgbVersion = rgbVersion;
                     lastRgbApply = Stopwatch.GetTimestamp();
-                    bool? mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard, frame)) : null;
-                    bool? periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals, frame)) : null;
+                    bool? mbOk, periphOk;
+                    if (due)
+                    {
+                        mbOk = rgb.SyncMotherboard && _mbRgb.IsAvailable ? SafeCall(() => Apply(_mbRgb, rgb, RgbTargets.Motherboard, frame)) : null;
+                        periphOk = rgb.SyncPeripherals && _peripheralsRgb.IsAvailable ? SafeCall(() => Apply(_peripheralsRgb, rgb, RgbTargets.Peripherals, frame)) : null;
+                    }
+                    else lock (_stateLock) (mbOk, periphOk) = (_rgbMbOk, _rgbPeripheralsOk);
                     var previousGpuOk = _rgbGpuOk;
                     var previousGpuDiagnostic = _gpuRgb.Diagnostic;
                     bool? gpuOk = rgb.SyncGpu ? previousGpuOk : null;
@@ -122,17 +131,34 @@ public sealed partial class LinkFlowEngine
                         gpuResendRemaining = gpuOk == false ? gpuResendRemaining - 1 : 0;
                         nextGpuResend = Stopwatch.GetTimestamp() + Ticks(GpuRgbResendDelay);
                         nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
+                        if (gpuOk == true) gpuBusy.Reset();
                     }
                     else if (rgb.SyncGpu && gpuResendRemaining == 0 && _gpuRgb.IsAvailable)
                     {
                         gpuOk = SafeCall(() => Apply(_gpuRgb, rgb, RgbTargets.Gpu, frame));
                         gpuWritten = gpuOk == true;
-                        if (gpuOk == false && (previousGpuOk != false || previousGpuDiagnostic != _gpuRgb.Diagnostic))
-                            Log.Warn($"RGB GPU: {_gpuRgb.Diagnostic ?? "O controlador recusou o envio da cor."}");
-                        else if (gpuWritten && previousGpuOk != true)
-                            Log.Info($"RGB GPU: cor aceita pelo controlador {_gpuRgb.Name}.");
+                        long writtenAt = Stopwatch.GetTimestamp();
+                        if (gpuWritten)
+                        {
+                            if (gpuBusy.Recovered(writtenAt) is { } busy)
+                                Log.Info($"RGB GPU: barramento I²C ocupado por {busy.Duration.TotalSeconds.ToString("0.0", CultureInfo.GetCultureInfo("pt-BR"))} s " +
+                                         $"({busy.Failures} envio(s) recusado(s)); cor reenviada.");
+                            else if (previousGpuOk != true)
+                                Log.Info($"RGB GPU: cor aceita pelo controlador {_gpuRgb.Name}.");
+                        }
+                        else if (gpuOk == false && !_gpuRgb.IsAvailable)
+                        {
+                            // Adaptador perdido: a redetecção cuida disso
+                            if (previousGpuOk != false || previousGpuDiagnostic != _gpuRgb.Diagnostic)
+                                Log.Warn($"RGB GPU: {_gpuRgb.Diagnostic ?? "O controlador recusou o envio da cor."}");
+                        }
+                        else if (gpuOk == false && gpuBusy.Failed(writtenAt, GpuRgbBusyWarnAfter) is { } longBusy)
+                        {
+                            Log.Warn($"RGB GPU: o controlador recusa a cor há {longBusy.Duration.TotalSeconds:0} s " +
+                                     $"({longBusy.Failures} tentativas); continua tentando. {_gpuRgb.Diagnostic}");
+                        }
                     }
-                    if (animated)
+                    if (animated && due)
                     {
                         var writeTime = !gpuResendDue && (gpuWritten || mbOk == true || periphOk == true)
                             ? Stopwatch.GetElapsedTime(lastRgbApply) : (TimeSpan?)null;
@@ -197,6 +223,12 @@ public sealed partial class LinkFlowEngine
             }
             else if (c2.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry)
                 wait = Min(wait, Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextGpuRetry));
+            else if (c2.Rgb.SyncGpu && gpuBusy.RetryAt is { } retryAt)
+            {
+                var untilRetry = Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), retryAt);
+                var untilWrite = _opt.AuxRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply);
+                wait = Min(wait, untilRetry > untilWrite ? untilRetry : untilWrite);
+            }
             await WaitAsync(_auxSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
     }
