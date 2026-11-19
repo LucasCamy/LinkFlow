@@ -416,7 +416,7 @@ public partial class App : Application
     {
         if (_tray == null || !Settings.Current.AlertNotifications) return;
         if (alert.Severity == AlertSeverity.Info) return;
-        _tray.ShowNotification(alert.Title, alert.Message,
+        _tray.ShowNotification(alert.LocalizedTitle(), alert.LocalizedMessage(),
             alert.Severity == AlertSeverity.Critical ? System.Windows.Forms.ToolTipIcon.Error : System.Windows.Forms.ToolTipIcon.Warning);
     }
 

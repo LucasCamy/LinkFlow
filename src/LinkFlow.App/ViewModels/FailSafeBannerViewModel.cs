@@ -35,7 +35,7 @@ public sealed class FailSafeBannerViewModel : ObservableObject
         var stalled = s.Alerts.FirstOrDefault(a => a.Key == "engine-stalled");
         if (stalled != null)
         {
-            Set(Strings.Banner_Stalled, stalled.Message, Strings.Banner_StalledStatus, recovering: false);
+            Set(Strings.Banner_Stalled, stalled.LocalizedMessage(), Strings.Banner_StalledStatus, recovering: false);
             return;
         }
         if (!s.FailSafeActive)
@@ -48,7 +48,7 @@ public sealed class FailSafeBannerViewModel : ObservableObject
             .Where(a => a.Severity == AlertSeverity.Critical && IsCause(a.Key))
             .OrderBy(a => a.Since)
             .FirstOrDefault();
-        string reason = cause != null ? Describe(cause, now) : s.FailSafeReason ?? Strings.Banner_CriticalReading;
+        string reason = cause != null ? Describe(cause, now) : s.FailSafeReason is { } fallback ? EngineTextUi.Localize(s.FailSafeReasonText, fallback) : Strings.Banner_CriticalReading;
         string status = s.FailSafeRecovering
             ? Strings.Banner_Recovering
             : Strings.Banner_Forced;
@@ -69,12 +69,13 @@ public sealed class FailSafeBannerViewModel : ObservableObject
 
     private static string Describe(EngineAlert alert, DateTime now)
     {
-        if (!alert.Key.StartsWith("pump:", StringComparison.Ordinal)) return alert.Message;
+        if (!alert.Key.StartsWith("pump:", StringComparison.Ordinal)) return alert.LocalizedMessage();
         // Bomba: quanto tempo está assim é o que importa ("Bomba com rotação baixa há 12 s · Pump: 0 RPM ...")
         var elapsed = now - alert.Since;
-        return elapsed.TotalSeconds < 1 ? string.Format(Strings.Banner_PumpNow, alert.Title, alert.Message) :
+        string title = alert.LocalizedTitle(), message = alert.LocalizedMessage();
+        return elapsed.TotalSeconds < 1 ? string.Format(Strings.Banner_PumpNow, title, message) :
             elapsed.TotalMinutes < 1
-                ? string.Format(Strings.Banner_PumpForSeconds, alert.Title, elapsed.TotalSeconds.ToString("0", Ui), alert.Message)
-                : string.Format(Strings.Banner_PumpForMinutes, alert.Title, Math.Floor(elapsed.TotalMinutes).ToString("0", Ui), alert.Message);
+                ? string.Format(Strings.Banner_PumpForSeconds, title, elapsed.TotalSeconds.ToString("0", Ui), message)
+                : string.Format(Strings.Banner_PumpForMinutes, title, Math.Floor(elapsed.TotalMinutes).ToString("0", Ui), message);
     }
 }

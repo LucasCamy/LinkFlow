@@ -358,4 +358,121 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Alerts_HistoryEmptyDetail" xml:space="preserve">
     <value>Temperature, pump, sensor and hub connection warnings show up here.</value>
   </data>
+  <data name="Engine_ConfigRecoveredTitle" xml:space="preserve">
+    <value>Configuration restored from the backup</value>
+  </data>
+  <data name="Engine_ConfigRecovered" xml:space="preserve">
+    <value>The configuration file was damaged. LinkFlow used the last saved copy; check your profiles and curves.</value>
+  </data>
+  <data name="Engine_ConfigResetTitle" xml:space="preserve">
+    <value>Configuration reset</value>
+  </data>
+  <data name="Engine_ConfigReset" xml:space="preserve">
+    <value>The configuration file was damaged and there was no backup. LinkFlow went back to the defaults; the old file was kept as config.json.corrompido.</value>
+  </data>
+  <data name="Engine_ConflictTitle" xml:space="preserve">
+    <value>Another program controls the hub</value>
+  </data>
+  <data name="Engine_Conflict" xml:space="preserve">
+    <value>{0} is running. Two programs on the iCUE LINK Hub mix up the commands (wrong colors, 0 RPM readings and safe mode for no reason). Close it or turn off its hub control.</value>
+  </data>
+  <data name="Engine_HubLostTitle" xml:space="preserve">
+    <value>Hub disconnected</value>
+  </data>
+  <data name="Engine_HubLost" xml:space="preserve">
+    <value>The iCUE LINK Hub stopped responding. Trying to reconnect automatically.</value>
+  </data>
+  <data name="Engine_PumpLowTitle" xml:space="preserve">
+    <value>Pump speed is low</value>
+  </data>
+  <data name="Engine_PumpLow" xml:space="preserve">
+    <value>{0}: {1} RPM (minimum {2}). Check the pump!</value>
+  </data>
+  <data name="Engine_FanStoppedTitle" xml:space="preserve">
+    <value>Fan stopped</value>
+  </data>
+  <data name="Engine_FanStopped" xml:space="preserve">
+    <value>{0} is at 0 RPM with {1}% power.</value>
+  </data>
+  <data name="Engine_FanWearTitle" xml:space="preserve">
+    <value>Fan spinning below its calibration</value>
+  </data>
+  <data name="Engine_FanWear" xml:space="preserve">
+    <value>{0}: {1} RPM at {2}%, about {3} RPM expected ({4:P0} lower). Clean the dust; if it continues, the bearing may be worn.</value>
+  </data>
+  <data name="Engine_SensorLostTitle" xml:space="preserve">
+    <value>Curve has no temperature reading</value>
+  </data>
+  <data name="Engine_SensorLost" xml:space="preserve">
+    <value>No CPU, GPU or coolant temperature for {0:0} s.</value>
+  </data>
+  <data name="Engine_SensorLostNoFailSafe" xml:space="preserve">
+    <value>No CPU, GPU or coolant temperature for {0:0} s. With safe mode off, the fans keep their last speed.</value>
+  </data>
+  <data name="Engine_TempCriticalTitle" xml:space="preserve">
+    <value>{0} at critical temperature</value>
+  </data>
+  <data name="Engine_TempCritical" xml:space="preserve">
+    <value>{0} at {1:0.#} °C (limit {2:0.#} °C).</value>
+  </data>
+  <data name="Engine_TempWarnTitle" xml:space="preserve">
+    <value>{0} running hot</value>
+  </data>
+  <data name="Engine_TempWarn" xml:space="preserve">
+    <value>{0} at {1:0.#} °C (alert at {2:0.#} °C).</value>
+  </data>
+  <data name="Engine_SensorCpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="Engine_SensorGpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="Engine_SensorCoolant" xml:space="preserve">
+    <value>Coolant</value>
+  </data>
+  <data name="Engine_FailSafeOnTitle" xml:space="preserve">
+    <value>Safe mode turned on</value>
+  </data>
+  <data name="Engine_FailSafeOn" xml:space="preserve">
+    <value>{0} Fans at 100%.</value>
+  </data>
+  <data name="Engine_FailSafeActiveTitle" xml:space="preserve">
+    <value>Safe mode on</value>
+  </data>
+  <data name="Engine_FailSafeStabilizing" xml:space="preserve">
+    <value>Readings are below the critical limit. Waiting for them to settle before returning to the selected profile.</value>
+  </data>
+  <data name="Engine_FailSafeWaitingReadings" xml:space="preserve">
+    <value>Waiting for valid readings from the sensors that triggered the protection.</value>
+  </data>
+  <data name="Engine_EngineStalledTitle" xml:space="preserve">
+    <value>Fan control is stuck</value>
+  </data>
+  <data name="Engine_EngineStalled" xml:space="preserve">
+    <value>LinkFlow detected that {0}. The hub went back to its own control (hardware mode).</value>
+  </data>
+  <data name="Engine_WatchdogLaneEnded" xml:space="preserve">
+    <value>the '{0}' queue stopped on its own</value>
+  </data>
+  <data name="Engine_WatchdogLaneStuck" xml:space="preserve">
+    <value>the '{0}' queue has been stuck for {1:0} s</value>
+  </data>
+  <data name="Engine_HubSearching" xml:space="preserve">
+    <value>Looking for the iCUE LINK Hub...</value>
+  </data>
+  <data name="Engine_HubSearchingDevices" xml:space="preserve">
+    <value>Looking for devices...</value>
+  </data>
+  <data name="Engine_HubConnected" xml:space="preserve">
+    <value>Connected • FW {0} • {1} devices</value>
+  </data>
+  <data name="Engine_HubReconnecting" xml:space="preserve">
+    <value>Reconnecting to the iCUE LINK Hub...</value>
+  </data>
+  <data name="Engine_HubNotFound" xml:space="preserve">
+    <value>iCUE LINK Hub not found (check the USB cable or whether iCUE is open)</value>
+  </data>
+  <data name="Engine_HubNotFoundConflict" xml:space="preserve">
+    <value>iCUE LINK Hub not found: close {0}</value>
+  </data>
 </root>

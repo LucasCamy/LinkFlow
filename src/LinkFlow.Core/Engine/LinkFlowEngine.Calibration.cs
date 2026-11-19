@@ -57,9 +57,8 @@ public sealed partial class LinkFlowEngine
         int n = wearReads.GetValueOrDefault(f.Key) + 1;
         wearReads[f.Key] = n;
         if (n >= _opt.FanWearReadsBeforeAlert)
-            RaiseAlert(key, AlertSeverity.Warning, "Ventoinha girando abaixo da calibração",
-                $"{name}: {f.Rpm} RPM a {f.AppliedPercent}%, esperado cerca de {expected} RPM ({1 - ratio:P0} abaixo). " +
-                "Limpe a poeira; se continuar, o rolamento pode estar gasto.");
+            RaiseAlert(key, AlertSeverity.Warning, EngineText.Of(EngineTexts.FanWearTitle),
+                EngineText.Of(EngineTexts.FanWear, name, f.Rpm, f.AppliedPercent, expected, 1 - ratio));
     }
 
     /// <summary>Canais sendo medidos agora (alertas de parada e de desgaste ficam suspensos neles).</summary>

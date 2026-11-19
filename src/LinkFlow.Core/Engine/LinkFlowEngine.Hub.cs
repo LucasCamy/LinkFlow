@@ -192,9 +192,7 @@ public sealed partial class LinkFlowEngine
                 Log.Info("Nenhum outro programa disputando o hub.");
                 return;
             }
-            RaiseAlert("conflict", AlertSeverity.Warning, "Outro programa controla o hub",
-                $"{conflict} está em execução. Dois programas no iCUE LINK Hub embaralham os comandos (cores trocadas, " +
-                "leituras de 0 RPM e modo de segurança sem motivo). Feche-o ou desative o controle do hub nele.");
+            RaiseAlert("conflict", AlertSeverity.Warning, EngineText.Of(EngineTexts.ConflictTitle), EngineText.Of(EngineTexts.Conflict, conflict));
         }
     }
 
@@ -206,7 +204,7 @@ public sealed partial class LinkFlowEngine
             _hubConnected = true;
             _hubEverConnected = true;
             _hubFirmware = _hub.FirmwareVersion;
-            _hubStatus = $"Conectado • FW {_hub.FirmwareVersion} • {devices.Count} dispositivos";
+            _hubStatus = EngineText.Of(EngineTexts.HubConnected, _hub.FirmwareVersion, devices.Count);
             _fans = devices.Select(d => new FanState
             {
                 Key = FanState.KeyFor(d),
@@ -242,14 +240,13 @@ public sealed partial class LinkFlowEngine
             }
             _failSafeRecoveryStarted = null;
             _hubStatus = _hubEverConnected
-                ? "Reconectando ao iCUE LINK Hub..."
+                ? EngineText.Of(EngineTexts.HubReconnecting)
                 : _conflict != null
-                    ? $"iCUE LINK Hub não encontrado: feche {_conflict}"
-                    : "iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)";
+                    ? EngineText.Of(EngineTexts.HubNotFoundConflict, _conflict)
+                    : EngineText.Of(EngineTexts.HubNotFound);
             if (wasConnected || _hubEverConnected)
             {
-                RaiseAlert("hub-lost", AlertSeverity.Warning, "Hub desconectado",
-                    "O iCUE LINK Hub parou de responder. Tentando reconectar automaticamente.");
+                RaiseAlert("hub-lost", AlertSeverity.Warning, EngineText.Of(EngineTexts.HubLostTitle), EngineText.Of(EngineTexts.HubLost));
             }
         }
     }
@@ -300,8 +297,8 @@ public sealed partial class LinkFlowEngine
                     int n = low ? zeroReads.GetValueOrDefault(f.Key) + 1 : 0;
                     zeroReads[f.Key] = n;
                     if (n >= _opt.PumpLowReadsBeforeAlert && (cfg.Safety.FailSafeEnabled || cfg.Safety.FanStopAlert))
-                        RaiseAlert($"pump:{f.Key}", AlertSeverity.Critical, "Bomba com rotação baixa",
-                            $"{name}: {f.Rpm} RPM (mínimo {cfg.Safety.PumpMinRpm}). Verifique a bomba!");
+                        RaiseAlert($"pump:{f.Key}", AlertSeverity.Critical, EngineText.Of(EngineTexts.PumpLowTitle),
+                            EngineText.Of(EngineTexts.PumpLow, name, f.Rpm, cfg.Safety.PumpMinRpm));
                     else ClearAlert($"pump:{f.Key}");
                 }
                 else
@@ -327,8 +324,8 @@ public sealed partial class LinkFlowEngine
                     int n = stopped ? zeroReads.GetValueOrDefault(f.Key) + 1 : 0;
                     zeroReads[f.Key] = n;
                     if (n >= _opt.FanStopReadsBeforeAlert)
-                        RaiseAlert($"fan:{f.Key}", AlertSeverity.Warning, "Ventoinha parada",
-                            $"{name} está em 0 RPM com {f.AppliedPercent}% de potência.");
+                        RaiseAlert($"fan:{f.Key}", AlertSeverity.Warning, EngineText.Of(EngineTexts.FanStoppedTitle),
+                            EngineText.Of(EngineTexts.FanStopped, name, f.AppliedPercent));
                     else if (n == 0) ClearAlert($"fan:{f.Key}");
                 }
             }
