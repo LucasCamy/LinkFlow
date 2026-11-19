@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConfigRecoveredTitle" xml:space="preserve">
+    <value>Configuration restored from the backup</value>
+  </data>
+  <data name="ConfigRecovered" xml:space="preserve">
+    <value>The configuration file was damaged. LinkFlow used the last saved copy; check your profiles and curves.</value>
+  </data>
+  <data name="ConfigResetTitle" xml:space="preserve">
+    <value>Configuration reset</value>
+  </data>
+  <data name="ConfigReset" xml:space="preserve">
+    <value>The configuration file was damaged and there was no backup. LinkFlow went back to the defaults; the old file was kept as config.json.corrompido.</value>
+  </data>
+  <data name="ConflictTitle" xml:space="preserve">
+    <value>Another program controls the hub</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>{0} is running. Two programs on the iCUE LINK Hub mix up the commands (wrong colors, 0 RPM readings and safe mode for no reason). Close it or turn off its hub control.</value>
+  </data>
+  <data name="HubLostTitle" xml:space="preserve">
+    <value>Hub disconnected</value>
+  </data>
+  <data name="HubLost" xml:space="preserve">
+    <value>The iCUE LINK Hub stopped responding. Trying to reconnect automatically.</value>
+  </data>
+  <data name="PumpLowTitle" xml:space="preserve">
+    <value>Pump speed is low</value>
+  </data>
+  <data name="PumpLow" xml:space="preserve">
+    <value>{0}: {1} RPM (minimum {2}). Check the pump!</value>
+  </data>
+  <data name="FanStoppedTitle" xml:space="preserve">
+    <value>Fan stopped</value>
+  </data>
+  <data name="FanStopped" xml:space="preserve">
+    <value>{0} is at 0 RPM with {1}% power.</value>
+  </data>
+  <data name="FanWearTitle" xml:space="preserve">
+    <value>Fan spinning below its calibration</value>
+  </data>
+  <data name="FanWear" xml:space="preserve">
+    <value>{0}: {1} RPM at {2}%, about {3} RPM expected ({4:P0} lower). Clean the dust; if it continues, the bearing may be worn.</value>
+  </data>
+  <data name="SensorLostTitle" xml:space="preserve">
+    <value>Curve has no temperature reading</value>
+  </data>
+  <data name="SensorLost" xml:space="preserve">
+    <value>No CPU, GPU or coolant temperature for {0:0} s.</value>
+  </data>
+  <data name="SensorLostNoFailSafe" xml:space="preserve">
+    <value>No CPU, GPU or coolant temperature for {0:0} s. With safe mode off, the fans keep their last speed.</value>
+  </data>
+  <data name="TempCriticalTitle" xml:space="preserve">
+    <value>{0} at critical temperature</value>
+  </data>
+  <data name="TempCritical" xml:space="preserve">
+    <value>{0} at {1:0.#} °C (limit {2:0.#} °C).</value>
+  </data>
+  <data name="TempWarnTitle" xml:space="preserve">
+    <value>{0} running hot</value>
+  </data>
+  <data name="TempWarn" xml:space="preserve">
+    <value>{0} at {1:0.#} °C (alert at {2:0.#} °C).</value>
+  </data>
+  <data name="SensorCpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="SensorGpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="SensorCoolant" xml:space="preserve">
+    <value>Coolant</value>
+  </data>
+  <data name="FailSafeOnTitle" xml:space="preserve">
+    <value>Safe mode turned on</value>
+  </data>
+  <data name="FailSafeOn" xml:space="preserve">
+    <value>{0} Fans at 100%.</value>
+  </data>
+  <data name="FailSafeActiveTitle" xml:space="preserve">
+    <value>Safe mode on</value>
+  </data>
+  <data name="FailSafeStabilizing" xml:space="preserve">
+    <value>Readings are below the critical limit. Waiting for them to settle before returning to the selected profile.</value>
+  </data>
+  <data name="FailSafeWaitingReadings" xml:space="preserve">
+    <value>Waiting for valid readings from the sensors that triggered the protection.</value>
+  </data>
+  <data name="EngineStalledTitle" xml:space="preserve">
+    <value>Fan control is stuck</value>
+  </data>
+  <data name="EngineStalled" xml:space="preserve">
+    <value>LinkFlow detected that {0}. The hub went back to its own control (hardware mode).</value>
+  </data>
+  <data name="WatchdogLaneEnded" xml:space="preserve">
+    <value>the '{0}' queue stopped on its own</value>
+  </data>
+  <data name="WatchdogLaneStuck" xml:space="preserve">
+    <value>the '{0}' queue has been stuck for {1:0} s</value>
+  </data>
+  <data name="HubSearching" xml:space="preserve">
+    <value>Looking for the iCUE LINK Hub...</value>
+  </data>
+  <data name="HubSearchingDevices" xml:space="preserve">
+    <value>Looking for devices...</value>
+  </data>
+  <data name="HubConnected" xml:space="preserve">
+    <value>Connected • FW {0} • {1} devices</value>
+  </data>
+  <data name="HubReconnecting" xml:space="preserve">
+    <value>Reconnecting to the iCUE LINK Hub...</value>
+  </data>
+  <data name="HubNotFound" xml:space="preserve">
+    <value>iCUE LINK Hub not found (check the USB cable or whether iCUE is open)</value>
+  </data>
+  <data name="HubNotFoundConflict" xml:space="preserve">
+    <value>iCUE LINK Hub not found: close {0}</value>
+  </data>
+  <data name="CalRefusedHub" xml:space="preserve">
+    <value>The hub must be connected and reporting fan speeds.</value>
+  </data>
+  <data name="CalRefusedFailSafe" xml:space="preserve">
+    <value>Safe mode is on. Wait for the temperatures to return to normal.</value>
+  </data>
+  <data name="CalRefusedHot" xml:space="preserve">
+    <value>{0} The calibration lowers the fans to 20% and would be interrupted. Try again with the PC idle, after the temperature drops.</value>
+  </data>
+  <data name="CalRefusedNoFans" xml:space="preserve">
+    <value>No fan with a tachometer was found on the hub.</value>
+  </data>
+  <data name="CalPreparing" xml:space="preserve">
+    <value>Preparing the fans...</value>
+  </data>
+  <data name="CalMeasuring" xml:space="preserve">
+    <value>Measuring the speed at {0}%...</value>
+  </data>
+  <data name="CalStalled" xml:space="preserve">
+    <value>Some fans stopped. Testing the start-up power...</value>
+  </data>
+  <data name="CalStartTest" xml:space="preserve">
+    <value>Testing start-up at {0}%...</value>
+  </data>
+  <data name="CalAppClosed" xml:space="preserve">
+    <value>LinkFlow was closed during the calibration.</value>
+  </data>
+  <data name="CalCancelled" xml:space="preserve">
+    <value>Calibration canceled. Nothing was changed.</value>
+  </data>
+  <data name="CalError" xml:space="preserve">
+    <value>Calibration error: {0}</value>
+  </data>
+  <data name="CalNothingChanged" xml:space="preserve">
+    <value>{0} Nothing was changed.</value>
+  </data>
+  <data name="CalDoneWarnings" xml:space="preserve">
+    <value>Calibration finished. Check the highlighted fans.</value>
+  </data>
+  <data name="CalDoneOk" xml:space="preserve">
+    <value>Calibration finished. All fans responded normally.</value>
+  </data>
+  <data name="CalNoteNoSpin" xml:space="preserve">
+    <value>It did not spin at any power. Check the cable and whether the blades can turn freely.</value>
+  </data>
+  <data name="CalNoteBelowModel" xml:space="preserve">
+    <value>Top speed {0:P0} lower than the other fans of the same model. It may be dust or wear.</value>
+  </data>
+  <data name="CalNoteStart" xml:space="preserve">
+    <value>It stopped at low power and only spun again at {0}%. LinkFlow will keep it at {1}% or more.</value>
+  </data>
+  <data name="CalNoteMin" xml:space="preserve">
+    <value>LinkFlow will keep it at {0}% or more.</value>
+  </data>
+  <data name="CalHubNotApplied" xml:space="preserve">
+    <value>The hub did not apply the calibration speeds.</value>
+  </data>
+  <data name="CalHubNoReadings" xml:space="preserve">
+    <value>The hub stopped reporting fan speeds during the calibration.</value>
+  </data>
+  <data name="CalAbortFailSafe" xml:space="preserve">
+    <value>Safe mode was triggered.</value>
+  </data>
+  <data name="CalAbortHubLost" xml:space="preserve">
+    <value>The hub stopped responding.</value>
+  </data>
+  <data name="CalHotStarting" xml:space="preserve">
+    <value>{0} is at {1:0.#} °C, above the alert ({2:0.#} °C).</value>
+  </data>
+  <data name="CalHotReached" xml:space="preserve">
+    <value>{0} reached {1:0.#} °C.</value>
+  </data>
+  <data name="CalSubjectCpu" xml:space="preserve">
+    <value>The CPU</value>
+  </data>
+  <data name="CalSubjectGpu" xml:space="preserve">
+    <value>The GPU</value>
+  </data>
+  <data name="CalSubjectCoolant" xml:space="preserve">
+    <value>The coolant</value>
+  </data>
+  <data name="RgbDetecting" xml:space="preserve">
+    <value>Detecting RGB devices...</value>
+  </data>
+  <data name="RgbNoneSynced" xml:space="preserve">
+    <value>No devices synced</value>
+  </data>
+  <data name="RgbSynced" xml:space="preserve">
+    <value>Synced: {0}</value>
+  </data>
+  <data name="RgbFailed" xml:space="preserve">
+    <value>Failed: {0}</value>
+  </data>
+  <data name="RgbSyncedAndFailed" xml:space="preserve">
+    <value>Synced: {0} • Failed: {1}</value>
+  </data>
+  <data name="RgbListPair" xml:space="preserve">
+    <value>{0}, {1}</value>
+  </data>
+  <data name="RgbDevHub" xml:space="preserve">
+    <value>Fans/Pump</value>
+  </data>
+  <data name="RgbDevGpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="RgbDevMotherboard" xml:space="preserve">
+    <value>Motherboard</value>
+  </data>
+  <data name="RgbDevRam" xml:space="preserve">
+    <value>DDR5 RAM</value>
+  </data>
+  <data name="RgbDevPeripherals" xml:space="preserve">
+    <value>Peripherals</value>
+  </data>
+  <data name="RgbDevLcd" xml:space="preserve">
+    <value>LCD</value>
+  </data>
+  <data name="LcdOperational" xml:space="preserve">
+    <value>OPERATIONAL</value>
+  </data>
+  <data name="LcdAlert" xml:space="preserve">
+    <value>ALERT</value>
+  </data>
+  <data name="LcdSafeMode" xml:space="preserve">
+    <value>SAFE MODE</value>
+  </data>
+  <data name="LcdCpuLoad" xml:space="preserve">
+    <value>CPU LOAD</value>
+  </data>
+  <data name="LcdCpuClock" xml:space="preserve">
+    <value>CPU CLOCK</value>
+  </data>
+  <data name="LcdGpuLoad" xml:space="preserve">
+    <value>GPU LOAD</value>
+  </data>
+  <data name="LcdCoolant" xml:space="preserve">
+    <value>COOLANT</value>
+  </data>
+  <data name="LcdPumpRpm" xml:space="preserve">
+    <value>PUMP RPM</value>
+  </data>
+  <data name="LcdFansRpm" xml:space="preserve">
+    <value>FANS RPM</value>
+  </data>
+  <data name="LcdFans" xml:space="preserve">
+    <value>FANS</value>
+  </data>
+  <data name="LcdDisk" xml:space="preserve">
+    <value>DISK {0}</value>
+  </data>
+  <data name="LcdDiskNone" xml:space="preserve">
+    <value>DISK</value>
+  </data>
+  <data name="LcdCore" xml:space="preserve">
+    <value>CORE</value>
+  </data>
+  <data name="LcdDateFormat" xml:space="preserve">
+    <value>ddd MM/dd</value>
+  </data>
+  <data name="LcdFileMissing" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="LcdShowingMetrics" xml:space="preserve">
+    <value>Metrics</value>
+  </data>
+  <data name="LcdShowingBackground" xml:space="preserve">
+    <value>Background image</value>
+  </data>
+  <data name="LcdImage" xml:space="preserve">
+    <value>Image{0}</value>
+  </data>
+  <data name="LcdImageMissing" xml:space="preserve">
+    <value>Image{0} • file not found</value>
+  </data>
+  <data name="LcdGif" xml:space="preserve">
+    <value>GIF{0} • {1} frames</value>
+  </data>
+</root>

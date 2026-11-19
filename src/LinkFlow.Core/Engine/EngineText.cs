@@ -1,12 +1,14 @@
 using System.Globalization;
+using System.Resources;
 
 namespace LinkFlow.Core;
 
 /// <summary>
 /// Texto que o engine manda para a interface: um código e os parâmetros. O serviço roda como sistema e não sabe o idioma
-/// de quem usa a interface, por isso não manda frases prontas: a interface traduz o código (Strings.Engine_&lt;Code&gt;).
-/// O português fica em <see cref="EngineTexts"/>, usado no log e nos campos de texto antigos (Title, Message...), que
-/// continuam indo como reserva.
+/// de quem usa a interface, por isso não manda frases prontas: a interface traduz o código no idioma dela. Os textos de
+/// cada código ficam em Resources\EngineStrings.resx (português) e EngineStrings.&lt;idioma&gt;.resx, no Core, porque o
+/// próprio serviço também escreve no idioma do usuário (LCD da bomba). O português vai junto nos campos de texto antigos
+/// (Title, Message...), como reserva, e é o que aparece no log.
 /// </summary>
 public sealed class EngineText
 {
@@ -16,12 +18,12 @@ public sealed class EngineText
     /// <summary>Monta o texto. Parâmetros: string (literal, ex.: nome do dispositivo), número ou outro <see cref="EngineText"/>.</summary>
     public static EngineText Of(string code, params object[] args)
     {
-        if (!EngineTexts.Portuguese.ContainsKey(code)) throw new ArgumentException($"Código de texto desconhecido: {code}", nameof(code));
+        if (EngineTexts.Template(code, EngineTexts.PortugueseCulture) == null) throw new ArgumentException($"Código de texto desconhecido: {code}", nameof(code));
         return new EngineText { Code = code, Args = args.Select(EngineTextArg.From).ToList() };
     }
 
     /// <summary>O texto em português (log e reserva para quem não conhece o código).</summary>
-    public string ToPortuguese() => EngineTexts.Format(this, _ => null, EngineTexts.PortugueseCulture);
+    public string ToPortuguese() => EngineTexts.Format(this, EngineTexts.PortugueseCulture);
 
     public override string ToString() => ToPortuguese();
 }
@@ -42,10 +44,23 @@ public sealed class EngineTextArg
     };
 }
 
-/// <summary>Catálogo dos textos do engine, em português. Cada código tem a tradução Engine_&lt;Code&gt; na interface.</summary>
+/// <summary>Códigos dos textos do engine e a formatação deles em um idioma (textos em Resources\EngineStrings.resx).</summary>
 public static class EngineTexts
 {
     public static readonly CultureInfo PortugueseCulture = CultureInfo.GetCultureInfo("pt-BR");
+    public static readonly CultureInfo EnglishCulture = CultureInfo.GetCultureInfo("en");
+
+    public static ResourceManager Resources { get; } = new("LinkFlow.Core.Resources.EngineStrings", typeof(EngineTexts).Assembly);
+
+    /// <summary>Cultura de um idioma salvo na configuração ("en" = inglês; qualquer outro valor, português).</summary>
+    public static CultureInfo CultureFor(string? language) =>
+        language != null && language.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? EnglishCulture : PortugueseCulture;
+
+    /// <summary>Modelo do código no idioma (sem tradução, o português); null para código desconhecido.</summary>
+    public static string? Template(string code, CultureInfo culture) => Resources.GetString(code, culture);
+
+    /// <summary>Texto fixo (sem parâmetros) no idioma, ex.: rótulos do LCD.</summary>
+    public static string Get(string code, CultureInfo culture) => Template(code, culture) ?? code;
 
     // ---------------------------------------------------------------- alertas
     public const string ConfigRecoveredTitle = nameof(ConfigRecoveredTitle);
@@ -125,6 +140,28 @@ public static class EngineTexts
     public const string RgbDevPeripherals = nameof(RgbDevPeripherals);
     public const string RgbDevLcd = nameof(RgbDevLcd);
 
+    // ---------------------------------------------------------------- LCD (desenhado pelo serviço)
+    public const string LcdOperational = nameof(LcdOperational);
+    public const string LcdAlert = nameof(LcdAlert);
+    public const string LcdSafeMode = nameof(LcdSafeMode);
+    public const string LcdCpuLoad = nameof(LcdCpuLoad);
+    public const string LcdCpuClock = nameof(LcdCpuClock);
+    public const string LcdGpuLoad = nameof(LcdGpuLoad);
+    public const string LcdCoolant = nameof(LcdCoolant);
+    public const string LcdPumpRpm = nameof(LcdPumpRpm);
+    public const string LcdFansRpm = nameof(LcdFansRpm);
+    public const string LcdFans = nameof(LcdFans);
+    public const string LcdDisk = nameof(LcdDisk);
+    public const string LcdDiskNone = nameof(LcdDiskNone);
+    public const string LcdCore = nameof(LcdCore);
+    public const string LcdDateFormat = nameof(LcdDateFormat);
+    public const string LcdFileMissing = nameof(LcdFileMissing);
+    public const string LcdShowingMetrics = nameof(LcdShowingMetrics);
+    public const string LcdShowingBackground = nameof(LcdShowingBackground);
+    public const string LcdImage = nameof(LcdImage);
+    public const string LcdImageMissing = nameof(LcdImageMissing);
+    public const string LcdGif = nameof(LcdGif);
+
     // ---------------------------------------------------------------- status do hub
     public const string HubSearching = nameof(HubSearching);
     public const string HubSearchingDevices = nameof(HubSearchingDevices);
@@ -133,98 +170,16 @@ public static class EngineTexts
     public const string HubNotFound = nameof(HubNotFound);
     public const string HubNotFoundConflict = nameof(HubNotFoundConflict);
 
-    /// <summary>Português de cada código. Números entram como double: o formato fica no texto ({0:0.#}).</summary>
-    public static IReadOnlyDictionary<string, string> Portuguese { get; } = new Dictionary<string, string>
-    {
-        [ConfigRecoveredTitle] = "Configuração recuperada da cópia",
-        [ConfigRecovered] = "O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas.",
-        [ConfigResetTitle] = "Configuração redefinida",
-        [ConfigReset] = "O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido.",
-        [ConflictTitle] = "Outro programa controla o hub",
-        [Conflict] = "{0} está em execução. Dois programas no iCUE LINK Hub embaralham os comandos (cores trocadas, leituras de 0 RPM e modo de segurança sem motivo). Feche-o ou desative o controle do hub nele.",
-        [HubLostTitle] = "Hub desconectado",
-        [HubLost] = "O iCUE LINK Hub parou de responder. Tentando reconectar automaticamente.",
-        [PumpLowTitle] = "Bomba com rotação baixa",
-        [PumpLow] = "{0}: {1} RPM (mínimo {2}). Verifique a bomba!",
-        [FanStoppedTitle] = "Ventoinha parada",
-        [FanStopped] = "{0} está em 0 RPM com {1}% de potência.",
-        [FanWearTitle] = "Ventoinha girando abaixo da calibração",
-        [FanWear] = "{0}: {1} RPM a {2}%, esperado cerca de {3} RPM ({4:P0} abaixo). Limpe a poeira; se continuar, o rolamento pode estar gasto.",
-        [SensorLostTitle] = "Curva sem leitura de temperatura",
-        [SensorLost] = "Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s.",
-        [SensorLostNoFailSafe] = "Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s. Com o modo de segurança desligado, as ventoinhas mantêm a última velocidade.",
-        [TempCriticalTitle] = "{0} em temperatura crítica",
-        [TempCritical] = "{0} a {1:0.#} °C (limite {2:0.#} °C).",
-        [TempWarnTitle] = "{0} muito quente",
-        [TempWarn] = "{0} a {1:0.#} °C (alerta em {2:0.#} °C).",
-        [SensorCpu] = "CPU",
-        [SensorGpu] = "GPU",
-        [SensorCoolant] = "Líquido",
-        [FailSafeOnTitle] = "Modo de segurança ativado",
-        [FailSafeOn] = "{0} Ventoinhas em 100%.",
-        [FailSafeActiveTitle] = "Modo de segurança ativo",
-        [FailSafeStabilizing] = "Leituras abaixo do limite crítico. Aguardando estabilização para retomar o perfil selecionado.",
-        [FailSafeWaitingReadings] = "Aguardando leituras válidas dos sensores que acionaram a proteção.",
-        [EngineStalledTitle] = "Controle das ventoinhas travado",
-        [EngineStalled] = "O LinkFlow detectou que {0}. O hub voltou ao controle próprio (modo hardware).",
-        [WatchdogLaneEnded] = "a fila '{0}' encerrou sozinha",
-        [WatchdogLaneStuck] = "a fila '{0}' está travada há {1:0} s",
-        [HubSearching] = "Procurando iCUE LINK Hub...",
-        [HubSearchingDevices] = "Procurando dispositivos...",
-        [HubConnected] = "Conectado • FW {0} • {1} dispositivos",
-        [HubReconnecting] = "Reconectando ao iCUE LINK Hub...",
-        [HubNotFound] = "iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)",
-        [HubNotFoundConflict] = "iCUE LINK Hub não encontrado: feche {0}",
-        [CalRefusedHub] = "O hub precisa estar conectado e informando a rotação.",
-        [CalRefusedFailSafe] = "O modo de segurança está ativo. Aguarde as temperaturas normalizarem.",
-        [CalRefusedHot] = "{0} A calibração baixa as ventoinhas até 20% e seria interrompida. Tente com o PC ocioso, depois que a temperatura cair.",
-        [CalRefusedNoFans] = "Nenhuma ventoinha com tacômetro foi encontrada no hub.",
-        [CalPreparing] = "Preparando as ventoinhas...",
-        [CalMeasuring] = "Medindo a rotação em {0}%...",
-        [CalStalled] = "Algumas ventoinhas pararam. Testando a partida...",
-        [CalStartTest] = "Testando a partida em {0}%...",
-        [CalAppClosed] = "O LinkFlow foi encerrado durante a calibração.",
-        [CalCancelled] = "Calibração cancelada. Nada foi alterado.",
-        [CalError] = "Erro na calibração: {0}",
-        [CalNothingChanged] = "{0} Nada foi alterado.",
-        [CalDoneWarnings] = "Calibração concluída. Confira as ventoinhas marcadas.",
-        [CalDoneOk] = "Calibração concluída. Todas as ventoinhas responderam normalmente.",
-        [CalNoteNoSpin] = "Não girou em nenhuma potência. Verifique o cabo e se a hélice está livre.",
-        [CalNoteBelowModel] = "Máximo {0:P0} abaixo das outras do mesmo modelo. Pode ser poeira ou desgaste.",
-        [CalNoteStart] = "Parou em potência baixa e só voltou a girar em {0}%. O LinkFlow vai mantê-la em pelo menos {1}%.",
-        [CalNoteMin] = "O LinkFlow vai mantê-la em pelo menos {0}%.",
-        [CalHubNotApplied] = "O hub não aplicou as potências da calibração.",
-        [CalHubNoReadings] = "O hub parou de informar a rotação durante a calibração.",
-        [CalAbortFailSafe] = "O modo de segurança foi acionado.",
-        [CalAbortHubLost] = "O hub deixou de responder.",
-        [CalHotStarting] = "{0} está a {1:0.#} °C, acima do alerta ({2:0.#} °C).",
-        [CalHotReached] = "{0} chegou a {1:0.#} °C.",
-        [CalSubjectCpu] = "A CPU",
-        [CalSubjectGpu] = "A GPU",
-        [CalSubjectCoolant] = "O líquido",
-        [RgbDetecting] = "Detectando dispositivos RGB...",
-        [RgbNoneSynced] = "Nenhum dispositivo sincronizado",
-        [RgbSynced] = "Sincronizado: {0}",
-        [RgbFailed] = "Falhou: {0}",
-        [RgbSyncedAndFailed] = "Sincronizado: {0} • Falhou: {1}",
-        [RgbListPair] = "{0}, {1}",
-        [RgbDevHub] = "Fans/Bomba",
-        [RgbDevGpu] = "GPU",
-        [RgbDevMotherboard] = "Placa-mãe",
-        [RgbDevRam] = "RAM DDR5",
-        [RgbDevPeripherals] = "Periféricos",
-        [RgbDevLcd] = "LCD",
-    };
 
     /// <summary>
-    /// Formata o texto com o modelo de <paramref name="template"/> (ou o português, se ele não tiver o código) e a
-    /// cultura dada. Textos aninhados usam a mesma tradução. Código desconhecido devolve null.
+    /// Formata o texto no idioma de <paramref name="culture"/> (números também). Textos aninhados usam o mesmo idioma.
+    /// Código desconhecido (ex.: serviço de versão mais nova) ou tradução que não formata devolve null.
     /// </summary>
-    public static string? TryFormat(EngineText text, Func<string, string?> template, IFormatProvider culture)
+    public static string? TryFormat(EngineText text, CultureInfo culture)
     {
-        string? format = template(text.Code) ?? Portuguese.GetValueOrDefault(text.Code);
+        string? format = Template(text.Code, culture);
         if (format == null) return null;
-        var args = text.Args.Select(a => a.T is { } nested ? TryFormat(nested, template, culture) ?? string.Empty
+        var args = text.Args.Select(a => a.T is { } nested ? TryFormat(nested, culture) ?? string.Empty
             : a.N is { } n ? (object)n : a.S ?? string.Empty).ToArray();
         try
         {
@@ -236,6 +191,5 @@ public static class EngineTexts
         }
     }
 
-    public static string Format(EngineText text, Func<string, string?> template, IFormatProvider culture) =>
-        TryFormat(text, template, culture) ?? text.Code;
+    public static string Format(EngineText text, CultureInfo culture) => TryFormat(text, culture) ?? text.Code;
 }

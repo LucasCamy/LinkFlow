@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConfigRecoveredTitle" xml:space="preserve">
+    <value>Configuração recuperada da cópia</value>
+  </data>
+  <data name="ConfigRecovered" xml:space="preserve">
+    <value>O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas.</value>
+  </data>
+  <data name="ConfigResetTitle" xml:space="preserve">
+    <value>Configuração redefinida</value>
+  </data>
+  <data name="ConfigReset" xml:space="preserve">
+    <value>O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido.</value>
+  </data>
+  <data name="ConflictTitle" xml:space="preserve">
+    <value>Outro programa controla o hub</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>{0} está em execução. Dois programas no iCUE LINK Hub embaralham os comandos (cores trocadas, leituras de 0 RPM e modo de segurança sem motivo). Feche-o ou desative o controle do hub nele.</value>
+  </data>
+  <data name="HubLostTitle" xml:space="preserve">
+    <value>Hub desconectado</value>
+  </data>
+  <data name="HubLost" xml:space="preserve">
+    <value>O iCUE LINK Hub parou de responder. Tentando reconectar automaticamente.</value>
+  </data>
+  <data name="PumpLowTitle" xml:space="preserve">
+    <value>Bomba com rotação baixa</value>
+  </data>
+  <data name="PumpLow" xml:space="preserve">
+    <value>{0}: {1} RPM (mínimo {2}). Verifique a bomba!</value>
+  </data>
+  <data name="FanStoppedTitle" xml:space="preserve">
+    <value>Ventoinha parada</value>
+  </data>
+  <data name="FanStopped" xml:space="preserve">
+    <value>{0} está em 0 RPM com {1}% de potência.</value>
+  </data>
+  <data name="FanWearTitle" xml:space="preserve">
+    <value>Ventoinha girando abaixo da calibração</value>
+  </data>
+  <data name="FanWear" xml:space="preserve">
+    <value>{0}: {1} RPM a {2}%, esperado cerca de {3} RPM ({4:P0} abaixo). Limpe a poeira; se continuar, o rolamento pode estar gasto.</value>
+  </data>
+  <data name="SensorLostTitle" xml:space="preserve">
+    <value>Curva sem leitura de temperatura</value>
+  </data>
+  <data name="SensorLost" xml:space="preserve">
+    <value>Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s.</value>
+  </data>
+  <data name="SensorLostNoFailSafe" xml:space="preserve">
+    <value>Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s. Com o modo de segurança desligado, as ventoinhas mantêm a última velocidade.</value>
+  </data>
+  <data name="TempCriticalTitle" xml:space="preserve">
+    <value>{0} em temperatura crítica</value>
+  </data>
+  <data name="TempCritical" xml:space="preserve">
+    <value>{0} a {1:0.#} °C (limite {2:0.#} °C).</value>
+  </data>
+  <data name="TempWarnTitle" xml:space="preserve">
+    <value>{0} muito quente</value>
+  </data>
+  <data name="TempWarn" xml:space="preserve">
+    <value>{0} a {1:0.#} °C (alerta em {2:0.#} °C).</value>
+  </data>
+  <data name="SensorCpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="SensorGpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="SensorCoolant" xml:space="preserve">
+    <value>Líquido</value>
+  </data>
+  <data name="FailSafeOnTitle" xml:space="preserve">
+    <value>Modo de segurança ativado</value>
+  </data>
+  <data name="FailSafeOn" xml:space="preserve">
+    <value>{0} Ventoinhas em 100%.</value>
+  </data>
+  <data name="FailSafeActiveTitle" xml:space="preserve">
+    <value>Modo de segurança ativo</value>
+  </data>
+  <data name="FailSafeStabilizing" xml:space="preserve">
+    <value>Leituras abaixo do limite crítico. Aguardando estabilização para retomar o perfil selecionado.</value>
+  </data>
+  <data name="FailSafeWaitingReadings" xml:space="preserve">
+    <value>Aguardando leituras válidas dos sensores que acionaram a proteção.</value>
+  </data>
+  <data name="EngineStalledTitle" xml:space="preserve">
+    <value>Controle das ventoinhas travado</value>
+  </data>
+  <data name="EngineStalled" xml:space="preserve">
+    <value>O LinkFlow detectou que {0}. O hub voltou ao controle próprio (modo hardware).</value>
+  </data>
+  <data name="WatchdogLaneEnded" xml:space="preserve">
+    <value>a fila '{0}' encerrou sozinha</value>
+  </data>
+  <data name="WatchdogLaneStuck" xml:space="preserve">
+    <value>a fila '{0}' está travada há {1:0} s</value>
+  </data>
+  <data name="HubSearching" xml:space="preserve">
+    <value>Procurando iCUE LINK Hub...</value>
+  </data>
+  <data name="HubSearchingDevices" xml:space="preserve">
+    <value>Procurando dispositivos...</value>
+  </data>
+  <data name="HubConnected" xml:space="preserve">
+    <value>Conectado • FW {0} • {1} dispositivos</value>
+  </data>
+  <data name="HubReconnecting" xml:space="preserve">
+    <value>Reconectando ao iCUE LINK Hub...</value>
+  </data>
+  <data name="HubNotFound" xml:space="preserve">
+    <value>iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)</value>
+  </data>
+  <data name="HubNotFoundConflict" xml:space="preserve">
+    <value>iCUE LINK Hub não encontrado: feche {0}</value>
+  </data>
+  <data name="CalRefusedHub" xml:space="preserve">
+    <value>O hub precisa estar conectado e informando a rotação.</value>
+  </data>
+  <data name="CalRefusedFailSafe" xml:space="preserve">
+    <value>O modo de segurança está ativo. Aguarde as temperaturas normalizarem.</value>
+  </data>
+  <data name="CalRefusedHot" xml:space="preserve">
+    <value>{0} A calibração baixa as ventoinhas até 20% e seria interrompida. Tente com o PC ocioso, depois que a temperatura cair.</value>
+  </data>
+  <data name="CalRefusedNoFans" xml:space="preserve">
+    <value>Nenhuma ventoinha com tacômetro foi encontrada no hub.</value>
+  </data>
+  <data name="CalPreparing" xml:space="preserve">
+    <value>Preparando as ventoinhas...</value>
+  </data>
+  <data name="CalMeasuring" xml:space="preserve">
+    <value>Medindo a rotação em {0}%...</value>
+  </data>
+  <data name="CalStalled" xml:space="preserve">
+    <value>Algumas ventoinhas pararam. Testando a partida...</value>
+  </data>
+  <data name="CalStartTest" xml:space="preserve">
+    <value>Testando a partida em {0}%...</value>
+  </data>
+  <data name="CalAppClosed" xml:space="preserve">
+    <value>O LinkFlow foi encerrado durante a calibração.</value>
+  </data>
+  <data name="CalCancelled" xml:space="preserve">
+    <value>Calibração cancelada. Nada foi alterado.</value>
+  </data>
+  <data name="CalError" xml:space="preserve">
+    <value>Erro na calibração: {0}</value>
+  </data>
+  <data name="CalNothingChanged" xml:space="preserve">
+    <value>{0} Nada foi alterado.</value>
+  </data>
+  <data name="CalDoneWarnings" xml:space="preserve">
+    <value>Calibração concluída. Confira as ventoinhas marcadas.</value>
+  </data>
+  <data name="CalDoneOk" xml:space="preserve">
+    <value>Calibração concluída. Todas as ventoinhas responderam normalmente.</value>
+  </data>
+  <data name="CalNoteNoSpin" xml:space="preserve">
+    <value>Não girou em nenhuma potência. Verifique o cabo e se a hélice está livre.</value>
+  </data>
+  <data name="CalNoteBelowModel" xml:space="preserve">
+    <value>Máximo {0:P0} abaixo das outras do mesmo modelo. Pode ser poeira ou desgaste.</value>
+  </data>
+  <data name="CalNoteStart" xml:space="preserve">
+    <value>Parou em potência baixa e só voltou a girar em {0}%. O LinkFlow vai mantê-la em pelo menos {1}%.</value>
+  </data>
+  <data name="CalNoteMin" xml:space="preserve">
+    <value>O LinkFlow vai mantê-la em pelo menos {0}%.</value>
+  </data>
+  <data name="CalHubNotApplied" xml:space="preserve">
+    <value>O hub não aplicou as potências da calibração.</value>
+  </data>
+  <data name="CalHubNoReadings" xml:space="preserve">
+    <value>O hub parou de informar a rotação durante a calibração.</value>
+  </data>
+  <data name="CalAbortFailSafe" xml:space="preserve">
+    <value>O modo de segurança foi acionado.</value>
+  </data>
+  <data name="CalAbortHubLost" xml:space="preserve">
+    <value>O hub deixou de responder.</value>
+  </data>
+  <data name="CalHotStarting" xml:space="preserve">
+    <value>{0} está a {1:0.#} °C, acima do alerta ({2:0.#} °C).</value>
+  </data>
+  <data name="CalHotReached" xml:space="preserve">
+    <value>{0} chegou a {1:0.#} °C.</value>
+  </data>
+  <data name="CalSubjectCpu" xml:space="preserve">
+    <value>A CPU</value>
+  </data>
+  <data name="CalSubjectGpu" xml:space="preserve">
+    <value>A GPU</value>
+  </data>
+  <data name="CalSubjectCoolant" xml:space="preserve">
+    <value>O líquido</value>
+  </data>
+  <data name="RgbDetecting" xml:space="preserve">
+    <value>Detectando dispositivos RGB...</value>
+  </data>
+  <data name="RgbNoneSynced" xml:space="preserve">
+    <value>Nenhum dispositivo sincronizado</value>
+  </data>
+  <data name="RgbSynced" xml:space="preserve">
+    <value>Sincronizado: {0}</value>
+  </data>
+  <data name="RgbFailed" xml:space="preserve">
+    <value>Falhou: {0}</value>
+  </data>
+  <data name="RgbSyncedAndFailed" xml:space="preserve">
+    <value>Sincronizado: {0} • Falhou: {1}</value>
+  </data>
+  <data name="RgbListPair" xml:space="preserve">
+    <value>{0}, {1}</value>
+  </data>
+  <data name="RgbDevHub" xml:space="preserve">
+    <value>Fans/Bomba</value>
+  </data>
+  <data name="RgbDevGpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="RgbDevMotherboard" xml:space="preserve">
+    <value>Placa-mãe</value>
+  </data>
+  <data name="RgbDevRam" xml:space="preserve">
+    <value>RAM DDR5</value>
+  </data>
+  <data name="RgbDevPeripherals" xml:space="preserve">
+    <value>Periféricos</value>
+  </data>
+  <data name="RgbDevLcd" xml:space="preserve">
+    <value>LCD</value>
+  </data>
+  <data name="LcdOperational" xml:space="preserve">
+    <value>OPERACIONAL</value>
+    <comment>Status no LCD da bomba (maiúsculas)</comment>
+  </data>
+  <data name="LcdAlert" xml:space="preserve">
+    <value>ALERTA</value>
+  </data>
+  <data name="LcdSafeMode" xml:space="preserve">
+    <value>MODO SEGURANÇA</value>
+  </data>
+  <data name="LcdCpuLoad" xml:space="preserve">
+    <value>USO CPU</value>
+    <comment>Rótulo de métrica no LCD (curto, maiúsculas)</comment>
+  </data>
+  <data name="LcdCpuClock" xml:space="preserve">
+    <value>CLOCK CPU</value>
+  </data>
+  <data name="LcdGpuLoad" xml:space="preserve">
+    <value>USO GPU</value>
+  </data>
+  <data name="LcdCoolant" xml:space="preserve">
+    <value>LÍQUIDO</value>
+  </data>
+  <data name="LcdPumpRpm" xml:space="preserve">
+    <value>BOMBA RPM</value>
+  </data>
+  <data name="LcdFansRpm" xml:space="preserve">
+    <value>FANS RPM</value>
+  </data>
+  <data name="LcdFans" xml:space="preserve">
+    <value>FANS</value>
+  </data>
+  <data name="LcdDisk" xml:space="preserve">
+    <value>DISCO {0}</value>
+    <comment>{0} = letra da unidade</comment>
+  </data>
+  <data name="LcdDiskNone" xml:space="preserve">
+    <value>DISCO</value>
+  </data>
+  <data name="LcdCore" xml:space="preserve">
+    <value>NÚCLEO</value>
+  </data>
+  <data name="LcdDateFormat" xml:space="preserve">
+    <value>ddd dd/MM</value>
+    <comment>Formato .NET da data no relógio do LCD</comment>
+  </data>
+  <data name="LcdFileMissing" xml:space="preserve">
+    <value>Arquivo não encontrado</value>
+  </data>
+  <data name="LcdShowingMetrics" xml:space="preserve">
+    <value>Métricas</value>
+    <comment>O que o LCD está exibindo</comment>
+  </data>
+  <data name="LcdShowingBackground" xml:space="preserve">
+    <value>Imagem de fundo</value>
+  </data>
+  <data name="LcdImage" xml:space="preserve">
+    <value>Imagem{0}</value>
+    <comment>{0} = posição na lista (ex.: " 2/5") ou vazio</comment>
+  </data>
+  <data name="LcdImageMissing" xml:space="preserve">
+    <value>Imagem{0} • arquivo não encontrado</value>
+    <comment>{0} = posição na lista ou vazio</comment>
+  </data>
+  <data name="LcdGif" xml:space="preserve">
+    <value>GIF{0} • {1} quadros</value>
+    <comment>{0} = posição na lista ou vazio, {1} = quadros</comment>
+  </data>
+</root>

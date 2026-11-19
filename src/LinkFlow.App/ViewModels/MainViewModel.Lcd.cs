@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using LinkFlow.Core;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -280,7 +281,7 @@ public partial class MainViewModel
     public string LcdSecondarySummary => $"{LcdSecondaryCount} de {LcdConfig.MaxSecondary} • clique para adicionar ou tirar (a ordem do clique é a ordem no quadro)";
 
     public string LcdNowShowing => Snapshot.LcdConnected
-        ? $"Exibindo: {Snapshot.LcdStatus ?? (IsLcdMediaMode ? "Imagens" : "Métricas")}"
+        ? $"Exibindo: {(Snapshot.LcdStatus is { } shown ? EngineTextUi.Localize(Snapshot.LcdStatusText, shown) : IsLcdMediaMode ? "Imagens" : "Métricas")}"
         : "Display não conectado • a prévia mostra como vai ficar";
 
     public string LcdTitle

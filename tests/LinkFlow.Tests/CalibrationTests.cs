@@ -299,7 +299,7 @@ public class PumpLcdAndHotStartTests
         Assert.Matches(@"O líquido está a 46,\d °C, acima do alerta \(45 °C\)\.", status.Message);   // o simulador soma até 0,2 °C
         Assert.Contains("PC ocioso", status.Message);
         Assert.Matches(@"^The coolant is at 46\.\d °C, above the alert \(45 °C\)\. The calibration lowers",
-            EngineTexts.Format(status.MessageText!, EngineTextTests.English, System.Globalization.CultureInfo.GetCultureInfo("en")));
+            EngineTexts.Format(status.MessageText!, EngineTextTests.En));
         Assert.Equal(55, f.Hw.Hub.LastSpeeds.GetValueOrDefault(1));   // nenhuma ventoinha mexida
     }
 }

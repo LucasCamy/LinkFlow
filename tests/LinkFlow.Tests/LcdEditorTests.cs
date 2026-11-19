@@ -24,12 +24,12 @@ public sealed class LcdEditorTests : IDisposable
         var next = c.Compose(cfg, Snap(), new RgbConfig());
         Assert.True(c.IsAnimating);
         Assert.InRange(next.TotalMilliseconds, 50, 200);
-        Assert.Equal("Métricas", c.Status);
+        Assert.Equal("Métricas", c.Status.ToPortuguese());
         var withNumbers = c.EncodeJpeg();
 
         cfg.ShowTelemetry = false;
         c.Compose(cfg, Snap(), new RgbConfig());
-        Assert.Equal("Imagem de fundo", c.Status);
+        Assert.Equal("Imagem de fundo", c.Status.ToPortuguese());
         Assert.NotEqual(withNumbers.Length, c.EncodeJpeg().Length);
     }
 
@@ -60,10 +60,10 @@ public sealed class LcdEditorTests : IDisposable
         using var c = new LcdComposer();
         var cfg = new LcdConfig { Mode = LcdMode.Media, Media = { new() { Path = a, DurationSeconds = 2 }, new() { Path = b, DurationSeconds = 2 } } };
         c.Compose(cfg, Snap(), new RgbConfig(), pinItem: 1);
-        Assert.Equal("Imagem 2/2", c.Status);
+        Assert.Equal("Imagem 2/2", c.Status.ToPortuguese());
         Thread.Sleep(2100);
         c.Compose(cfg, Snap(), new RgbConfig(), pinItem: 1);
-        Assert.Equal("Imagem 2/2", c.Status); // não avança enquanto edita
+        Assert.Equal("Imagem 2/2", c.Status.ToPortuguese()); // não avança enquanto edita
     }
 
     [Fact]

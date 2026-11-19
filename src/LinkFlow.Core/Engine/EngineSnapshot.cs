@@ -102,6 +102,7 @@ public sealed class EngineSnapshot
 
     /// <summary>O que o LCD está exibindo (ex.: "Métricas", "GIF 3/5 • 12 fps").</summary>
     public string? LcdStatus { get; set; }
+    public EngineText? LcdStatusText { get; set; }
     public bool GpuRgbAvailable { get; set; }
     public bool GpuRgbRetrying { get; set; }
     public string GpuRgbName { get; set; } = string.Empty;

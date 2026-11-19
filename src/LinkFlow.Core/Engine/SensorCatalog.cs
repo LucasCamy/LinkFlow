@@ -44,14 +44,18 @@ public static class SensorCatalog
     private static SensorReading Val(double? v, string unit, double max, string fmt = "#,0") =>
         v is { } x ? new($"{N(x, fmt)} {unit}", Math.Clamp(x / max, 0, 1), true) : SensorReading.Missing;
 
-    /// <summary>Bytes/s em texto curto: KB/s, MB/s.</summary>
-    public static string Rate(double bytesPerSec) => bytesPerSec switch
+    /// <summary>Bytes/s em texto curto: KB/s, MB/s (números no formato de <paramref name="culture"/>; padrão, português).</summary>
+    public static string Rate(double bytesPerSec, IFormatProvider? culture = null)
     {
-        >= 1e9 => $"{N(bytesPerSec / 1e9, "0.0")} GB/s",
-        >= 1e6 => $"{N(bytesPerSec / 1e6, bytesPerSec >= 1e7 ? "0" : "0.0")} MB/s",
-        >= 1e3 => $"{N(bytesPerSec / 1e3, "0")} KB/s",
-        _ => $"{N(bytesPerSec)} B/s"
-    };
+        string F(double v, string fmt) => v.ToString(fmt, culture ?? Pt);
+        return bytesPerSec switch
+        {
+            >= 1e9 => $"{F(bytesPerSec / 1e9, "0.0")} GB/s",
+            >= 1e6 => $"{F(bytesPerSec / 1e6, bytesPerSec >= 1e7 ? "0" : "0.0")} MB/s",
+            >= 1e3 => $"{F(bytesPerSec / 1e3, "0")} KB/s",
+            _ => $"{F(bytesPerSec, "0")} B/s"
+        };
+    }
 
     private static SensorReading NetRate(NetworkState? n, Func<NetworkState, double> rate, SensorDisplay d)
     {

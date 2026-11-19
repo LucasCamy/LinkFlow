@@ -148,7 +148,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     private int _forceReconnectHub;
     private int _forceReconnectAux;
     private int _rescanRgb;
-    private string? _lcdStatus;
+    private EngineText? _lcdStatus;
 
     // Rede/discos (fila de sensores) e quem está pedindo leitura dos discos
     private readonly SystemStats _stats = new();
@@ -453,7 +453,8 @@ public sealed partial class LinkFlowEngine : IDisposable
                 Network = _network,
                 Volumes = _volumes,
                 Disks = _disks,
-                LcdStatus = _lcdStatus,
+                LcdStatus = _lcdStatus?.ToPortuguese(),
+                LcdStatusText = _lcdStatus,
                 EffectiveGlobalPercent = EffectiveGlobal(cfg),
                 GroupOutputs = new Dictionary<string, int>(_groupOutputs),
                 CurveInputTemp = _curveInputTemp,
