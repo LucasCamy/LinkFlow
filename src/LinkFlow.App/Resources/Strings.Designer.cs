@@ -3532,6 +3532,924 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; adicionado ao LCD.
+        /// </summary>
+        public static string Lcd_AdicionadoLCD {
+            get {
+                return ResourceManager.GetString("Lcd_AdicionadoLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adicionar.
+        /// </summary>
+        public static string Lcd_Adicionar {
+            get {
+                return ResourceManager.GetString("Lcd_Adicionar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajuste da imagem.
+        /// </summary>
+        public static string Lcd_AjusteImagem {
+            get {
+                return ResourceManager.GetString("Lcd_AjusteImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajustes da tela.
+        /// </summary>
+        public static string Lcd_AjustesTela {
+            get {
+                return ResourceManager.GetString("Lcd_AjustesTela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em alerta crítico ou modo de segurança, um aviso vermelho aparece sobre a imagem..
+        /// </summary>
+        public static string Lcd_AlertaCriticoOuModo {
+            get {
+                return ResourceManager.GetString("Lcd_AlertaCriticoOuModo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Para alternar entre vários arquivos, use o modo Imagem ou GIF..
+        /// </summary>
+        public static string Lcd_AlternarEntreVariosArquivos {
+            get {
+                return ResourceManager.GetString("Lcd_AlternarEntreVariosArquivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O anel e os destaques acompanham o RGB..
+        /// </summary>
+        public static string Lcd_AnelDestaquesAcompanhamRGB {
+            get {
+                return ResourceManager.GetString("Lcd_AnelDestaquesAcompanhamRGB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Anel de progresso.
+        /// </summary>
+        public static string Lcd_AnelProgresso {
+            get {
+                return ResourceManager.GetString("Lcd_AnelProgresso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arquivo não encontrado.
+        /// </summary>
+        public static string Lcd_ArquivoNaoEncontrado {
+            get {
+                return ResourceManager.GetString("Lcd_ArquivoNaoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} arquivos adicionados ao LCD.
+        /// </summary>
+        public static string Lcd_ArquivosAdicionadosLCD {
+            get {
+                return ResourceManager.GetString("Lcd_ArquivosAdicionadosLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arraste fotos ou GIFs para cá.
+        /// </summary>
+        public static string Lcd_ArrasteFotosOuGIFs {
+            get {
+                return ResourceManager.GetString("Lcd_ArrasteFotosOuGIFs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arraste a imagem para posicionar. Use a roda do mouse para ajustar o zoom..
+        /// </summary>
+        public static string Lcd_ArrasteImagemPosicionarUse {
+            get {
+                return ResourceManager.GetString("Lcd_ArrasteImagemPosicionarUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arraste para posicionar • roda do mouse para zoom • clique duplo centraliza.
+        /// </summary>
+        public static string Lcd_ArrastePosicionarRodaMouse {
+            get {
+                return ResourceManager.GetString("Lcd_ArrastePosicionarRodaMouse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bomba RPM.
+        /// </summary>
+        public static string Lcd_BombaRPM {
+            get {
+                return ResourceManager.GetString("Lcd_BombaRPM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Centralizar.
+        /// </summary>
+        public static string Lcd_Centralizar {
+            get {
+                return ResourceManager.GetString("Lcd_Centralizar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} de {1} • clique para adicionar ou tirar (a ordem do clique é a ordem no quadro).
+        /// </summary>
+        public static string Lcd_CliqueAdicionarOuTirar {
+            get {
+                return ResourceManager.GetString("Lcd_CliqueAdicionarOuTirar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clique para enquadrar este item na prévia.
+        /// </summary>
+        public static string Lcd_CliqueEnquadrarEsteItem {
+            get {
+                return ResourceManager.GetString("Lcd_CliqueEnquadrarEsteItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock da CPU.
+        /// </summary>
+        public static string Lcd_ClockCPU {
+            get {
+                return ResourceManager.GetString("Lcd_ClockCPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conteúdo.
+        /// </summary>
+        public static string Lcd_Conteudo {
+            get {
+                return ResourceManager.GetString("Lcd_Conteudo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Corta as bordas para ocupar a tela toda.
+        /// </summary>
+        public static string Lcd_CortaBordasOcuparTela {
+            get {
+                return ResourceManager.GetString("Lcd_CortaBordasOcuparTela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir: {0}.
+        /// </summary>
+        public static string Lcd_CouldNotOpenMany {
+            get {
+                return ResourceManager.GetString("Lcd_CouldNotOpenMany", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+L.
+        /// </summary>
+        public static string Lcd_Ctrl {
+            get {
+                return ResourceManager.GetString("Lcd_Ctrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deixa os números legíveis sobre a foto.
+        /// </summary>
+        public static string Lcd_DeixaNumerosLegiveisSobre {
+            get {
+                return ResourceManager.GetString("Lcd_DeixaNumerosLegiveisSobre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deixe vazio para omitir o título.
+        /// </summary>
+        public static string Lcd_DeixeVazioOmitirTitulo {
+            get {
+                return ResourceManager.GetString("Lcd_DeixeVazioOmitirTitulo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disco %.
+        /// </summary>
+        public static string Lcd_Disco {
+            get {
+                return ResourceManager.GetString("Lcd_Disco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display não conectado • a prévia mostra como vai ficar.
+        /// </summary>
+        public static string Lcd_DisplayNaoConectadoPrevia {
+            get {
+                return ResourceManager.GetString("Lcd_DisplayNaoConectadoPrevia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download da rede.
+        /// </summary>
+        public static string Lcd_DownloadRede {
+            get {
+                return ResourceManager.GetString("Lcd_DownloadRede", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enquadrar · .
+        /// </summary>
+        public static string Lcd_Enquadrar {
+            get {
+                return ResourceManager.GetString("Lcd_Enquadrar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enquadrar (zoom e posição) na prévia.
+        /// </summary>
+        public static string Lcd_EnquadrarZoomPosicaoPrevia {
+            get {
+                return ResourceManager.GetString("Lcd_EnquadrarZoomPosicaoPrevia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enviar quadro agora.
+        /// </summary>
+        public static string Lcd_EnviarQuadroAgora {
+            get {
+                return ResourceManager.GetString("Lcd_EnviarQuadroAgora", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolher a foto de fundo do quadro.
+        /// </summary>
+        public static string Lcd_EscolherFotoFundoQuadro {
+            get {
+                return ResourceManager.GetString("Lcd_EscolherFotoFundoQuadro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolher foto ou GIF....
+        /// </summary>
+        public static string Lcd_EscolherFotoOuGIF {
+            get {
+                return ResourceManager.GetString("Lcd_EscolherFotoOuGIF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolher fotos ou GIFs para o LCD.
+        /// </summary>
+        public static string Lcd_EscolherFotosOuGIFs {
+            get {
+                return ResourceManager.GetString("Lcd_EscolherFotosOuGIFs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escurecer.
+        /// </summary>
+        public static string Lcd_Escurecer {
+            get {
+                return ResourceManager.GetString("Lcd_Escurecer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escurecer a imagem de fundo.
+        /// </summary>
+        public static string Lcd_EscurecerImagemFundo {
+            get {
+                return ResourceManager.GetString("Lcd_EscurecerImagemFundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Espaço usado no disco.
+        /// </summary>
+        public static string Lcd_EspacoUsadoDisco {
+            get {
+                return ResourceManager.GetString("Lcd_EspacoUsadoDisco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fans %.
+        /// </summary>
+        public static string Lcd_Fans {
+            get {
+                return ResourceManager.GetString("Lcd_Fans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fans RPM.
+        /// </summary>
+        public static string Lcd_FansRPM {
+            get {
+                return ResourceManager.GetString("Lcd_FansRPM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to foto de fundo ({0}).
+        /// </summary>
+        public static string Lcd_FotoFundo {
+            get {
+                return ResourceManager.GetString("Lcd_FotoFundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Foto ou GIF de fundo.
+        /// </summary>
+        public static string Lcd_FotoOuGIFFundo {
+            get {
+                return ResourceManager.GetString("Lcd_FotoOuGIFFundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GIF animado.
+        /// </summary>
+        public static string Lcd_GIFAnimado {
+            get {
+                return ResourceManager.GetString("Lcd_GIFAnimado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hotspot da GPU.
+        /// </summary>
+        public static string Lcd_HotspotGPU {
+            get {
+                return ResourceManager.GetString("Lcd_HotspotGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Imagem.
+        /// </summary>
+        public static string Lcd_Imagem {
+            get {
+                return ResourceManager.GetString("Lcd_Imagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Imagem ou GIF.
+        /// </summary>
+        public static string Lcd_ImagemOuGIF {
+            get {
+                return ResourceManager.GetString("Lcd_ImagemOuGIF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Imagens e GIFs.
+        /// </summary>
+        public static string Lcd_ImagensGIFs {
+            get {
+                return ResourceManager.GetString("Lcd_ImagensGIFs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Imagens removidas do LCD.
+        /// </summary>
+        public static string Lcd_ImagensRemovidasLCD {
+            get {
+                return ResourceManager.GetString("Lcd_ImagensRemovidasLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Informação principal.
+        /// </summary>
+        public static string Lcd_InformacaoPrincipal {
+            get {
+                return ResourceManager.GetString("Lcd_InformacaoPrincipal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Informação principal do LCD.
+        /// </summary>
+        public static string Lcd_InformacaoPrincipalLCD {
+            get {
+                return ResourceManager.GetString("Lcd_InformacaoPrincipalLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Informações secundárias.
+        /// </summary>
+        public static string Lcd_InformacoesSecundarias {
+            get {
+                return ResourceManager.GetString("Lcd_InformacoesSecundarias", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Com mais de um arquivo, o LCD alterna entre os itens..
+        /// </summary>
+        public static string Lcd_MaisArquivoLCDAlterna {
+            get {
+                return ResourceManager.GetString("Lcd_MaisArquivoLCDAlterna", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mais tempo.
+        /// </summary>
+        public static string Lcd_MaisTempo {
+            get {
+                return ResourceManager.GetString("Lcd_MaisTempo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menos tempo.
+        /// </summary>
+        public static string Lcd_MenosTempo {
+            get {
+                return ResourceManager.GetString("Lcd_MenosTempo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Métricas a cada segundo e GIFs em até 16 quadros por segundo..
+        /// </summary>
+        public static string Lcd_MetricasCadaSegundoGIFs {
+            get {
+                return ResourceManager.GetString("Lcd_MetricasCadaSegundoGIFs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Métrica sobre a imagem.
+        /// </summary>
+        public static string Lcd_MetricaSobreImagem {
+            get {
+                return ResourceManager.GetString("Lcd_MetricaSobreImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de exibição.
+        /// </summary>
+        public static string Lcd_ModoExibicao {
+            get {
+                return ResourceManager.GetString("Lcd_ModoExibicao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostra a imagem toda, com bordas escuras.
+        /// </summary>
+        public static string Lcd_MostraImagemTodaBordas {
+            get {
+                return ResourceManager.GetString("Lcd_MostraImagemTodaBordas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostra a métrica escolhida na parte de baixo do display..
+        /// </summary>
+        public static string Lcd_MostraMetricaEscolhidaParte {
+            get {
+                return ResourceManager.GetString("Lcd_MostraMetricaEscolhidaParte", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostrar imagem ou GIF.
+        /// </summary>
+        public static string Lcd_MostrarImagemOuGIF {
+            get {
+                return ResourceManager.GetString("Lcd_MostrarImagemOuGIF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostrar inteira.
+        /// </summary>
+        public static string Lcd_MostrarInteira {
+            get {
+                return ResourceManager.GetString("Lcd_MostrarInteira", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostrar telemetria.
+        /// </summary>
+        public static string Lcd_MostrarTelemetria {
+            get {
+                return ResourceManager.GetString("Lcd_MostrarTelemetria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostrar telemetria por cima da imagem.
+        /// </summary>
+        public static string Lcd_MostrarTelemetriaCimaImagem {
+            get {
+                return ResourceManager.GetString("Lcd_MostrarTelemetriaCimaImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostrar telemetria sobre a imagem.
+        /// </summary>
+        public static string Lcd_MostrarTelemetriaSobreImagem {
+            get {
+                return ResourceManager.GetString("Lcd_MostrarTelemetriaSobreImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mover para baixo.
+        /// </summary>
+        public static string Lcd_MoverBaixo {
+            get {
+                return ResourceManager.GetString("Lcd_MoverBaixo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mover para cima.
+        /// </summary>
+        public static string Lcd_MoverCima {
+            get {
+                return ResourceManager.GetString("Lcd_MoverCima", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir &quot;{0}&quot;.
+        /// </summary>
+        public static string Lcd_NaoFoiPossivelAbrir {
+            get {
+                return ResourceManager.GetString("Lcd_NaoFoiPossivelAbrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Núcleo %.
+        /// </summary>
+        public static string Lcd_Nucleo {
+            get {
+                return ResourceManager.GetString("Lcd_Nucleo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Núcleo da CPU mais ocupado.
+        /// </summary>
+        public static string Lcd_NucleoCPUMaisOcupado {
+            get {
+                return ResourceManager.GetString("Lcd_NucleoCPUMaisOcupado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ou clique para escolher • PNG, JPG, GIF, WebP, BMP.
+        /// </summary>
+        public static string Lcd_OuCliqueEscolherPNG {
+            get {
+                return ResourceManager.GetString("Lcd_OuCliqueEscolherPNG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Personalize o display da bomba com métricas, fotos ou GIFs..
+        /// </summary>
+        public static string Lcd_PersonalizeDisplayBombaMetricas {
+            get {
+                return ResourceManager.GetString("Lcd_PersonalizeDisplayBombaMetricas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência da CPU (W).
+        /// </summary>
+        public static string Lcd_PotenciaCPU {
+            get {
+                return ResourceManager.GetString("Lcd_PotenciaCPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência da GPU (W).
+        /// </summary>
+        public static string Lcd_PotenciaGPU {
+            get {
+                return ResourceManager.GetString("Lcd_PotenciaGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência das ventoinhas (%).
+        /// </summary>
+        public static string Lcd_PotenciaVentoinhas {
+            get {
+                return ResourceManager.GetString("Lcd_PotenciaVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preencher o círculo.
+        /// </summary>
+        public static string Lcd_PreencherCirculo {
+            get {
+                return ResourceManager.GetString("Lcd_PreencherCirculo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O preenchimento acompanha a informação principal..
+        /// </summary>
+        public static string Lcd_PreenchimentoAcompanhaInformacaoPrincipal {
+            get {
+                return ResourceManager.GetString("Lcd_PreenchimentoAcompanhaInformacaoPrincipal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preparando {0} arquivos....
+        /// </summary>
+        public static string Lcd_PreparandoArquivos {
+            get {
+                return ResourceManager.GetString("Lcd_PreparandoArquivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A prévia acompanha a orientação escolhida..
+        /// </summary>
+        public static string Lcd_PreviaAcompanhaOrientacaoEscolhida {
+            get {
+                return ResourceManager.GetString("Lcd_PreviaAcompanhaOrientacaoEscolhida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prévia do LCD.
+        /// </summary>
+        public static string Lcd_PreviaLCD {
+            get {
+                return ResourceManager.GetString("Lcd_PreviaLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O quadro mostra até {0} informações secundárias. Desmarque uma antes..
+        /// </summary>
+        public static string Lcd_QuadroMostraAteInformacoes {
+            get {
+                return ResourceManager.GetString("Lcd_QuadroMostraAteInformacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↓ Rede.
+        /// </summary>
+        public static string Lcd_Rede {
+            get {
+                return ResourceManager.GetString("Lcd_Rede", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↑ Rede.
+        /// </summary>
+        public static string Lcd_Rede2 {
+            get {
+                return ResourceManager.GetString("Lcd_Rede2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Relógio.
+        /// </summary>
+        public static string Lcd_Relogio {
+            get {
+                return ResourceManager.GetString("Lcd_Relogio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Relógio (hora e data).
+        /// </summary>
+        public static string Lcd_RelogioHoraData {
+            get {
+                return ResourceManager.GetString("Lcd_RelogioHoraData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover.
+        /// </summary>
+        public static string Lcd_Remover {
+            get {
+                return ResourceManager.GetString("Lcd_Remover", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover todas.
+        /// </summary>
+        public static string Lcd_RemoverTodas {
+            get {
+                return ResourceManager.GetString("Lcd_RemoverTodas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover todas as imagens.
+        /// </summary>
+        public static string Lcd_RemoverTodasImagens {
+            get {
+                return ResourceManager.GetString("Lcd_RemoverTodasImagens", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; removido do LCD.
+        /// </summary>
+        public static string Lcd_RemovidoLCD {
+            get {
+                return ResourceManager.GetString("Lcd_RemovidoLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotação.
+        /// </summary>
+        public static string Lcd_Rotacao {
+            get {
+                return ResourceManager.GetString("Lcd_Rotacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotação da bomba.
+        /// </summary>
+        public static string Lcd_RotacaoBomba {
+            get {
+                return ResourceManager.GetString("Lcd_RotacaoBomba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotação média das ventoinhas.
+        /// </summary>
+        public static string Lcd_RotacaoMediaVentoinhas {
+            get {
+                return ResourceManager.GetString("Lcd_RotacaoMediaVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exibindo: {0}.
+        /// </summary>
+        public static string Lcd_Showing {
+            get {
+                return ResourceManager.GetString("Lcd_Showing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Imagens.
+        /// </summary>
+        public static string Lcd_ShowingImages {
+            get {
+                return ResourceManager.GetString("Lcd_ShowingImages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Métricas.
+        /// </summary>
+        public static string Lcd_ShowingMetrics {
+            get {
+                return ResourceManager.GetString("Lcd_ShowingMetrics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tela e transmissão.
+        /// </summary>
+        public static string Lcd_TelaTransmissao {
+            get {
+                return ResourceManager.GetString("Lcd_TelaTransmissao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Telemetria.
+        /// </summary>
+        public static string Lcd_Telemetria {
+            get {
+                return ResourceManager.GetString("Lcd_Telemetria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo na tela antes do próximo item.
+        /// </summary>
+        public static string Lcd_TempoTelaAntesProximo {
+            get {
+                return ResourceManager.GetString("Lcd_TempoTelaAntesProximo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Título.
+        /// </summary>
+        public static string Lcd_Titulo {
+            get {
+                return ResourceManager.GetString("Lcd_Titulo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Título no LCD.
+        /// </summary>
+        public static string Lcd_TituloLCD {
+            get {
+                return ResourceManager.GetString("Lcd_TituloLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transmitir continuamente.
+        /// </summary>
+        public static string Lcd_TransmitirContinuamente {
+            get {
+                return ResourceManager.GetString("Lcd_TransmitirContinuamente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload da rede.
+        /// </summary>
+        public static string Lcd_UploadRede {
+            get {
+                return ResourceManager.GetString("Lcd_UploadRede", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usar a cor da iluminação no display.
+        /// </summary>
+        public static string Lcd_UsarCorIluminacaoDisplay {
+            get {
+                return ResourceManager.GetString("Lcd_UsarCorIluminacaoDisplay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom.
+        /// </summary>
+        public static string Lcd_Zoom {
+            get {
+                return ResourceManager.GetString("Lcd_Zoom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom da imagem.
+        /// </summary>
+        public static string Lcd_ZoomImagem {
+            get {
+                return ResourceManager.GetString("Lcd_ZoomImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 0 = cor crua • 83 = recomendado • 100 = máximo contraste.
         /// </summary>
         public static string Lit_0CorCrua83 {
