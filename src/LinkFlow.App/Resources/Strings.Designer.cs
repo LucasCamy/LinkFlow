@@ -3532,6 +3532,960 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 0 = cor crua • 83 = recomendado • 100 = máximo contraste.
+        /// </summary>
+        public static string Lit_0CorCrua83 {
+            get {
+                return ResourceManager.GetString("Lit_0CorCrua83", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir configuração.
+        /// </summary>
+        public static string Lit_AbrirConfiguracao {
+            get {
+                return ResourceManager.GetString("Lit_AbrirConfiguracao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adiciona a cor escolhida no quadro abaixo (até 8 cores).
+        /// </summary>
+        public static string Lit_AdicionaCorEscolhidaQuadro {
+            get {
+                return ResourceManager.GetString("Lit_AdicionaCorEscolhidaQuadro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adicionar à paleta.
+        /// </summary>
+        public static string Lit_AdicionarPaleta {
+            get {
+                return ResourceManager.GetString("Lit_AdicionarPaleta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando conexão com o SDK do G HUB….
+        /// </summary>
+        public static string Lit_AguardandoConexaoSDKHUB {
+            get {
+                return ResourceManager.GetString("Lit_AguardandoConexaoSDKHUB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando conexão com o serviço LinkFlow.
+        /// </summary>
+        public static string Lit_AguardandoConexaoServicoLinkFlow {
+            get {
+                return ResourceManager.GetString("Lit_AguardandoConexaoServicoLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajuste fino.
+        /// </summary>
+        public static string Lit_AjusteFino {
+            get {
+                return ResourceManager.GetString("Lit_AjusteFino", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aleatório.
+        /// </summary>
+        public static string Lit_Aleatorio {
+            get {
+                return ResourceManager.GetString("Lit_Aleatorio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O aleatório sorteia as cores: a cor escolhida fica guardada para quando voltar à cor fixa..
+        /// </summary>
+        public static string Lit_AleatorioSorteiaCoresCor {
+            get {
+                return ResourceManager.GetString("Lit_AleatorioSorteiaCoresCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O anel e os destaques da tela da bomba seguem a cor (ou o efeito)..
+        /// </summary>
+        public static string Lit_AnelDestaquesTelaBomba {
+            get {
+                return ResourceManager.GetString("Lit_AnelDestaquesTelaBomba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arco-íris.
+        /// </summary>
+        public static string Lit_ArcoIris {
+            get {
+                return ResourceManager.GetString("Lit_ArcoIris", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O arco-íris usa todas as cores: a cor escolhida fica guardada para quando voltar à cor fixa..
+        /// </summary>
+        public static string Lit_ArcoIrisUsaTodas {
+            get {
+                return ResourceManager.GetString("Lit_ArcoIrisUsaTodas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ative o RGB e ajuste o brilho de cada dispositivo..
+        /// </summary>
+        public static string Lit_AtiveRGBAjusteBrilho {
+            get {
+                return ResourceManager.GetString("Lit_AtiveRGBAjusteBrilho", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bem lento.
+        /// </summary>
+        public static string Lit_BemLento {
+            get {
+                return ResourceManager.GetString("Lit_BemLento", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho.
+        /// </summary>
+        public static string Lit_Brilho {
+            get {
+                return ResourceManager.GetString("Lit_Brilho", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho deste dispositivo (equilibra quem acende mais forte).
+        /// </summary>
+        public static string Lit_BrilhoDesteDispositivoEquilibra {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoDesteDispositivoEquilibra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho geral.
+        /// </summary>
+        public static string Lit_BrilhoGeral {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoGeral", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho individual.
+        /// </summary>
+        public static string Lit_BrilhoIndividual {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoIndividual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho das memórias.
+        /// </summary>
+        public static string Lit_BrilhoMemorias {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoMemorias", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho dos periféricos.
+        /// </summary>
+        public static string Lit_BrilhoPerifericos {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoPerifericos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho da placa-mãe.
+        /// </summary>
+        public static string Lit_BrilhoPlacaMae {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoPlacaMae", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho da placa de vídeo.
+        /// </summary>
+        public static string Lit_BrilhoPlacaVideo {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoPlacaVideo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brilho das ventoinhas.
+        /// </summary>
+        public static string Lit_BrilhoVentoinhas {
+            get {
+                return ResourceManager.GetString("Lit_BrilhoVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cada ventoinha segue uma fase própria. Desative para acompanhar os outros dispositivos..
+        /// </summary>
+        public static string Lit_CadaVentoinhaSegueFase {
+            get {
+                return ResourceManager.GetString("Lit_CadaVentoinhaSegueFase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clique ou arraste para escolher • setas para ajuste fino (Shift = passos maiores).
+        /// </summary>
+        public static string Lit_CliqueOuArrasteEscolher {
+            get {
+                return ResourceManager.GetString("Lit_CliqueOuArrasteEscolher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Código da cor.
+        /// </summary>
+        public static string Lit_CodigoCor {
+            get {
+                return ResourceManager.GetString("Lit_CodigoCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Código HEX.
+        /// </summary>
+        public static string Lit_CodigoHEX {
+            get {
+                return ResourceManager.GetString("Lit_CodigoHEX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compense a diferença entre a cor escolhida e a cor exibida pelos LEDs..
+        /// </summary>
+        public static string Lit_CompenseDiferencaEntreCor {
+            get {
+                return ResourceManager.GetString("Lit_CompenseDiferencaEntreCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Possível disputa pelo controle da iluminação com {0}, em execução..
+        /// </summary>
+        public static string Lit_ConflictRunning {
+            get {
+                return ResourceManager.GetString("Lit_ConflictRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controlador detectado · {0}.
+        /// </summary>
+        public static string Lit_ControladorDetectado {
+            get {
+                return ResourceManager.GetString("Lit_ControladorDetectado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O controlador da placa recusou o envio da cor..
+        /// </summary>
+        public static string Lit_ControladorPlacaRecusouEnvio {
+            get {
+                return ResourceManager.GetString("Lit_ControladorPlacaRecusouEnvio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle RGB indisponível.
+        /// </summary>
+        public static string Lit_ControleRGBIndisponivel {
+            get {
+                return ResourceManager.GetString("Lit_ControleRGBIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle RGB pelo G HUB indisponível..
+        /// </summary>
+        public static string Lit_ControleRGBPeloHUB {
+            get {
+                return ResourceManager.GetString("Lit_ControleRGBPeloHUB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor e ajustes RGB.
+        /// </summary>
+        public static string Lit_CorAjustesRGB {
+            get {
+                return ResourceManager.GetString("Lit_CorAjustesRGB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor do display LCD.
+        /// </summary>
+        public static string Lit_CorDisplayLCD {
+            get {
+                return ResourceManager.GetString("Lit_CorDisplayLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor enviada · {0}.
+        /// </summary>
+        public static string Lit_CorEnviada {
+            get {
+                return ResourceManager.GetString("Lit_CorEnviada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor enviada pelo SDK do G HUB..
+        /// </summary>
+        public static string Lit_CorEnviadaPeloSDK {
+            get {
+                return ResourceManager.GetString("Lit_CorEnviadaPeloSDK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor escolhida.
+        /// </summary>
+        public static string Lit_CorEscolhida {
+            get {
+                return ResourceManager.GetString("Lit_CorEscolhida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A cor escolhida acende e apaga devagar, como uma respiração..
+        /// </summary>
+        public static string Lit_CorEscolhidaAcendeApaga {
+            get {
+                return ResourceManager.GetString("Lit_CorEscolhidaAcendeApaga", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cores da paleta.
+        /// </summary>
+        public static string Lit_CoresPaleta {
+            get {
+                return ResourceManager.GetString("Lit_CoresPaleta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cores rápidas.
+        /// </summary>
+        public static string Lit_CoresRapidas {
+            get {
+                return ResourceManager.GetString("Lit_CoresRapidas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor fixa.
+        /// </summary>
+        public static string Lit_CorFixa {
+            get {
+                return ResourceManager.GetString("Lit_CorFixa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Correção de cor dos LEDs.
+        /// </summary>
+        public static string Lit_CorrecaoCorLEDs {
+            get {
+                return ResourceManager.GetString("Lit_CorrecaoCorLEDs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desligada.
+        /// </summary>
+        public static string Lit_Desligada {
+            get {
+                return ResourceManager.GetString("Lit_Desligada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detectando o controlador….
+        /// </summary>
+        public static string Lit_DetectandoControlador {
+            get {
+                return ResourceManager.GetString("Lit_DetectandoControlador", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Digite #RRGGBB ou #RGB.
+        /// </summary>
+        public static string Lit_DigiteRRGGBBOuRGB {
+            get {
+                return ResourceManager.GetString("Lit_DigiteRRGGBBOuRGB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Efeito e cor.
+        /// </summary>
+        public static string Lit_EfeitoCor {
+            get {
+                return ResourceManager.GetString("Lit_EfeitoCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Efeitos.
+        /// </summary>
+        public static string Lit_Efeitos {
+            get {
+                return ResourceManager.GetString("Lit_Efeitos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Efeitos, cores e brilho dos dispositivos RGB..
+        /// </summary>
+        public static string Lit_EfeitosCoresBrilhoDispositivos {
+            get {
+                return ResourceManager.GetString("Lit_EfeitosCoresBrilhoDispositivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ela pode assumir o controle de teclados e mouses compatíveis..
+        /// </summary>
+        public static string Lit_ElaPodeAssumirControle {
+            get {
+                return ResourceManager.GetString("Lit_ElaPodeAssumirControle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Envio recusado · {0}.
+        /// </summary>
+        public static string Lit_EnvioRecusado {
+            get {
+                return ResourceManager.GetString("Lit_EnvioRecusado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolha uma cor e toque em &quot;Adicionar à paleta&quot;..
+        /// </summary>
+        public static string Lit_EscolhaCorToqueAdicionar {
+            get {
+                return ResourceManager.GetString("Lit_EscolhaCorToqueAdicionar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Espalhar pelas ventoinhas.
+        /// </summary>
+        public static string Lit_EspalharPelasVentoinhas {
+            get {
+                return ResourceManager.GetString("Lit_EspalharPelasVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU sem resposta. Tentando reconectar….
+        /// </summary>
+        public static string Lit_GPUSemRespostaTentando {
+            get {
+                return ResourceManager.GetString("Lit_GPUSemRespostaTentando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O G HUB não aceitou o comando de iluminação..
+        /// </summary>
+        public static string Lit_HUBNaoAceitouComando {
+            get {
+                return ResourceManager.GetString("Lit_HUBNaoAceitouComando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O G HUB não aceitou o reenvio. Abra o G HUB para conferir a integração..
+        /// </summary>
+        public static string Lit_HUBNaoAceitouReenvio {
+            get {
+                return ResourceManager.GetString("Lit_HUBNaoAceitouReenvio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A Iluminação Dinâmica do Windows está ligada..
+        /// </summary>
+        public static string Lit_IluminacaoDinamicaWindowsEsta {
+            get {
+                return ResourceManager.GetString("Lit_IluminacaoDinamicaWindowsEsta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iluminação reenviada pelo G HUB..
+        /// </summary>
+        public static string Lit_IluminacaoReenviadaPeloHUB {
+            get {
+                return ResourceManager.GetString("Lit_IluminacaoReenviadaPeloHUB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lento.
+        /// </summary>
+        public static string Lit_Lento {
+            get {
+                return ResourceManager.GetString("Lit_Lento", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Matiz.
+        /// </summary>
+        public static string Lit_Matiz {
+            get {
+                return ResourceManager.GetString("Lit_Matiz", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Médio.
+        /// </summary>
+        public static string Lit_Medio {
+            get {
+                return ResourceManager.GetString("Lit_Medio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memórias DDR5 (Corsair).
+        /// </summary>
+        public static string Lit_MemoriasDDR5Corsair {
+            get {
+                return ResourceManager.GetString("Lit_MemoriasDDR5Corsair", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Muito rápido.
+        /// </summary>
+        public static string Lit_MuitoRapido {
+            get {
+                return ResourceManager.GetString("Lit_MuitoRapido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma cor recente..
+        /// </summary>
+        public static string Lit_NenhumaCorRecente {
+            get {
+                return ResourceManager.GetString("Lit_NenhumaCorRecente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum controlador ASUS Aura compatível foi identificado na placa de vídeo..
+        /// </summary>
+        public static string Lit_NenhumControladorASUSAura {
+            get {
+                return ResourceManager.GetString("Lit_NenhumControladorASUSAura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Onde aplicar.
+        /// </summary>
+        public static string Lit_OndeAplicar {
+            get {
+                return ResourceManager.GetString("Lit_OndeAplicar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paleta.
+        /// </summary>
+        public static string Lit_Paleta {
+            get {
+                return ResourceManager.GetString("Lit_Paleta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paletas prontas.
+        /// </summary>
+        public static string Lit_PaletasProntas {
+            get {
+                return ResourceManager.GetString("Lit_PaletasProntas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aurora.
+        /// </summary>
+        public static string Lit_PaletteAurora {
+            get {
+                return ResourceManager.GetString("Lit_PaletteAurora", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cyber.
+        /// </summary>
+        public static string Lit_PaletteCyber {
+            get {
+                return ResourceManager.GetString("Lit_PaletteCyber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fogo.
+        /// </summary>
+        public static string Lit_PaletteFire {
+            get {
+                return ResourceManager.GetString("Lit_PaletteFire", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Floresta.
+        /// </summary>
+        public static string Lit_PaletteForest {
+            get {
+                return ResourceManager.GetString("Lit_PaletteForest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gelo.
+        /// </summary>
+        public static string Lit_PaletteIce {
+            get {
+                return ResourceManager.GetString("Lit_PaletteIce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Neon.
+        /// </summary>
+        public static string Lit_PaletteNeon {
+            get {
+                return ResourceManager.GetString("Lit_PaletteNeon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oceano.
+        /// </summary>
+        public static string Lit_PaletteOcean {
+            get {
+                return ResourceManager.GetString("Lit_PaletteOcean", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pôr do sol.
+        /// </summary>
+        public static string Lit_PaletteSunset {
+            get {
+                return ResourceManager.GetString("Lit_PaletteSunset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Passa suavemente pelas cores da paleta, na ordem..
+        /// </summary>
+        public static string Lit_PassaSuavementePelasCores {
+            get {
+                return ResourceManager.GetString("Lit_PassaSuavementePelasCores", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Passa por todas as cores. Espalhado, forma uma onda pelas ventoinhas..
+        /// </summary>
+        public static string Lit_PassaTodasCoresEspalhado {
+            get {
+                return ResourceManager.GetString("Lit_PassaTodasCoresEspalhado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Periféricos Logitech (G HUB).
+        /// </summary>
+        public static string Lit_PerifericosLogitechHUB {
+            get {
+                return ResourceManager.GetString("Lit_PerifericosLogitechHUB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa-mãe e saídas ARGB (MSI).
+        /// </summary>
+        public static string Lit_PlacaMaeSaidasARGB {
+            get {
+                return ResourceManager.GetString("Lit_PlacaMaeSaidasARGB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa de vídeo (ASUS Aura).
+        /// </summary>
+        public static string Lit_PlacaVideoASUSAura {
+            get {
+                return ResourceManager.GetString("Lit_PlacaVideoASUSAura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prévia do efeito.
+        /// </summary>
+        public static string Lit_PreviaEfeito {
+            get {
+                return ResourceManager.GetString("Lit_PreviaEfeito", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Procurando o SDK do G HUB….
+        /// </summary>
+        public static string Lit_ProcurandoSDKHUB {
+            get {
+                return ResourceManager.GetString("Lit_ProcurandoSDKHUB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quadro de cores.
+        /// </summary>
+        public static string Lit_QuadroCores {
+            get {
+                return ResourceManager.GetString("Lit_QuadroCores", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rápido.
+        /// </summary>
+        public static string Lit_Rapido {
+            get {
+                return ResourceManager.GetString("Lit_Rapido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recentes.
+        /// </summary>
+        public static string Lit_Recentes {
+            get {
+                return ResourceManager.GetString("Lit_Recentes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reconectando ao G HUB · tentativa {0} de {1}….
+        /// </summary>
+        public static string Lit_ReconectandoHUBTentativa {
+            get {
+                return ResourceManager.GetString("Lit_ReconectandoHUBTentativa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reconecta a placa de vídeo e o Logitech se estiverem ativados e reaplica o efeito aos dispositivos selecionados.
+        /// </summary>
+        public static string Lit_ReconectaPlacaVideoLogitech {
+            get {
+                return ResourceManager.GetString("Lit_ReconectaPlacaVideoLogitech", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reenviando a iluminação dos dispositivos selecionados….
+        /// </summary>
+        public static string Lit_ReenviandoIluminacaoDispositivosSelecionados {
+            get {
+                return ResourceManager.GetString("Lit_ReenviandoIluminacaoDispositivosSelecionados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reenviar iluminação.
+        /// </summary>
+        public static string Lit_ReenviarIluminacao {
+            get {
+                return ResourceManager.GetString("Lit_ReenviarIluminacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover {0} da paleta.
+        /// </summary>
+        public static string Lit_RemoverPaleta {
+            get {
+                return ResourceManager.GetString("Lit_RemoverPaleta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Respirar.
+        /// </summary>
+        public static string Lit_Respirar {
+            get {
+                return ResourceManager.GetString("Lit_Respirar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SDK do G HUB conectado. Aguardando o envio da cor..
+        /// </summary>
+        public static string Lit_SDKHUBConectadoAguardando {
+            get {
+                return ResourceManager.GetString("Lit_SDKHUBConectadoAguardando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O SDK do G HUB recusou a cor..
+        /// </summary>
+        public static string Lit_SDKHUBRecusouCor {
+            get {
+                return ResourceManager.GetString("Lit_SDKHUBRecusouCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sincronização desligada.
+        /// </summary>
+        public static string Lit_SincronizacaoDesligada {
+            get {
+                return ResourceManager.GetString("Lit_SincronizacaoDesligada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sincronização desligada • iluminação pelo G HUB..
+        /// </summary>
+        public static string Lit_SincronizacaoDesligadaIluminacaoPelo {
+            get {
+                return ResourceManager.GetString("Lit_SincronizacaoDesligadaIluminacaoPelo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A sincronização LIGHTSYNC encontrou um erro. Confira o G HUB ou tente reenviar..
+        /// </summary>
+        public static string Lit_SincronizacaoLIGHTSYNCEncontrouErro {
+            get {
+                return ResourceManager.GetString("Lit_SincronizacaoLIGHTSYNCEncontrouErro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sorteia uma cor nova de tempos em tempos, com transição suave..
+        /// </summary>
+        public static string Lit_SorteiaCorNovaTempos {
+            get {
+                return ResourceManager.GetString("Lit_SorteiaCorNovaTempos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Todos os dispositivos ficam com a cor escolhida..
+        /// </summary>
+        public static string Lit_TodosDispositivosFicamCor {
+            get {
+                return ResourceManager.GetString("Lit_TodosDispositivosFicamCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Último envio aceito pelo G HUB..
+        /// </summary>
+        public static string Lit_UltimoEnvioAceitoPelo {
+            get {
+                return ResourceManager.GetString("Lit_UltimoEnvioAceitoPelo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usar esta paleta (troca o efeito para Paleta).
+        /// </summary>
+        public static string Lit_UsarEstaPaletaTroca {
+            get {
+                return ResourceManager.GetString("Lit_UsarEstaPaletaTroca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade.
+        /// </summary>
+        public static string Lit_Velocidade {
+            get {
+                return ResourceManager.GetString("Lit_Velocidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade do efeito.
+        /// </summary>
+        public static string Lit_VelocidadeEfeito {
+            get {
+                return ResourceManager.GetString("Lit_VelocidadeEfeito", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinhas e bomba (iCUE LINK).
+        /// </summary>
+        public static string Lit_VentoinhasBombaICUELINK {
+            get {
+                return ResourceManager.GetString("Lit_VentoinhasBombaICUELINK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ver avisos dos dispositivos.
+        /// </summary>
+        public static string Lit_VerAvisosDispositivos {
+            get {
+                return ResourceManager.GetString("Lit_VerAvisosDispositivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificando o G HUB na sessão do Windows….
+        /// </summary>
+        public static string Lit_VerificandoHUBSessaoWindows {
+            get {
+                return ResourceManager.GetString("Lit_VerificandoHUBSessaoWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PERFIL ATIVO.
         /// </summary>
         public static string Main_ActiveProfile {

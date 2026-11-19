@@ -1,6 +1,7 @@
 <UserControl x:Class="LinkFlow.App.Views.LightingPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:LinkFlow.App.Resources"
              xmlns:c="clr-namespace:LinkFlow.App.Controls">
     <UserControl.Resources>
         <Style x:Key="DeviceRow" TargetType="Border" BasedOn="{StaticResource SystemRow}">
@@ -15,7 +16,7 @@
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="100"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="ToolTip" Value="Brilho deste dispositivo (equilibra quem acende mais forte)"/>
+            <Setter Property="ToolTip" Value="{x:Static r:Strings.Lit_BrilhoDesteDispositivoEquilibra}"/>
         </Style>
         <Style x:Key="ChannelLabel" TargetType="TextBlock">
             <Setter Property="Width" Value="18"/>
@@ -43,15 +44,15 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Iluminação" Style="{StaticResource SystemPageTitle}"/>
-                    <TextBlock Text="Efeitos, cores e brilho dos dispositivos RGB." Style="{StaticResource SystemDetail}"/>
+                    <TextBlock Text="{x:Static r:Strings.Nav_Lighting}" Style="{StaticResource SystemPageTitle}"/>
+                    <TextBlock Text="{x:Static r:Strings.Lit_EfeitosCoresBrilhoDispositivos}" Style="{StaticResource SystemDetail}"/>
                 </StackPanel>
                 <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Command="{Binding ResendRgbCommand}" VerticalAlignment="Center" Margin="16,0,0,0"
-                        AutomationProperties.Name="Reenviar iluminação"
-                        ToolTip="Reconecta a placa de vídeo e o Logitech se estiverem ativados e reaplica o efeito aos dispositivos selecionados">
+                        AutomationProperties.Name="{x:Static r:Strings.Lit_ReenviarIluminacao}"
+                        ToolTip="{x:Static r:Strings.Lit_ReconectaPlacaVideoLogitech}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE72C;" FontSize="13" Margin="0,0,8,0"/>
-                        <TextBlock Text="Reenviar iluminação"/>
+                        <TextBlock Text="{x:Static r:Strings.Lit_ReenviarIluminacao}"/>
                     </StackPanel>
                 </Button>
             </Grid>
@@ -67,17 +68,17 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
-                        <Run FontWeight="SemiBold" Text="A Iluminação Dinâmica do Windows está ligada."/>
-                        <Run Text="Ela pode assumir o controle de teclados e mouses compatíveis."/>
+                        <Run FontWeight="SemiBold" Text="{x:Static r:Strings.Lit_IluminacaoDinamicaWindowsEsta}"/>
+                        <Run Text="{x:Static r:Strings.Lit_ElaPodeAssumirControle}"/>
                     </TextBlock>
-                    <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="Abrir configuração" Margin="12,0,0,0"
+                    <Button Grid.Column="2" Style="{StaticResource SecondaryButton}" Content="{x:Static r:Strings.Lit_AbrirConfiguracao}" Margin="12,0,0,0"
                             Command="{Binding OpenDynamicLightingCommand}"/>
                 </Grid>
             </Border>
         </StackPanel>
 
         <TabControl x:Name="LightingTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
-            <TabItem Header="Efeito e cor" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Lit_EfeitoCor}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <c:AdaptiveUniformGrid MinItemWidth="376" MaxColumns="2" StackColumns="True" Margin="0,0,-12,0">
@@ -88,11 +89,11 @@
                                             <TextBlock Text="&#xE9D9;" Style="{StaticResource SystemIcon}"/>
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="Efeitos" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_Efeitos}" Style="{StaticResource SystemSectionTitle}"/>
                                             <TextBlock Text="{Binding RgbSyncStatus}" Style="{StaticResource SystemDetail}"/>
                                         </StackPanel>
                                     </DockPanel>
-                                    <Button Content="Ver avisos dos dispositivos" Click="ShowDeviceWarnings_Click" Style="{StaticResource SystemLinkButton}"
+                                    <Button Content="{x:Static r:Strings.Lit_VerAvisosDispositivos}" Click="ShowDeviceWarnings_Click" Style="{StaticResource SystemLinkButton}"
                                             HorizontalAlignment="Left" Margin="-8,6,0,0"
                                             Visibility="{Binding HasLightingAttention, Converter={StaticResource BoolToVis}}"/>
 
@@ -118,7 +119,7 @@
                                     <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,10" Margin="0,4,0,0">
                                         <StackPanel>
                                             <c:EffectPreview Height="82" Source="{Binding RgbPreviewSource}" FanCount="{Binding PreviewFanCount}"
-                                                             AutomationProperties.Name="Prévia do efeito"/>
+                                                             AutomationProperties.Name="{x:Static r:Strings.Lit_PreviaEfeito}"/>
                                             <TextBlock Text="{Binding EffectDescription}" Style="{StaticResource SystemDetail}" TextAlignment="Center" Margin="0,8,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
@@ -130,9 +131,9 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="76"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="Velocidade" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_Velocidade}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                             <Slider Grid.Column="1" Minimum="1" Maximum="10" Value="{Binding EffectSpeed, Delay=80}" IsSnapToTickEnabled="True" TickFrequency="1"
-                                                    AutomationProperties.Name="Velocidade do efeito"/>
+                                                    AutomationProperties.Name="{x:Static r:Strings.Lit_VelocidadeEfeito}"/>
                                             <TextBlock Grid.Column="2" Text="{Binding EffectSpeedText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
                                         </Grid>
                                         <Grid Margin="0,0,12,8">
@@ -141,8 +142,8 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="76"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="Brilho" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding RgbBrightness}" AutomationProperties.Name="Brilho geral"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_Brilho}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding RgbBrightness}" AutomationProperties.Name="{x:Static r:Strings.Lit_BrilhoGeral}"/>
                                             <TextBlock Grid.Column="2" Text="{Binding RgbBrightnessFormatted}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
                                         </Grid>
                                     </c:AdaptiveUniformGrid>
@@ -150,14 +151,14 @@
                                     <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SpreadOnFans}" Margin="0,10,0,0"
                                               Visibility="{Binding CanSpread, Converter={StaticResource BoolToVis}}">
                                         <StackPanel>
-                                            <TextBlock Text="Espalhar pelas ventoinhas"/>
-                                            <TextBlock Text="Cada ventoinha segue uma fase própria. Desative para acompanhar os outros dispositivos." Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_EspalharPelasVentoinhas}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_CadaVentoinhaSegueFase}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </CheckBox>
 
                                     <!-- Paleta -->
                                     <StackPanel Margin="0,14,0,0" Visibility="{Binding IsPaletteEffect, Converter={StaticResource BoolToVis}}">
-                                        <TextBlock Text="Cores da paleta" Style="{StaticResource Label}" Margin="0,0,0,8"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_CoresPaleta}" Style="{StaticResource Label}" Margin="0,0,0,8"/>
                                         <WrapPanel>
                                             <ItemsControl ItemsSource="{Binding PaletteColors}">
                                                 <ItemsControl.ItemsPanel>
@@ -165,7 +166,7 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Button Width="40" Height="34" Margin="0,0,8,8" Cursor="Hand" ToolTip="{Binding StringFormat=Remover {0} da paleta}"
+                                                        <Button Width="40" Height="34" Margin="0,0,8,8" Cursor="Hand" ToolTip="{Binding StringFormat={x:Static r:Strings.Lit_RemoverPaleta}}"
                                                                 Command="{Binding DataContext.RemovePaletteColorCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}" FocusVisualStyle="{StaticResource FocusRing}">
                                                             <Button.Template>
@@ -190,17 +191,17 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                             <Button Style="{StaticResource ChipButton}" Command="{Binding AddPaletteColorCommand}" Height="34" Padding="10,0"
-                                                    IsEnabled="{Binding CanAddPaletteColor}" ToolTip="Adiciona a cor escolhida no quadro abaixo (até 8 cores)">
+                                                    IsEnabled="{Binding CanAddPaletteColor}" ToolTip="{x:Static r:Strings.Lit_AdicionaCorEscolhidaQuadro}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Border Width="16" Height="16" CornerRadius="4" Margin="0,0,8,0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
                                                             Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}"/>
-                                                    <TextBlock Text="Adicionar à paleta"/>
+                                                    <TextBlock Text="{x:Static r:Strings.Lit_AdicionarPaleta}"/>
                                                 </StackPanel>
                                             </Button>
                                         </WrapPanel>
                                     </StackPanel>
 
-                                    <TextBlock Text="Paletas prontas" Style="{StaticResource Label}" Margin="0,10,0,8"
+                                    <TextBlock Text="{x:Static r:Strings.Lit_PaletasProntas}" Style="{StaticResource Label}" Margin="0,10,0,8"
                                                Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}"/>
                                     <ItemsControl ItemsSource="{Binding PalettePresets}" Visibility="{Binding IsEffectAnimated, Converter={StaticResource BoolToVis}}">
                                         <ItemsControl.ItemsPanel>
@@ -208,7 +209,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button Margin="0,0,8,8" Cursor="Hand" ToolTip="Usar esta paleta (troca o efeito para Paleta)"
+                                                <Button Margin="0,0,8,8" Cursor="Hand" ToolTip="{x:Static r:Strings.Lit_UsarEstaPaletaTroca}"
                                                         Command="{Binding DataContext.ApplyPalettePresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}" FocusVisualStyle="{StaticResource FocusRing}" AutomationProperties.Name="{Binding Name}">
                                                     <Button.Template>
@@ -241,7 +242,7 @@
                                             <TextBlock Text="&#xE790;" Style="{StaticResource SystemIcon}"/>
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="Cor e ajustes RGB" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_CorAjustesRGB}" Style="{StaticResource SystemSectionTitle}"/>
                                             <TextBlock Text="{Binding EffectColorHint}" Style="{StaticResource SystemDetail}" Visibility="{Binding EffectColorHint, Converter={StaticResource NullToVis}}"/>
                                         </StackPanel>
                                     </DockPanel>
@@ -263,14 +264,14 @@
                                             </Grid.ColumnDefinitions>
                                             <!-- Quadro de cores: saturação (horizontal) × brilho (vertical) -->
                                             <c:ColorSpectrum Height="172" MinWidth="170" Hue="{Binding Hue}" Saturation="{Binding ColorSaturation}" Value="{Binding ColorValue}"
-                                                             ToolTip="Clique ou arraste para escolher • setas para ajuste fino (Shift = passos maiores)"
-                                                             AutomationProperties.Name="Quadro de cores"/>
+                                                             ToolTip="{x:Static r:Strings.Lit_CliqueOuArrasteEscolher}"
+                                                             AutomationProperties.Name="{x:Static r:Strings.Lit_QuadroCores}"/>
                                             <StackPanel Grid.Column="1" Width="108" Margin="12,0,0,0">
                                                 <Border Height="72" CornerRadius="12" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}"
-                                                        Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}" ToolTip="Cor escolhida"/>
-                                                <TextBlock Text="Código HEX" Style="{StaticResource Label}" Margin="0,12,0,4"/>
+                                                        Background="{Binding CurrentRgbHex, Converter={StaticResource HexToBrush}}" ToolTip="{x:Static r:Strings.Lit_CorEscolhida}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Lit_CodigoHEX}" Style="{StaticResource Label}" Margin="0,12,0,4"/>
                                                 <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="15"
-                                                         ToolTip="Digite #RRGGBB ou #RGB" AutomationProperties.Name="Código da cor">
+                                                         ToolTip="{x:Static r:Strings.Lit_DigiteRRGGBBOuRGB}" AutomationProperties.Name="{x:Static r:Strings.Lit_CodigoCor}">
                                                     <TextBox.Style>
                                                         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                                             <Style.Triggers>
@@ -285,10 +286,10 @@
                                         </Grid>
 
                                         <Slider Style="{StaticResource HueSlider}" Minimum="0" Maximum="359.9" Value="{Binding Hue}" SmallChange="1" LargeChange="15"
-                                                Margin="0,14,0,0" ToolTip="Matiz" AutomationProperties.Name="Matiz"/>
+                                                Margin="0,14,0,0" ToolTip="{x:Static r:Strings.Lit_Matiz}" AutomationProperties.Name="{x:Static r:Strings.Lit_Matiz}"/>
 
                                         <!-- Ajuste fino: os mesmos valores do quadro, canal a canal -->
-                                        <TextBlock Text="Ajuste fino" Style="{StaticResource Label}" Margin="0,14,0,2"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_AjusteFino}" Style="{StaticResource Label}" Margin="0,14,0,2"/>
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="30"/>
@@ -298,21 +299,21 @@
                                             <DockPanel>
                                                 <TextBlock Text="R" Foreground="#F87171" Style="{StaticResource ChannelLabel}"/>
                                                 <TextBlock DockPanel.Dock="Right" Text="{Binding RgbR}" Style="{StaticResource ChannelValue}"/>
-                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbR}" Foreground="#F87171" VerticalAlignment="Center" AutomationProperties.Name="Vermelho"/>
+                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbR}" Foreground="#F87171" VerticalAlignment="Center" AutomationProperties.Name="{x:Static r:Strings.Fan_Vermelho}"/>
                                             </DockPanel>
                                             <DockPanel Grid.Row="1">
                                                 <TextBlock Text="G" Foreground="#34D399" Style="{StaticResource ChannelLabel}"/>
                                                 <TextBlock DockPanel.Dock="Right" Text="{Binding RgbG}" Style="{StaticResource ChannelValue}"/>
-                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbG}" Foreground="#34D399" VerticalAlignment="Center" AutomationProperties.Name="Verde"/>
+                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbG}" Foreground="#34D399" VerticalAlignment="Center" AutomationProperties.Name="{x:Static r:Strings.Fan_Verde}"/>
                                             </DockPanel>
                                             <DockPanel Grid.Row="2">
                                                 <TextBlock Text="B" Foreground="#60A5FA" Style="{StaticResource ChannelLabel}"/>
                                                 <TextBlock DockPanel.Dock="Right" Text="{Binding RgbB}" Style="{StaticResource ChannelValue}"/>
-                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbB}" Foreground="#60A5FA" VerticalAlignment="Center" AutomationProperties.Name="Azul"/>
+                                                <Slider Minimum="0" Maximum="255" Value="{Binding RgbB}" Foreground="#60A5FA" VerticalAlignment="Center" AutomationProperties.Name="{x:Static r:Strings.Fan_Azul}"/>
                                             </DockPanel>
                                         </Grid>
 
-                                        <TextBlock Text="Cores rápidas" Style="{StaticResource Label}" Margin="0,14,0,8"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_CoresRapidas}" Style="{StaticResource Label}" Margin="0,14,0,8"/>
                                         <ItemsControl ItemsSource="{Binding QuickColors}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
@@ -338,7 +339,7 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
 
-                                        <TextBlock Text="Recentes" Style="{StaticResource Label}" Margin="0,6,0,8"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_Recentes}" Style="{StaticResource Label}" Margin="0,6,0,8"/>
                                         <ItemsControl ItemsSource="{Binding RecentColors}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
@@ -363,7 +364,7 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                        <TextBlock Text="Nenhuma cor recente." Style="{StaticResource Caption}"
+                                        <TextBlock Text="{x:Static r:Strings.Lit_NenhumaCorRecente}" Style="{StaticResource Caption}"
                                                    Visibility="{Binding RecentColors.Count, Converter={StaticResource BoolToVisInverse}}"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -372,7 +373,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem x:Name="DevicesTab" Header="Dispositivos" Style="{StaticResource SystemTab}">
+            <TabItem x:Name="DevicesTab" Header="{x:Static r:Strings.Det_ListDevices}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
@@ -382,22 +383,22 @@
                                         <TextBlock Text="&#xE8B3;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Onde aplicar" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock Text="Ative o RGB e ajuste o brilho de cada dispositivo." Style="{StaticResource SystemDetail}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_OndeAplicar}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_AtiveRGBAjusteBrilho}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
-                                <TextBlock Text="Brilho individual" Style="{StaticResource Label}" Width="140" HorizontalAlignment="Right" Margin="0,14,0,5"/>
+                                <TextBlock Text="{x:Static r:Strings.Lit_BrilhoIndividual}" Style="{StaticResource Label}" Width="140" HorizontalAlignment="Right" Margin="0,14,0,5"/>
                                 <Border Style="{StaticResource DeviceRow}">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncHub}">
                                             <StackPanel>
-                                                <TextBlock Text="Ventoinhas e bomba (iCUE LINK)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Lit_VentoinhasBombaICUELINK}" Style="{StaticResource SystemItemTitle}"/>
                                                 <TextBlock Text="{Binding ConnectionStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </CheckBox>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncHub}" VerticalAlignment="Center">
-                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding HubBrightness, Delay=120}" AutomationProperties.Name="Brilho das ventoinhas"/>
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding HubBrightness, Delay=120}" AutomationProperties.Name="{x:Static r:Strings.Lit_BrilhoVentoinhas}"/>
                                             <TextBlock Text="{Binding HubBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
                                         </StackPanel>
                                     </Grid>
@@ -407,7 +408,7 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncGpu}">
                                             <StackPanel>
-                                                <TextBlock Text="Placa de vídeo (ASUS Aura)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Lit_PlacaVideoASUSAura}" Style="{StaticResource SystemItemTitle}"/>
                                                 <TextBlock Text="{Binding GpuRgbStatus}" Style="{StaticResource SystemDetail}"/>
                                                 <TextBlock Text="{Binding GpuRgbIssue}" Style="{StaticResource LightingWarning}"
                                                            Visibility="{Binding GpuRgbIssue, Converter={StaticResource NullToVis}}"/>
@@ -416,7 +417,7 @@
                                             </StackPanel>
                                         </CheckBox>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncGpu}" VerticalAlignment="Center">
-                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding GpuBrightness, Delay=120}" AutomationProperties.Name="Brilho da placa de vídeo"/>
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding GpuBrightness, Delay=120}" AutomationProperties.Name="{x:Static r:Strings.Lit_BrilhoPlacaVideo}"/>
                                             <TextBlock Text="{Binding GpuBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
                                         </StackPanel>
                                     </Grid>
@@ -426,12 +427,12 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncMotherboard}">
                                             <StackPanel>
-                                                <TextBlock Text="Placa-mãe e saídas ARGB (MSI)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Lit_PlacaMaeSaidasARGB}" Style="{StaticResource SystemItemTitle}"/>
                                                 <TextBlock Text="{Binding MotherboardRgbStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </CheckBox>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncMotherboard}" VerticalAlignment="Center">
-                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding MotherboardBrightness, Delay=120}" AutomationProperties.Name="Brilho da placa-mãe"/>
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding MotherboardBrightness, Delay=120}" AutomationProperties.Name="{x:Static r:Strings.Lit_BrilhoPlacaMae}"/>
                                             <TextBlock Text="{Binding MotherboardBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
                                         </StackPanel>
                                     </Grid>
@@ -441,12 +442,12 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncRam}">
                                             <StackPanel>
-                                                <TextBlock Text="Memórias DDR5 (Corsair)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Lit_MemoriasDDR5Corsair}" Style="{StaticResource SystemItemTitle}"/>
                                                 <TextBlock Text="{Binding RamRgbStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </CheckBox>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncRam}" VerticalAlignment="Center">
-                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding RamBrightness, Delay=120}" AutomationProperties.Name="Brilho das memórias"/>
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding RamBrightness, Delay=120}" AutomationProperties.Name="{x:Static r:Strings.Lit_BrilhoMemorias}"/>
                                             <TextBlock Text="{Binding RamBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
                                         </StackPanel>
                                     </Grid>
@@ -456,7 +457,7 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="140"/></Grid.ColumnDefinitions>
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncPeripherals}">
                                             <StackPanel>
-                                                <TextBlock Text="Periféricos Logitech (G HUB)" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Lit_PerifericosLogitechHUB}" Style="{StaticResource SystemItemTitle}"/>
                                                 <TextBlock Text="{Binding PeripheralsRgbStatus}" AutomationProperties.LiveSetting="Polite">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock" BasedOn="{StaticResource SystemDetail}">
@@ -473,7 +474,7 @@
                                             </StackPanel>
                                         </CheckBox>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" IsEnabled="{Binding SyncPeripherals}" VerticalAlignment="Center">
-                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding PeripheralsBrightness, Delay=120}" AutomationProperties.Name="Brilho dos periféricos"/>
+                                            <Slider Style="{StaticResource DeviceBrightness}" Value="{Binding PeripheralsBrightness, Delay=120}" AutomationProperties.Name="{x:Static r:Strings.Lit_BrilhoPerifericos}"/>
                                             <TextBlock Text="{Binding PeripheralsBrightness, StringFormat={}{0}%}" Style="{StaticResource ChannelValue}" Width="40"/>
                                         </StackPanel>
                                     </Grid>
@@ -481,8 +482,8 @@
                                 <Border Style="{StaticResource DeviceRow}">
                                     <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding SyncLcd}">
                                         <StackPanel>
-                                            <TextBlock Text="Cor do display LCD" Style="{StaticResource SystemItemTitle}"/>
-                                            <TextBlock Text="O anel e os destaques da tela da bomba seguem a cor (ou o efeito)." Style="{StaticResource Caption}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_CorDisplayLCD}" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Lit_AnelDestaquesTelaBomba}" Style="{StaticResource Caption}" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </CheckBox>
                                 </Border>
@@ -496,8 +497,8 @@
                                         <TextBlock Text="&#xE713;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Correção de cor dos LEDs" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock Text="Compense a diferença entre a cor escolhida e a cor exibida pelos LEDs." Style="{StaticResource SystemDetail}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_CorrecaoCorLEDs}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Lit_CompenseDiferencaEntreCor}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
                                 <Grid Margin="0,12,0,0">
@@ -506,7 +507,7 @@
                                         <ColumnDefinition Width="76"/>
                                     </Grid.ColumnDefinitions>
                                     <Slider Minimum="0" Maximum="100" Value="{Binding LedVividness, Delay=120}" IsSnapToTickEnabled="True" TickFrequency="5"
-                                            ToolTip="0 = cor crua • 83 = recomendado • 100 = máximo contraste" AutomationProperties.Name="Correção de cor dos LEDs"/>
+                                            ToolTip="{x:Static r:Strings.Lit_0CorCrua83}" AutomationProperties.Name="{x:Static r:Strings.Lit_CorrecaoCorLEDs}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding LedVividnessText}" TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
                                 </Grid>
                             </StackPanel>

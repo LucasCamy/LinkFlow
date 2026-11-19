@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -16,7 +17,7 @@ public sealed class PeripheralRgbBridge : IDisposable
     private volatile bool _disposed;
     private bool _syncPeripherals;
     private int _resendRequested;
-    private volatile BridgeStatus _status = new("Procurando o SDK do G HUB…", false);
+    private volatile BridgeStatus _status = new(Strings.Lit_ProcurandoSDKHUB, false);
 
     private sealed record BridgeStatus(string Text, bool HasIssue);
 
@@ -99,7 +100,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                         syncing = false;
                         applied = null;
                         nextAttempt = 0;
-                        SetStatus("Sincronização desligada • iluminação pelo G HUB.");
+                        SetStatus(Strings.Lit_SincronizacaoDesligadaIluminacaoPelo);
                     }
                     else
                     {
@@ -108,18 +109,18 @@ public sealed class PeripheralRgbBridge : IDisposable
                         {
                             applied = null;
                             applied = _device.Resend(() => ReadColor(rgbClock, interval),
-                                (attempt, total) => SetStatus($"Reconectando ao G HUB · tentativa {attempt} de {total}…"));
+                                (attempt, total) => SetStatus(string.Format(Strings.Lit_ReconectandoHUBTentativa, attempt, total)));
                             if (applied != null)
                             {
                                 nextAttempt = 0;
                                 nextReapply = Environment.TickCount64 + RetryDelayMs;
-                                SetStatus("Iluminação reenviada pelo G HUB.");
+                                SetStatus(Strings.Lit_IluminacaoReenviadaPeloHUB);
                                 Log.Info("RGB Logitech: G HUB aceitou o reenvio.");
                             }
                             else if (_engine.Config.Rgb.SyncPeripherals && !_disposed)
                             {
                                 nextAttempt = Environment.TickCount64 + RetryDelayMs;
-                                SetStatus(LocalizedDiagnostic ?? "O G HUB não aceitou o reenvio. Abra o G HUB para conferir a integração.", hasIssue: true);
+                                SetStatus(LocalizedDiagnostic ?? Strings.Lit_HUBNaoAceitouReenvio, hasIssue: true);
                             }
                             if (_disposed || !_engine.Config.Rgb.SyncPeripherals) continue;
                             rgb = _engine.Config.Rgb;
@@ -136,7 +137,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                                 applied = null;
                                 nextAttempt = Environment.TickCount64 + RetryDelayMs;
                                 var diagnostic = LocalizedDiagnostic;
-                                SetStatus(diagnostic ?? "Aguardando conexão com o SDK do G HUB…", diagnostic != null);
+                                SetStatus(diagnostic ?? Strings.Lit_AguardandoConexaoSDKHUB, diagnostic != null);
                             }
                             else
                             {
@@ -155,13 +156,13 @@ public sealed class PeripheralRgbBridge : IDisposable
                                         if (applied == null) Log.Info("RGB Logitech: G HUB aceitou a iluminação.");
                                         applied = color;
                                         nextReapply = Environment.TickCount64 + RetryDelayMs;
-                                        SetStatus("Último envio aceito pelo G HUB.");
+                                        SetStatus(Strings.Lit_UltimoEnvioAceitoPelo);
                                     }
                                     else
                                     {
                                         applied = null;
                                         nextAttempt = Environment.TickCount64 + RetryDelayMs;
-                                        SetStatus(LocalizedDiagnostic ?? "O G HUB não aceitou o comando de iluminação.", hasIssue: true);
+                                        SetStatus(LocalizedDiagnostic ?? Strings.Lit_HUBNaoAceitouComando, hasIssue: true);
                                     }
                                 }
                                 if (animated) rgbClock.RecordFrame(frame, interval, writeTime);
@@ -180,7 +181,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                     nextAttempt = Environment.TickCount64 + RetryDelayMs;
                     wait = TimeSpan.FromMilliseconds(RetryDelayMs);
                     Log.Warn($"Periféricos Logitech: {ex.Message}");
-                    SetStatus("A sincronização LIGHTSYNC encontrou um erro. Confira o G HUB ou tente reenviar.", hasIssue: true);
+                    SetStatus(Strings.Lit_SincronizacaoLIGHTSYNCEncontrouErro, hasIssue: true);
                 }
 
                 // Para cores estáticas, consolida os eventos rápidos do seletor de cor.
