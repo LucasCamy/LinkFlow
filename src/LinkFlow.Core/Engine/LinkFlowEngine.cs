@@ -416,6 +416,7 @@ public sealed partial class LinkFlowEngine : IDisposable
         lock (_stateLock)
         {
             var t = _telemetry;
+            var rgbStatus = BuildRgbStatus(cfg.Rgb);
             return new EngineSnapshot
             {
                 Timestamp = DateTime.Now,
@@ -482,7 +483,8 @@ public sealed partial class LinkFlowEngine : IDisposable
                 PeripheralsRgbApplied = cfg.Rgb.SyncPeripherals ? _rgbPeripheralsOk : null,
                 PeripheralsRgbDiagnostic = _peripheralsRgb.Diagnostic,
                 RgbDevicesReady = _rgbReady,
-                RgbStatus = BuildRgbStatus(cfg.Rgb),
+                RgbStatusText = rgbStatus,
+                RgbStatus = rgbStatus.ToPortuguese(),
                 Alerts = _alerts.Values.OrderByDescending(a => a.Severity).ThenBy(a => a.Since).Select(a => new EngineAlert
                 {
                     Key = a.Key, Severity = a.Severity, Title = a.Title, Message = a.Message, Since = a.Since,

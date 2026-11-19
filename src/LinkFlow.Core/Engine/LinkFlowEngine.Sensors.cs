@@ -343,5 +343,4 @@ public sealed partial class LinkFlowEngine
         }
     }
 
-    private static string Degrees(float value) => value.ToString("0.#", CultureInfo.GetCultureInfo("pt-BR")) + " °C";
 }

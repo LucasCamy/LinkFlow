@@ -231,7 +231,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
     public string RamRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
         Snapshot.RamRgbAvailable ? $"Conectado • {Snapshot.RamRgbName}" : "Não detectado";
-    public string RgbSyncStatus => Snapshot.RgbStatus;
+    public string RgbSyncStatus => EngineTextUi.Localize(Snapshot.RgbStatusText, Snapshot.RgbStatus);
 
     // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)
 

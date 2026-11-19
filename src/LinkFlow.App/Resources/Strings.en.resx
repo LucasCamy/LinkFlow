@@ -475,4 +475,121 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Engine_HubNotFoundConflict" xml:space="preserve">
     <value>iCUE LINK Hub not found: close {0}</value>
   </data>
+  <data name="Engine_CalRefusedHub" xml:space="preserve">
+    <value>The hub must be connected and reporting fan speeds.</value>
+  </data>
+  <data name="Engine_CalRefusedFailSafe" xml:space="preserve">
+    <value>Safe mode is on. Wait for the temperatures to return to normal.</value>
+  </data>
+  <data name="Engine_CalRefusedHot" xml:space="preserve">
+    <value>{0} The calibration lowers the fans to 20% and would be interrupted. Try again with the PC idle, after the temperature drops.</value>
+  </data>
+  <data name="Engine_CalRefusedNoFans" xml:space="preserve">
+    <value>No fan with a tachometer was found on the hub.</value>
+  </data>
+  <data name="Engine_CalPreparing" xml:space="preserve">
+    <value>Preparing the fans...</value>
+  </data>
+  <data name="Engine_CalMeasuring" xml:space="preserve">
+    <value>Measuring the speed at {0}%...</value>
+  </data>
+  <data name="Engine_CalStalled" xml:space="preserve">
+    <value>Some fans stopped. Testing the start-up power...</value>
+  </data>
+  <data name="Engine_CalStartTest" xml:space="preserve">
+    <value>Testing start-up at {0}%...</value>
+  </data>
+  <data name="Engine_CalAppClosed" xml:space="preserve">
+    <value>LinkFlow was closed during the calibration.</value>
+  </data>
+  <data name="Engine_CalCancelled" xml:space="preserve">
+    <value>Calibration canceled. Nothing was changed.</value>
+  </data>
+  <data name="Engine_CalError" xml:space="preserve">
+    <value>Calibration error: {0}</value>
+  </data>
+  <data name="Engine_CalNothingChanged" xml:space="preserve">
+    <value>{0} Nothing was changed.</value>
+  </data>
+  <data name="Engine_CalDoneWarnings" xml:space="preserve">
+    <value>Calibration finished. Check the highlighted fans.</value>
+  </data>
+  <data name="Engine_CalDoneOk" xml:space="preserve">
+    <value>Calibration finished. All fans responded normally.</value>
+  </data>
+  <data name="Engine_CalNoteNoSpin" xml:space="preserve">
+    <value>It did not spin at any power. Check the cable and whether the blades can turn freely.</value>
+  </data>
+  <data name="Engine_CalNoteBelowModel" xml:space="preserve">
+    <value>Top speed {0:P0} lower than the other fans of the same model. It may be dust or wear.</value>
+  </data>
+  <data name="Engine_CalNoteStart" xml:space="preserve">
+    <value>It stopped at low power and only spun again at {0}%. LinkFlow will keep it at {1}% or more.</value>
+  </data>
+  <data name="Engine_CalNoteMin" xml:space="preserve">
+    <value>LinkFlow will keep it at {0}% or more.</value>
+  </data>
+  <data name="Engine_CalHubNotApplied" xml:space="preserve">
+    <value>The hub did not apply the calibration speeds.</value>
+  </data>
+  <data name="Engine_CalHubNoReadings" xml:space="preserve">
+    <value>The hub stopped reporting fan speeds during the calibration.</value>
+  </data>
+  <data name="Engine_CalAbortFailSafe" xml:space="preserve">
+    <value>Safe mode was triggered.</value>
+  </data>
+  <data name="Engine_CalAbortHubLost" xml:space="preserve">
+    <value>The hub stopped responding.</value>
+  </data>
+  <data name="Engine_CalHotStarting" xml:space="preserve">
+    <value>{0} is at {1:0.#} °C, above the alert ({2:0.#} °C).</value>
+  </data>
+  <data name="Engine_CalHotReached" xml:space="preserve">
+    <value>{0} reached {1:0.#} °C.</value>
+  </data>
+  <data name="Engine_CalSubjectCpu" xml:space="preserve">
+    <value>The CPU</value>
+  </data>
+  <data name="Engine_CalSubjectGpu" xml:space="preserve">
+    <value>The GPU</value>
+  </data>
+  <data name="Engine_CalSubjectCoolant" xml:space="preserve">
+    <value>The coolant</value>
+  </data>
+  <data name="Engine_RgbDetecting" xml:space="preserve">
+    <value>Detecting RGB devices...</value>
+  </data>
+  <data name="Engine_RgbNoneSynced" xml:space="preserve">
+    <value>No devices synced</value>
+  </data>
+  <data name="Engine_RgbSynced" xml:space="preserve">
+    <value>Synced: {0}</value>
+  </data>
+  <data name="Engine_RgbFailed" xml:space="preserve">
+    <value>Failed: {0}</value>
+  </data>
+  <data name="Engine_RgbSyncedAndFailed" xml:space="preserve">
+    <value>Synced: {0} • Failed: {1}</value>
+  </data>
+  <data name="Engine_RgbListPair" xml:space="preserve">
+    <value>{0}, {1}</value>
+  </data>
+  <data name="Engine_RgbDevHub" xml:space="preserve">
+    <value>Fans/Pump</value>
+  </data>
+  <data name="Engine_RgbDevGpu" xml:space="preserve">
+    <value>GPU</value>
+  </data>
+  <data name="Engine_RgbDevMotherboard" xml:space="preserve">
+    <value>Motherboard</value>
+  </data>
+  <data name="Engine_RgbDevRam" xml:space="preserve">
+    <value>DDR5 RAM</value>
+  </data>
+  <data name="Engine_RgbDevPeripherals" xml:space="preserve">
+    <value>Peripherals</value>
+  </data>
+  <data name="Engine_RgbDevLcd" xml:space="preserve">
+    <value>LCD</value>
+  </data>
 </root>

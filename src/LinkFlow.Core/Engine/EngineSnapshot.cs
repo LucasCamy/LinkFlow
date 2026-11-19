@@ -117,6 +117,7 @@ public sealed class EngineSnapshot
     public string? PeripheralsRgbDiagnostic { get; set; }
     public bool RgbDevicesReady { get; set; }
     public string RgbStatus { get; set; } = string.Empty;
+    public EngineText? RgbStatusText { get; set; }
 
     public List<EngineAlert> Alerts { get; set; } = new();
 

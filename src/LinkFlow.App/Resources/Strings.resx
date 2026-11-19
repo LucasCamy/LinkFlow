@@ -534,4 +534,160 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
     <value>iCUE LINK Hub não encontrado: feche {0}</value>
     <comment>Texto do serviço (código HubNotFoundConflict em EngineTexts); o português tem de ser igual ao do Core</comment>
   </data>
+  <data name="Engine_CalRefusedHub" xml:space="preserve">
+    <value>O hub precisa estar conectado e informando a rotação.</value>
+    <comment>Texto do serviço (código CalRefusedHub em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalRefusedFailSafe" xml:space="preserve">
+    <value>O modo de segurança está ativo. Aguarde as temperaturas normalizarem.</value>
+    <comment>Texto do serviço (código CalRefusedFailSafe em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalRefusedHot" xml:space="preserve">
+    <value>{0} A calibração baixa as ventoinhas até 20% e seria interrompida. Tente com o PC ocioso, depois que a temperatura cair.</value>
+    <comment>Texto do serviço (código CalRefusedHot em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalRefusedNoFans" xml:space="preserve">
+    <value>Nenhuma ventoinha com tacômetro foi encontrada no hub.</value>
+    <comment>Texto do serviço (código CalRefusedNoFans em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalPreparing" xml:space="preserve">
+    <value>Preparando as ventoinhas...</value>
+    <comment>Texto do serviço (código CalPreparing em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalMeasuring" xml:space="preserve">
+    <value>Medindo a rotação em {0}%...</value>
+    <comment>Texto do serviço (código CalMeasuring em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalStalled" xml:space="preserve">
+    <value>Algumas ventoinhas pararam. Testando a partida...</value>
+    <comment>Texto do serviço (código CalStalled em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalStartTest" xml:space="preserve">
+    <value>Testando a partida em {0}%...</value>
+    <comment>Texto do serviço (código CalStartTest em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalAppClosed" xml:space="preserve">
+    <value>O LinkFlow foi encerrado durante a calibração.</value>
+    <comment>Texto do serviço (código CalAppClosed em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalCancelled" xml:space="preserve">
+    <value>Calibração cancelada. Nada foi alterado.</value>
+    <comment>Texto do serviço (código CalCancelled em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalError" xml:space="preserve">
+    <value>Erro na calibração: {0}</value>
+    <comment>Texto do serviço (código CalError em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalNothingChanged" xml:space="preserve">
+    <value>{0} Nada foi alterado.</value>
+    <comment>Texto do serviço (código CalNothingChanged em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalDoneWarnings" xml:space="preserve">
+    <value>Calibração concluída. Confira as ventoinhas marcadas.</value>
+    <comment>Texto do serviço (código CalDoneWarnings em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalDoneOk" xml:space="preserve">
+    <value>Calibração concluída. Todas as ventoinhas responderam normalmente.</value>
+    <comment>Texto do serviço (código CalDoneOk em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalNoteNoSpin" xml:space="preserve">
+    <value>Não girou em nenhuma potência. Verifique o cabo e se a hélice está livre.</value>
+    <comment>Texto do serviço (código CalNoteNoSpin em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalNoteBelowModel" xml:space="preserve">
+    <value>Máximo {0:P0} abaixo das outras do mesmo modelo. Pode ser poeira ou desgaste.</value>
+    <comment>Texto do serviço (código CalNoteBelowModel em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalNoteStart" xml:space="preserve">
+    <value>Parou em potência baixa e só voltou a girar em {0}%. O LinkFlow vai mantê-la em pelo menos {1}%.</value>
+    <comment>Texto do serviço (código CalNoteStart em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalNoteMin" xml:space="preserve">
+    <value>O LinkFlow vai mantê-la em pelo menos {0}%.</value>
+    <comment>Texto do serviço (código CalNoteMin em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalHubNotApplied" xml:space="preserve">
+    <value>O hub não aplicou as potências da calibração.</value>
+    <comment>Texto do serviço (código CalHubNotApplied em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalHubNoReadings" xml:space="preserve">
+    <value>O hub parou de informar a rotação durante a calibração.</value>
+    <comment>Texto do serviço (código CalHubNoReadings em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalAbortFailSafe" xml:space="preserve">
+    <value>O modo de segurança foi acionado.</value>
+    <comment>Texto do serviço (código CalAbortFailSafe em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalAbortHubLost" xml:space="preserve">
+    <value>O hub deixou de responder.</value>
+    <comment>Texto do serviço (código CalAbortHubLost em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalHotStarting" xml:space="preserve">
+    <value>{0} está a {1:0.#} °C, acima do alerta ({2:0.#} °C).</value>
+    <comment>Texto do serviço (código CalHotStarting em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalHotReached" xml:space="preserve">
+    <value>{0} chegou a {1:0.#} °C.</value>
+    <comment>Texto do serviço (código CalHotReached em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalSubjectCpu" xml:space="preserve">
+    <value>A CPU</value>
+    <comment>Texto do serviço (código CalSubjectCpu em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalSubjectGpu" xml:space="preserve">
+    <value>A GPU</value>
+    <comment>Texto do serviço (código CalSubjectGpu em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_CalSubjectCoolant" xml:space="preserve">
+    <value>O líquido</value>
+    <comment>Texto do serviço (código CalSubjectCoolant em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDetecting" xml:space="preserve">
+    <value>Detectando dispositivos RGB...</value>
+    <comment>Texto do serviço (código RgbDetecting em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbNoneSynced" xml:space="preserve">
+    <value>Nenhum dispositivo sincronizado</value>
+    <comment>Texto do serviço (código RgbNoneSynced em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbSynced" xml:space="preserve">
+    <value>Sincronizado: {0}</value>
+    <comment>Texto do serviço (código RgbSynced em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbFailed" xml:space="preserve">
+    <value>Falhou: {0}</value>
+    <comment>Texto do serviço (código RgbFailed em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbSyncedAndFailed" xml:space="preserve">
+    <value>Sincronizado: {0} • Falhou: {1}</value>
+    <comment>Texto do serviço (código RgbSyncedAndFailed em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbListPair" xml:space="preserve">
+    <value>{0}, {1}</value>
+    <comment>Texto do serviço (código RgbListPair em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDevHub" xml:space="preserve">
+    <value>Fans/Bomba</value>
+    <comment>Texto do serviço (código RgbDevHub em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDevGpu" xml:space="preserve">
+    <value>GPU</value>
+    <comment>Texto do serviço (código RgbDevGpu em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDevMotherboard" xml:space="preserve">
+    <value>Placa-mãe</value>
+    <comment>Texto do serviço (código RgbDevMotherboard em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDevRam" xml:space="preserve">
+    <value>RAM DDR5</value>
+    <comment>Texto do serviço (código RgbDevRam em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDevPeripherals" xml:space="preserve">
+    <value>Periféricos</value>
+    <comment>Texto do serviço (código RgbDevPeripherals em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_RgbDevLcd" xml:space="preserve">
+    <value>LCD</value>
+    <comment>Texto do serviço (código RgbDevLcd em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
 </root>

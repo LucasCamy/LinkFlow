@@ -436,6 +436,249 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to O modo de segurança foi acionado..
+        /// </summary>
+        public static string Engine_CalAbortFailSafe {
+            get {
+                return ResourceManager.GetString("Engine_CalAbortFailSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O hub deixou de responder..
+        /// </summary>
+        public static string Engine_CalAbortHubLost {
+            get {
+                return ResourceManager.GetString("Engine_CalAbortHubLost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow foi encerrado durante a calibração..
+        /// </summary>
+        public static string Engine_CalAppClosed {
+            get {
+                return ResourceManager.GetString("Engine_CalAppClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibração cancelada. Nada foi alterado..
+        /// </summary>
+        public static string Engine_CalCancelled {
+            get {
+                return ResourceManager.GetString("Engine_CalCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibração concluída. Todas as ventoinhas responderam normalmente..
+        /// </summary>
+        public static string Engine_CalDoneOk {
+            get {
+                return ResourceManager.GetString("Engine_CalDoneOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibração concluída. Confira as ventoinhas marcadas..
+        /// </summary>
+        public static string Engine_CalDoneWarnings {
+            get {
+                return ResourceManager.GetString("Engine_CalDoneWarnings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Erro na calibração: {0}.
+        /// </summary>
+        public static string Engine_CalError {
+            get {
+                return ResourceManager.GetString("Engine_CalError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} chegou a {1:0.#} °C..
+        /// </summary>
+        public static string Engine_CalHotReached {
+            get {
+                return ResourceManager.GetString("Engine_CalHotReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} está a {1:0.#} °C, acima do alerta ({2:0.#} °C)..
+        /// </summary>
+        public static string Engine_CalHotStarting {
+            get {
+                return ResourceManager.GetString("Engine_CalHotStarting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O hub parou de informar a rotação durante a calibração..
+        /// </summary>
+        public static string Engine_CalHubNoReadings {
+            get {
+                return ResourceManager.GetString("Engine_CalHubNoReadings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O hub não aplicou as potências da calibração..
+        /// </summary>
+        public static string Engine_CalHubNotApplied {
+            get {
+                return ResourceManager.GetString("Engine_CalHubNotApplied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Medindo a rotação em {0}%....
+        /// </summary>
+        public static string Engine_CalMeasuring {
+            get {
+                return ResourceManager.GetString("Engine_CalMeasuring", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Máximo {0:P0} abaixo das outras do mesmo modelo. Pode ser poeira ou desgaste..
+        /// </summary>
+        public static string Engine_CalNoteBelowModel {
+            get {
+                return ResourceManager.GetString("Engine_CalNoteBelowModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow vai mantê-la em pelo menos {0}%..
+        /// </summary>
+        public static string Engine_CalNoteMin {
+            get {
+                return ResourceManager.GetString("Engine_CalNoteMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não girou em nenhuma potência. Verifique o cabo e se a hélice está livre..
+        /// </summary>
+        public static string Engine_CalNoteNoSpin {
+            get {
+                return ResourceManager.GetString("Engine_CalNoteNoSpin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parou em potência baixa e só voltou a girar em {0}%. O LinkFlow vai mantê-la em pelo menos {1}%..
+        /// </summary>
+        public static string Engine_CalNoteStart {
+            get {
+                return ResourceManager.GetString("Engine_CalNoteStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Nada foi alterado..
+        /// </summary>
+        public static string Engine_CalNothingChanged {
+            get {
+                return ResourceManager.GetString("Engine_CalNothingChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preparando as ventoinhas....
+        /// </summary>
+        public static string Engine_CalPreparing {
+            get {
+                return ResourceManager.GetString("Engine_CalPreparing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O modo de segurança está ativo. Aguarde as temperaturas normalizarem..
+        /// </summary>
+        public static string Engine_CalRefusedFailSafe {
+            get {
+                return ResourceManager.GetString("Engine_CalRefusedFailSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} A calibração baixa as ventoinhas até 20% e seria interrompida. Tente com o PC ocioso, depois que a temperatura cair..
+        /// </summary>
+        public static string Engine_CalRefusedHot {
+            get {
+                return ResourceManager.GetString("Engine_CalRefusedHot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O hub precisa estar conectado e informando a rotação..
+        /// </summary>
+        public static string Engine_CalRefusedHub {
+            get {
+                return ResourceManager.GetString("Engine_CalRefusedHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma ventoinha com tacômetro foi encontrada no hub..
+        /// </summary>
+        public static string Engine_CalRefusedNoFans {
+            get {
+                return ResourceManager.GetString("Engine_CalRefusedNoFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Algumas ventoinhas pararam. Testando a partida....
+        /// </summary>
+        public static string Engine_CalStalled {
+            get {
+                return ResourceManager.GetString("Engine_CalStalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Testando a partida em {0}%....
+        /// </summary>
+        public static string Engine_CalStartTest {
+            get {
+                return ResourceManager.GetString("Engine_CalStartTest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O líquido.
+        /// </summary>
+        public static string Engine_CalSubjectCoolant {
+            get {
+                return ResourceManager.GetString("Engine_CalSubjectCoolant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A CPU.
+        /// </summary>
+        public static string Engine_CalSubjectCpu {
+            get {
+                return ResourceManager.GetString("Engine_CalSubjectCpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A GPU.
+        /// </summary>
+        public static string Engine_CalSubjectGpu {
+            get {
+                return ResourceManager.GetString("Engine_CalSubjectGpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas..
         /// </summary>
         public static string Engine_ConfigRecovered {
@@ -675,6 +918,114 @@ namespace LinkFlow.App.Resources {
         public static string Engine_PumpLowTitle {
             get {
                 return ResourceManager.GetString("Engine_PumpLowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detectando dispositivos RGB....
+        /// </summary>
+        public static string Engine_RgbDetecting {
+            get {
+                return ResourceManager.GetString("Engine_RgbDetecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU.
+        /// </summary>
+        public static string Engine_RgbDevGpu {
+            get {
+                return ResourceManager.GetString("Engine_RgbDevGpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fans/Bomba.
+        /// </summary>
+        public static string Engine_RgbDevHub {
+            get {
+                return ResourceManager.GetString("Engine_RgbDevHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LCD.
+        /// </summary>
+        public static string Engine_RgbDevLcd {
+            get {
+                return ResourceManager.GetString("Engine_RgbDevLcd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa-mãe.
+        /// </summary>
+        public static string Engine_RgbDevMotherboard {
+            get {
+                return ResourceManager.GetString("Engine_RgbDevMotherboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Periféricos.
+        /// </summary>
+        public static string Engine_RgbDevPeripherals {
+            get {
+                return ResourceManager.GetString("Engine_RgbDevPeripherals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RAM DDR5.
+        /// </summary>
+        public static string Engine_RgbDevRam {
+            get {
+                return ResourceManager.GetString("Engine_RgbDevRam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Falhou: {0}.
+        /// </summary>
+        public static string Engine_RgbFailed {
+            get {
+                return ResourceManager.GetString("Engine_RgbFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, {1}.
+        /// </summary>
+        public static string Engine_RgbListPair {
+            get {
+                return ResourceManager.GetString("Engine_RgbListPair", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum dispositivo sincronizado.
+        /// </summary>
+        public static string Engine_RgbNoneSynced {
+            get {
+                return ResourceManager.GetString("Engine_RgbNoneSynced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sincronizado: {0}.
+        /// </summary>
+        public static string Engine_RgbSynced {
+            get {
+                return ResourceManager.GetString("Engine_RgbSynced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sincronizado: {0} • Falhou: {1}.
+        /// </summary>
+        public static string Engine_RgbSyncedAndFailed {
+            get {
+                return ResourceManager.GetString("Engine_RgbSyncedAndFailed", resourceCulture);
             }
         }
         
