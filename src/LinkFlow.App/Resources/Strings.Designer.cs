@@ -1642,6 +1642,1437 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 1 selecionada.
+        /// </summary>
+        public static string Fan_1Selecionada {
+            get {
+                return ResourceManager.GetString("Fan_1Selecionada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} aberto.
+        /// </summary>
+        public static string Fan_Aberto {
+            get {
+                return ResourceManager.GetString("Fan_Aberto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ao abrir .
+        /// </summary>
+        public static string Fan_Abrir {
+            get {
+                return ResourceManager.GetString("Fan_Abrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ao abrir &quot;{0}&quot;, o perfil Desempenho é aplicado (mude ao lado).
+        /// </summary>
+        public static string Fan_AbrirPerfilDesempenhoAplicado {
+            get {
+                return ResourceManager.GetString("Fan_AbrirPerfilDesempenhoAplicado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adicionar regra.
+        /// </summary>
+        public static string Fan_AdicionarRegra {
+            get {
+                return ResourceManager.GetString("Fan_AdicionarRegra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adicione um jogo ou programa para trocar de perfil automaticamente quando ele abrir..
+        /// </summary>
+        public static string Fan_AdicioneJogoOuPrograma {
+            get {
+                return ResourceManager.GetString("Fan_AdicioneJogoOuPrograma", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}% agora.
+        /// </summary>
+        public static string Fan_Agora {
+            get {
+                return ResourceManager.GetString("Fan_Agora", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agrupar.
+        /// </summary>
+        public static string Fan_Agrupar {
+            get {
+                return ResourceManager.GetString("Fan_Agrupar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Para AIO, o líquido reage devagar e evita picos de ruído..
+        /// </summary>
+        public static string Fan_AIOLiquidoReageDevagar {
+            get {
+                return ResourceManager.GetString("Fan_AIOLiquidoReageDevagar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alteração desfeita.
+        /// </summary>
+        public static string Fan_AlteracaoDesfeita {
+            get {
+                return ResourceManager.GetString("Fan_AlteracaoDesfeita", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Amarelo.
+        /// </summary>
+        public static string Fan_Amarelo {
+            get {
+                return ResourceManager.GetString("Fan_Amarelo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apagado.
+        /// </summary>
+        public static string Fan_Apagado {
+            get {
+                return ResourceManager.GetString("Fan_Apagado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}% aplicado em {1} dispositivo(s).
+        /// </summary>
+        public static string Fan_AplicadoDispositivo {
+            get {
+                return ResourceManager.GetString("Fan_AplicadoDispositivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplicar.
+        /// </summary>
+        public static string Fan_Aplicar {
+            get {
+                return ResourceManager.GetString("Fan_Aplicar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplicar perfil salvo.
+        /// </summary>
+        public static string Fan_AplicarPerfilSalvo {
+            get {
+                return ResourceManager.GetString("Fan_AplicarPerfilSalvo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplique um perfil ao abrir um jogo ou aplicativo. Ao fechar, o LinkFlow retoma o perfil anterior..
+        /// </summary>
+        public static string Fan_ApliquePerfilAbrirJogo {
+            get {
+                return ResourceManager.GetString("Fan_ApliquePerfilAbrirJogo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arraste a temperatura para ouvir as ventoinhas em cada ponto da curva. Ao sair da tela ou desligar, o controle volta às leituras reais. O modo de segurança continua usando as temperaturas reais..
+        /// </summary>
+        public static string Fan_ArrasteTemperaturaOuvirVentoinhas {
+            get {
+                return ResourceManager.GetString("Fan_ArrasteTemperaturaOuvirVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativar horário silencioso.
+        /// </summary>
+        public static string Fan_AtivarHorarioSilencioso {
+            get {
+                return ResourceManager.GetString("Fan_AtivarHorarioSilencioso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativo · {0}.
+        /// </summary>
+        public static string Fan_Ativo {
+            get {
+                return ResourceManager.GetString("Fan_Ativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativo: {0} ({1}).
+        /// </summary>
+        public static string Fan_Ativo2 {
+            get {
+                return ResourceManager.GetString("Fan_Ativo2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizar.
+        /// </summary>
+        public static string Fan_Atualizar {
+            get {
+                return ResourceManager.GetString("Fan_Atualizar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizar a lista de ventoinhas, bomba, LCD e RGB.
+        /// </summary>
+        public static string Fan_AtualizarListaVentoinhasBomba {
+            get {
+                return ResourceManager.GetString("Fan_AtualizarListaVentoinhasBomba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automação.
+        /// </summary>
+        public static string Fan_Automacao {
+            get {
+                return ResourceManager.GetString("Fan_Automacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to automação terminou.
+        /// </summary>
+        public static string Fan_AutomacaoTerminou {
+            get {
+                return ResourceManager.GetString("Fan_AutomacaoTerminou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automático (vBIOS).
+        /// </summary>
+        public static string Fan_AutomaticoVBIOS {
+            get {
+                return ResourceManager.GetString("Fan_AutomaticoVBIOS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Azul.
+        /// </summary>
+        public static string Fan_Azul {
+            get {
+                return ResourceManager.GetString("Fan_Azul", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Branco.
+        /// </summary>
+        public static string Fan_Branco {
+            get {
+                return ResourceManager.GetString("Fan_Branco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibrar.
+        /// </summary>
+        public static string Fan_Calibrar {
+            get {
+                return ResourceManager.GetString("Fan_Calibrar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canal {0:D2}.
+        /// </summary>
+        public static string Fan_Channel {
+            get {
+                return ResourceManager.GetString("Fan_Channel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ciano.
+        /// </summary>
+        public static string Fan_Ciano {
+            get {
+                return ResourceManager.GetString("Fan_Ciano", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} • clique duplo ou Ctrl+R para renomear.
+        /// </summary>
+        public static string Fan_CliqueDuploOuCtrl {
+            get {
+                return ResourceManager.GetString("Fan_CliqueDuploOuCtrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clique duplo ou Ctrl+R para renomear.
+        /// </summary>
+        public static string Fan_CliqueDuploOuCtrl2 {
+            get {
+                return ResourceManager.GetString("Fan_CliqueDuploOuCtrl2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conectado • {0}.
+        /// </summary>
+        public static string Fan_Conectado {
+            get {
+                return ResourceManager.GetString("Fan_Conectado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confira o cabo USB do hub e feche o iCUE antes de atualizar a lista..
+        /// </summary>
+        public static string Fan_ConfiraCaboUSBHub {
+            get {
+                return ResourceManager.GetString("Fan_ConfiraCaboUSBHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confira se o iCUE LINK Hub está ligado ao USB da placa-mãe e se o iCUE está fechado. Depois, clique em Atualizar no topo da página..
+        /// </summary>
+        public static string Fan_ConfiraICUELINKHub {
+            get {
+                return ResourceManager.GetString("Fan_ConfiraICUELINKHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle por dispositivo.
+        /// </summary>
+        public static string Fan_ControleDispositivo {
+            get {
+                return ResourceManager.GetString("Fan_ControleDispositivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle manual.
+        /// </summary>
+        public static string Fan_ControleManual {
+            get {
+                return ResourceManager.GetString("Fan_ControleManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle manual. Clique para voltar a seguir a potência global..
+        /// </summary>
+        public static string Fan_ControleManualCliqueVoltar {
+            get {
+                return ResourceManager.GetString("Fan_ControleManualCliqueVoltar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+A.
+        /// </summary>
+        public static string Fan_Ctrl {
+            get {
+                return ResourceManager.GetString("Fan_Ctrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}  •  F{1} (Ctrl+Alt+{2} em qualquer lugar).
+        /// </summary>
+        public static string Fan_CtrlAltQualquerLugar {
+            get {
+                return ResourceManager.GetString("Fan_CtrlAltQualquerLugar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva automática.
+        /// </summary>
+        public static string Fan_CurvaAutomatica {
+            get {
+                return ResourceManager.GetString("Fan_CurvaAutomatica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva automática ativada.
+        /// </summary>
+        public static string Fan_CurvaAutomaticaAtivada {
+            get {
+                return ResourceManager.GetString("Fan_CurvaAutomaticaAtivada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva do grupo &quot;{0}&quot;.
+        /// </summary>
+        public static string Fan_CurvaGrupo {
+            get {
+                return ResourceManager.GetString("Fan_CurvaGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva própria.
+        /// </summary>
+        public static string Fan_CurvaPropria {
+            get {
+                return ResourceManager.GetString("Fan_CurvaPropria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva restaurada para o padrão.
+        /// </summary>
+        public static string Fan_CurvaRestauradaPadrao {
+            get {
+                return ResourceManager.GetString("Fan_CurvaRestauradaPadrao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curvas por grupo.
+        /// </summary>
+        public static string Fan_CurvasGrupo {
+            get {
+                return ResourceManager.GetString("Fan_CurvasGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva de temperatura.
+        /// </summary>
+        public static string Fan_CurvaTemperatura {
+            get {
+                return ResourceManager.GetString("Fan_CurvaTemperatura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arraste os pontos • clique duplo adiciona • clique direito remove.
+        /// </summary>
+        public static string Fan_CurveEditorTip {
+            get {
+                return ResourceManager.GetString("Fan_CurveEditorTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Personalizado.
+        /// </summary>
+        public static string Fan_Custom {
+            get {
+                return ResourceManager.GetString("Fan_Custom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detectando....
+        /// </summary>
+        public static string Fan_Detectando {
+            get {
+                return ResourceManager.GetString("Fan_Detectando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} dispositivo(s) vinculados à potência global.
+        /// </summary>
+        public static string Fan_DevicesLinked {
+            get {
+                return ResourceManager.GetString("Fan_DevicesLinked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} dispositivo(s) em controle manual.
+        /// </summary>
+        public static string Fan_DevicesManual {
+            get {
+                return ResourceManager.GetString("Fan_DevicesManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Digite o nome do processo ou escolha um aplicativo aberto.
+        /// </summary>
+        public static string Fan_DigiteNomeProcessoOu {
+            get {
+                return ResourceManager.GetString("Fan_DigiteNomeProcessoOu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display 480x480 conectado.
+        /// </summary>
+        public static string Fan_Display480x480Conectado {
+            get {
+                return ResourceManager.GetString("Fan_Display480x480Conectado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display LCD não encontrado • tentando reconectar.
+        /// </summary>
+        public static string Fan_DisplayLCDNaoEncontrado {
+            get {
+                return ResourceManager.GetString("Fan_DisplayLCDNaoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  dispositivo(s).
+        /// </summary>
+        public static string Fan_Dispositivo {
+            get {
+                return ResourceManager.GetString("Fan_Dispositivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} dispositivo(s) encontrado(s).
+        /// </summary>
+        public static string Fan_DispositivoEncontrado {
+            get {
+                return ResourceManager.GetString("Fan_DispositivoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} dispositivo(s) no grupo &quot;{1}&quot;.
+        /// </summary>
+        public static string Fan_DispositivoGrupo {
+            get {
+                return ResourceManager.GetString("Fan_DispositivoGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Editar curva.
+        /// </summary>
+        public static string Fan_EditarCurva {
+            get {
+                return ResourceManager.GetString("Fan_EditarCurva", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter salva • Esc cancela • vazio volta ao nome original.
+        /// </summary>
+        public static string Fan_EnterSalvaEscCancela {
+            get {
+                return ResourceManager.GetString("Fan_EnterSalvaEscCancela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Esc.
+        /// </summary>
+        public static string Fan_Esc {
+            get {
+                return ResourceManager.GetString("Fan_Esc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Evita que as ventoinhas fiquem acelerando e desacelerando..
+        /// </summary>
+        public static string Fan_EvitaVentoinhasFiquemAcelerando {
+            get {
+                return ResourceManager.GetString("Fan_EvitaVentoinhasFiquemAcelerando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Excluir perfil.
+        /// </summary>
+        public static string Fan_ExcluirPerfil {
+            get {
+                return ResourceManager.GetString("Fan_ExcluirPerfil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fim.
+        /// </summary>
+        public static string Fan_Fim {
+            get {
+                return ResourceManager.GetString("Fan_Fim", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fim do horário silencioso.
+        /// </summary>
+        public static string Fan_FimHorarioSilencioso {
+            get {
+                return ResourceManager.GetString("Fan_FimHorarioSilencioso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grupo....
+        /// </summary>
+        public static string Fan_Grupo {
+            get {
+                return ResourceManager.GetString("Fan_Grupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grupo &quot;{0}&quot; agora segue a própria curva.
+        /// </summary>
+        public static string Fan_GrupoAgoraSeguePropria {
+            get {
+                return ResourceManager.GetString("Fan_GrupoAgoraSeguePropria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grupo removido de {0} dispositivo(s).
+        /// </summary>
+        public static string Fan_GrupoRemovidoDispositivo {
+            get {
+                return ResourceManager.GetString("Fan_GrupoRemovidoDispositivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grupo &quot;{0}&quot; voltou a seguir o global.
+        /// </summary>
+        public static string Fan_GrupoVoltouSeguirGlobal {
+            get {
+                return ResourceManager.GetString("Fan_GrupoVoltouSeguirGlobal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histerese da curva.
+        /// </summary>
+        public static string Fan_HistereseCurva {
+            get {
+                return ResourceManager.GetString("Fan_HistereseCurva", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histerese (queda antes de reduzir).
+        /// </summary>
+        public static string Fan_HistereseQuedaAntesReduzir {
+            get {
+                return ResourceManager.GetString("Fan_HistereseQuedaAntesReduzir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Horário silencioso.
+        /// </summary>
+        public static string Fan_HorarioSilencioso {
+            get {
+                return ResourceManager.GetString("Fan_HorarioSilencioso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to horário silencioso até {0:00}h.
+        /// </summary>
+        public static string Fan_HorarioSilenciosoAte {
+            get {
+                return ResourceManager.GetString("Fan_HorarioSilenciosoAte", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hub iCUE LINK não detectado.
+        /// </summary>
+        public static string Fan_HubICUELINKNao {
+            get {
+                return ResourceManager.GetString("Fan_HubICUELINKNao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to iCUE LINK Hub não encontrado. Verifique o USB e se o iCUE está fechado..
+        /// </summary>
+        public static string Fan_ICUELINKHubNao {
+            get {
+                return ResourceManager.GetString("Fan_ICUELINKHubNao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Início.
+        /// </summary>
+        public static string Fan_Inicio {
+            get {
+                return ResourceManager.GetString("Fan_Inicio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Início do horário silencioso.
+        /// </summary>
+        public static string Fan_InicioHorarioSilencioso {
+            get {
+                return ResourceManager.GetString("Fan_InicioHorarioSilencioso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inverter.
+        /// </summary>
+        public static string Fan_Inverter {
+            get {
+                return ResourceManager.GetString("Fan_Inverter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Já existe uma regra para &quot;{0}&quot;.
+        /// </summary>
+        public static string Fan_JaExisteRegra {
+            get {
+                return ResourceManager.GetString("Fan_JaExisteRegra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jogo ou aplicativo.
+        /// </summary>
+        public static string Fan_JogoOuAplicativo {
+            get {
+                return ResourceManager.GetString("Fan_JogoOuAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Laranja.
+        /// </summary>
+        public static string Fan_Laranja {
+            get {
+                return ResourceManager.GetString("Fan_Laranja", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limpar.
+        /// </summary>
+        public static string Fan_Limpar {
+            get {
+                return ResourceManager.GetString("Fan_Limpar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maior entre CPU e GPU.
+        /// </summary>
+        public static string Fan_MaiorEntreCPUGPU {
+            get {
+                return ResourceManager.GetString("Fan_MaiorEntreCPUGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Medir a rotação de cada ventoinha, definir o mínimo seguro e criar a referência de desgaste.
+        /// </summary>
+        public static string Fan_MedirRotacaoCadaVentoinha {
+            get {
+                return ResourceManager.GetString("Fan_MedirRotacaoCadaVentoinha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mesma potência o tempo todo.
+        /// </summary>
+        public static string Fan_MesmaPotenciaTempoTodo {
+            get {
+                return ResourceManager.GetString("Fan_MesmaPotenciaTempoTodo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de controle.
+        /// </summary>
+        public static string Fan_ModoControle {
+            get {
+                return ResourceManager.GetString("Fan_ModoControle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não detectado.
+        /// </summary>
+        public static string Fan_NaoDetectado {
+            get {
+                return ResourceManager.GetString("Fan_NaoDetectado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  • {0} não encontrado(s).
+        /// </summary>
+        public static string Fan_NaoEncontrado {
+            get {
+                return ResourceManager.GetString("Fan_NaoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  • nenhuma mudança.
+        /// </summary>
+        public static string Fan_NenhumaMudanca {
+            get {
+                return ResourceManager.GetString("Fan_NenhumaMudanca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma regra por aplicativo.
+        /// </summary>
+        public static string Fan_NenhumaRegraAplicativo {
+            get {
+                return ResourceManager.GetString("Fan_NenhumaRegraAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma selecionada • Ctrl+clique ou Shift+clique nos cartões para selecionar várias.
+        /// </summary>
+        public static string Fan_NenhumaSelecionadaCtrlClique {
+            get {
+                return ResourceManager.GetString("Fan_NenhumaSelecionadaCtrlClique", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum dispositivo encontrado no hub.
+        /// </summary>
+        public static string Fan_NenhumDispositivoEncontradoHub {
+            get {
+                return ResourceManager.GetString("Fan_NenhumDispositivoEncontradoHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nome do grupo (ex.: Frontal, Topo, Radiador).
+        /// </summary>
+        public static string Fan_NomeGrupoExFrontal {
+            get {
+                return ResourceManager.GetString("Fan_NomeGrupoExFrontal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nome do novo perfil.
+        /// </summary>
+        public static string Fan_NomeNovoPerfil {
+            get {
+                return ResourceManager.GetString("Fan_NomeNovoPerfil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  • {0} novo(s).
+        /// </summary>
+        public static string Fan_Novo {
+            get {
+                return ResourceManager.GetString("Fan_Novo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pausada: você escolheu outro perfil.
+        /// </summary>
+        public static string Fan_PausadaVoceEscolheuOutro {
+            get {
+                return ResourceManager.GetString("Fan_PausadaVoceEscolheuOutro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil {0} • {1}.
+        /// </summary>
+        public static string Fan_Perfil {
+            get {
+                return ResourceManager.GetString("Fan_Perfil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil &quot;{0}&quot; aplicado.
+        /// </summary>
+        public static string Fan_PerfilAplicado {
+            get {
+                return ResourceManager.GetString("Fan_PerfilAplicado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil &quot;{0}&quot; atualizado.
+        /// </summary>
+        public static string Fan_PerfilAtualizado {
+            get {
+                return ResourceManager.GetString("Fan_PerfilAtualizado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil &quot;{0}&quot; excluído.
+        /// </summary>
+        public static string Fan_PerfilExcluido {
+            get {
+                return ResourceManager.GetString("Fan_PerfilExcluido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil do horário silencioso.
+        /// </summary>
+        public static string Fan_PerfilHorarioSilencioso {
+            get {
+                return ResourceManager.GetString("Fan_PerfilHorarioSilencioso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; é um perfil pronto. Escolha outro nome..
+        /// </summary>
+        public static string Fan_PerfilProntoEscolhaOutro {
+            get {
+                return ResourceManager.GetString("Fan_PerfilProntoEscolhaOutro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil &quot;{0}&quot; salvo.
+        /// </summary>
+        public static string Fan_PerfilSalvo {
+            get {
+                return ResourceManager.GetString("Fan_PerfilSalvo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis por aplicativo.
+        /// </summary>
+        public static string Fan_PerfisAplicativo {
+            get {
+                return ResourceManager.GetString("Fan_PerfisAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis e curvas.
+        /// </summary>
+        public static string Fan_PerfisCurvas {
+            get {
+                return ResourceManager.GetString("Fan_PerfisCurvas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis de refrigeração.
+        /// </summary>
+        public static string Fan_PerfisRefrigeracao {
+            get {
+                return ResourceManager.GetString("Fan_PerfisRefrigeracao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência de {0}.
+        /// </summary>
+        public static string Fan_Potencia {
+            get {
+                return ResourceManager.GetString("Fan_Potencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A potência acompanha a temperatura.
+        /// </summary>
+        public static string Fan_PotenciaAcompanhaTemperatura {
+            get {
+                return ResourceManager.GetString("Fan_PotenciaAcompanhaTemperatura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência fixa ativada.
+        /// </summary>
+        public static string Fan_PotenciaFixaAtivada {
+            get {
+                return ResourceManager.GetString("Fan_PotenciaFixaAtivada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência da seleção.
+        /// </summary>
+        public static string Fan_PotenciaSelecao {
+            get {
+                return ResourceManager.GetString("Fan_PotenciaSelecao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência das ventoinhas da GPU.
+        /// </summary>
+        public static string Fan_PotenciaVentoinhasGPU {
+            get {
+                return ResourceManager.GetString("Fan_PotenciaVentoinhasGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Procurando....
+        /// </summary>
+        public static string Fan_Procurando {
+            get {
+                return ResourceManager.GetString("Fan_Procurando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Procurando ventoinhas, bomba, LCD e RGB....
+        /// </summary>
+        public static string Fan_ProcurandoVentoinhasBombaLCD {
+            get {
+                return ResourceManager.GetString("Fan_ProcurandoVentoinhasBombaLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Proteção ativa · o perfil volta quando as leituras estabilizarem..
+        /// </summary>
+        public static string Fan_ProtecaoAtivaPerfilVolta {
+            get {
+                return ResourceManager.GetString("Fan_ProtecaoAtivaPerfilVolta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quadro enviado ao display LCD.
+        /// </summary>
+        public static string Fan_QuadroEnviadoDisplayLCD {
+            get {
+                return ResourceManager.GetString("Fan_QuadroEnviadoDisplayLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Regra ativa.
+        /// </summary>
+        public static string Fan_RegraAtiva {
+            get {
+                return ResourceManager.GetString("Fan_RegraAtiva", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover regra.
+        /// </summary>
+        public static string Fan_RemoverRegra {
+            get {
+                return ResourceManager.GetString("Fan_RemoverRegra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renomear.
+        /// </summary>
+        public static string Fan_Renomear {
+            get {
+                return ResourceManager.GetString("Fan_Renomear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renomear (Ctrl+R).
+        /// </summary>
+        public static string Fan_RenomearCtrl {
+            get {
+                return ResourceManager.GetString("Fan_RenomearCtrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restaurar nome original.
+        /// </summary>
+        public static string Fan_RestaurarNomeOriginal {
+            get {
+                return ResourceManager.GetString("Fan_RestaurarNomeOriginal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restaurar padrão.
+        /// </summary>
+        public static string Fan_RestaurarPadrao {
+            get {
+                return ResourceManager.GetString("Fan_RestaurarPadrao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revincular todas.
+        /// </summary>
+        public static string Fan_RevincularTodas {
+            get {
+                return ResourceManager.GetString("Fan_RevincularTodas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rosa.
+        /// </summary>
+        public static string Fan_Rosa {
+            get {
+                return ResourceManager.GetString("Fan_Rosa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Roxo.
+        /// </summary>
+        public static string Fan_Roxo {
+            get {
+                return ResourceManager.GetString("Fan_Roxo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Salva a configuração atual como perfil.
+        /// </summary>
+        public static string Fan_SalvaConfiguracaoAtualComo {
+            get {
+                return ResourceManager.GetString("Fan_SalvaConfiguracaoAtualComo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Salvar.
+        /// </summary>
+        public static string Fan_Salvar {
+            get {
+                return ResourceManager.GetString("Fan_Salvar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (salvo).
+        /// </summary>
+        public static string Fan_Salvo {
+            get {
+                return ResourceManager.GetString("Fan_Salvo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to segue o global.
+        /// </summary>
+        public static string Fan_SegueGlobal {
+            get {
+                return ResourceManager.GetString("Fan_SegueGlobal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} selecionadas.
+        /// </summary>
+        public static string Fan_Selecionadas {
+            get {
+                return ResourceManager.GetString("Fan_Selecionadas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to As selecionadas voltam a seguir a potência global.
+        /// </summary>
+        public static string Fan_SelecionadasVoltamSeguirPotencia {
+            get {
+                return ResourceManager.GetString("Fan_SelecionadasVoltamSeguirPotencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecionar.
+        /// </summary>
+        public static string Fan_Selecionar {
+            get {
+                return ResourceManager.GetString("Fan_Selecionar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecionar este grupo.
+        /// </summary>
+        public static string Fan_SelecionarEsteGrupo {
+            get {
+                return ResourceManager.GetString("Fan_SelecionarEsteGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecionar o grupo.
+        /// </summary>
+        public static string Fan_SelecionarGrupo {
+            get {
+                return ResourceManager.GetString("Fan_SelecionarGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecionar ventoinha.
+        /// </summary>
+        public static string Fan_SelecionarVentoinha {
+            get {
+                return ResourceManager.GetString("Fan_SelecionarVentoinha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecione um ou mais cartões para aplicar em lote.
+        /// </summary>
+        public static string Fan_SelecioneOuMaisCartoes {
+            get {
+                return ResourceManager.GetString("Fan_SelecioneOuMaisCartoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem grupo.
+        /// </summary>
+        public static string Fan_SemGrupo {
+            get {
+                return ResourceManager.GetString("Fan_SemGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor que este grupo segue.
+        /// </summary>
+        public static string Fan_SensorEsteGrupoSegue {
+            get {
+                return ResourceManager.GetString("Fan_SensorEsteGrupoSegue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor do grupo.
+        /// </summary>
+        public static string Fan_SensorGrupo {
+            get {
+                return ResourceManager.GetString("Fan_SensorGrupo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor de referência.
+        /// </summary>
+        public static string Fan_SensorReferencia {
+            get {
+                return ResourceManager.GetString("Fan_SensorReferencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Só ventoinhas.
+        /// </summary>
+        public static string Fan_SoVentoinhas {
+            get {
+                return ResourceManager.GetString("Fan_SoVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura da CPU.
+        /// </summary>
+        public static string Fan_TemperaturaCPU {
+            get {
+                return ResourceManager.GetString("Fan_TemperaturaCPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura da GPU.
+        /// </summary>
+        public static string Fan_TemperaturaGPU {
+            get {
+                return ResourceManager.GetString("Fan_TemperaturaGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura do líquido (AIO).
+        /// </summary>
+        public static string Fan_TemperaturaLiquidoAIO {
+            get {
+                return ResourceManager.GetString("Fan_TemperaturaLiquidoAIO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura simulada.
+        /// </summary>
+        public static string Fan_TemperaturaSimulada {
+            get {
+                return ResourceManager.GetString("Fan_TemperaturaSimulada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Testar curva.
+        /// </summary>
+        public static string Fan_TestarCurva {
+            get {
+                return ResourceManager.GetString("Fan_TestarCurva", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Todas.
+        /// </summary>
+        public static string Fan_Todas {
+            get {
+                return ResourceManager.GetString("Fan_Todas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Todas as ventoinhas voltam a seguir a potência global.
+        /// </summary>
+        public static string Fan_TodasVentoinhasVoltamSeguir {
+            get {
+                return ResourceManager.GetString("Fan_TodasVentoinhasVoltamSeguir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Todas as ventoinhas voltaram a seguir a potência global.
+        /// </summary>
+        public static string Fan_TodasVentoinhasVoltaramSeguir {
+            get {
+                return ResourceManager.GetString("Fan_TodasVentoinhasVoltaramSeguir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  • modelo não identificado.
+        /// </summary>
+        public static string Fan_UnknownModelSuffix {
+            get {
+                return ResourceManager.GetString("Fan_UnknownModelSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use curvas e sensores diferentes para o radiador, o gabinete e outros grupos..
+        /// </summary>
+        public static string Fan_UseCurvasSensoresDiferentes {
+            get {
+                return ResourceManager.GetString("Fan_UseCurvasSensoresDiferentes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use um perfil específico durante o período escolhido..
+        /// </summary>
+        public static string Fan_UsePerfilEspecificoDurante {
+            get {
+                return ResourceManager.GetString("Fan_UsePerfilEspecificoDurante", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinhas vinculadas seguem este valor..
+        /// </summary>
+        public static string Fan_VentoinhasVinculadasSeguemEste {
+            get {
+                return ResourceManager.GetString("Fan_VentoinhasVinculadasSeguemEste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verde.
+        /// </summary>
+        public static string Fan_Verde {
+            get {
+                return ResourceManager.GetString("Fan_Verde", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vermelho.
+        /// </summary>
+        public static string Fan_Vermelho {
+            get {
+                return ResourceManager.GetString("Fan_Vermelho", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vinculada à potência global. Mova o slider para controlar só esta ventoinha..
+        /// </summary>
+        public static string Fan_VinculadaPotenciaGlobalMova {
+            get {
+                return ResourceManager.GetString("Fan_VinculadaPotenciaGlobalMova", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vincular ao global.
+        /// </summary>
+        public static string Fan_VincularGlobal {
+            get {
+                return ResourceManager.GetString("Fan_VincularGlobal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vincular à potência global.
+        /// </summary>
+        public static string Fan_VincularPotenciaGlobal {
+            get {
+                return ResourceManager.GetString("Fan_VincularPotenciaGlobal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ← Voltar a editar a curva global.
+        /// </summary>
+        public static string Fan_VoltarEditarCurvaGlobal {
+            get {
+                return ResourceManager.GetString("Fan_VoltarEditarCurvaGlobal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; voltou a se chamar &quot;{1}&quot;.
+        /// </summary>
+        public static string Fan_VoltouChamar {
+            get {
+                return ResourceManager.GetString("Fan_VoltouChamar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 32 GiB · 6000 MT/s configurados · DIMMA2.
         /// </summary>
         public static string Hw_32GiB6000MT {

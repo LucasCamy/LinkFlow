@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using System.Windows.Threading;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -25,7 +26,7 @@ public partial class MainViewModel
         }
     }
 
-    public string RescanLabel => _isRescanning ? "Procurando..." : "Atualizar";
+    public string RescanLabel => _isRescanning ? Strings.Fan_Procurando : Strings.Fan_Atualizar;
 
     public void RescanDevices()
     {
@@ -34,7 +35,7 @@ public partial class MainViewModel
         _rescanStarted = DateTime.Now;
         IsRescanning = true;
         _engine.RescanDevices();
-        ShowToast("Procurando ventoinhas, bomba, LCD e RGB...", canUndo: false);
+        ShowToast(Strings.Fan_ProcurandoVentoinhasBombaLCD, canUndo: false);
 
         _rescanTimer ??= new DispatcherTimer(DispatcherPriority.Background, _dispatcher) { Interval = TimeSpan.FromMilliseconds(500) };
         _rescanTimer.Tick -= OnRescanTick;
@@ -53,17 +54,17 @@ public partial class MainViewModel
 
         if (!Snapshot.HubConnected)
         {
-            ShowToast("iCUE LINK Hub não encontrado. Verifique o USB e se o iCUE está fechado.", canUndo: false);
+            ShowToast(Strings.Fan_ICUELINKHubNao, canUndo: false);
             return;
         }
 
         var now = Fans.Select(f => f.Key).ToHashSet();
         int added = now.Except(_keysBeforeRescan).Count();
         int removed = _keysBeforeRescan.Except(now).Count();
-        var msg = $"{Fans.Count} dispositivo(s) encontrado(s)";
-        if (added > 0) msg += $" • {added} novo(s)";
-        if (removed > 0) msg += $" • {removed} não encontrado(s)";
-        if (added == 0 && removed == 0) msg += " • nenhuma mudança";
+        var msg = string.Format(Strings.Fan_DispositivoEncontrado, Fans.Count);
+        if (added > 0) msg += string.Format(Strings.Fan_Novo, added);
+        if (removed > 0) msg += string.Format(Strings.Fan_NaoEncontrado, removed);
+        if (added == 0 && removed == 0) msg += Strings.Fan_NenhumaMudanca;
         ShowToast(msg, canUndo: false);
     }
 
@@ -89,6 +90,6 @@ public partial class MainViewModel
     {
         if (!fan.HasCustomName) return;
         var old = fan.Name;
-        WithUndo($"\"{old}\" voltou a se chamar \"{fan.DefaultName}\"", () => fan.Name = fan.DefaultName);
+        WithUndo(string.Format(Strings.Fan_VoltouChamar, old, fan.DefaultName), () => fan.Name = fan.DefaultName);
     }
 }

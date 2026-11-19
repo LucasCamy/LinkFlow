@@ -388,4 +388,34 @@
   <data name="GHubSendError" xml:space="preserve">
     <value>The Logitech SDK returned an error while sending the color.</value>
   </data>
+  <data name="PresetSilent" xml:space="preserve">
+    <value>Silent</value>
+  </data>
+  <data name="PresetSilentDesc" xml:space="preserve">
+    <value>40% • automatic GPU</value>
+  </data>
+  <data name="PresetBalanced" xml:space="preserve">
+    <value>Balanced</value>
+  </data>
+  <data name="PresetBalancedDesc" xml:space="preserve">
+    <value>55% • automatic GPU</value>
+  </data>
+  <data name="PresetPerformance" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="PresetPerformanceDesc" xml:space="preserve">
+    <value>75% • GPU 65%</value>
+  </data>
+  <data name="PresetMax" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="PresetMaxDesc" xml:space="preserve">
+    <value>100% • GPU 100%</value>
+  </data>
+  <data name="PresetAuto" xml:space="preserve">
+    <value>Smart curve</value>
+  </data>
+  <data name="PresetAutoDesc" xml:space="preserve">
+    <value>Follows the temperature</value>
+  </data>
 </root>

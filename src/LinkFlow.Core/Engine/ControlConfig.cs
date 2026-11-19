@@ -418,7 +418,12 @@ public sealed partial class FanProfile
     }
 }
 
-public sealed record FanPreset(string Key, string Label, string Icon, string Description, Action<ControlConfig> Apply);
+/// <summary>Perfil pronto. <see cref="Key"/> é o que fica salvo; nome e descrição saem no idioma da interface.</summary>
+public sealed record FanPreset(string Key, string LabelCode, string Icon, string DescriptionCode, Action<ControlConfig> Apply)
+{
+    public string Label => EngineTexts.Get(LabelCode, EngineTexts.DisplayCulture);
+    public string Description => EngineTexts.Get(DescriptionCode, EngineTexts.DisplayCulture);
+}
 
 /// <summary>Perfis prontos. Todos revinculam as ventoinhas à potência global (nomes/grupos são mantidos).</summary>
 public static class FanPresets
@@ -431,11 +436,11 @@ public static class FanPresets
 
     public static readonly IReadOnlyList<FanPreset> All = new FanPreset[]
     {
-        new(Silent, "Silencioso", Glyph(0xE74F), "40% • GPU automática", c => Fixed(c, 40, gpuAuto: true, gpu: 50)),
-        new(Balanced, "Equilibrado", Glyph(0xEC49), "55% • GPU automática", c => Fixed(c, 55, gpuAuto: true, gpu: 50)),
-        new(Performance, "Desempenho", Glyph(0xEC4A), "75% • GPU 65%", c => Fixed(c, 75, gpuAuto: false, gpu: 65)),
-        new(Max, "Máximo", Glyph(0xE945), "100% • GPU 100%", c => Fixed(c, 100, gpuAuto: false, gpu: 100)),
-        new(Auto, "Curva inteligente", Glyph(0xE9D9), "Segue a temperatura", c =>
+        new(Silent, EngineTexts.PresetSilent, Glyph(0xE74F), EngineTexts.PresetSilentDesc, c => Fixed(c, 40, gpuAuto: true, gpu: 50)),
+        new(Balanced, EngineTexts.PresetBalanced, Glyph(0xEC49), EngineTexts.PresetBalancedDesc, c => Fixed(c, 55, gpuAuto: true, gpu: 50)),
+        new(Performance, EngineTexts.PresetPerformance, Glyph(0xEC4A), EngineTexts.PresetPerformanceDesc, c => Fixed(c, 75, gpuAuto: false, gpu: 65)),
+        new(Max, EngineTexts.PresetMax, Glyph(0xE945), EngineTexts.PresetMaxDesc, c => Fixed(c, 100, gpuAuto: false, gpu: 100)),
+        new(Auto, EngineTexts.PresetAuto, Glyph(0xE9D9), EngineTexts.PresetAutoDesc, c =>
         {
             c.Mode = FanControlMode.Curve;
             c.GpuFanAuto = true;

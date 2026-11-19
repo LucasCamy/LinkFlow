@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Markup;
 using LinkFlow.App.Resources;
+using LinkFlow.Core;
 
 namespace LinkFlow.App.Services;
 
@@ -87,6 +88,7 @@ public static class UiLanguage
         var culture = CultureInfo.GetCultureInfo(Match(language) ?? Portuguese);
         Culture = culture;
         Strings.Culture = culture;
+        EngineTexts.DisplayCulture = culture;
         CultureInfo.DefaultThreadCurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
