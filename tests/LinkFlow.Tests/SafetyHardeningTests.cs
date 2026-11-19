@@ -182,11 +182,11 @@ public sealed class MediaFilesTests : IDisposable
 
         using var service = new LcdComposer(libraryOnly: true);
         service.ComposeJpeg(cfg, new EngineSnapshot(), new RgbConfig());
-        Assert.Contains("não encontrado", service.Status);
+        Assert.Contains("não encontrado", service.Status.ToPortuguese());
 
         using var preview = new LcdComposer();
         preview.ComposeJpeg(cfg, new EngineSnapshot(), new RgbConfig());
-        Assert.DoesNotContain("não encontrado", preview.Status);
+        Assert.DoesNotContain("não encontrado", preview.Status.ToPortuguese());
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

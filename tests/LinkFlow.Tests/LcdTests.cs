@@ -119,7 +119,7 @@ public sealed class LcdTests : IDisposable
         var (jpeg, next) = composer.ComposeJpeg(cfg, Snapshot(), new RgbConfig());
         Assert.True(IsJpeg(jpeg));
         Assert.Equal(TimeSpan.FromSeconds(1), next);
-        Assert.Equal("Métricas", composer.Status);
+        Assert.Equal("Métricas", composer.Status.ToPortuguese());
     }
 
     [Fact]
@@ -144,8 +144,8 @@ public sealed class LcdTests : IDisposable
         var cfg = new LcdConfig { Mode = LcdMode.Media, Media = { new LcdMediaItem { Path = gif, Name = "anim.gif" } } };
 
         var next = composer.Compose(cfg, Snapshot(), new RgbConfig());
-        Assert.Contains("GIF", composer.Status);
-        Assert.Contains("4 quadros", composer.Status);
+        Assert.Contains("GIF", composer.Status.ToPortuguese());
+        Assert.Contains("4 quadros", composer.Status.ToPortuguese());
         Assert.InRange(next.TotalMilliseconds, 50, 200);
 
         var first = composer.EncodeJpeg();
@@ -168,10 +168,10 @@ public sealed class LcdTests : IDisposable
         cfg.Normalize();
 
         composer.Compose(cfg, Snapshot(), new RgbConfig());
-        Assert.Equal("Imagem 1/2", composer.Status);
+        Assert.Equal("Imagem 1/2", composer.Status.ToPortuguese());
         Thread.Sleep(2100);
         composer.Compose(cfg, Snapshot(), new RgbConfig());
-        Assert.Equal("Imagem 2/2", composer.Status);
+        Assert.Equal("Imagem 2/2", composer.Status.ToPortuguese());
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public sealed class LcdTests : IDisposable
         var missing = new LcdConfig { Mode = LcdMode.Media, Media = { new LcdMediaItem { Path = Path.Combine(_dir, "nao-existe.png") } } };
         var (jpeg, _) = composer.ComposeJpeg(missing, Snapshot(), new RgbConfig());
         Assert.True(IsJpeg(jpeg));
-        Assert.Contains("não encontrado", composer.Status);
+        Assert.Contains("não encontrado", composer.Status.ToPortuguese());
 
         var still = CreateImage(_dir, "still.png", 64, Colors.Orange);
         var cfg = new LcdConfig { Mode = LcdMode.Media, Media = { new LcdMediaItem { Path = still } } };

@@ -36,6 +36,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         AlertCenter = new AlertsViewModel(alertHistoryPath);
 
         LoadConfig(engine.Config);
+        SyncLcdLanguage();
 
         _engine.SnapshotUpdated += OnSnapshot;
         _engine.ConfigChanged += c => _dispatcher.BeginInvoke(() => LoadConfig(c));
@@ -142,8 +143,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
         OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected));
         AlertCenter.Update(Snapshot, IsEngineDisconnected);
         NotifyLightingStatus();
-        if (connected) LoadConfig(_engine.Config);
+        if (!connected) return;
+        LoadConfig(_engine.Config);
+        SyncLcdLanguage();
     });
+
+    /// <summary>
+    /// O LCD é desenhado pelo serviço, que não sabe o idioma do usuário: grava o da interface na configuração. Só na
+    /// partida e ao (re)conectar, para duas interfaces em idiomas diferentes não ficarem trocando o valor sem parar.
+    /// </summary>
+    private void SyncLcdLanguage()
+    {
+        string language = UiLanguage.Culture.Name;
+        if (_engine.Config.Lcd.Language != language) _engine.UpdateConfig(c => c.Lcd.Language = language);
+    }
 
     private void SyncFans(List<FanState> states)
     {

@@ -18,7 +18,8 @@ public readonly record struct LcdMetricValue(string Value, string Label, float? 
 public sealed class LcdComposer : IDisposable
 {
     public const int Size = 480;
-    private static readonly CultureInfo Pt = CultureInfo.GetCultureInfo("pt-BR");
+    /// <summary>Idioma do quadro atual (de <see cref="LcdConfig.Language"/>).</summary>
+    private CultureInfo _culture = EngineTexts.PortugueseCulture;
 
     private readonly Bitmap _bmp = new(Size, Size, PixelFormat.Format32bppArgb);
     private readonly Graphics _g;
@@ -78,8 +79,8 @@ public sealed class LcdComposer : IDisposable
     /// <summary>Quadro atual (válido até a próxima chamada de <see cref="Compose"/>).</summary>
     public Bitmap Canvas => _bmp;
 
-    /// <summary>Descrição do que está sendo exibido (ex.: "GIF 2/3").</summary>
-    public string Status { get; private set; } = "Métricas";
+    /// <summary>Descrição do que está sendo exibido (ex.: "GIF 2/3"), para a interface traduzir.</summary>
+    public EngineText Status { get; private set; } = EngineText.Of(EngineTexts.LcdShowingMetrics);
 
     /// <summary>
     /// Desenha o quadro atual. Retorna quanto tempo até o próximo quadro ser necessário
@@ -93,6 +94,7 @@ public sealed class LcdComposer : IDisposable
         if (theme.R + theme.G + theme.B < 60) theme = Color.FromArgb(0, 240, 255); // cor apagada: mantém legível
         var critical = snap.Alerts.FirstOrDefault(a => a.Severity == AlertSeverity.Critical);
         bool warning = snap.FailSafeActive || critical != null;
+        _culture = EngineTexts.CultureFor(cfg.Language);
 
         var g = _g;
         g.ResetTransform();
@@ -108,7 +110,7 @@ public sealed class LcdComposer : IDisposable
         else
         {
             next = DrawMetrics(cfg, snap, theme, warning, critical);
-            Status = cfg.ShowTelemetry ? "Métricas" : "Imagem de fundo";
+            Status = EngineText.Of(cfg.ShowTelemetry ? EngineTexts.LcdShowingMetrics : EngineTexts.LcdShowingBackground);
         }
 
         if (applyRotation && cfg.Rotation != 0)
@@ -188,7 +190,7 @@ public sealed class LcdComposer : IDisposable
             }
         }
 
-        var main = Metric(cfg.MainMetric, snap);
+        var main = Metric(cfg.MainMetric, snap, _culture);
         var ringColor = warning ? Color.FromArgb(244, 63, 94) : theme;
         if (cfg.ShowRing)
         {
@@ -210,7 +212,7 @@ public sealed class LcdComposer : IDisposable
             g.DrawString(main.Label, _mainLabelFont, themeBrush, new PointF(240, 238), _center);
         }
 
-        var secondary = cfg.SecondaryMetrics.Take(LcdConfig.MaxSecondary).Select(m => Metric(m, snap)).ToList();
+        var secondary = cfg.SecondaryMetrics.Take(LcdConfig.MaxSecondary).Select(m => Metric(m, snap, _culture)).ToList();
         float statusY = 375;
         switch (secondary.Count)
         {
@@ -235,7 +237,8 @@ public sealed class LcdComposer : IDisposable
                 break;
         }
 
-        string status = snap.FailSafeActive ? "MODO SEGURANÇA" : critical != null ? "ALERTA" : "OPERACIONAL";
+        string status = EngineTexts.Get(snap.FailSafeActive ? EngineTexts.LcdSafeMode
+            : critical != null ? EngineTexts.LcdAlert : EngineTexts.LcdOperational, _culture);
         g.DrawString($"● {status}", _statusFont, warning ? _warn : _ok, new PointF(240, statusY), _center);
         return next;
     }
@@ -269,34 +272,41 @@ public sealed class LcdComposer : IDisposable
         return created;
     }
 
-    public static LcdMetricValue Metric(LcdMetric metric, EngineSnapshot s)
+    /// <summary>Valor e rótulo de uma métrica no idioma de <paramref name="culture"/> (rótulos e números; padrão, português).</summary>
+    public static LcdMetricValue Metric(LcdMetric metric, EngineSnapshot s, CultureInfo? culture = null)
     {
-        static string T(float? v, string fmt = "0") => v is { } x ? x.ToString(fmt, Pt) + "°" : "--";
-        static string P(float? v) => v is { } x ? $"{x:0}%" : "--";
-        static string W(float? v) => v is { } x ? $"{x:0} W" : "--";
+        var c = culture ?? EngineTexts.PortugueseCulture;
+        string T(float? v, string fmt = "0") => v is { } x ? x.ToString(fmt, c) + "°" : "--";
+        string P(float? v) => v is { } x ? x.ToString("0", c) + "%" : "--";
+        string W(float? v) => v is { } x ? x.ToString("0", c) + " W" : "--";
+        string Label(string code) => EngineTexts.Get(code, c);
         static float? R(float? v, float min, float max) => v is { } x ? Math.Clamp((x - min) / (max - min), 0f, 1f) : null;
 
         float? cpu = s.CpuSensorAvailable ? s.CpuTemp : null;
         return metric switch
         {
             LcdMetric.CpuTemp => new(T(cpu), "CPU", R(cpu, 0, 100)),
-            LcdMetric.CpuLoad => new(P(s.CpuLoad), "USO CPU", R(s.CpuLoad, 0, 100)),
+            LcdMetric.CpuLoad => new(P(s.CpuLoad), Label(EngineTexts.LcdCpuLoad), R(s.CpuLoad, 0, 100)),
             LcdMetric.CpuPower => new(W(s.CpuPower), "CPU", R(s.CpuPower, 0, 200)),
-            LcdMetric.CpuClock => new(s.CpuClockMhz is { } c ? (c / 1000).ToString("0.0", Pt) + " GHz" : "--", "CLOCK CPU", R(s.CpuClockMhz, 0, 6000)),
+            LcdMetric.CpuClock => new(s.CpuClockMhz is { } mhz ? (mhz / 1000).ToString("0.0", c) + " GHz" : "--", Label(EngineTexts.LcdCpuClock), R(s.CpuClockMhz, 0, 6000)),
             LcdMetric.GpuTemp => new(T(s.GpuTemp), "GPU", R(s.GpuTemp, 0, 100)),
             LcdMetric.GpuHotspot => new(T(s.GpuHotspot), "HOTSPOT", R(s.GpuHotspot, 0, 110)),
-            LcdMetric.GpuLoad => new(P(s.GpuLoad), "USO GPU", R(s.GpuLoad, 0, 100)),
+            LcdMetric.GpuLoad => new(P(s.GpuLoad), Label(EngineTexts.LcdGpuLoad), R(s.GpuLoad, 0, 100)),
             LcdMetric.GpuPower => new(W(s.GpuPower), "GPU", R(s.GpuPower, 0, 450)),
-            LcdMetric.CoolantTemp => new(T(s.CoolantTemp, "0.0"), "LÍQUIDO", R(s.CoolantTemp, 20, 50)),
-            LcdMetric.PumpRpm => new(s.PumpRpm is { } p ? p.ToString("N0", Pt) : "--", "BOMBA RPM", R(s.PumpRpm, 0, 3200)),
-            LcdMetric.FanRpm => new(s.AverageFanRpm is { } f ? f.ToString("N0", Pt) : "--", "FANS RPM", R(s.AverageFanRpm, 0, 2400)),
-            LcdMetric.FanPower => new($"{s.EffectiveGlobalPercent}%", "FANS", s.EffectiveGlobalPercent / 100f),
+            LcdMetric.CoolantTemp => new(T(s.CoolantTemp, "0.0"), Label(EngineTexts.LcdCoolant), R(s.CoolantTemp, 20, 50)),
+            LcdMetric.PumpRpm => new(s.PumpRpm is { } p ? p.ToString("N0", c) : "--", Label(EngineTexts.LcdPumpRpm), R(s.PumpRpm, 0, 3200)),
+            LcdMetric.FanRpm => new(s.AverageFanRpm is { } f ? f.ToString("N0", c) : "--", Label(EngineTexts.LcdFansRpm), R(s.AverageFanRpm, 0, 2400)),
+            LcdMetric.FanPower => new($"{s.EffectiveGlobalPercent}%", Label(EngineTexts.LcdFans), s.EffectiveGlobalPercent / 100f),
             LcdMetric.RamUsage => new(P(s.RamUsage), "RAM", R(s.RamUsage, 0, 100)),
-            LcdMetric.Clock => new(DateTime.Now.ToString("HH:mm", Pt), DateTime.Now.ToString("ddd dd/MM", Pt).ToUpperInvariant(), null),
-            LcdMetric.NetDown => new(s.Network is { } nd ? SensorCatalog.Rate(nd.DownBytesPerSec) : "--", "DOWNLOAD", s.Network is { } nr ? (float)Math.Clamp(nr.DownBytesPerSec / 12.5e6, 0, 1) : null),
-            LcdMetric.NetUp => new(s.Network is { } nu ? SensorCatalog.Rate(nu.UpBytesPerSec) : "--", "UPLOAD", null),
-            LcdMetric.DiskUsage => s.Volumes.FirstOrDefault() is { } v ? new($"{v.UsedPercent:0}%", $"DISCO {v.Letter}", (float)(v.UsedPercent / 100)) : new("--", "DISCO", null),
-            LcdMetric.CpuCoreMax => s.CpuCoreLoads is { Length: > 0 } cl ? new($"{cl.Max():0}%", "NÚCLEO", cl.Max() / 100f) : new("--", "NÚCLEO", null),
+            LcdMetric.Clock => new(DateTime.Now.ToString("HH:mm", c), DateTime.Now.ToString(Label(EngineTexts.LcdDateFormat), c).ToUpper(c), null),
+            LcdMetric.NetDown => new(s.Network is { } nd ? SensorCatalog.Rate(nd.DownBytesPerSec, c) : "--", "DOWNLOAD", s.Network is { } nr ? (float)Math.Clamp(nr.DownBytesPerSec / 12.5e6, 0, 1) : null),
+            LcdMetric.NetUp => new(s.Network is { } nu ? SensorCatalog.Rate(nu.UpBytesPerSec, c) : "--", "UPLOAD", null),
+            LcdMetric.DiskUsage => s.Volumes.FirstOrDefault() is { } v
+                ? new(v.UsedPercent.ToString("0", c) + "%", string.Format(c, Label(EngineTexts.LcdDisk), v.Letter), (float)(v.UsedPercent / 100))
+                : new("--", Label(EngineTexts.LcdDiskNone), null),
+            LcdMetric.CpuCoreMax => s.CpuCoreLoads is { Length: > 0 } cl
+                ? new(cl.Max().ToString("0", c) + "%", Label(EngineTexts.LcdCore), cl.Max() / 100f)
+                : new("--", Label(EngineTexts.LcdCore), null),
             _ => new(string.Empty, string.Empty, null)
         };
     }
@@ -351,9 +361,9 @@ public sealed class LcdComposer : IDisposable
 
         if (media == null)
         {
-            g.DrawString("Arquivo não encontrado", _messageFont, _warn, new RectangleF(40, 200, 400, 40), _centerBoth);
+            g.DrawString(EngineTexts.Get(EngineTexts.LcdFileMissing, _culture), _messageFont, _warn, new RectangleF(40, 200, 400, 40), _centerBoth);
             g.DrawString(item.Name, _statusFont, _muted, new RectangleF(40, 240, 400, 30), _centerBoth);
-            Status = $"Imagem{position} • arquivo não encontrado";
+            Status = EngineText.Of(EngineTexts.LcdImageMissing, position);
         }
         else if (media.FrameCount > 1)
         {
@@ -363,12 +373,12 @@ public sealed class LcdComposer : IDisposable
             DrawImageFit(media.Image, cfg.Fit, item.Crop);
             next = TimeSpan.FromMilliseconds(Math.Max(MinFrameMs, remaining));
             IsAnimating = true;
-            Status = $"GIF{position} • {media.FrameCount} quadros";
+            Status = EngineText.Of(EngineTexts.LcdGif, position, media.FrameCount);
         }
         else
         {
             DrawImageFit(media.Image, cfg.Fit, item.Crop);
-            Status = $"Imagem{position}";
+            Status = EngineText.Of(EngineTexts.LcdImage, position);
             if (cfg.Media.Count > 1 && _pinItem == null)
             {
                 var left = item.DurationSeconds - Stopwatch.GetElapsedTime(_itemStarted, now).TotalSeconds;
@@ -378,7 +388,7 @@ public sealed class LcdComposer : IDisposable
 
         if (cfg.MediaOverlay && cfg.OverlayMetric != LcdMetric.None)
         {
-            var m = Metric(cfg.OverlayMetric, snap);
+            var m = Metric(cfg.OverlayMetric, snap, _culture);
             string text = $"{m.Label}  {m.Value}";
             var size = g.MeasureString(text, _overlayFont);
             var rect = new RectangleF(240 - size.Width / 2 - 16, 380, size.Width + 32, 44);
@@ -402,7 +412,9 @@ public sealed class LcdComposer : IDisposable
         using var path = RoundedRect(rect, 14);
         using var brush = new SolidBrush(Color.FromArgb(225, 159, 18, 57));
         _g.FillPath(brush, path);
-        string text = snap.FailSafeActive ? "MODO SEGURANÇA" : critical?.Title.ToUpperInvariant() ?? "ALERTA";
+        string text = snap.FailSafeActive ? EngineTexts.Get(EngineTexts.LcdSafeMode, _culture)
+            : critical != null ? ((critical.TitleText is { } title ? EngineTexts.TryFormat(title, _culture) : null) ?? critical.Title).ToUpper(_culture)
+            : EngineTexts.Get(EngineTexts.LcdAlert, _culture);
         _g.DrawString(text, _messageFont, _white, rect, _centerBoth);
     }
 

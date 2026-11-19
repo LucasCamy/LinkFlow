@@ -286,6 +286,12 @@ public sealed partial class LcdMediaItem
 public sealed partial class LcdConfig
 {
     public bool AutoStream { get; set; } = true;
+
+    /// <summary>
+    /// Idioma dos textos desenhados no LCD ("pt-BR", "en"). O serviço não sabe o idioma do usuário: a interface grava
+    /// o dela aqui ao conectar. Null = português.
+    /// </summary>
+    public string? Language { get; set; }
     public LcdMode Mode { get; set; } = LcdMode.Metrics;
 
     /// <summary>Rotação do quadro (0, 90, 180 ou 270) para acompanhar a posição da bomba.</summary>
