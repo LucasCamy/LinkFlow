@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using LinkFlow.App.Services;
 using LinkFlow.App.ViewModels;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -27,28 +28,28 @@ public partial class LcdPage : UserControl
 
     private async void AddMedia_Click(object sender, RoutedEventArgs e)
     {
-        if (PickFiles(true, "Escolher fotos ou GIFs para o LCD") is { } files) await ImportAsync(files);
+        if (PickFiles(true, Strings.Lcd_EscolherFotosOuGIFs) is { } files) await ImportAsync(files);
     }
 
     private void EmptyDrop_Click(object sender, MouseButtonEventArgs e) => AddMedia_Click(sender, e);
 
     private async void ChooseBackground_Click(object sender, RoutedEventArgs e)
     {
-        if (PickFiles(false, "Escolher a foto de fundo do quadro") is not { Length: > 0 } files || Vm is not { } vm) return;
+        if (PickFiles(false, Strings.Lcd_EscolherFotoFundoQuadro) is not { Length: > 0 } files || Vm is not { } vm) return;
         var (ok, failed) = await LcdMediaImporter.ImportAsync(files);
         if (ok.Count > 0) vm.SetLcdBackground(ok[0].Path);
-        else if (failed.Count > 0) vm.ShowToast($"Não foi possível abrir \"{failed[0]}\"", canUndo: false);
+        else if (failed.Count > 0) vm.ShowToast(string.Format(Strings.Lcd_NaoFoiPossivelAbrir, failed[0]), canUndo: false);
     }
 
     private async Task ImportAsync(IEnumerable<string> files)
     {
         if (Vm is not { } vm) return;
         var list = files.ToList();
-        if (list.Count > 3) vm.ShowToast($"Preparando {list.Count} arquivos...", canUndo: false);
+        if (list.Count > 3) vm.ShowToast(string.Format(Strings.Lcd_PreparandoArquivos, list.Count), canUndo: false);
         var (ok, failed) = await LcdMediaImporter.ImportAsync(list);
         vm.AddLcdMedia(ok);
         if (failed.Count > 0)
-            vm.ShowToast($"Não foi possível abrir: {string.Join(", ", failed.Take(3))}{(failed.Count > 3 ? "..." : "")}", canUndo: false);
+            vm.ShowToast(string.Format(Strings.Lcd_CouldNotOpenMany, string.Join(", ", failed.Take(3)) + (failed.Count > 3 ? "..." : "")), canUndo: false);
     }
 
     private void Media_DragOver(object sender, DragEventArgs e)

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using LinkFlow.Core;
 using LinkFlow.App.Services;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -59,7 +60,7 @@ public sealed class LcdMediaItemViewModel : ObservableObject
     public int Index { get; }
     public bool IsGif { get; }
     public bool Exists { get; }
-    public string Kind => !Exists ? "Arquivo não encontrado" : IsGif ? "GIF animado" : "Imagem";
+    public string Kind => !Exists ? Strings.Lcd_ArquivoNaoEncontrado : IsGif ? Strings.Lcd_GIFAnimado : Strings.Lcd_Imagem;
     public string Position => $"{Index + 1}";
 
     public int DurationSeconds
@@ -130,24 +131,24 @@ public partial class MainViewModel
 
     public static IReadOnlyList<LcdMetricOption> LcdMetricOptions { get; } = new[]
     {
-        new LcdMetricOption(LcdMetric.CpuTemp, "Temperatura da CPU"),
-        new LcdMetricOption(LcdMetric.CpuLoad, "Uso da CPU"),
-        new LcdMetricOption(LcdMetric.CpuPower, "Potência da CPU (W)"),
-        new LcdMetricOption(LcdMetric.CpuClock, "Clock da CPU"),
-        new LcdMetricOption(LcdMetric.GpuTemp, "Temperatura da GPU"),
-        new LcdMetricOption(LcdMetric.GpuHotspot, "Hotspot da GPU"),
-        new LcdMetricOption(LcdMetric.GpuLoad, "Uso da GPU"),
-        new LcdMetricOption(LcdMetric.GpuPower, "Potência da GPU (W)"),
-        new LcdMetricOption(LcdMetric.CoolantTemp, "Temperatura do líquido"),
-        new LcdMetricOption(LcdMetric.PumpRpm, "Rotação da bomba"),
-        new LcdMetricOption(LcdMetric.FanRpm, "Rotação média das ventoinhas"),
-        new LcdMetricOption(LcdMetric.FanPower, "Potência das ventoinhas (%)"),
-        new LcdMetricOption(LcdMetric.RamUsage, "Uso da memória"),
-        new LcdMetricOption(LcdMetric.Clock, "Relógio (hora e data)"),
-        new LcdMetricOption(LcdMetric.CpuCoreMax, "Núcleo da CPU mais ocupado"),
-        new LcdMetricOption(LcdMetric.NetDown, "Download da rede"),
-        new LcdMetricOption(LcdMetric.NetUp, "Upload da rede"),
-        new LcdMetricOption(LcdMetric.DiskUsage, "Espaço usado no disco"),
+        new LcdMetricOption(LcdMetric.CpuTemp, Strings.Fan_TemperaturaCPU),
+        new LcdMetricOption(LcdMetric.CpuLoad, Strings.Dash_CpuUsage),
+        new LcdMetricOption(LcdMetric.CpuPower, Strings.Lcd_PotenciaCPU),
+        new LcdMetricOption(LcdMetric.CpuClock, Strings.Lcd_ClockCPU),
+        new LcdMetricOption(LcdMetric.GpuTemp, Strings.Fan_TemperaturaGPU),
+        new LcdMetricOption(LcdMetric.GpuHotspot, Strings.Lcd_HotspotGPU),
+        new LcdMetricOption(LcdMetric.GpuLoad, Strings.Dash_GpuUsage),
+        new LcdMetricOption(LcdMetric.GpuPower, Strings.Lcd_PotenciaGPU),
+        new LcdMetricOption(LcdMetric.CoolantTemp, Strings.Det_CoolantTemp),
+        new LcdMetricOption(LcdMetric.PumpRpm, Strings.Lcd_RotacaoBomba),
+        new LcdMetricOption(LcdMetric.FanRpm, Strings.Lcd_RotacaoMediaVentoinhas),
+        new LcdMetricOption(LcdMetric.FanPower, Strings.Lcd_PotenciaVentoinhas),
+        new LcdMetricOption(LcdMetric.RamUsage, Strings.Dash_MemoryUsage),
+        new LcdMetricOption(LcdMetric.Clock, Strings.Lcd_RelogioHoraData),
+        new LcdMetricOption(LcdMetric.CpuCoreMax, Strings.Lcd_NucleoCPUMaisOcupado),
+        new LcdMetricOption(LcdMetric.NetDown, Strings.Lcd_DownloadRede),
+        new LcdMetricOption(LcdMetric.NetUp, Strings.Lcd_UploadRede),
+        new LcdMetricOption(LcdMetric.DiskUsage, Strings.Lcd_EspacoUsadoDisco),
     };
 
     public ObservableCollection<LcdMetricChoice> LcdSecondaryChoices { get; } = new(
@@ -162,19 +163,19 @@ public partial class MainViewModel
         LcdMetric.CpuPower => "CPU W",
         LcdMetric.CpuClock => "CPU GHz",
         LcdMetric.GpuTemp => "GPU °C",
-        LcdMetric.GpuHotspot => "Hotspot",
+        LcdMetric.GpuHotspot => Strings.Det_Hotspot,
         LcdMetric.GpuLoad => "GPU %",
         LcdMetric.GpuPower => "GPU W",
-        LcdMetric.CoolantTemp => "Líquido",
-        LcdMetric.PumpRpm => "Bomba RPM",
-        LcdMetric.FanRpm => "Fans RPM",
-        LcdMetric.FanPower => "Fans %",
+        LcdMetric.CoolantTemp => Strings.Det_Coolant,
+        LcdMetric.PumpRpm => Strings.Lcd_BombaRPM,
+        LcdMetric.FanRpm => Strings.Lcd_FansRPM,
+        LcdMetric.FanPower => Strings.Lcd_Fans,
         LcdMetric.RamUsage => "RAM",
-        LcdMetric.Clock => "Relógio",
-        LcdMetric.CpuCoreMax => "Núcleo %",
-        LcdMetric.NetDown => "↓ Rede",
-        LcdMetric.NetUp => "↑ Rede",
-        LcdMetric.DiskUsage => "Disco %",
+        LcdMetric.Clock => Strings.Lcd_Relogio,
+        LcdMetric.CpuCoreMax => Strings.Lcd_Nucleo,
+        LcdMetric.NetDown => Strings.Lcd_Rede,
+        LcdMetric.NetUp => Strings.Lcd_Rede2,
+        LcdMetric.DiskUsage => Strings.Lcd_Disco,
         _ => m.ToString()
     };
 
@@ -197,18 +198,18 @@ public partial class MainViewModel
         var current = _engine.Config.Lcd.SecondaryMetrics;
         if (current.Contains(metric)) UpdateLcd(l => l.SecondaryMetrics.Remove(metric));
         else if (current.Count >= LcdConfig.MaxSecondary)
-            ShowToast($"O quadro mostra até {LcdConfig.MaxSecondary} informações secundárias. Desmarque uma antes.", canUndo: false);
+            ShowToast(string.Format(Strings.Lcd_QuadroMostraAteInformacoes, LcdConfig.MaxSecondary), canUndo: false);
         else UpdateLcd(l => l.SecondaryMetrics.Add(metric));
     });
 
     public ICommand RemoveMediaCommand => _removeMediaCommand ??= new RelayCommand(p =>
     {
         if (p is LcdMediaItemViewModel item)
-            WithUndo($"\"{item.Name}\" removido do LCD", () => UpdateLcd(l => l.Media.RemoveAt(Math.Min(item.Index, l.Media.Count - 1))));
+            WithUndo(string.Format(Strings.Lcd_RemovidoLCD, item.Name), () => UpdateLcd(l => l.Media.RemoveAt(Math.Min(item.Index, l.Media.Count - 1))));
     });
 
     public ICommand ClearMediaCommand => _clearMediaCommand ??= new RelayCommand(() =>
-        WithUndo("Imagens removidas do LCD", () => UpdateLcd(l => l.Media.Clear())), () => LcdMedia.Count > 0);
+        WithUndo(Strings.Lcd_ImagensRemovidasLCD, () => UpdateLcd(l => l.Media.Clear())), () => LcdMedia.Count > 0);
 
     public ICommand MoveMediaUpCommand => _moveMediaUpCommand ??= new RelayCommand(p => MoveMedia(p as LcdMediaItemViewModel, -1));
     public ICommand MoveMediaDownCommand => _moveMediaDownCommand ??= new RelayCommand(p => MoveMedia(p as LcdMediaItemViewModel, +1));
@@ -251,7 +252,7 @@ public partial class MainViewModel
     public void AddLcdMedia(IReadOnlyList<(string Path, string Name)> files)
     {
         if (files.Count == 0) return;
-        WithUndo(files.Count == 1 ? $"\"{files[0].Name}\" adicionado ao LCD" : $"{files.Count} arquivos adicionados ao LCD", () =>
+        WithUndo(files.Count == 1 ? string.Format(Strings.Lcd_AdicionadoLCD, files[0].Name) : string.Format(Strings.Lcd_ArquivosAdicionadosLCD, files.Count), () =>
             UpdateLcd(l =>
             {
                 foreach (var (path, name) in files)
@@ -276,13 +277,13 @@ public partial class MainViewModel
     public bool LcdFitContain => _lcdFit == LcdFit.Contain;
     public bool HasLcdMedia => LcdMedia.Count > 0;
     public bool HasLcdBackground => !string.IsNullOrEmpty(_lcdBackgroundPath);
-    public string LcdBackgroundName => _lcdBackgroundPath is { } p ? Path.GetFileName(p) : "Nenhuma";
+    public string LcdBackgroundName => _lcdBackgroundPath is { } p ? Path.GetFileName(p) : Strings.Det_NoneStopped;
     public int LcdSecondaryCount => LcdSecondaryChoices.Count(c => c.IsSelected);
-    public string LcdSecondarySummary => $"{LcdSecondaryCount} de {LcdConfig.MaxSecondary} • clique para adicionar ou tirar (a ordem do clique é a ordem no quadro)";
+    public string LcdSecondarySummary => string.Format(Strings.Lcd_CliqueAdicionarOuTirar, LcdSecondaryCount, LcdConfig.MaxSecondary);
 
     public string LcdNowShowing => Snapshot.LcdConnected
-        ? $"Exibindo: {(Snapshot.LcdStatus is { } shown ? EngineTextUi.Localize(Snapshot.LcdStatusText, shown) : IsLcdMediaMode ? "Imagens" : "Métricas")}"
-        : "Display não conectado • a prévia mostra como vai ficar";
+        ? string.Format(Strings.Lcd_Showing, Snapshot.LcdStatus is { } shown ? EngineTextUi.Localize(Snapshot.LcdStatusText, shown) : IsLcdMediaMode ? Strings.Lcd_ShowingImages : Strings.Lcd_ShowingMetrics)
+        : Strings.Lcd_DisplayNaoConectadoPrevia;
 
     public string LcdTitle
     {

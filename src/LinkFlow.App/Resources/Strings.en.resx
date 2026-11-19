@@ -1699,4 +1699,310 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Lit_PaletteCyber" xml:space="preserve">
     <value>Cyber</value>
   </data>
+  <data name="Lcd_ShowingImages" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="Lcd_ShowingMetrics" xml:space="preserve">
+    <value>Metrics</value>
+  </data>
+  <data name="Lcd_PreviaLCD" xml:space="preserve">
+    <value>LCD preview</value>
+  </data>
+  <data name="Lcd_ArrastePosicionarRodaMouse" xml:space="preserve">
+    <value>Drag to position • mouse wheel to zoom • double-click centers</value>
+  </data>
+  <data name="Lcd_Enquadrar" xml:space="preserve">
+    <value>Frame · </value>
+  </data>
+  <data name="Lcd_Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="Lcd_ZoomImagem" xml:space="preserve">
+    <value>Image zoom</value>
+  </data>
+  <data name="Lcd_Centralizar" xml:space="preserve">
+    <value>Center</value>
+  </data>
+  <data name="Lcd_ArrasteImagemPosicionarUse" xml:space="preserve">
+    <value>Drag the image to position it. Use the mouse wheel to adjust the zoom.</value>
+  </data>
+  <data name="Lcd_PersonalizeDisplayBombaMetricas" xml:space="preserve">
+    <value>Customize the pump display with metrics, photos or GIFs.</value>
+  </data>
+  <data name="Lcd_Conteudo" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Lcd_ModoExibicao" xml:space="preserve">
+    <value>Display mode</value>
+  </data>
+  <data name="Lcd_Telemetria" xml:space="preserve">
+    <value>Telemetry</value>
+  </data>
+  <data name="Lcd_MostrarTelemetria" xml:space="preserve">
+    <value>Show telemetry</value>
+  </data>
+  <data name="Lcd_ImagemOuGIF" xml:space="preserve">
+    <value>Image or GIF</value>
+  </data>
+  <data name="Lcd_MostrarImagemOuGIF" xml:space="preserve">
+    <value>Show image or GIF</value>
+  </data>
+  <data name="Lcd_Titulo" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Lcd_DeixeVazioOmitirTitulo" xml:space="preserve">
+    <value>Leave empty to hide the title</value>
+  </data>
+  <data name="Lcd_TituloLCD" xml:space="preserve">
+    <value>Title on the LCD</value>
+  </data>
+  <data name="Lcd_InformacaoPrincipal" xml:space="preserve">
+    <value>Main information</value>
+  </data>
+  <data name="Lcd_InformacaoPrincipalLCD" xml:space="preserve">
+    <value>Main information on the LCD</value>
+  </data>
+  <data name="Lcd_InformacoesSecundarias" xml:space="preserve">
+    <value>Secondary information</value>
+  </data>
+  <data name="Lcd_AnelProgresso" xml:space="preserve">
+    <value>Progress ring</value>
+  </data>
+  <data name="Lcd_PreenchimentoAcompanhaInformacaoPrincipal" xml:space="preserve">
+    <value>The fill follows the main information.</value>
+  </data>
+  <data name="Lcd_FotoOuGIFFundo" xml:space="preserve">
+    <value>Background photo or GIF</value>
+  </data>
+  <data name="Lcd_EscolherFotoOuGIF" xml:space="preserve">
+    <value>Choose photo or GIF...</value>
+  </data>
+  <data name="Lcd_Remover" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Lcd_Escurecer" xml:space="preserve">
+    <value>Dim</value>
+  </data>
+  <data name="Lcd_DeixaNumerosLegiveisSobre" xml:space="preserve">
+    <value>Keeps the numbers readable over the photo</value>
+  </data>
+  <data name="Lcd_EscurecerImagemFundo" xml:space="preserve">
+    <value>Dim the background image</value>
+  </data>
+  <data name="Lcd_MostrarTelemetriaSobreImagem" xml:space="preserve">
+    <value>Show telemetry over the image</value>
+  </data>
+  <data name="Lcd_AlternarEntreVariosArquivos" xml:space="preserve">
+    <value>To cycle through several files, use the Image or GIF mode.</value>
+  </data>
+  <data name="Lcd_ImagensGIFs" xml:space="preserve">
+    <value>Images and GIFs</value>
+  </data>
+  <data name="Lcd_MaisArquivoLCDAlterna" xml:space="preserve">
+    <value>With more than one file, the LCD cycles through the items.</value>
+  </data>
+  <data name="Lcd_Adicionar" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Lcd_RemoverTodas" xml:space="preserve">
+    <value>Remove all</value>
+  </data>
+  <data name="Lcd_RemoverTodasImagens" xml:space="preserve">
+    <value>Remove all images</value>
+  </data>
+  <data name="Lcd_ArrasteFotosOuGIFs" xml:space="preserve">
+    <value>Drag photos or GIFs here</value>
+  </data>
+  <data name="Lcd_OuCliqueEscolherPNG" xml:space="preserve">
+    <value>or click to choose • PNG, JPG, GIF, WebP, BMP</value>
+  </data>
+  <data name="Lcd_CliqueEnquadrarEsteItem" xml:space="preserve">
+    <value>Click to frame this item in the preview</value>
+  </data>
+  <data name="Lcd_TempoTelaAntesProximo" xml:space="preserve">
+    <value>Time on screen before the next item</value>
+  </data>
+  <data name="Lcd_MenosTempo" xml:space="preserve">
+    <value>Less time</value>
+  </data>
+  <data name="Lcd_MaisTempo" xml:space="preserve">
+    <value>More time</value>
+  </data>
+  <data name="Lcd_EnquadrarZoomPosicaoPrevia" xml:space="preserve">
+    <value>Frame (zoom and position) in the preview</value>
+  </data>
+  <data name="Lcd_MoverCima" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="Lcd_MoverBaixo" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="Lcd_AjusteImagem" xml:space="preserve">
+    <value>Image fit</value>
+  </data>
+  <data name="Lcd_PreencherCirculo" xml:space="preserve">
+    <value>Fill the circle</value>
+  </data>
+  <data name="Lcd_CortaBordasOcuparTela" xml:space="preserve">
+    <value>Crops the edges to fill the whole screen</value>
+  </data>
+  <data name="Lcd_MostrarInteira" xml:space="preserve">
+    <value>Show whole image</value>
+  </data>
+  <data name="Lcd_MostraImagemTodaBordas" xml:space="preserve">
+    <value>Shows the whole image, with dark borders</value>
+  </data>
+  <data name="Lcd_MostrarTelemetriaCimaImagem" xml:space="preserve">
+    <value>Show telemetry over the image</value>
+  </data>
+  <data name="Lcd_MostraMetricaEscolhidaParte" xml:space="preserve">
+    <value>Shows the chosen metric at the bottom of the display.</value>
+  </data>
+  <data name="Lcd_MetricaSobreImagem" xml:space="preserve">
+    <value>Metric over the image</value>
+  </data>
+  <data name="Lcd_AlertaCriticoOuModo" xml:space="preserve">
+    <value>On a critical alert or in safe mode, a red warning appears over the image.</value>
+  </data>
+  <data name="Lcd_TelaTransmissao" xml:space="preserve">
+    <value>Screen and streaming</value>
+  </data>
+  <data name="Lcd_AjustesTela" xml:space="preserve">
+    <value>Screen settings</value>
+  </data>
+  <data name="Lcd_Rotacao" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="Lcd_PreviaAcompanhaOrientacaoEscolhida" xml:space="preserve">
+    <value>The preview follows the chosen orientation.</value>
+  </data>
+  <data name="Lcd_TransmitirContinuamente" xml:space="preserve">
+    <value>Stream continuously</value>
+  </data>
+  <data name="Lcd_MetricasCadaSegundoGIFs" xml:space="preserve">
+    <value>Metrics every second and GIFs at up to 16 frames per second.</value>
+  </data>
+  <data name="Lcd_UsarCorIluminacaoDisplay" xml:space="preserve">
+    <value>Use the lighting color on the display</value>
+  </data>
+  <data name="Lcd_AnelDestaquesAcompanhamRGB" xml:space="preserve">
+    <value>The ring and highlights follow the RGB.</value>
+  </data>
+  <data name="Lcd_Ctrl" xml:space="preserve">
+    <value>Ctrl+L</value>
+  </data>
+  <data name="Lcd_EnviarQuadroAgora" xml:space="preserve">
+    <value>Send frame now</value>
+  </data>
+  <data name="Lcd_ArquivoNaoEncontrado" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="Lcd_GIFAnimado" xml:space="preserve">
+    <value>Animated GIF</value>
+  </data>
+  <data name="Lcd_Imagem" xml:space="preserve">
+    <value>Image</value>
+  </data>
+  <data name="Lcd_PotenciaCPU" xml:space="preserve">
+    <value>CPU power (W)</value>
+  </data>
+  <data name="Lcd_ClockCPU" xml:space="preserve">
+    <value>CPU clock</value>
+  </data>
+  <data name="Lcd_HotspotGPU" xml:space="preserve">
+    <value>GPU hotspot</value>
+  </data>
+  <data name="Lcd_PotenciaGPU" xml:space="preserve">
+    <value>GPU power (W)</value>
+  </data>
+  <data name="Lcd_RotacaoBomba" xml:space="preserve">
+    <value>Pump speed</value>
+  </data>
+  <data name="Lcd_RotacaoMediaVentoinhas" xml:space="preserve">
+    <value>Average fan speed</value>
+  </data>
+  <data name="Lcd_PotenciaVentoinhas" xml:space="preserve">
+    <value>Fan power (%)</value>
+  </data>
+  <data name="Lcd_RelogioHoraData" xml:space="preserve">
+    <value>Clock (time and date)</value>
+  </data>
+  <data name="Lcd_NucleoCPUMaisOcupado" xml:space="preserve">
+    <value>Busiest CPU core</value>
+  </data>
+  <data name="Lcd_DownloadRede" xml:space="preserve">
+    <value>Network download</value>
+  </data>
+  <data name="Lcd_UploadRede" xml:space="preserve">
+    <value>Network upload</value>
+  </data>
+  <data name="Lcd_EspacoUsadoDisco" xml:space="preserve">
+    <value>Disk space used</value>
+  </data>
+  <data name="Lcd_BombaRPM" xml:space="preserve">
+    <value>Pump RPM</value>
+  </data>
+  <data name="Lcd_FansRPM" xml:space="preserve">
+    <value>Fans RPM</value>
+  </data>
+  <data name="Lcd_Fans" xml:space="preserve">
+    <value>Fans %</value>
+  </data>
+  <data name="Lcd_Relogio" xml:space="preserve">
+    <value>Clock</value>
+  </data>
+  <data name="Lcd_Nucleo" xml:space="preserve">
+    <value>Core %</value>
+  </data>
+  <data name="Lcd_Rede" xml:space="preserve">
+    <value>↓ Network</value>
+  </data>
+  <data name="Lcd_Rede2" xml:space="preserve">
+    <value>↑ Network</value>
+  </data>
+  <data name="Lcd_Disco" xml:space="preserve">
+    <value>Disk %</value>
+  </data>
+  <data name="Lcd_QuadroMostraAteInformacoes" xml:space="preserve">
+    <value>The screen shows up to {0} secondary items. Uncheck one first.</value>
+  </data>
+  <data name="Lcd_RemovidoLCD" xml:space="preserve">
+    <value>"{0}" removed from the LCD</value>
+  </data>
+  <data name="Lcd_ImagensRemovidasLCD" xml:space="preserve">
+    <value>Images removed from the LCD</value>
+  </data>
+  <data name="Lcd_AdicionadoLCD" xml:space="preserve">
+    <value>"{0}" added to the LCD</value>
+  </data>
+  <data name="Lcd_ArquivosAdicionadosLCD" xml:space="preserve">
+    <value>{0} files added to the LCD</value>
+  </data>
+  <data name="Lcd_CliqueAdicionarOuTirar" xml:space="preserve">
+    <value>{0} of {1} • click to add or remove (the click order is the order on the screen)</value>
+  </data>
+  <data name="Lcd_Showing" xml:space="preserve">
+    <value>Showing: {0}</value>
+  </data>
+  <data name="Lcd_DisplayNaoConectadoPrevia" xml:space="preserve">
+    <value>Display not connected • the preview shows how it will look</value>
+  </data>
+  <data name="Lcd_FotoFundo" xml:space="preserve">
+    <value>background photo ({0})</value>
+  </data>
+  <data name="Lcd_EscolherFotosOuGIFs" xml:space="preserve">
+    <value>Choose photos or GIFs for the LCD</value>
+  </data>
+  <data name="Lcd_EscolherFotoFundoQuadro" xml:space="preserve">
+    <value>Choose the background photo</value>
+  </data>
+  <data name="Lcd_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Could not open "{0}"</value>
+  </data>
+  <data name="Lcd_PreparandoArquivos" xml:space="preserve">
+    <value>Preparing {0} files...</value>
+  </data>
+  <data name="Lcd_CouldNotOpenMany" xml:space="preserve">
+    <value>Could not open: {0}</value>
+  </data>
 </root>

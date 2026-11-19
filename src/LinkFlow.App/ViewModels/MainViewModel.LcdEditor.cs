@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -52,7 +53,7 @@ public partial class MainViewModel
     public bool HasCropTarget => CropTarget != null;
 
     public string CropTargetName => CropTarget is { } t ? Path.GetFileName(t.Path) is var n && _engine.Config.Lcd.Mode == LcdMode.Media
-        ? LcdMedia.ElementAtOrDefault(_editingMedia)?.Name ?? n : $"foto de fundo ({n})" : string.Empty;
+        ? LcdMedia.ElementAtOrDefault(_editingMedia)?.Name ?? n : string.Format(Strings.Lcd_FotoFundo, n) : string.Empty;
 
     public double CropZoom
     {
