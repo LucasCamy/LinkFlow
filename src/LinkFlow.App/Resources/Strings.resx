@@ -16,4 +16,366 @@
     <value>O idioma muda quando o LinkFlow reiniciar.</value>
     <comment>Aviso ao lado do seletor de idioma em Configurações</comment>
   </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Nav_Dashboard" xml:space="preserve">
+    <value>Painel</value>
+    <comment>Item do menu lateral e título da página</comment>
+  </data>
+  <data name="Nav_Fans" xml:space="preserve">
+    <value>Ventoinhas</value>
+  </data>
+  <data name="Nav_Lighting" xml:space="preserve">
+    <value>Iluminação</value>
+  </data>
+  <data name="Nav_Lcd" xml:space="preserve">
+    <value>Tela LCD</value>
+  </data>
+  <data name="Nav_Widget" xml:space="preserve">
+    <value>Widget</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  <data name="Nav_Hardware" xml:space="preserve">
+    <value>Hardware</value>
+  </data>
+  <data name="Nav_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="Nav_Drivers" xml:space="preserve">
+    <value>Drivers</value>
+  </data>
+  <data name="Nav_DashboardTip" xml:space="preserve">
+    <value>Painel (Ctrl+1)</value>
+  </data>
+  <data name="Nav_FansTip" xml:space="preserve">
+    <value>Ventoinhas (Ctrl+2)</value>
+  </data>
+  <data name="Nav_LightingTip" xml:space="preserve">
+    <value>Iluminação RGB (Ctrl+3)</value>
+  </data>
+  <data name="Nav_LcdTip" xml:space="preserve">
+    <value>Tela LCD (Ctrl+4)</value>
+  </data>
+  <data name="Nav_WidgetTip" xml:space="preserve">
+    <value>Widget flutuante (Ctrl+5)</value>
+  </data>
+  <data name="Nav_SettingsTip" xml:space="preserve">
+    <value>Configurações (Ctrl+6)</value>
+  </data>
+  <data name="Nav_HardwareTip" xml:space="preserve">
+    <value>Hardware (Ctrl+7)</value>
+  </data>
+  <data name="Nav_WindowsTip" xml:space="preserve">
+    <value>Desempenho do Windows (Ctrl+8)</value>
+  </data>
+  <data name="Nav_DriversTip" xml:space="preserve">
+    <value>Drivers (Ctrl+9)</value>
+  </data>
+  <data name="Main_UpdateAvailable" xml:space="preserve">
+    <value>Atualização disponível</value>
+  </data>
+  <data name="Main_AlertHistory" xml:space="preserve">
+    <value>Histórico de alertas</value>
+  </data>
+  <data name="Main_EngineModeTip" xml:space="preserve">
+    <value>Onde o controle do hardware está rodando</value>
+  </data>
+  <data name="Main_EngineService" xml:space="preserve">
+    <value>Serviço do Windows</value>
+    <comment>Selo na barra de título: onde o controle do hardware roda</comment>
+  </data>
+  <data name="Main_EngineServiceDisconnected" xml:space="preserve">
+    <value>Serviço desconectado</value>
+  </data>
+  <data name="Main_EngineLocal" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="Main_EngineSimulation" xml:space="preserve">
+    <value>Simulação</value>
+  </data>
+  <data name="Main_MiniWidget" xml:space="preserve">
+    <value>Mini widget</value>
+  </data>
+  <data name="Main_MiniWidgetTip" xml:space="preserve">
+    <value>Mini widget sempre visível (Ctrl+M)</value>
+  </data>
+  <data name="Main_Minimize" xml:space="preserve">
+    <value>Minimizar</value>
+  </data>
+  <data name="Main_Maximize" xml:space="preserve">
+    <value>Maximizar</value>
+  </data>
+  <data name="Main_Restore" xml:space="preserve">
+    <value>Restaurar</value>
+  </data>
+  <data name="Main_CloseTip" xml:space="preserve">
+    <value>Fechar (continua na bandeja)</value>
+  </data>
+  <data name="Main_ActiveProfile" xml:space="preserve">
+    <value>PERFIL ATIVO</value>
+  </data>
+  <data name="Main_Undo" xml:space="preserve">
+    <value>Desfazer (Ctrl+Z)</value>
+  </data>
+  <data name="Main_DismissToast" xml:space="preserve">
+    <value>Fechar aviso</value>
+  </data>
+  <data name="Main_ShortcutHint" xml:space="preserve">
+    <value>F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow {0}</value>
+    <comment>{0} = versão</comment>
+  </data>
+  <data name="Main_CurveFailSafe" xml:space="preserve">
+    <value>Proteção ativa · ventoinhas em 100%</value>
+  </data>
+  <data name="Main_CurveActive" xml:space="preserve">
+    <value>Curva ativa • {0} → {1}%</value>
+    <comment>{0} = temperatura da curva (ex.: 55,0°C), {1} = potência</comment>
+  </data>
+  <data name="Main_CurveWaitingSensor" xml:space="preserve">
+    <value>aguardando sensor</value>
+  </data>
+  <data name="Main_FixedPower" xml:space="preserve">
+    <value>Potência fixa</value>
+  </data>
+  <data name="Main_RenameHint" xml:space="preserve">
+    <value>Selecione um cartão para renomear (ou use o lápis ao passar o mouse)</value>
+  </data>
+  <data name="Main_DisableFailSafeTitle" xml:space="preserve">
+    <value>Desligar a proteção</value>
+  </data>
+  <data name="Main_DisableFailSafeMessage" xml:space="preserve">
+    <value>Desligar o modo de segurança automático?
+
+Sem ele, o LinkFlow NÃO leva as ventoinhas e a bomba a 100% quando a CPU, a GPU ou o líquido atingem a temperatura crítica, quando a bomba para ou quando os sensores deixam de responder. Isso pode causar superaquecimento e danificar o hardware.
+
+Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
+  </data>
+  <data name="Mini_Title" xml:space="preserve">
+    <value>LinkFlow Widget</value>
+  </data>
+  <data name="Mini_Tip" xml:space="preserve">
+    <value>Arraste para mover • clique duplo abre o LinkFlow • botão direito: opções</value>
+  </data>
+  <data name="Mini_Open" xml:space="preserve">
+    <value>Abrir LinkFlow</value>
+  </data>
+  <data name="Mini_Customize" xml:space="preserve">
+    <value>Personalizar widget...</value>
+  </data>
+  <data name="Mini_LockPosition" xml:space="preserve">
+    <value>Travar posição</value>
+  </data>
+  <data name="Mini_AlwaysOnTop" xml:space="preserve">
+    <value>Sempre no topo</value>
+  </data>
+  <data name="Mini_ClickThrough" xml:space="preserve">
+    <value>Clique atravessa o widget</value>
+  </data>
+  <data name="Mini_ClickThroughTip" xml:space="preserve">
+    <value>Para voltar a clicar nele: Ctrl+Alt+M duas vezes ou a aba Widget</value>
+  </data>
+  <data name="Mini_Hide" xml:space="preserve">
+    <value>Ocultar widget</value>
+  </data>
+  <data name="Tray_Updates" xml:space="preserve">
+    <value>Atualizações do LinkFlow</value>
+    <comment>Menu do ícone da bandeja</comment>
+  </data>
+  <data name="Tray_FanProfiles" xml:space="preserve">
+    <value>Perfis de ventoinha</value>
+  </data>
+  <data name="Tray_MiniWidget" xml:space="preserve">
+    <value>Mini widget</value>
+  </data>
+  <data name="Tray_LcdStream" xml:space="preserve">
+    <value>Transmitir métricas no LCD</value>
+  </data>
+  <data name="Tray_StartWithWindows" xml:space="preserve">
+    <value>Iniciar com o Windows</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Sair do LinkFlow</value>
+  </data>
+  <data name="Tray_CloseInterface" xml:space="preserve">
+    <value>Fechar interface (o serviço continua)</value>
+  </data>
+  <data name="Tray_FailSafe" xml:space="preserve">
+    <value>MODO SEGURANÇA</value>
+    <comment>Dica do ícone da bandeja (curta: o Windows corta em 127 caracteres)</comment>
+  </data>
+  <data name="Tray_HubDisconnected" xml:space="preserve">
+    <value>hub desconectado</value>
+  </data>
+  <data name="Tray_Fans" xml:space="preserve">
+    <value>Fans {0}</value>
+    <comment>{0} = rotação média (ex.: 850 RPM)</comment>
+  </data>
+  <data name="Tray_StillRunningTitle" xml:space="preserve">
+    <value>LinkFlow continua ativo</value>
+  </data>
+  <data name="Tray_StillRunningService" xml:space="preserve">
+    <value>A janela foi fechada, mas o serviço continua controlando o hardware. Clique no ícone para abrir.</value>
+  </data>
+  <data name="Tray_StillRunningLocal" xml:space="preserve">
+    <value>O controle das ventoinhas e do RGB continua na bandeja. Clique no ícone para abrir; use "Sair" no menu para encerrar.</value>
+  </data>
+  <data name="Tray_ProfileApplied" xml:space="preserve">
+    <value>Perfil aplicado</value>
+  </data>
+  <data name="Tray_UpdateFoundTitle" xml:space="preserve">
+    <value>LinkFlow {0} disponível</value>
+    <comment>{0} = versão</comment>
+  </data>
+  <data name="Tray_UpdateFoundText" xml:space="preserve">
+    <value>Abra Configurações → Atualizações para baixar a nova versão.</value>
+  </data>
+  <data name="Startup_WaitingTray" xml:space="preserve">
+    <value>LinkFlow: aguardando o serviço…</value>
+  </data>
+  <data name="Startup_WaitingText" xml:space="preserve">
+    <value>Aguardando o serviço do Windows iniciar. O controle das ventoinhas continua com o serviço.</value>
+  </data>
+  <data name="Startup_WaitingName" xml:space="preserve">
+    <value>LinkFlow aguardando o serviço</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>O LinkFlow não conseguiu iniciar.
+
+{0}</value>
+    <comment>{0} = mensagem do erro</comment>
+  </data>
+  <data name="Banner_Stalled" xml:space="preserve">
+    <value>Controle das ventoinhas travado</value>
+  </data>
+  <data name="Banner_StalledStatus" xml:space="preserve">
+    <value>O hub voltou ao modo hardware e o serviço será reiniciado.</value>
+  </data>
+  <data name="Banner_Active" xml:space="preserve">
+    <value>Modo de segurança ativo</value>
+  </data>
+  <data name="Banner_CriticalReading" xml:space="preserve">
+    <value>Leitura crítica detectada.</value>
+  </data>
+  <data name="Banner_Recovering" xml:space="preserve">
+    <value>Leituras normalizadas. Retomando o perfil selecionado em instantes.</value>
+  </data>
+  <data name="Banner_Forced" xml:space="preserve">
+    <value>Ventoinhas e bomba forçadas a 100%.</value>
+  </data>
+  <data name="Banner_PumpForSeconds" xml:space="preserve">
+    <value>{0} há {1} s · {2}</value>
+    <comment>Bomba: {0} = título do alerta, {1} = segundos, {2} = detalhe</comment>
+  </data>
+  <data name="Banner_PumpForMinutes" xml:space="preserve">
+    <value>{0} há {1} min · {2}</value>
+    <comment>Bomba: {0} = título do alerta, {1} = minutos, {2} = detalhe</comment>
+  </data>
+  <data name="Banner_PumpNow" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Alerts_NonePending" xml:space="preserve">
+    <value>Nenhum alerta pendente.</value>
+  </data>
+  <data name="Alerts_History" xml:space="preserve">
+    <value>Histórico</value>
+  </data>
+  <data name="Alerts_HistoryMore" xml:space="preserve">
+    <value>Histórico (+{0})</value>
+    <comment>{0} = alertas que não cabem no painel</comment>
+  </data>
+  <data name="Alerts_ServiceDisconnected" xml:space="preserve">
+    <value>O serviço LinkFlow está desconectado</value>
+  </data>
+  <data name="Alerts_ServiceDisconnectedDetail" xml:space="preserve">
+    <value>As leituras podem estar desatualizadas.</value>
+  </data>
+  <data name="Alerts_CpuSensor" xml:space="preserve">
+    <value>Sensor de temperatura da CPU indisponível</value>
+  </data>
+  <data name="Alerts_CpuSensorDetail" xml:space="preserve">
+    <value>Execute como administrador ou instale o serviço LinkFlow.</value>
+  </data>
+  <data name="Alerts_StatusActive" xml:space="preserve">
+    <value>Ativo</value>
+  </data>
+  <data name="Alerts_StatusEnded" xml:space="preserve">
+    <value>Encerrado</value>
+  </data>
+  <data name="Alerts_StatusDismissed" xml:space="preserve">
+    <value>{0} · dispensado</value>
+    <comment>{0} = Ativo ou Encerrado</comment>
+  </data>
+  <data name="Alerts_HistoryEmpty" xml:space="preserve">
+    <value>Nenhum alerta recente registrado</value>
+  </data>
+  <data name="Calibration_Title" xml:space="preserve">
+    <value>Calibrar ventoinhas</value>
+  </data>
+  <data name="Calibration_Step1" xml:space="preserve">
+    <value>• Mede a rotação de cada ventoinha de 100% até 20%.</value>
+  </data>
+  <data name="Calibration_Step2" xml:space="preserve">
+    <value>• Se alguma parar em potência baixa, descobre quanto ela precisa para voltar a girar e passa a mantê-la acima disso.</value>
+  </data>
+  <data name="Calibration_Step3" xml:space="preserve">
+    <value>• Guarda uma referência: o LinkFlow avisa quando uma ventoinha passar a girar bem abaixo do normal (poeira ou rolamento gasto).</value>
+  </data>
+  <data name="Calibration_Duration" xml:space="preserve">
+    <value>Leva cerca de 2 minutos: o hub muda a rotação aos poucos. As ventoinhas aceleram ao máximo e depois desaceleram. Evite jogos e tarefas pesadas enquanto isso. Se a CPU, a GPU ou o líquido chegarem à temperatura de alerta, a calibração para e as ventoinhas voltam ao perfil.</value>
+  </data>
+  <data name="Calibration_Progress" xml:space="preserve">
+    <value>Progresso da calibração</value>
+  </data>
+  <data name="Calibration_CloseHint" xml:space="preserve">
+    <value>Pode fechar esta janela: a calibração é cancelada e as ventoinhas voltam ao perfil na hora.</value>
+  </data>
+  <data name="Calibration_Start" xml:space="preserve">
+    <value>Iniciar calibração</value>
+  </data>
+  <data name="Calibration_Cancel" xml:space="preserve">
+    <value>Cancelar calibração</value>
+  </data>
+  <data name="Calibration_Again" xml:space="preserve">
+    <value>Calibrar de novo</value>
+  </data>
+  <data name="Calibration_NoFans" xml:space="preserve">
+    <value>Nenhuma ventoinha com tacômetro conectada ao hub.</value>
+  </data>
+  <data name="Calibration_OneFan" xml:space="preserve">
+    <value>1 ventoinha será calibrada. A bomba não muda.</value>
+  </data>
+  <data name="Calibration_ManyFans" xml:space="preserve">
+    <value>{0} ventoinhas serão calibradas ao mesmo tempo. A bomba não muda.</value>
+    <comment>{0} = número de ventoinhas (2 ou mais)</comment>
+  </data>
+  <data name="Calibration_Starting" xml:space="preserve">
+    <value>Iniciando a calibração...</value>
+  </data>
+  <data name="Calibration_Canceling" xml:space="preserve">
+    <value>Cancelando...</value>
+  </data>
+  <data name="Calibration_Last" xml:space="preserve">
+    <value>Última calibração: {0}</value>
+    <comment>{0} = data e hora</comment>
+  </data>
+  <data name="Calibration_LastDateFormat" xml:space="preserve">
+    <value>dd/MM/yyyy 'às' HH:mm</value>
+    <comment>Formato .NET de data e hora da última calibração</comment>
+  </data>
+  <data name="Calibration_ResultRange" xml:space="preserve">
+    <value>{0} RPM no máximo · mínimo {1}%</value>
+    <comment>{0} = rotação máxima, {1} = potência mínima</comment>
+  </data>
+  <data name="Calibration_NoRotation" xml:space="preserve">
+    <value>Sem rotação</value>
+  </data>
+  <data name="Alerts_HistoryEmptyDetail" xml:space="preserve">
+    <value>Avisos de temperatura, bomba, sensores e conexão com o hub aparecem aqui.</value>
+  </data>
 </root>

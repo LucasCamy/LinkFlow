@@ -58,6 +58,384 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sensor de temperatura da CPU indisponível.
+        /// </summary>
+        public static string Alerts_CpuSensor {
+            get {
+                return ResourceManager.GetString("Alerts_CpuSensor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Execute como administrador ou instale o serviço LinkFlow..
+        /// </summary>
+        public static string Alerts_CpuSensorDetail {
+            get {
+                return ResourceManager.GetString("Alerts_CpuSensorDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico.
+        /// </summary>
+        public static string Alerts_History {
+            get {
+                return ResourceManager.GetString("Alerts_History", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum alerta recente registrado.
+        /// </summary>
+        public static string Alerts_HistoryEmpty {
+            get {
+                return ResourceManager.GetString("Alerts_HistoryEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avisos de temperatura, bomba, sensores e conexão com o hub aparecem aqui..
+        /// </summary>
+        public static string Alerts_HistoryEmptyDetail {
+            get {
+                return ResourceManager.GetString("Alerts_HistoryEmptyDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico (+{0}).
+        /// </summary>
+        public static string Alerts_HistoryMore {
+            get {
+                return ResourceManager.GetString("Alerts_HistoryMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum alerta pendente..
+        /// </summary>
+        public static string Alerts_NonePending {
+            get {
+                return ResourceManager.GetString("Alerts_NonePending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O serviço LinkFlow está desconectado.
+        /// </summary>
+        public static string Alerts_ServiceDisconnected {
+            get {
+                return ResourceManager.GetString("Alerts_ServiceDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to As leituras podem estar desatualizadas..
+        /// </summary>
+        public static string Alerts_ServiceDisconnectedDetail {
+            get {
+                return ResourceManager.GetString("Alerts_ServiceDisconnectedDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativo.
+        /// </summary>
+        public static string Alerts_StatusActive {
+            get {
+                return ResourceManager.GetString("Alerts_StatusActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · dispensado.
+        /// </summary>
+        public static string Alerts_StatusDismissed {
+            get {
+                return ResourceManager.GetString("Alerts_StatusDismissed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Encerrado.
+        /// </summary>
+        public static string Alerts_StatusEnded {
+            get {
+                return ResourceManager.GetString("Alerts_StatusEnded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de segurança ativo.
+        /// </summary>
+        public static string Banner_Active {
+            get {
+                return ResourceManager.GetString("Banner_Active", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leitura crítica detectada..
+        /// </summary>
+        public static string Banner_CriticalReading {
+            get {
+                return ResourceManager.GetString("Banner_CriticalReading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinhas e bomba forçadas a 100%..
+        /// </summary>
+        public static string Banner_Forced {
+            get {
+                return ResourceManager.GetString("Banner_Forced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} há {1} min · {2}.
+        /// </summary>
+        public static string Banner_PumpForMinutes {
+            get {
+                return ResourceManager.GetString("Banner_PumpForMinutes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} há {1} s · {2}.
+        /// </summary>
+        public static string Banner_PumpForSeconds {
+            get {
+                return ResourceManager.GetString("Banner_PumpForSeconds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1}.
+        /// </summary>
+        public static string Banner_PumpNow {
+            get {
+                return ResourceManager.GetString("Banner_PumpNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leituras normalizadas. Retomando o perfil selecionado em instantes..
+        /// </summary>
+        public static string Banner_Recovering {
+            get {
+                return ResourceManager.GetString("Banner_Recovering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle das ventoinhas travado.
+        /// </summary>
+        public static string Banner_Stalled {
+            get {
+                return ResourceManager.GetString("Banner_Stalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O hub voltou ao modo hardware e o serviço será reiniciado..
+        /// </summary>
+        public static string Banner_StalledStatus {
+            get {
+                return ResourceManager.GetString("Banner_StalledStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibrar de novo.
+        /// </summary>
+        public static string Calibration_Again {
+            get {
+                return ResourceManager.GetString("Calibration_Again", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelar calibração.
+        /// </summary>
+        public static string Calibration_Cancel {
+            get {
+                return ResourceManager.GetString("Calibration_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelando....
+        /// </summary>
+        public static string Calibration_Canceling {
+            get {
+                return ResourceManager.GetString("Calibration_Canceling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pode fechar esta janela: a calibração é cancelada e as ventoinhas voltam ao perfil na hora..
+        /// </summary>
+        public static string Calibration_CloseHint {
+            get {
+                return ResourceManager.GetString("Calibration_CloseHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leva cerca de 2 minutos: o hub muda a rotação aos poucos. As ventoinhas aceleram ao máximo e depois desaceleram. Evite jogos e tarefas pesadas enquanto isso. Se a CPU, a GPU ou o líquido chegarem à temperatura de alerta, a calibração para e as ventoinhas voltam ao perfil..
+        /// </summary>
+        public static string Calibration_Duration {
+            get {
+                return ResourceManager.GetString("Calibration_Duration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Última calibração: {0}.
+        /// </summary>
+        public static string Calibration_Last {
+            get {
+                return ResourceManager.GetString("Calibration_Last", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dd/MM/yyyy &apos;às&apos; HH:mm.
+        /// </summary>
+        public static string Calibration_LastDateFormat {
+            get {
+                return ResourceManager.GetString("Calibration_LastDateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ventoinhas serão calibradas ao mesmo tempo. A bomba não muda..
+        /// </summary>
+        public static string Calibration_ManyFans {
+            get {
+                return ResourceManager.GetString("Calibration_ManyFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma ventoinha com tacômetro conectada ao hub..
+        /// </summary>
+        public static string Calibration_NoFans {
+            get {
+                return ResourceManager.GetString("Calibration_NoFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem rotação.
+        /// </summary>
+        public static string Calibration_NoRotation {
+            get {
+                return ResourceManager.GetString("Calibration_NoRotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 ventoinha será calibrada. A bomba não muda..
+        /// </summary>
+        public static string Calibration_OneFan {
+            get {
+                return ResourceManager.GetString("Calibration_OneFan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Progresso da calibração.
+        /// </summary>
+        public static string Calibration_Progress {
+            get {
+                return ResourceManager.GetString("Calibration_Progress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} RPM no máximo · mínimo {1}%.
+        /// </summary>
+        public static string Calibration_ResultRange {
+            get {
+                return ResourceManager.GetString("Calibration_ResultRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iniciar calibração.
+        /// </summary>
+        public static string Calibration_Start {
+            get {
+                return ResourceManager.GetString("Calibration_Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iniciando a calibração....
+        /// </summary>
+        public static string Calibration_Starting {
+            get {
+                return ResourceManager.GetString("Calibration_Starting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • Mede a rotação de cada ventoinha de 100% até 20%..
+        /// </summary>
+        public static string Calibration_Step1 {
+            get {
+                return ResourceManager.GetString("Calibration_Step1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • Se alguma parar em potência baixa, descobre quanto ela precisa para voltar a girar e passa a mantê-la acima disso..
+        /// </summary>
+        public static string Calibration_Step2 {
+            get {
+                return ResourceManager.GetString("Calibration_Step2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • Guarda uma referência: o LinkFlow avisa quando uma ventoinha passar a girar bem abaixo do normal (poeira ou rolamento gasto)..
+        /// </summary>
+        public static string Calibration_Step3 {
+            get {
+                return ResourceManager.GetString("Calibration_Step3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calibrar ventoinhas.
+        /// </summary>
+        public static string Calibration_Title {
+            get {
+                return ResourceManager.GetString("Calibration_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelar.
+        /// </summary>
+        public static string Common_Cancel {
+            get {
+                return ResourceManager.GetString("Common_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar.
+        /// </summary>
+        public static string Common_Close {
+            get {
+                return ResourceManager.GetString("Common_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
         public static string Language_English {
@@ -81,6 +459,651 @@ namespace LinkFlow.App.Resources {
         public static string Language_RestartNotice {
             get {
                 return ResourceManager.GetString("Language_RestartNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PERFIL ATIVO.
+        /// </summary>
+        public static string Main_ActiveProfile {
+            get {
+                return ResourceManager.GetString("Main_ActiveProfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico de alertas.
+        /// </summary>
+        public static string Main_AlertHistory {
+            get {
+                return ResourceManager.GetString("Main_AlertHistory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar (continua na bandeja).
+        /// </summary>
+        public static string Main_CloseTip {
+            get {
+                return ResourceManager.GetString("Main_CloseTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva ativa • {0} → {1}%.
+        /// </summary>
+        public static string Main_CurveActive {
+            get {
+                return ResourceManager.GetString("Main_CurveActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Proteção ativa · ventoinhas em 100%.
+        /// </summary>
+        public static string Main_CurveFailSafe {
+            get {
+                return ResourceManager.GetString("Main_CurveFailSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to aguardando sensor.
+        /// </summary>
+        public static string Main_CurveWaitingSensor {
+            get {
+                return ResourceManager.GetString("Main_CurveWaitingSensor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desligar o modo de segurança automático?
+        ///
+        ///Sem ele, o LinkFlow NÃO leva as ventoinhas e a bomba a 100% quando a CPU, a GPU ou o líquido atingem a temperatura crítica, quando a bomba para ou quando os sensores deixam de responder. Isso pode causar superaquecimento e danificar o hardware.
+        ///
+        ///Os alertas continuam aparecendo, e a alteração fica registrada no log..
+        /// </summary>
+        public static string Main_DisableFailSafeMessage {
+            get {
+                return ResourceManager.GetString("Main_DisableFailSafeMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desligar a proteção.
+        /// </summary>
+        public static string Main_DisableFailSafeTitle {
+            get {
+                return ResourceManager.GetString("Main_DisableFailSafeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar aviso.
+        /// </summary>
+        public static string Main_DismissToast {
+            get {
+                return ResourceManager.GetString("Main_DismissToast", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Local.
+        /// </summary>
+        public static string Main_EngineLocal {
+            get {
+                return ResourceManager.GetString("Main_EngineLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Onde o controle do hardware está rodando.
+        /// </summary>
+        public static string Main_EngineModeTip {
+            get {
+                return ResourceManager.GetString("Main_EngineModeTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço do Windows.
+        /// </summary>
+        public static string Main_EngineService {
+            get {
+                return ResourceManager.GetString("Main_EngineService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço desconectado.
+        /// </summary>
+        public static string Main_EngineServiceDisconnected {
+            get {
+                return ResourceManager.GetString("Main_EngineServiceDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Simulação.
+        /// </summary>
+        public static string Main_EngineSimulation {
+            get {
+                return ResourceManager.GetString("Main_EngineSimulation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência fixa.
+        /// </summary>
+        public static string Main_FixedPower {
+            get {
+                return ResourceManager.GetString("Main_FixedPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximizar.
+        /// </summary>
+        public static string Main_Maximize {
+            get {
+                return ResourceManager.GetString("Main_Maximize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimizar.
+        /// </summary>
+        public static string Main_Minimize {
+            get {
+                return ResourceManager.GetString("Main_Minimize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mini widget.
+        /// </summary>
+        public static string Main_MiniWidget {
+            get {
+                return ResourceManager.GetString("Main_MiniWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mini widget sempre visível (Ctrl+M).
+        /// </summary>
+        public static string Main_MiniWidgetTip {
+            get {
+                return ResourceManager.GetString("Main_MiniWidgetTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecione um cartão para renomear (ou use o lápis ao passar o mouse).
+        /// </summary>
+        public static string Main_RenameHint {
+            get {
+                return ResourceManager.GetString("Main_RenameHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restaurar.
+        /// </summary>
+        public static string Main_Restore {
+            get {
+                return ResourceManager.GetString("Main_Restore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow {0}.
+        /// </summary>
+        public static string Main_ShortcutHint {
+            get {
+                return ResourceManager.GetString("Main_ShortcutHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desfazer (Ctrl+Z).
+        /// </summary>
+        public static string Main_Undo {
+            get {
+                return ResourceManager.GetString("Main_Undo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualização disponível.
+        /// </summary>
+        public static string Main_UpdateAvailable {
+            get {
+                return ResourceManager.GetString("Main_UpdateAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sempre no topo.
+        /// </summary>
+        public static string Mini_AlwaysOnTop {
+            get {
+                return ResourceManager.GetString("Mini_AlwaysOnTop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clique atravessa o widget.
+        /// </summary>
+        public static string Mini_ClickThrough {
+            get {
+                return ResourceManager.GetString("Mini_ClickThrough", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Para voltar a clicar nele: Ctrl+Alt+M duas vezes ou a aba Widget.
+        /// </summary>
+        public static string Mini_ClickThroughTip {
+            get {
+                return ResourceManager.GetString("Mini_ClickThroughTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Personalizar widget....
+        /// </summary>
+        public static string Mini_Customize {
+            get {
+                return ResourceManager.GetString("Mini_Customize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ocultar widget.
+        /// </summary>
+        public static string Mini_Hide {
+            get {
+                return ResourceManager.GetString("Mini_Hide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Travar posição.
+        /// </summary>
+        public static string Mini_LockPosition {
+            get {
+                return ResourceManager.GetString("Mini_LockPosition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir LinkFlow.
+        /// </summary>
+        public static string Mini_Open {
+            get {
+                return ResourceManager.GetString("Mini_Open", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arraste para mover • clique duplo abre o LinkFlow • botão direito: opções.
+        /// </summary>
+        public static string Mini_Tip {
+            get {
+                return ResourceManager.GetString("Mini_Tip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow Widget.
+        /// </summary>
+        public static string Mini_Title {
+            get {
+                return ResourceManager.GetString("Mini_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Painel.
+        /// </summary>
+        public static string Nav_Dashboard {
+            get {
+                return ResourceManager.GetString("Nav_Dashboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Painel (Ctrl+1).
+        /// </summary>
+        public static string Nav_DashboardTip {
+            get {
+                return ResourceManager.GetString("Nav_DashboardTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Drivers.
+        /// </summary>
+        public static string Nav_Drivers {
+            get {
+                return ResourceManager.GetString("Nav_Drivers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Drivers (Ctrl+9).
+        /// </summary>
+        public static string Nav_DriversTip {
+            get {
+                return ResourceManager.GetString("Nav_DriversTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinhas.
+        /// </summary>
+        public static string Nav_Fans {
+            get {
+                return ResourceManager.GetString("Nav_Fans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinhas (Ctrl+2).
+        /// </summary>
+        public static string Nav_FansTip {
+            get {
+                return ResourceManager.GetString("Nav_FansTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hardware.
+        /// </summary>
+        public static string Nav_Hardware {
+            get {
+                return ResourceManager.GetString("Nav_Hardware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hardware (Ctrl+7).
+        /// </summary>
+        public static string Nav_HardwareTip {
+            get {
+                return ResourceManager.GetString("Nav_HardwareTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tela LCD.
+        /// </summary>
+        public static string Nav_Lcd {
+            get {
+                return ResourceManager.GetString("Nav_Lcd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tela LCD (Ctrl+4).
+        /// </summary>
+        public static string Nav_LcdTip {
+            get {
+                return ResourceManager.GetString("Nav_LcdTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iluminação.
+        /// </summary>
+        public static string Nav_Lighting {
+            get {
+                return ResourceManager.GetString("Nav_Lighting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iluminação RGB (Ctrl+3).
+        /// </summary>
+        public static string Nav_LightingTip {
+            get {
+                return ResourceManager.GetString("Nav_LightingTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configurações.
+        /// </summary>
+        public static string Nav_Settings {
+            get {
+                return ResourceManager.GetString("Nav_Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configurações (Ctrl+6).
+        /// </summary>
+        public static string Nav_SettingsTip {
+            get {
+                return ResourceManager.GetString("Nav_SettingsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Widget.
+        /// </summary>
+        public static string Nav_Widget {
+            get {
+                return ResourceManager.GetString("Nav_Widget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Widget flutuante (Ctrl+5).
+        /// </summary>
+        public static string Nav_WidgetTip {
+            get {
+                return ResourceManager.GetString("Nav_WidgetTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows.
+        /// </summary>
+        public static string Nav_Windows {
+            get {
+                return ResourceManager.GetString("Nav_Windows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desempenho do Windows (Ctrl+8).
+        /// </summary>
+        public static string Nav_WindowsTip {
+            get {
+                return ResourceManager.GetString("Nav_WindowsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow não conseguiu iniciar.
+        ///
+        ///{0}.
+        /// </summary>
+        public static string Startup_Failed {
+            get {
+                return ResourceManager.GetString("Startup_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow aguardando o serviço.
+        /// </summary>
+        public static string Startup_WaitingName {
+            get {
+                return ResourceManager.GetString("Startup_WaitingName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando o serviço do Windows iniciar. O controle das ventoinhas continua com o serviço..
+        /// </summary>
+        public static string Startup_WaitingText {
+            get {
+                return ResourceManager.GetString("Startup_WaitingText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow: aguardando o serviço….
+        /// </summary>
+        public static string Startup_WaitingTray {
+            get {
+                return ResourceManager.GetString("Startup_WaitingTray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar interface (o serviço continua).
+        /// </summary>
+        public static string Tray_CloseInterface {
+            get {
+                return ResourceManager.GetString("Tray_CloseInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sair do LinkFlow.
+        /// </summary>
+        public static string Tray_Exit {
+            get {
+                return ResourceManager.GetString("Tray_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MODO SEGURANÇA.
+        /// </summary>
+        public static string Tray_FailSafe {
+            get {
+                return ResourceManager.GetString("Tray_FailSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis de ventoinha.
+        /// </summary>
+        public static string Tray_FanProfiles {
+            get {
+                return ResourceManager.GetString("Tray_FanProfiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fans {0}.
+        /// </summary>
+        public static string Tray_Fans {
+            get {
+                return ResourceManager.GetString("Tray_Fans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to hub desconectado.
+        /// </summary>
+        public static string Tray_HubDisconnected {
+            get {
+                return ResourceManager.GetString("Tray_HubDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transmitir métricas no LCD.
+        /// </summary>
+        public static string Tray_LcdStream {
+            get {
+                return ResourceManager.GetString("Tray_LcdStream", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mini widget.
+        /// </summary>
+        public static string Tray_MiniWidget {
+            get {
+                return ResourceManager.GetString("Tray_MiniWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil aplicado.
+        /// </summary>
+        public static string Tray_ProfileApplied {
+            get {
+                return ResourceManager.GetString("Tray_ProfileApplied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iniciar com o Windows.
+        /// </summary>
+        public static string Tray_StartWithWindows {
+            get {
+                return ResourceManager.GetString("Tray_StartWithWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O controle das ventoinhas e do RGB continua na bandeja. Clique no ícone para abrir; use &quot;Sair&quot; no menu para encerrar..
+        /// </summary>
+        public static string Tray_StillRunningLocal {
+            get {
+                return ResourceManager.GetString("Tray_StillRunningLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A janela foi fechada, mas o serviço continua controlando o hardware. Clique no ícone para abrir..
+        /// </summary>
+        public static string Tray_StillRunningService {
+            get {
+                return ResourceManager.GetString("Tray_StillRunningService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow continua ativo.
+        /// </summary>
+        public static string Tray_StillRunningTitle {
+            get {
+                return ResourceManager.GetString("Tray_StillRunningTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abra Configurações → Atualizações para baixar a nova versão..
+        /// </summary>
+        public static string Tray_UpdateFoundText {
+            get {
+                return ResourceManager.GetString("Tray_UpdateFoundText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow {0} disponível.
+        /// </summary>
+        public static string Tray_UpdateFoundTitle {
+            get {
+                return ResourceManager.GetString("Tray_UpdateFoundTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizações do LinkFlow.
+        /// </summary>
+        public static string Tray_Updates {
+            get {
+                return ResourceManager.GetString("Tray_Updates", resourceCulture);
             }
         }
     }

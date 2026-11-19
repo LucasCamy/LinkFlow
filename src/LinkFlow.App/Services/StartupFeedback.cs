@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -20,7 +21,7 @@ public sealed class StartupFeedback : IDisposable
     {
         var stream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/linkflow.ico"))!.Stream;
         _appIcon = new Icon(stream, SystemInformation.SmallIconSize);
-        _icon = new NotifyIcon { Icon = _appIcon, Text = "LinkFlow: aguardando o serviço…", Visible = true };
+        _icon = new NotifyIcon { Icon = _appIcon, Text = Strings.Startup_WaitingTray, Visible = true };
 
         if (!showWindow) return;
         _splash = new Window
@@ -45,7 +46,7 @@ public sealed class StartupFeedback : IDisposable
                     },
                     new TextBlock
                     {
-                        Text = "Aguardando o serviço do Windows iniciar. O controle das ventoinhas continua com o serviço.",
+                        Text = Strings.Startup_WaitingText,
                         Margin = new Thickness(0, 8, 0, 14), TextWrapping = TextWrapping.Wrap,
                         Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(148, 163, 184))
                     },
@@ -53,7 +54,7 @@ public sealed class StartupFeedback : IDisposable
                 }
             }
         };
-        System.Windows.Automation.AutomationProperties.SetName(_splash, "LinkFlow aguardando o serviço");
+        System.Windows.Automation.AutomationProperties.SetName(_splash, Strings.Startup_WaitingName);
         _splash.Show();
     }
 

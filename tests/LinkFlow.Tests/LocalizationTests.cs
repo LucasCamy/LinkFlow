@@ -89,6 +89,13 @@ public sealed class UiLanguageTests : IDisposable
     }
 
     [Fact]
+    public void Texts_are_portuguese_until_a_language_is_applied_whatever_the_windows_language()
+    {
+        Assert.Equal(UiLanguage.Portuguese, Strings.Culture?.Name);
+        Assert.Equal("Ventoinhas", Strings.Nav_Fans);
+    }
+
+    [Fact]
     public void Startup_option_selects_the_language_for_one_run()
     {
         Assert.Equal("en", App.StartupOptions.Parse(["--tray", "--lang", "en"]).Language);
@@ -169,7 +176,7 @@ public sealed class XamlHardcodedTextTests
 {
     private static readonly HashSet<string> TextProperties =
     [
-        "Text", "Content", "Header", "ToolTip", "Title", "Description", "PlaceholderText",
+        "Text", "Content", "Header", "ToolTip", "Title", "Detail", "Description", "PlaceholderText",
         "AutomationProperties.Name", "AutomationProperties.HelpText", "ToolTipService.ToolTip",
     ];
 
@@ -194,8 +201,7 @@ public sealed class XamlHardcodedTextTests
     /// <summary>Telas que ainda não foram traduzidas (v3.0, fases 1 a 4).</summary>
     private static readonly HashSet<string> NotYetTranslated =
     [
-        "MainWindow.xaml", "MiniWidgetWindow.xaml",
-        "Views/AlertHistoryDialog.xaml", "Views/CalibrationDialog.xaml", "Views/DashboardPage.xaml", "Views/DetailPanel.xaml",
+        "Views/DashboardPage.xaml", "Views/DetailPanel.xaml",
         "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/FansPage.xaml", "Views/HardwarePage.xaml",
         "Views/ImportDialog.xaml", "Views/LcdPage.xaml", "Views/LightingPage.xaml", "Views/SettingsPage.xaml",
         "Views/WidgetPage.xaml", "Views/WidgetView.xaml", "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml", "Views/WindowsPage.xaml",

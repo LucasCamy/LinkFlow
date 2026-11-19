@@ -4,6 +4,7 @@ using System.Drawing.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -49,13 +50,13 @@ public sealed class TrayIconService : IDisposable
         };
 
         _header = new ToolStripMenuItem("LinkFlow") { Enabled = false };
-        var open = new ToolStripMenuItem("Abrir LinkFlow", null, (_, _) => OpenRequested?.Invoke()) { Font = new Font("Segoe UI", 9.5f, FontStyle.Bold) };
-        var updates = new ToolStripMenuItem("Atualizações do LinkFlow", null, (_, _) => UpdatesRequested?.Invoke());
-        _profilesMenu = new ToolStripMenuItem("Perfis de ventoinha");
-        _miniItem = new ToolStripMenuItem("Mini widget", null, (_, _) => MiniWidgetToggled?.Invoke());
-        _lcdItem = new ToolStripMenuItem("Transmitir métricas no LCD", null, (_, _) => LcdStreamToggled?.Invoke(!_lcdItem!.Checked));
-        _autostartItem = new ToolStripMenuItem("Iniciar com o Windows", null, (_, _) => AutoStartToggled?.Invoke(!_autostartItem!.Checked));
-        _exitItem = new ToolStripMenuItem("Sair do LinkFlow", null, (_, _) => ExitRequested?.Invoke());
+        var open = new ToolStripMenuItem(Strings.Mini_Open, null, (_, _) => OpenRequested?.Invoke()) { Font = new Font("Segoe UI", 9.5f, FontStyle.Bold) };
+        var updates = new ToolStripMenuItem(Strings.Tray_Updates, null, (_, _) => UpdatesRequested?.Invoke());
+        _profilesMenu = new ToolStripMenuItem(Strings.Tray_FanProfiles);
+        _miniItem = new ToolStripMenuItem(Strings.Tray_MiniWidget, null, (_, _) => MiniWidgetToggled?.Invoke());
+        _lcdItem = new ToolStripMenuItem(Strings.Tray_LcdStream, null, (_, _) => LcdStreamToggled?.Invoke(!_lcdItem!.Checked));
+        _autostartItem = new ToolStripMenuItem(Strings.Tray_StartWithWindows, null, (_, _) => AutoStartToggled?.Invoke(!_autostartItem!.Checked));
+        _exitItem = new ToolStripMenuItem(Strings.Tray_Exit, null, (_, _) => ExitRequested?.Invoke());
 
         _menu.Items.AddRange(new ToolStripItem[]
         {
@@ -114,10 +115,10 @@ public sealed class TrayIconService : IDisposable
         string cpuTxt = cpu is { } c ? $"{c:0}°C" : "—";
         string gpuTxt = s.GpuTemp is { } g ? $"{g:0}°C" : "—";
         string fans = s.AverageFanRpm is { } r ? $"{r:N0} RPM" : "—";
-        string state = s.FailSafeActive ? "MODO SEGURANÇA" : s.HubConnected ? $"{s.EffectiveGlobalPercent}%" : "hub desconectado";
+        string state = s.FailSafeActive ? Strings.Tray_FailSafe : s.HubConnected ? $"{s.EffectiveGlobalPercent}%" : Strings.Tray_HubDisconnected;
 
         // Tooltip do NotifyIcon é limitado a 127 caracteres
-        string tip = $"LinkFlow • {state}\nCPU {cpuTxt} • GPU {gpuTxt}\nFans {fans}";
+        string tip = $"LinkFlow • {state}\nCPU {cpuTxt} • GPU {gpuTxt}\n{string.Format(Strings.Tray_Fans, fans)}";
         _icon.Text = tip.Length > 127 ? tip[..127] : tip;
         _header.Text = $"CPU {cpuTxt}  •  GPU {gpuTxt}  •  {fans}";
 
@@ -135,7 +136,7 @@ public sealed class TrayIconService : IDisposable
     /// <summary>No modo serviço, "Sair" fecha só a interface; o serviço continua controlando o hardware.</summary>
     public void SetServiceMode(bool serviceMode)
     {
-        _exitItem.Text = serviceMode ? "Fechar interface (o serviço continua)" : "Sair do LinkFlow";
+        _exitItem.Text = serviceMode ? Strings.Tray_CloseInterface : Strings.Tray_Exit;
     }
 
     public void ShowNotification(string title, string text, ToolTipIcon icon = ToolTipIcon.Info)

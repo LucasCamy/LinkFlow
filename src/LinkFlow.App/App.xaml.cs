@@ -8,6 +8,7 @@ using LinkFlow.App.Services;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
 using Microsoft.Win32;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App;
 
@@ -33,11 +34,9 @@ public partial class App : Application
 
     public static new App Current => (App)Application.Current;
 
-    protected override async void OnStartup(StartupEventArgs e)
+    public App()
     {
-        base.OnStartup(e);
-        Options = StartupOptions.Parse(e.Args);
-
+        Options = StartupOptions.Parse(Environment.GetCommandLineArgs()[1..]);
         if (Options.Simulate && Environment.GetEnvironmentVariable("LINKFLOW_DATA_DIR") == null)
         {
             // Simulação nunca toca na configuração real
@@ -45,10 +44,19 @@ public partial class App : Application
             AppPaths.UserDir = Path.Combine(Path.GetTempPath(), "LinkFlow-sim", "user");
         }
 
-        Log.Configure(Options.ServiceCommand != null || Options.InstallDriverRequested ? "app-admin" : "app",
-            Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
+        // O idioma vai aqui, antes de o WPF começar a despachar: aplicado dentro do OnStartup, as operações seguintes
+        // da thread da interface voltavam para a cultura do Windows (com a interface em inglês, números com vírgula).
         UiLanguage.Apply(UiLanguage.Resolve(Options.Language, UiLanguage.ReadSavedLanguage(AppPaths.UiSettingsFile),
             CultureInfo.CurrentUICulture));
+    }
+
+    protected override async void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        Log.Configure(Options.ServiceCommand != null || Options.InstallDriverRequested ? "app-admin" : "app",
+            Environment.GetEnvironmentVariable("LINKFLOW_DEBUG") == "1" ? LogLevel.Debug : LogLevel.Info);
+        Log.Info($"Idioma da interface: {UiLanguage.Culture.Name}.");
         // Como administrador o app grava configuração e logs na pasta compartilhada: protege antes
         // (inclusive ao instalar o serviço, antes de ele existir). Sem privilégio, não faz nada.
         if (!Options.Simulate && Environment.GetEnvironmentVariable("LINKFLOW_DATA_DIR") == null)
@@ -143,7 +151,7 @@ public partial class App : Application
         {
             feedback?.Dispose();
             Log.Error("Falha ao iniciar a interface", ex);
-            MessageBox.Show($"O LinkFlow não conseguiu iniciar.\n\n{ex.Message}", "LinkFlow", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(string.Format(Strings.Startup_Failed, ex.Message), "LinkFlow", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }
     }
@@ -199,8 +207,8 @@ public partial class App : Application
         if (Settings.Current.MiniVisible) MainView.SetWidgetEnabled(true);
         if (!Options.Simulate)
         {
-            Updates.UpdateFound += version => _tray?.ShowNotification($"LinkFlow {version} disponível",
-                "Abra Configurações → Atualizações para baixar a nova versão.");
+            Updates.UpdateFound += version => _tray?.ShowNotification(string.Format(Strings.Tray_UpdateFoundTitle, version),
+                Strings.Tray_UpdateFoundText);
             _ = Updates.WatchAsync();
         }
     }
@@ -416,10 +424,8 @@ public partial class App : Application
     {
         if (_tray == null || Settings.Current.TrayHintShown) return;
         Settings.Update(s => s.TrayHintShown = true);
-        _tray.ShowNotification("LinkFlow continua ativo",
-            IsServiceMode
-                ? "A janela foi fechada, mas o serviço continua controlando o hardware. Clique no ícone para abrir."
-                : "O controle das ventoinhas e do RGB continua na bandeja. Clique no ícone para abrir; use \"Sair\" no menu para encerrar.");
+        _tray.ShowNotification(Strings.Tray_StillRunningTitle,
+            IsServiceMode ? Strings.Tray_StillRunningService : Strings.Tray_StillRunningLocal);
     }
 
     public void ShowMainWindow()
@@ -433,7 +439,7 @@ public partial class App : Application
     public void NotifyPresetChanged(string preset)
     {
         if (MainView?.IsVisible == true && MainView.IsActive) return;
-        _tray?.ShowNotification("Perfil aplicado", preset);
+        _tray?.ShowNotification(Strings.Tray_ProfileApplied, preset);
     }
 
     // ------------------------------------------------------------------ Energia e sessão

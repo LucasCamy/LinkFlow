@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Threading;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -176,8 +177,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string ConnectionStatus => Snapshot.HubStatus;
     public string HubStatusColor => Snapshot.HubConnected ? "#10B981" : "#F59E0B";
     public string EngineModeLabel => _engine.IsRemote
-        ? (_engine.IsConnected ? "Serviço do Windows" : "Serviço desconectado")
-        : _engine.ModeDescription;
+        ? (_engine.IsConnected ? Strings.Main_EngineService : Strings.Main_EngineServiceDisconnected)
+        : _engine.IsSimulated ? Strings.Main_EngineSimulation : Strings.Main_EngineLocal;
 
     public bool IsEngineDisconnected => _engine.IsRemote && !_engine.IsConnected;
 
@@ -268,10 +269,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public bool IsCurveMode => _mode == FanControlMode.Curve;
     public bool IsFixedMode => _mode == FanControlMode.Fixed;
 
-    public string CurveStatus => IsFailSafeActive ? "Proteção ativa · ventoinhas em 100%" :
+    public string CurveStatus => IsFailSafeActive ? Strings.Main_CurveFailSafe :
         _mode == FanControlMode.Curve
-            ? $"Curva ativa • {(Snapshot.CurveInputTemp is { } t ? $"{t:0.0}°C" : "aguardando sensor")} → {Snapshot.EffectiveGlobalPercent}%"
-            : "Potência fixa";
+            ? string.Format(Strings.Main_CurveActive,
+                Snapshot.CurveInputTemp is { } t ? $"{t:0.0}°C" : Strings.Main_CurveWaitingSensor, Snapshot.EffectiveGlobalPercent)
+            : Strings.Main_FixedPower;
 
     public string ActivePreset => _activePreset;
 
