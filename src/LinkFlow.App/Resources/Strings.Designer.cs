@@ -1642,6 +1642,438 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 32 GiB · 6000 MT/s configurados · DIMMA2.
+        /// </summary>
+        public static string Hw_32GiB6000MT {
+            get {
+                return ResourceManager.GetString("Hw_32GiB6000MT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canal {0}.
+        /// </summary>
+        public static string Hw_Canal {
+            get {
+                return ResourceManager.GetString("Hw_Canal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Áudio.
+        /// </summary>
+        public static string Hw_CatAudio {
+            get {
+                return ResourceManager.GetString("Hw_CatAudio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display LCD.
+        /// </summary>
+        public static string Hw_CatLcd {
+            get {
+                return ResourceManager.GetString("Hw_CatLcd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Módulos LINK.
+        /// </summary>
+        public static string Hw_CatLinkModules {
+            get {
+                return ResourceManager.GetString("Hw_CatLinkModules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monitor.
+        /// </summary>
+        public static string Hw_CatMonitor {
+            get {
+                return ResourceManager.GetString("Hw_CatMonitor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa-mãe.
+        /// </summary>
+        public static string Hw_CatMotherboard {
+            get {
+                return ResourceManager.GetString("Hw_CatMotherboard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Periféricos.
+        /// </summary>
+        public static string Hw_CatPeripherals {
+            get {
+                return ResourceManager.GetString("Hw_CatPeripherals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bombas.
+        /// </summary>
+        public static string Hw_CatPumps {
+            get {
+                return ResourceManager.GetString("Hw_CatPumps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensores.
+        /// </summary>
+        public static string Hw_CatSensors {
+            get {
+                return ResourceManager.GetString("Hw_CatSensors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compatibilidade.
+        /// </summary>
+        public static string Hw_Compatibilidade {
+            get {
+                return ResourceManager.GetString("Hw_Compatibilidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conectado.
+        /// </summary>
+        public static string Hw_Conectado {
+            get {
+                return ResourceManager.GetString("Hw_Conectado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPUs, GPUs e discos compatíveis com LibreHardwareMonitor.
+        /// </summary>
+        public static string Hw_CPUsGPUsDiscosCompativeis {
+            get {
+                return ResourceManager.GetString("Hw_CPUsGPUsDiscosCompativeis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detectar hardware.
+        /// </summary>
+        public static string Hw_DetectarHardware {
+            get {
+                return ResourceManager.GetString("Hw_DetectarHardware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detectar novamente.
+        /// </summary>
+        public static string Hw_DetectarNovamente {
+            get {
+                return ResourceManager.GetString("Hw_DetectarNovamente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disco físico.
+        /// </summary>
+        public static string Hw_DiscoFisico {
+            get {
+                return ResourceManager.GetString("Hw_DiscoFisico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A disponibilidade depende do controlador. A memória usa PawnIO e os periféricos Logitech usam G HUB..
+        /// </summary>
+        public static string Hw_DisponibilidadeDependeControladorMemoria {
+            get {
+                return ResourceManager.GetString("Hw_DisponibilidadeDependeControladorMemoria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Especificações deste PC e compatibilidade com o LinkFlow..
+        /// </summary>
+        public static string Hw_EspecificacoesDestePCCompatibilidade {
+            get {
+                return ResourceManager.GetString("Hw_EspecificacoesDestePCCompatibilidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filtrar por peça ou especificação.
+        /// </summary>
+        public static string Hw_FiltrarPecaOuEspecificacao {
+            get {
+                return ResourceManager.GetString("Hw_FiltrarPecaOuEspecificacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filtrar peças.
+        /// </summary>
+        public static string Hw_FiltrarPecas {
+            get {
+                return ResourceManager.GetString("Hw_FiltrarPecas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Firmware {0}.
+        /// </summary>
+        public static string Hw_Firmware {
+            get {
+                return ResourceManager.GetString("Hw_Firmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0.#} GiB de VRAM.
+        /// </summary>
+        public static string Hw_GiBVRAM {
+            get {
+                return ResourceManager.GetString("Hw_GiBVRAM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to iCUE LINK, ASUS Aura, MSI Mystic Light, Corsair DDR5 RGB e Logitech G.
+        /// </summary>
+        public static string Hw_ICUELINKASUSAura {
+            get {
+                return ResourceManager.GetString("Hw_ICUELINKASUSAura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Identificação pelo hub.
+        /// </summary>
+        public static string Hw_IdentificacaoPeloHub {
+            get {
+                return ResourceManager.GetString("Hw_IdentificacaoPeloHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inventário do PC.
+        /// </summary>
+        public static string Hw_InventarioPC {
+            get {
+                return ResourceManager.GetString("Hw_InventarioPC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  Inventário simulado..
+        /// </summary>
+        public static string Hw_InventarioSimulado {
+            get {
+                return ResourceManager.GetString("Hw_InventarioSimulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} de {1} itens..
+        /// </summary>
+        public static string Hw_Itens {
+            get {
+                return ResourceManager.GetString("Hw_Itens", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} itens no inventário..
+        /// </summary>
+        public static string Hw_ItensInventario {
+            get {
+                return ResourceManager.GetString("Hw_ItensInventario", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leia os componentes e suas especificações..
+        /// </summary>
+        public static string Hw_LeiaComponentesSuasEspecificacoes {
+            get {
+                return ResourceManager.GetString("Hw_LeiaComponentesSuasEspecificacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lendo as peças deste PC….
+        /// </summary>
+        public static string Hw_LendoPecasDestePC {
+            get {
+                return ResourceManager.GetString("Hw_LendoPecasDestePC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to As métricas disponíveis variam por modelo e permissões do Windows..
+        /// </summary>
+        public static string Hw_MetricasDisponiveisVariamModelo {
+            get {
+                return ResourceManager.GetString("Hw_MetricasDisponiveisVariamModelo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Métricas, fotos e GIFs.
+        /// </summary>
+        public static string Hw_MetricasFotosGIFs {
+            get {
+                return ResourceManager.GetString("Hw_MetricasFotosGIFs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Meu PC.
+        /// </summary>
+        public static string Hw_MeuPC {
+            get {
+                return ResourceManager.GetString("Hw_MeuPC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Módulo DDR5 (simulado).
+        /// </summary>
+        public static string Hw_ModuloDDR5Simulado {
+            get {
+                return ResourceManager.GetString("Hw_ModuloDDR5Simulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Módulo de memória.
+        /// </summary>
+        public static string Hw_ModuloMemoria {
+            get {
+                return ResourceManager.GetString("Hw_ModuloMemoria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monitor conectado.
+        /// </summary>
+        public static string Hw_MonitorConectado {
+            get {
+                return ResourceManager.GetString("Hw_MonitorConectado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} MT/s configurados.
+        /// </summary>
+        public static string Hw_MTConfigurados {
+            get {
+                return ResourceManager.GetString("Hw_MTConfigurados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} MT/s nominais.
+        /// </summary>
+        public static string Hw_MTNominais {
+            get {
+                return ResourceManager.GetString("Hw_MTNominais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível ler o inventário. Tente novamente..
+        /// </summary>
+        public static string Hw_NaoFoiPossivelLer {
+            get {
+                return ResourceManager.GetString("Hw_NaoFoiPossivelLer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  núcleos.
+        /// </summary>
+        public static string Hw_Nucleos {
+            get {
+                return ResourceManager.GetString("Hw_Nucleos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  Leitura indisponível para {0}..
+        /// </summary>
+        public static string Hw_ReadUnavailable {
+            get {
+                return ResourceManager.GetString("Hw_ReadUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisão {0}.
+        /// </summary>
+        public static string Hw_Revisao {
+            get {
+                return ResourceManager.GetString("Hw_Revisao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · RPM e controle de velocidade.
+        /// </summary>
+        public static string Hw_RPMControleVelocidade {
+            get {
+                return ResourceManager.GetString("Hw_RPMControleVelocidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · RPM e curvas de velocidade.
+        /// </summary>
+        public static string Hw_RPMCurvasVelocidade {
+            get {
+                return ResourceManager.GetString("Hw_RPMCurvasVelocidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Simulado.
+        /// </summary>
+        public static string Hw_Simulado {
+            get {
+                return ResourceManager.GetString("Hw_Simulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Simulada.
+        /// </summary>
+        public static string Hw_SimulatedF {
+            get {
+                return ResourceManager.GetString("Hw_SimulatedF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SSD de 1 TB (simulado).
+        /// </summary>
+        public static string Hw_SSD1TBSimulado {
+            get {
+                return ResourceManager.GetString("Hw_SSD1TBSimulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teclado.
+        /// </summary>
+        public static string Hw_Teclado {
+            get {
+                return ResourceManager.GetString("Hw_Teclado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
         public static string Language_English {

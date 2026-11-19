@@ -3,6 +3,7 @@ using System.Management;
 using System.Runtime.InteropServices;
 using LinkFlow.Core;
 using Microsoft.Win32;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -55,16 +56,16 @@ internal static class HardwareInventory
             return (Text(item, "Caption"), Join(windowsVersion.Release, buildLabel, Text(item, "OSArchitecture")));
         });
         Add("Processador", "SELECT Name, NumberOfCores, NumberOfLogicalProcessors, SocketDesignation FROM Win32_Processor",
-            item => (Text(item, "Name"), Join(Text(item, "NumberOfCores", " núcleos"), Text(item, "NumberOfLogicalProcessors", " threads"),
+            item => (Text(item, "Name"), Join(Text(item, "NumberOfCores", Strings.Hw_Nucleos), Text(item, "NumberOfLogicalProcessors", " threads"),
                 Text(item, "SocketDesignation"))));
         Add("Placa-mãe", "SELECT Manufacturer, Product, Version FROM Win32_BaseBoard",
-            item => (Join(Text(item, "Manufacturer"), Text(item, "Product")), Text(item, "Version") is { } revision ? $"Revisão {revision}" : string.Empty));
+            item => (Join(Text(item, "Manufacturer"), Text(item, "Product")), Text(item, "Version") is { } revision ? string.Format(Strings.Hw_Revisao, revision) : string.Empty));
         Add("BIOS", "SELECT Manufacturer, SMBIOSBIOSVersion, ReleaseDate FROM Win32_BIOS",
             item => (Text(item, "SMBIOSBIOSVersion"), Join(Text(item, "Manufacturer"), WmiDate(item, "ReleaseDate")?.ToString("d"))));
         Add("Placa de vídeo", "SELECT Name, DriverVersion, CurrentHorizontalResolution, CurrentVerticalResolution, CurrentRefreshRate FROM Win32_VideoController",
             item => (Text(item, "Name"), Join(Text(item, "DriverVersion") is { } version ? $"Driver {version}" : null, ActiveVideoMode(item))));
         Add("Memória", "SELECT Manufacturer, PartNumber, Capacity, DeviceLocator, ConfiguredClockSpeed, Speed, SMBIOSMemoryType FROM Win32_PhysicalMemory",
-            item => (Text(item, "PartNumber") ?? "Módulo de memória",
+            item => (Text(item, "PartNumber") ?? Strings.Hw_ModuloMemoria,
                 Join(Text(item, "Manufacturer"), MemoryType(item["SMBIOSMemoryType"]), Size(item, "Capacity", 1UL << 30, "GiB"), MemorySpeed(item),
                     Text(item, "DeviceLocator"))));
         var disks = ReadPhysicalDisks();
@@ -75,12 +76,12 @@ internal static class HardwareInventory
         Add("Rede", "SELECT Name, NetConnectionID FROM Win32_NetworkAdapter WHERE PhysicalAdapter = TRUE",
             item => (Text(item, "Name"), Text(item, "NetConnectionID") ?? string.Empty));
         Add("Monitor", "SELECT ManufacturerName, UserFriendlyName, ProductCodeID FROM WmiMonitorID WHERE Active = TRUE",
-            item => (EdidText(item, "UserFriendlyName") ?? EdidText(item, "ProductCodeID") ?? "Monitor conectado",
+            item => (EdidText(item, "UserFriendlyName") ?? EdidText(item, "ProductCodeID") ?? Strings.Hw_MonitorConectado,
                 EdidText(item, "ManufacturerName") ?? string.Empty), @"root\wmi");
         Add("Áudio", "SELECT Name, Manufacturer FROM Win32_SoundDevice",
             item => (Text(item, "Name"), Text(item, "Manufacturer") ?? string.Empty));
         Add("Periféricos", "SELECT Name, PNPClass FROM Win32_PnPEntity WHERE Present = TRUE AND (PNPClass = 'Keyboard' OR PNPClass = 'Mouse')",
-            item => (Text(item, "Name"), Text(item, "PNPClass") == "Keyboard" ? "Teclado" : "Mouse"));
+            item => (Text(item, "Name"), Text(item, "PNPClass") == "Keyboard" ? Strings.Hw_Teclado : "Mouse"));
 
         return new HardwareInventoryResult(parts, unavailable);
     }
@@ -174,7 +175,7 @@ internal static class HardwareInventory
         try
         {
             return Query("SELECT FriendlyName, MediaType, BusType, FirmwareVersion, Size FROM MSFT_PhysicalDisk", item =>
-                new HardwarePart("Armazenamento", Text(item, "FriendlyName") ?? "Disco físico",
+                new HardwarePart("Armazenamento", Text(item, "FriendlyName") ?? Strings.Hw_DiscoFisico,
                     Join(item["MediaType"] switch { (ushort)3 => "HDD", (ushort)4 => "SSD", (ushort)5 => "SCM", _ => null },
                         StorageBus(item["BusType"] as ushort?), Size(item, "Size", 1_000_000_000, "GB"),
                         Text(item, "FirmwareVersion") is { } firmware ? $"Firmware {firmware}" : null)),
@@ -218,8 +219,8 @@ internal static class HardwareInventory
 
     private static string? MemorySpeed(ManagementBaseObject item)
     {
-        if (item["ConfiguredClockSpeed"] is uint configured && configured > 0) return $"{configured} MT/s configurados";
-        return item["Speed"] is uint nominal && nominal > 0 ? $"{nominal} MT/s nominais" : null;
+        if (item["ConfiguredClockSpeed"] is uint configured && configured > 0) return string.Format(Strings.Hw_MTConfigurados, configured);
+        return item["Speed"] is uint nominal && nominal > 0 ? string.Format(Strings.Hw_MTNominais, nominal) : null;
     }
 
     private static string? ActiveVideoMode(ManagementBaseObject item)

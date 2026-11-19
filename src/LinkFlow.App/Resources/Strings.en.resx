@@ -760,4 +760,148 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Chart_MinutesAgo" xml:space="preserve">
     <value>{0} min {1} s ago</value>
   </data>
+  <data name="Hw_EspecificacoesDestePCCompatibilidade" xml:space="preserve">
+    <value>Specifications of this PC and compatibility with LinkFlow.</value>
+  </data>
+  <data name="Hw_MeuPC" xml:space="preserve">
+    <value>My PC</value>
+  </data>
+  <data name="Hw_DetectarHardware" xml:space="preserve">
+    <value>Detect hardware</value>
+  </data>
+  <data name="Hw_InventarioPC" xml:space="preserve">
+    <value>PC inventory</value>
+  </data>
+  <data name="Hw_LeiaComponentesSuasEspecificacoes" xml:space="preserve">
+    <value>Read the components and their specifications.</value>
+  </data>
+  <data name="Hw_FiltrarPecas" xml:space="preserve">
+    <value>Filter parts</value>
+  </data>
+  <data name="Hw_Compatibilidade" xml:space="preserve">
+    <value>Compatibility</value>
+  </data>
+  <data name="Hw_FiltrarPecaOuEspecificacao" xml:space="preserve">
+    <value>Filter by part or specification</value>
+  </data>
+  <data name="Hw_RPMCurvasVelocidade" xml:space="preserve">
+    <value> · RPM and speed curves</value>
+  </data>
+  <data name="Hw_RPMControleVelocidade" xml:space="preserve">
+    <value> · RPM and speed control</value>
+  </data>
+  <data name="Hw_IdentificacaoPeloHub" xml:space="preserve">
+    <value>Identified by the hub</value>
+  </data>
+  <data name="Hw_ICUELINKASUSAura" xml:space="preserve">
+    <value>iCUE LINK, ASUS Aura, MSI Mystic Light, Corsair DDR5 RGB and Logitech G</value>
+  </data>
+  <data name="Hw_DisponibilidadeDependeControladorMemoria" xml:space="preserve">
+    <value>Availability depends on the controller. Memory uses PawnIO and Logitech peripherals use G HUB.</value>
+  </data>
+  <data name="Hw_CPUsGPUsDiscosCompativeis" xml:space="preserve">
+    <value>CPUs, GPUs and disks supported by LibreHardwareMonitor</value>
+  </data>
+  <data name="Hw_MetricasDisponiveisVariamModelo" xml:space="preserve">
+    <value>Available metrics vary by model and Windows permissions.</value>
+  </data>
+  <data name="Hw_MetricasFotosGIFs" xml:space="preserve">
+    <value>Metrics, photos and GIFs</value>
+  </data>
+  <data name="Hw_LendoPecasDestePC" xml:space="preserve">
+    <value>Reading this PC's parts…</value>
+  </data>
+  <data name="Hw_Firmware" xml:space="preserve">
+    <value>Firmware {0}</value>
+  </data>
+  <data name="Hw_Canal" xml:space="preserve">
+    <value>Channel {0}</value>
+  </data>
+  <data name="Hw_Conectado" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="Hw_Simulado" xml:space="preserve">
+    <value>Simulated</value>
+  </data>
+  <data name="Hw_SimulatedF" xml:space="preserve">
+    <value>Simulated</value>
+  </data>
+  <data name="Hw_ModuloDDR5Simulado" xml:space="preserve">
+    <value>DDR5 module (simulated)</value>
+  </data>
+  <data name="Hw_32GiB6000MT" xml:space="preserve">
+    <value>32 GiB · 6000 MT/s configured · DIMMA2</value>
+  </data>
+  <data name="Hw_SSD1TBSimulado" xml:space="preserve">
+    <value>1 TB SSD (simulated)</value>
+  </data>
+  <data name="Hw_InventarioSimulado" xml:space="preserve">
+    <value> Simulated inventory.</value>
+  </data>
+  <data name="Hw_ReadUnavailable" xml:space="preserve">
+    <value> Not available: {0}.</value>
+  </data>
+  <data name="Hw_NaoFoiPossivelLer" xml:space="preserve">
+    <value>Could not read the inventory. Try again.</value>
+  </data>
+  <data name="Hw_GiBVRAM" xml:space="preserve">
+    <value>{0:0.#} GiB of VRAM</value>
+  </data>
+  <data name="Hw_DetectarNovamente" xml:space="preserve">
+    <value>Detect again</value>
+  </data>
+  <data name="Hw_ItensInventario" xml:space="preserve">
+    <value>{0} items in the inventory.</value>
+  </data>
+  <data name="Hw_Itens" xml:space="preserve">
+    <value>{0} of {1} items.</value>
+  </data>
+  <data name="Hw_Nucleos" xml:space="preserve">
+    <value> cores</value>
+  </data>
+  <data name="Hw_Revisao" xml:space="preserve">
+    <value>Revision {0}</value>
+  </data>
+  <data name="Hw_ModuloMemoria" xml:space="preserve">
+    <value>Memory module</value>
+  </data>
+  <data name="Hw_MonitorConectado" xml:space="preserve">
+    <value>Connected monitor</value>
+  </data>
+  <data name="Hw_Teclado" xml:space="preserve">
+    <value>Keyboard</value>
+  </data>
+  <data name="Hw_DiscoFisico" xml:space="preserve">
+    <value>Physical disk</value>
+  </data>
+  <data name="Hw_MTConfigurados" xml:space="preserve">
+    <value>{0} MT/s configured</value>
+  </data>
+  <data name="Hw_MTNominais" xml:space="preserve">
+    <value>{0} MT/s rated</value>
+  </data>
+  <data name="Hw_CatMotherboard" xml:space="preserve">
+    <value>Motherboard</value>
+  </data>
+  <data name="Hw_CatMonitor" xml:space="preserve">
+    <value>Monitor</value>
+  </data>
+  <data name="Hw_CatLcd" xml:space="preserve">
+    <value>LCD display</value>
+  </data>
+  <data name="Hw_CatAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Hw_CatPeripherals" xml:space="preserve">
+    <value>Peripherals</value>
+  </data>
+  <data name="Hw_CatPumps" xml:space="preserve">
+    <value>Pumps</value>
+  </data>
+  <data name="Hw_CatLinkModules" xml:space="preserve">
+    <value>LINK modules</value>
+  </data>
+  <data name="Hw_CatSensors" xml:space="preserve">
+    <value>Sensors</value>
+  </data>
 </root>
