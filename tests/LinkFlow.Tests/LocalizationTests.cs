@@ -196,12 +196,11 @@ public sealed class XamlHardcodedTextTests
     private static readonly Regex Format = new(@"\{\d*(?:[,:][^}]*)?\}", RegexOptions.Compiled);
 
     /// <summary>Iguais em qualquer idioma: unidades e nomes de produto.</summary>
-    private static readonly HashSet<string> Universal = ["RPM", "°C", "GB", "MB", "MHz", "GHz", "LinkFlow", "iCUE LINK", "LCD", "RGB", "CPU", "GPU", "RAM"];
+    private static readonly HashSet<string> Universal = ["RPM", "°C", "GB", "MB", "MHz", "GHz", "min", "LinkFlow", "iCUE LINK", "LCD", "RGB", "CPU", "GPU", "RAM"];
 
     /// <summary>Telas que ainda não foram traduzidas (v3.0, fases 1 a 4).</summary>
     private static readonly HashSet<string> NotYetTranslated =
     [
-        "Views/DetailPanel.xaml",
         "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/FansPage.xaml", "Views/HardwarePage.xaml",
         "Views/ImportDialog.xaml", "Views/LcdPage.xaml", "Views/LightingPage.xaml", "Views/SettingsPage.xaml",
         "Views/WidgetPage.xaml", "Views/WidgetView.xaml", "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml", "Views/WindowsPage.xaml",

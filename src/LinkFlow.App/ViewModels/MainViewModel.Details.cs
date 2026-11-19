@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows.Input;
 using LinkFlow.Core;
 using LinkFlow.App.Services;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -70,13 +71,13 @@ public partial class MainViewModel
 
     public string DetailTitle => _detailKind switch
     {
-        "cpu" => "Processador",
-        "gpu" => "Placa de vídeo",
-        "coolant" => "Líquido e bomba",
-        "fans" => "Ventoinhas",
-        "ram" => "Memória",
-        "net" => "Rede",
-        "disk" => "Discos",
+        "cpu" => Strings.Dash_Cpu,
+        "gpu" => Strings.Dash_Gpu,
+        "coolant" => Strings.Dash_CoolantPump,
+        "fans" => Strings.Nav_Fans,
+        "ram" => Strings.Dash_Memory,
+        "net" => Strings.Dash_Network,
+        "disk" => Strings.Det_Disks,
         _ => string.Empty
     };
 
@@ -84,11 +85,11 @@ public partial class MainViewModel
     {
         "cpu" => CpuName,
         "gpu" => GpuName,
-        "coolant" => Fans.FirstOrDefault(f => f.IsPump)?.Name ?? "Bomba do AIO",
-        "fans" => $"{Fans.Count(f => !f.IsPump)} ventoinha(s) • perfil {ActivePresetLabel}",
+        "coolant" => Fans.FirstOrDefault(f => f.IsPump)?.Name ?? Strings.Det_PumpFallback,
+        "fans" => string.Format(Strings.Det_FansSubtitle, Fans.Count(f => !f.IsPump), ActivePresetLabel),
         "ram" => RamDetail,
         "net" => NetAdapter,
-        "disk" => $"{Snapshot.Volumes.Count} volume(s) • {Snapshot.Disks?.Count ?? 0} disco(s) físico(s)",
+        "disk" => string.Format(Strings.Det_DisksSubtitle, Snapshot.Volumes.Count, Snapshot.Disks?.Count ?? 0),
         _ => string.Empty
     };
 
@@ -114,8 +115,8 @@ public partial class MainViewModel
     public string DetailAvg { get; private set; } = Fmt.Missing;
     public string DetailSamples { get; private set; } = string.Empty;
     public bool DetailHasFans => _detailKind is "fans" or "coolant" or "disk";
-    public string DetailListTitle => _detailKind == "disk" ? "Volumes e discos" : "Dispositivos";
-    public string DetailActionLabel => _detailKind == "fans" ? "Abrir Ventoinhas" : "Ajustar limites de alerta";
+    public string DetailListTitle => _detailKind == "disk" ? Strings.Det_ListDisks : Strings.Det_ListDevices;
+    public string DetailActionLabel => _detailKind == "fans" ? Strings.Dash_OpenFansPage : Strings.Det_AdjustLimits;
     public bool DetailHasAction => _detailKind is "cpu" or "gpu" or "coolant" or "fans";
 
     public void OpenDetail(string? kind)
@@ -140,44 +141,44 @@ public partial class MainViewModel
     {
         "cpu" => new DetailSeries[]
         {
-            new("cpu.temp", "Temperatura", "°C", "#38BDF8", 6),
-            new("cpu.load", "Uso", "%", "#818CF8", 10, "0"),
-            new("cpu.power", "Potência", "W", "#F59E0B", 10, "0"),
-            new("cpu.clock", "Clock", "MHz", "#22D3EE", 200, "0"),
+            new("cpu.temp", Strings.Dash_Temperature, "°C", "#38BDF8", 6),
+            new("cpu.load", Strings.Det_Usage, "%", "#818CF8", 10, "0"),
+            new("cpu.power", Strings.Dash_Power, "W", "#F59E0B", 10, "0"),
+            new("cpu.clock", Strings.Det_Clock, "MHz", "#22D3EE", 200, "0"),
         },
         "gpu" => new DetailSeries[]
         {
-            new("gpu.temp", "Temperatura", "°C", "#34D399", 6),
-            new("gpu.hotspot", "Hotspot", "°C", "#F97316", 6),
-            new("gpu.load", "Uso", "%", "#818CF8", 10, "0"),
-            new("gpu.power", "Potência", "W", "#F59E0B", 10, "0"),
-            new("gpu.fan", "Fans da GPU", "RPM", "#A3E635", 200, "0"),
+            new("gpu.temp", Strings.Dash_Temperature, "°C", "#34D399", 6),
+            new("gpu.hotspot", Strings.Det_Hotspot, "°C", "#F97316", 6),
+            new("gpu.load", Strings.Det_Usage, "%", "#818CF8", 10, "0"),
+            new("gpu.power", Strings.Dash_Power, "W", "#F59E0B", 10, "0"),
+            new("gpu.fan", Strings.Det_GpuFans, "RPM", "#A3E635", 200, "0"),
         },
         "coolant" => new DetailSeries[]
         {
-            new("coolant.temp", "Líquido", "°C", "#60A5FA", 2),
-            new("pump.rpm", "Bomba", "RPM", "#38BDF8", 200, "0"),
+            new("coolant.temp", Strings.Det_Coolant, "°C", "#60A5FA", 2),
+            new("pump.rpm", Strings.Det_Pump, "RPM", "#38BDF8", 200, "0"),
         },
         "fans" => new DetailSeries[]
         {
-            new("fans.rpm", "RPM médio", "RPM", "#00E5FF", 200, "0"),
-            new("fans.power", "Potência", "%", "#FBBF24", 10, "0"),
+            new("fans.rpm", Strings.Det_AvgRpm, "RPM", "#00E5FF", 200, "0"),
+            new("fans.power", Strings.Dash_Power, "%", "#FBBF24", 10, "0"),
         },
         "ram" => new DetailSeries[]
         {
-            new("ram.usage", "Uso", "%", "#A78BFA", 5, "0"),
-            new("ram.used", "Usada", "GB", "#C084FC", 1),
+            new("ram.usage", Strings.Det_Usage, "%", "#A78BFA", 5, "0"),
+            new("ram.used", Strings.Det_Used, "GB", "#C084FC", 1),
         },
         "net" => new DetailSeries[]
         {
-            new("net.down", "Download", "MB/s", "#34D399", 1, "0.00"),
-            new("net.up", "Upload", "MB/s", "#F472B6", 1, "0.00"),
+            new("net.down", Strings.Dash_Download, "MB/s", "#34D399", 1, "0.00"),
+            new("net.up", Strings.Det_Upload, "MB/s", "#F472B6", 1, "0.00"),
         },
         "disk" => new DetailSeries[]
         {
-            new("disk.activity", "Atividade", "%", "#FB923C", 10, "0"),
-            new("disk.read", "Leitura", "MB/s", "#38BDF8", 5, "0.0"),
-            new("disk.write", "Escrita", "MB/s", "#F59E0B", 5, "0.0"),
+            new("disk.activity", Strings.Det_Activity, "%", "#FB923C", 10, "0"),
+            new("disk.read", Strings.Det_Read, "MB/s", "#38BDF8", 5, "0.0"),
+            new("disk.write", Strings.Det_Write, "MB/s", "#F59E0B", 5, "0.0"),
         },
         _ => Array.Empty<DetailSeries>()
     };
@@ -231,14 +232,14 @@ public partial class MainViewModel
             DetailMax = F(window.Max());
             DetailAvg = F(window.Average());
             DetailSamples = window.Length < _detailRangeSeconds
-                ? $"Últimos {FormatDuration(window.Length)} (o histórico começa quando o LinkFlow abre)"
-                : $"Últimos {FormatDuration(_detailRangeSeconds)}";
+                ? string.Format(Strings.Det_LastPartial, FormatDuration(window.Length))
+                : string.Format(Strings.Det_Last, FormatDuration(_detailRangeSeconds));
         }
         else
         {
             _detailHistory = null;
             DetailNow = DetailMin = DetailMax = DetailAvg = Fmt.Missing;
-            DetailSamples = "Sem leituras deste sensor ainda";
+            DetailSamples = Strings.Det_NoReadings;
         }
 
         BuildDetailRows();
@@ -259,68 +260,69 @@ public partial class MainViewModel
         switch (_detailKind)
         {
             case "cpu":
-                rows.Add(new("Modelo", CpuName));
-                rows.Add(new("Temperatura", CpuTempFormatted, s.CpuSensorAvailable ? null : "Sensor indisponível sem administrador/serviço"));
-                rows.Add(new("Uso", CpuLoadFormatted));
-                rows.Add(new("Clock médio", Mhz(s.CpuClockMhz), s.CpuCores is { } n ? $"{n} núcleos" : null));
-                rows.Add(new("Potência do pacote", W(s.CpuPower)));
-                rows.Add(new("Alerta / crítico", $"{CpuWarn:0}°C / {CpuCritical:0}°C"));
+                rows.Add(new(Strings.Det_Model, CpuName));
+                rows.Add(new(Strings.Dash_Temperature, CpuTempFormatted, s.CpuSensorAvailable ? null : Strings.Det_CpuSensorHint));
+                rows.Add(new(Strings.Det_Usage, CpuLoadFormatted));
+                rows.Add(new(Strings.Det_AvgClock, Mhz(s.CpuClockMhz), s.CpuCores is { } n ? string.Format(Strings.Det_Cores, n) : null));
+                rows.Add(new(Strings.Det_PackagePower, W(s.CpuPower)));
+                rows.Add(new(Strings.Det_AlertCritical, $"{CpuWarn:0}°C / {CpuCritical:0}°C"));
                 break;
             case "gpu":
-                rows.Add(new("Modelo", GpuName));
-                rows.Add(new("Temperatura", GpuTempFormatted));
-                rows.Add(new("Hotspot", GpuHotspotFormatted));
-                rows.Add(new("Uso", GpuLoadFormatted));
-                rows.Add(new("Clock do núcleo", Mhz(s.GpuClockMhz)));
-                rows.Add(new("Clock da memória", Mhz(s.GpuMemClockMhz)));
-                rows.Add(new("Potência", W(s.GpuPower)));
-                rows.Add(new("Memória de vídeo", s.GpuVramUsedGb is { } u && s.GpuVramTotalGb is { } t
-                    ? $"{u.ToString("0.0", Ui)} de {t:0} GB ({u / t * 100:0}%)" : Fmt.Missing));
-                rows.Add(new("Fans da GPU", GpuFanModeText, GpuFanRpmFormatted));
-                rows.Add(new("Alerta / crítico", $"{GpuWarn:0}°C / {GpuCritical:0}°C"));
+                rows.Add(new(Strings.Det_Model, GpuName));
+                rows.Add(new(Strings.Dash_Temperature, GpuTempFormatted));
+                rows.Add(new(Strings.Det_Hotspot, GpuHotspotFormatted));
+                rows.Add(new(Strings.Det_Usage, GpuLoadFormatted));
+                rows.Add(new(Strings.Det_CoreClock, Mhz(s.GpuClockMhz)));
+                rows.Add(new(Strings.Det_MemClock, Mhz(s.GpuMemClockMhz)));
+                rows.Add(new(Strings.Dash_Power, W(s.GpuPower)));
+                rows.Add(new(Strings.Det_VideoMemory, s.GpuVramUsedGb is { } u && s.GpuVramTotalGb is { } t
+                    ? string.Format(Strings.Det_VramValue, u, t, u / t * 100) : Fmt.Missing));
+                rows.Add(new(Strings.Det_GpuFans, GpuFanModeText, GpuFanRpmFormatted));
+                rows.Add(new(Strings.Det_AlertCritical, $"{GpuWarn:0}°C / {GpuCritical:0}°C"));
                 break;
             case "coolant":
-                rows.Add(new("Temperatura do líquido", CoolantTempFormatted));
-                rows.Add(new("Bomba", PumpRpmFormatted, s.Fans.FirstOrDefault(f => f.IsPump) is { } p ? $"{p.AppliedPercent}% de potência" : null));
-                rows.Add(new("Diferença líquido → CPU", s.CoolantTemp is { } c && s.CpuSensorAvailable && s.CpuTemp is { } cpu
-                    ? $"{(cpu - c).ToString("0.0", Ui)}°C" : Fmt.Missing, "Quanto menor, melhor a troca de calor"));
-                rows.Add(new("Alerta / crítico", $"{CoolantWarn:0}°C / {CoolantCritical:0}°C"));
-                rows.Add(new("Curva usando o líquido", CurveSourceValue == CurveSource.Coolant ? "Sim" : "Não"));
+                rows.Add(new(Strings.Det_CoolantTemp, CoolantTempFormatted));
+                rows.Add(new(Strings.Det_Pump, PumpRpmFormatted, s.Fans.FirstOrDefault(f => f.IsPump) is { } p ? string.Format(Strings.Det_PumpPower, p.AppliedPercent) : null));
+                rows.Add(new(Strings.Det_CoolantToCpu, s.CoolantTemp is { } c && s.CpuSensorAvailable && s.CpuTemp is { } cpu
+                    ? $"{(cpu - c).ToString("0.0", Ui)}°C" : Fmt.Missing, Strings.Det_CoolantToCpuHint));
+                rows.Add(new(Strings.Det_AlertCritical, $"{CoolantWarn:0}°C / {CoolantCritical:0}°C"));
+                rows.Add(new(Strings.Det_CurveUsesCoolant, CurveSourceValue == CurveSource.Coolant ? Strings.Det_Yes : Strings.Det_No));
                 foreach (var f in Fans.Where(f => f.IsPump)) fanRows.Add(FanRow(f));
                 break;
             case "fans":
                 int stopped = Fans.Count(f => !f.IsPump && f.ShowStoppedWarning);
-                rows.Add(new("Perfil", ActivePresetLabel));
-                rows.Add(new("Modo", IsCurveMode ? CurveStatus : $"Potência fixa {GlobalSpeedFormatted}"));
-                rows.Add(new("RPM médio", AverageFanRpmFormatted));
-                rows.Add(new("Em controle manual", $"{Fans.Count(f => !f.IsLinked)} de {Fans.Count}"));
-                rows.Add(new("Paradas", stopped == 0 ? "Nenhuma" : $"{stopped}", stopped > 0 ? "Verifique cabos/conectores" : null));
+                rows.Add(new(Strings.Det_Profile, ActivePresetLabel));
+                rows.Add(new(Strings.Det_Mode, IsCurveMode ? CurveStatus : string.Format(Strings.Det_FixedPower, GlobalSpeedFormatted)));
+                rows.Add(new(Strings.Det_AvgRpm, AverageFanRpmFormatted));
+                rows.Add(new(Strings.Det_ManualControl, string.Format(Strings.Det_OfTotal, Fans.Count(f => !f.IsLinked), Fans.Count)));
+                rows.Add(new(Strings.Det_Stopped, stopped == 0 ? Strings.Det_NoneStopped : $"{stopped}", stopped > 0 ? Strings.Det_CheckCables : null));
                 foreach (var f in Fans.Where(f => !f.IsPump)) fanRows.Add(FanRow(f));
                 break;
             case "ram":
-                rows.Add(new("Uso", RamUsageFormatted));
-                rows.Add(new("Usada", s.RamUsedGb is { } used ? $"{used.ToString("0.0", Ui)} GB" : Fmt.Missing));
-                rows.Add(new("Total", s.RamTotalGb is { } tot ? $"{tot:0} GB" : Fmt.Missing));
-                rows.Add(new("Livre", s.RamUsedGb is { } u2 && s.RamTotalGb is { } t2 ? $"{(t2 - u2).ToString("0.0", Ui)} GB" : Fmt.Missing));
+                rows.Add(new(Strings.Det_Usage, RamUsageFormatted));
+                rows.Add(new(Strings.Det_Used, s.RamUsedGb is { } used ? $"{used.ToString("0.0", Ui)} GB" : Fmt.Missing));
+                rows.Add(new(Strings.Det_Total, s.RamTotalGb is { } tot ? $"{tot:0} GB" : Fmt.Missing));
+                rows.Add(new(Strings.Det_Free, s.RamUsedGb is { } u2 && s.RamTotalGb is { } t2 ? $"{(t2 - u2).ToString("0.0", Ui)} GB" : Fmt.Missing));
                 break;
             case "net":
                 var net = s.Network;
-                rows.Add(new("Adaptador", NetAdapter));
-                rows.Add(new("Download", NetDownFormatted));
-                rows.Add(new("Upload", NetUpFormatted));
-                rows.Add(new("Velocidade do link", NetLinkFormatted));
-                rows.Add(new("Desde que o LinkFlow abriu", net != null ? $"↓ {(net.SessionDownBytes / 1e9).ToString("0.00", Ui)} GB • ↑ {(net.SessionUpBytes / 1e9).ToString("0.00", Ui)} GB" : Fmt.Missing));
+                rows.Add(new(Strings.Det_Adapter, NetAdapter));
+                rows.Add(new(Strings.Dash_Download, NetDownFormatted));
+                rows.Add(new(Strings.Det_Upload, NetUpFormatted));
+                rows.Add(new(Strings.Det_LinkSpeed, NetLinkFormatted));
+                rows.Add(new(Strings.Det_Session, net != null ? $"↓ {(net.SessionDownBytes / 1e9).ToString("0.00", Ui)} GB • ↑ {(net.SessionUpBytes / 1e9).ToString("0.00", Ui)} GB" : Fmt.Missing));
                 break;
             case "disk":
                 foreach (var v in s.Volumes)
-                    fanRows.Add(new FanDetailRow($"{v.Letter} {v.Label}".Trim(), $"{v.FreeGb.ToString("0", Ui)} GB livres", $"{v.UsedPercent:0}%",
-                        v.UsedPercent >= 90 ? "#F43F5E" : v.UsedPercent >= 75 ? "#F59E0B" : "#10B981", $"de {v.TotalGb.ToString("0", Ui)} GB"));
+                    fanRows.Add(new FanDetailRow($"{v.Letter} {v.Label}".Trim(), string.Format(Strings.Det_VolumeFree, v.FreeGb), $"{v.UsedPercent:0}%",
+                        v.UsedPercent >= 90 ? "#F43F5E" : v.UsedPercent >= 75 ? "#F59E0B" : "#10B981", string.Format(Strings.Det_VolumeOf, v.TotalGb)));
                 foreach (var d in s.Disks ?? new())
                 {
-                    rows.Add(new(d.Name, d.ActivityPercent is { } a ? $"{a:0}% de atividade" : Fmt.Missing,
-                        $"{(d.Temperature is { } dt ? $"{dt:0}°C • " : "")}L {SensorCatalog.Rate(d.ReadBytesPerSec ?? 0)} • E {SensorCatalog.Rate(d.WriteBytesPerSec ?? 0)}"));
+                    rows.Add(new(d.Name, d.ActivityPercent is { } a ? string.Format(Strings.Dash_DiskActivity, a) : Fmt.Missing,
+                        (d.Temperature is { } dt ? $"{dt:0}°C • " : "") + string.Format(Strings.Det_DiskRates,
+                            SensorCatalog.Rate(d.ReadBytesPerSec ?? 0, Ui), SensorCatalog.Rate(d.WriteBytesPerSec ?? 0, Ui))));
                 }
-                if (s.Disks == null) rows.Add(new("Discos físicos", "Lendo...", "A leitura de discos liga só com o painel aberto (economia)"));
+                if (s.Disks == null) rows.Add(new(Strings.Det_PhysicalDisks, Strings.Det_ReadingDisks, Strings.Det_DisksOnDemand));
                 break;
         }
 
@@ -333,7 +335,7 @@ public partial class MainViewModel
     }
 
     private static FanDetailRow FanRow(FanViewModel f) =>
-        new(f.Name, f.RpmFormatted, f.PowerFormatted, f.StatusColor, f.IsLinked ? "Global" : "Manual");
+        new(f.Name, f.RpmFormatted, f.PowerFormatted, f.StatusColor, f.IsLinked ? Strings.Det_KindGlobal : Strings.Det_KindManual);
 
     private static void Sync(ObservableCollection<DetailRow> target, List<DetailRow> rows)
     {

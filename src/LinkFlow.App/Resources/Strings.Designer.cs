@@ -418,6 +418,42 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Coletando dados....
+        /// </summary>
+        public static string Chart_Collecting {
+            get {
+                return ResourceManager.GetString("Chart_Collecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to há {0} min {1} s.
+        /// </summary>
+        public static string Chart_MinutesAgo {
+            get {
+                return ResourceManager.GetString("Chart_MinutesAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to agora.
+        /// </summary>
+        public static string Chart_Now {
+            get {
+                return ResourceManager.GetString("Chart_Now", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to há {0} s.
+        /// </summary>
+        public static string Chart_SecondsAgo {
+            get {
+                return ResourceManager.GetString("Chart_SecondsAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancelar.
         /// </summary>
         public static string Common_Cancel {
@@ -999,6 +1035,609 @@ namespace LinkFlow.App.Resources {
         public static string Dash_VramUsed {
             get {
                 return ResourceManager.GetString("Dash_VramUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atividade.
+        /// </summary>
+        public static string Det_Activity {
+            get {
+                return ResourceManager.GetString("Det_Activity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adaptador.
+        /// </summary>
+        public static string Det_Adapter {
+            get {
+                return ResourceManager.GetString("Det_Adapter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajustar limites de alerta.
+        /// </summary>
+        public static string Det_AdjustLimits {
+            get {
+                return ResourceManager.GetString("Det_AdjustLimits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alerta / crítico.
+        /// </summary>
+        public static string Det_AlertCritical {
+            get {
+                return ResourceManager.GetString("Det_AlertCritical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MÉDIA.
+        /// </summary>
+        public static string Det_Avg {
+            get {
+                return ResourceManager.GetString("Det_Avg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock médio.
+        /// </summary>
+        public static string Det_AvgClock {
+            get {
+                return ResourceManager.GetString("Det_AvgClock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RPM médio.
+        /// </summary>
+        public static string Det_AvgRpm {
+            get {
+                return ResourceManager.GetString("Det_AvgRpm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verifique cabos/conectores.
+        /// </summary>
+        public static string Det_CheckCables {
+            get {
+                return ResourceManager.GetString("Det_CheckCables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock.
+        /// </summary>
+        public static string Det_Clock {
+            get {
+                return ResourceManager.GetString("Det_Clock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar detalhes.
+        /// </summary>
+        public static string Det_CloseName {
+            get {
+                return ResourceManager.GetString("Det_CloseName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar (Esc).
+        /// </summary>
+        public static string Det_CloseTip {
+            get {
+                return ResourceManager.GetString("Det_CloseTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Líquido.
+        /// </summary>
+        public static string Det_Coolant {
+            get {
+                return ResourceManager.GetString("Det_Coolant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura do líquido.
+        /// </summary>
+        public static string Det_CoolantTemp {
+            get {
+                return ResourceManager.GetString("Det_CoolantTemp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diferença líquido → CPU.
+        /// </summary>
+        public static string Det_CoolantToCpu {
+            get {
+                return ResourceManager.GetString("Det_CoolantToCpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quanto menor, melhor a troca de calor.
+        /// </summary>
+        public static string Det_CoolantToCpuHint {
+            get {
+                return ResourceManager.GetString("Det_CoolantToCpuHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock do núcleo.
+        /// </summary>
+        public static string Det_CoreClock {
+            get {
+                return ResourceManager.GetString("Det_CoreClock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} núcleos.
+        /// </summary>
+        public static string Det_Cores {
+            get {
+                return ResourceManager.GetString("Det_Cores", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor indisponível sem administrador/serviço.
+        /// </summary>
+        public static string Det_CpuSensorHint {
+            get {
+                return ResourceManager.GetString("Det_CpuSensorHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva usando o líquido.
+        /// </summary>
+        public static string Det_CurveUsesCoolant {
+            get {
+                return ResourceManager.GetString("Det_CurveUsesCoolant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to L {0} • E {1}.
+        /// </summary>
+        public static string Det_DiskRates {
+            get {
+                return ResourceManager.GetString("Det_DiskRates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Discos.
+        /// </summary>
+        public static string Det_Disks {
+            get {
+                return ResourceManager.GetString("Det_Disks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A leitura de discos liga só com o painel aberto (economia).
+        /// </summary>
+        public static string Det_DisksOnDemand {
+            get {
+                return ResourceManager.GetString("Det_DisksOnDemand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} volume(s) • {1} disco(s) físico(s).
+        /// </summary>
+        public static string Det_DisksSubtitle {
+            get {
+                return ResourceManager.GetString("Det_DisksSubtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ventoinha(s) • perfil {1}.
+        /// </summary>
+        public static string Det_FansSubtitle {
+            get {
+                return ResourceManager.GetString("Det_FansSubtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência fixa {0}.
+        /// </summary>
+        public static string Det_FixedPower {
+            get {
+                return ResourceManager.GetString("Det_FixedPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Livre.
+        /// </summary>
+        public static string Det_Free {
+            get {
+                return ResourceManager.GetString("Det_Free", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fans da GPU.
+        /// </summary>
+        public static string Det_GpuFans {
+            get {
+                return ResourceManager.GetString("Det_GpuFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hotspot.
+        /// </summary>
+        public static string Det_Hotspot {
+            get {
+                return ResourceManager.GetString("Det_Hotspot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Informações.
+        /// </summary>
+        public static string Det_Info {
+            get {
+                return ResourceManager.GetString("Det_Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Global.
+        /// </summary>
+        public static string Det_KindGlobal {
+            get {
+                return ResourceManager.GetString("Det_KindGlobal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manual.
+        /// </summary>
+        public static string Det_KindManual {
+            get {
+                return ResourceManager.GetString("Det_KindManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Últimos {0}.
+        /// </summary>
+        public static string Det_Last {
+            get {
+                return ResourceManager.GetString("Det_Last", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Últimos {0} (o histórico começa quando o LinkFlow abre).
+        /// </summary>
+        public static string Det_LastPartial {
+            get {
+                return ResourceManager.GetString("Det_LastPartial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade do link.
+        /// </summary>
+        public static string Det_LinkSpeed {
+            get {
+                return ResourceManager.GetString("Det_LinkSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dispositivos.
+        /// </summary>
+        public static string Det_ListDevices {
+            get {
+                return ResourceManager.GetString("Det_ListDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volumes e discos.
+        /// </summary>
+        public static string Det_ListDisks {
+            get {
+                return ResourceManager.GetString("Det_ListDisks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em controle manual.
+        /// </summary>
+        public static string Det_ManualControl {
+            get {
+                return ResourceManager.GetString("Det_ManualControl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MÁXIMO.
+        /// </summary>
+        public static string Det_Max {
+            get {
+                return ResourceManager.GetString("Det_Max", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock da memória.
+        /// </summary>
+        public static string Det_MemClock {
+            get {
+                return ResourceManager.GetString("Det_MemClock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MÍNIMO.
+        /// </summary>
+        public static string Det_Min {
+            get {
+                return ResourceManager.GetString("Det_Min", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo.
+        /// </summary>
+        public static string Det_Mode {
+            get {
+                return ResourceManager.GetString("Det_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modelo.
+        /// </summary>
+        public static string Det_Model {
+            get {
+                return ResourceManager.GetString("Det_Model", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não.
+        /// </summary>
+        public static string Det_No {
+            get {
+                return ResourceManager.GetString("Det_No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma.
+        /// </summary>
+        public static string Det_NoneStopped {
+            get {
+                return ResourceManager.GetString("Det_NoneStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem leituras deste sensor ainda.
+        /// </summary>
+        public static string Det_NoReadings {
+            get {
+                return ResourceManager.GetString("Det_NoReadings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AGORA.
+        /// </summary>
+        public static string Det_Now {
+            get {
+                return ResourceManager.GetString("Det_Now", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} de {1}.
+        /// </summary>
+        public static string Det_OfTotal {
+            get {
+                return ResourceManager.GetString("Det_OfTotal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência do pacote.
+        /// </summary>
+        public static string Det_PackagePower {
+            get {
+                return ResourceManager.GetString("Det_PackagePower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Discos físicos.
+        /// </summary>
+        public static string Det_PhysicalDisks {
+            get {
+                return ResourceManager.GetString("Det_PhysicalDisks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfil.
+        /// </summary>
+        public static string Det_Profile {
+            get {
+                return ResourceManager.GetString("Det_Profile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bomba.
+        /// </summary>
+        public static string Det_Pump {
+            get {
+                return ResourceManager.GetString("Det_Pump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bomba do AIO.
+        /// </summary>
+        public static string Det_PumpFallback {
+            get {
+                return ResourceManager.GetString("Det_PumpFallback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}% de potência.
+        /// </summary>
+        public static string Det_PumpPower {
+            get {
+                return ResourceManager.GetString("Det_PumpPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leitura.
+        /// </summary>
+        public static string Det_Read {
+            get {
+                return ResourceManager.GetString("Det_Read", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lendo....
+        /// </summary>
+        public static string Det_ReadingDisks {
+            get {
+                return ResourceManager.GetString("Det_ReadingDisks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desde que o LinkFlow abriu.
+        /// </summary>
+        public static string Det_Session {
+            get {
+                return ResourceManager.GetString("Det_Session", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paradas.
+        /// </summary>
+        public static string Det_Stopped {
+            get {
+                return ResourceManager.GetString("Det_Stopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total.
+        /// </summary>
+        public static string Det_Total {
+            get {
+                return ResourceManager.GetString("Det_Total", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload.
+        /// </summary>
+        public static string Det_Upload {
+            get {
+                return ResourceManager.GetString("Det_Upload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uso.
+        /// </summary>
+        public static string Det_Usage {
+            get {
+                return ResourceManager.GetString("Det_Usage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usada.
+        /// </summary>
+        public static string Det_Used {
+            get {
+                return ResourceManager.GetString("Det_Used", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memória de vídeo.
+        /// </summary>
+        public static string Det_VideoMemory {
+            get {
+                return ResourceManager.GetString("Det_VideoMemory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0} GB livres.
+        /// </summary>
+        public static string Det_VolumeFree {
+            get {
+                return ResourceManager.GetString("Det_VolumeFree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to de {0:0} GB.
+        /// </summary>
+        public static string Det_VolumeOf {
+            get {
+                return ResourceManager.GetString("Det_VolumeOf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0.0} de {1:0} GB ({2:0}%).
+        /// </summary>
+        public static string Det_VramValue {
+            get {
+                return ResourceManager.GetString("Det_VramValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escrita.
+        /// </summary>
+        public static string Det_Write {
+            get {
+                return ResourceManager.GetString("Det_Write", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sim.
+        /// </summary>
+        public static string Det_Yes {
+            get {
+                return ResourceManager.GetString("Det_Yes", resourceCulture);
             }
         }
         
