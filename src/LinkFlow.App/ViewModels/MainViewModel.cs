@@ -196,12 +196,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public bool IsEngineDisconnected => _engine.IsRemote && !_engine.IsConnected;
 
-    public string CpuName => Snapshot.CpuName ?? "Processador";
-    public string GpuName => Snapshot.GpuName ?? "Placa de vídeo";
+    public string CpuName => Snapshot.CpuName ?? Strings.Dash_Cpu;
+    public string GpuName => Snapshot.GpuName ?? Strings.Dash_Gpu;
 
     public string CpuTempFormatted => Fmt.Temp(Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null);
     public string CpuLoadFormatted => Fmt.Pct(Snapshot.CpuLoad);
-    public string? CpuPowerDetail => Snapshot.CpuPower is { } power ? $"Pacote · {power:0} W" : null;
+    public string? CpuPowerDetail => Snapshot.CpuPower is { } power ? string.Format(Strings.Dash_CpuPackage, power) : null;
     public string GpuTempFormatted => Fmt.Temp(Snapshot.GpuTemp);
     public string GpuLoadFormatted => Fmt.Pct(Snapshot.GpuLoad);
     public string GpuHotspotFormatted => Fmt.Temp(Snapshot.GpuHotspot);
@@ -211,14 +211,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             if (Snapshot.GpuVramTotalGb is not { } total || total <= 0) return null;
             return Snapshot.GpuVramUsedGb is { } used
-                ? $"VRAM {used:0.0} de {total:0.#} GB"
-                : $"VRAM {total:0.#} GB";
+                ? string.Format(Strings.Dash_VramUsed, used, total)
+                : string.Format(Strings.Dash_VramTotal, total);
         }
     }
 
     public string RamUsageFormatted => Fmt.Pct(Snapshot.RamUsage);
     public string RamDetail => Snapshot.RamUsedGb is { } u && Snapshot.RamTotalGb is { } t
-        ? $"{u:0.0} de {t:0} GB"
+        ? string.Format(Strings.Dash_RamDetail, u, t)
         : Fmt.Missing;
 
     public string CoolantTempFormatted => Fmt.Temp(Snapshot.CoolantTemp);
@@ -230,8 +230,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string PumpRpmFormatted => Fmt.Rpm(Snapshot.PumpRpm);
 
     public string GpuFanRpmFormatted => Snapshot.GpuFanRpm1 is null && Snapshot.GpuFanRpm2 is null
-        ? "Rotação indisponível"
-        : $"Fan 1: {Snapshot.GpuFanRpm1 ?? 0:N0} RPM  •  Fan 2: {Snapshot.GpuFanRpm2 ?? 0:N0} RPM";
+        ? Strings.Dash_GpuFanRpmMissing
+        : string.Format(Strings.Dash_GpuFanRpm, Snapshot.GpuFanRpm1 ?? 0, Snapshot.GpuFanRpm2 ?? 0);
 
     public bool IsFailSafeActive => Snapshot.FailSafeActive;
 
@@ -350,7 +350,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     public bool IsGpuFanManual => !_isGpuFanAuto;
-    public string GpuFanModeText => _isGpuFanAuto ? "Automático (curva da vBIOS)" : "Manual (controle LinkFlow)";
+    public string GpuFanModeText => _isGpuFanAuto ? Strings.Dash_GpuFanAuto : Strings.Dash_GpuFanManual;
 
     public byte GpuFanPercent
     {

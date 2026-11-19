@@ -201,7 +201,7 @@ public sealed class XamlHardcodedTextTests
     /// <summary>Telas que ainda não foram traduzidas (v3.0, fases 1 a 4).</summary>
     private static readonly HashSet<string> NotYetTranslated =
     [
-        "Views/DashboardPage.xaml", "Views/DetailPanel.xaml",
+        "Views/DetailPanel.xaml",
         "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/FansPage.xaml", "Views/HardwarePage.xaml",
         "Views/ImportDialog.xaml", "Views/LcdPage.xaml", "Views/LightingPage.xaml", "Views/SettingsPage.xaml",
         "Views/WidgetPage.xaml", "Views/WidgetView.xaml", "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml", "Views/WindowsPage.xaml",
@@ -245,6 +245,7 @@ public sealed class XamlHardcodedTextTests
 
     private static bool IsText(string value)
     {
+        if (value.TrimStart().StartsWith("{x:Static", StringComparison.Ordinal)) return false;   // texto vindo de Strings
         string text = Format.Replace(value, " ").Trim();
         return !Universal.Contains(text) && Words.Matches(text).Any(w => !Universal.Contains(w.Value));
     }
@@ -285,6 +286,7 @@ public sealed class XamlHardcodedTextTests
               <Style TargetType="Button"><Setter Property="ToolTip" Value="Ajuda"/></Style>
               <TextBlock Text="{x:Static r:Strings.Language_English}"/>
               <TextBlock Text="{Binding Rpm, StringFormat={}{0:0} RPM}"/>
+              <TextBlock Text="{Binding Since, StringFormat={x:Static r:Strings.Dash_ReadAt}}"/>
               <TextBlock Text="&#xE7BA;"/>
               <Run Text=" · "/>
               <TextBlock Text="°C"/>

@@ -1,5 +1,7 @@
 using System.IO;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -14,9 +16,9 @@ public partial class MainViewModel
     public double[]? NetHistory { get; private set; }
     public double[]? DiskHistory { get; private set; }
 
-    public string NetDownFormatted => Snapshot.Network is { } n ? SensorCatalog.Rate(n.DownBytesPerSec) : Fmt.Missing;
-    public string NetUpFormatted => Snapshot.Network is { } n ? SensorCatalog.Rate(n.UpBytesPerSec) : Fmt.Missing;
-    public string NetAdapter => Snapshot.Network is { Adapter.Length: > 0 } n ? n.Adapter : "Sem conexão ativa";
+    public string NetDownFormatted => Snapshot.Network is { } n ? SensorCatalog.Rate(n.DownBytesPerSec, UiLanguage.Culture) : Fmt.Missing;
+    public string NetUpFormatted => Snapshot.Network is { } n ? SensorCatalog.Rate(n.UpBytesPerSec, UiLanguage.Culture) : Fmt.Missing;
+    public string NetAdapter => Snapshot.Network is { Adapter.Length: > 0 } n ? n.Adapter : Strings.Dash_NoNetwork;
     public string NetLinkFormatted => Snapshot.Network?.LinkBitsPerSec switch
     {
         >= 1_000_000_000 and var bits => $"{bits / 1e9:0.#} Gbps",
@@ -29,11 +31,11 @@ public partial class MainViewModel
 
     public string DiskMainFormatted => MainVolume is { } v ? $"{v.UsedPercent:0}%" : Fmt.Missing;
     public string DiskMainDetail => MainVolume is { } v
-        ? $"{v.Letter} · {v.FreeGb:0} GB livres de {v.TotalGb:0} GB"
-        : "Nenhum volume";
+        ? string.Format(Strings.Dash_DiskMainDetail, v.Letter, v.FreeGb, v.TotalGb)
+        : Strings.Dash_NoVolume;
     public string DiskActivityFormatted => ReadDiskActivity(Snapshot) is { } percent
-        ? $"{percent:0}% de atividade"
-        : "Atividade indisponível";
+        ? string.Format(Strings.Dash_DiskActivity, percent)
+        : Strings.Dash_DiskActivityMissing;
 
     private static float? ReadDiskActivity(EngineSnapshot snapshot) => snapshot.Disks?.Max(disk => disk.ActivityPercent);
 
