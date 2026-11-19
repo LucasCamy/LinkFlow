@@ -436,6 +436,573 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alertas.
+        /// </summary>
+        public static string Dash_Alerts {
+            get {
+                return ResourceManager.GetString("Dash_Alerts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Líquido e bomba.
+        /// </summary>
+        public static string Dash_CoolantPump {
+            get {
+                return ResourceManager.GetString("Dash_CoolantPump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processador.
+        /// </summary>
+        public static string Dash_Cpu {
+            get {
+                return ResourceManager.GetString("Dash_Cpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pacote · {0:0} W.
+        /// </summary>
+        public static string Dash_CpuPackage {
+            get {
+                return ResourceManager.GetString("Dash_CpuPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico de temperatura do processador.
+        /// </summary>
+        public static string Dash_CpuTempHistory {
+            get {
+                return ResourceManager.GetString("Dash_CpuTempHistory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uso da CPU.
+        /// </summary>
+        public static string Dash_CpuUsage {
+            get {
+                return ResourceManager.GetString("Dash_CpuUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0}% de atividade.
+        /// </summary>
+        public static string Dash_DiskActivity {
+            get {
+                return ResourceManager.GetString("Dash_DiskActivity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atividade indisponível.
+        /// </summary>
+        public static string Dash_DiskActivityMissing {
+            get {
+                return ResourceManager.GetString("Dash_DiskActivityMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico de atividade dos discos.
+        /// </summary>
+        public static string Dash_DiskHistory {
+            get {
+                return ResourceManager.GetString("Dash_DiskHistory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1:0} GB livres de {2:0} GB.
+        /// </summary>
+        public static string Dash_DiskMainDetail {
+            get {
+                return ResourceManager.GetString("Dash_DiskMainDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dispensar aviso.
+        /// </summary>
+        public static string Dash_DismissNotice {
+            get {
+                return ResourceManager.GetString("Dash_DismissNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        public static string Dash_Download {
+            get {
+                return ResourceManager.GetString("Dash_Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico de download.
+        /// </summary>
+        public static string Dash_DownloadHistory {
+            get {
+                return ResourceManager.GetString("Dash_DownloadHistory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis de ventoinhas.
+        /// </summary>
+        public static string Dash_FanProfiles {
+            get {
+                return ResourceManager.GetString("Dash_FanProfiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ventoinhas.
+        /// </summary>
+        public static string Dash_FansMany {
+            get {
+                return ResourceManager.GetString("Dash_FansMany", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 ventoinha.
+        /// </summary>
+        public static string Dash_FansOne {
+            get {
+                return ResourceManager.GetString("Dash_FansOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência global.
+        /// </summary>
+        public static string Dash_GlobalPower {
+            get {
+                return ResourceManager.GetString("Dash_GlobalPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa de vídeo.
+        /// </summary>
+        public static string Dash_Gpu {
+            get {
+                return ResourceManager.GetString("Dash_Gpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automático (curva da vBIOS).
+        /// </summary>
+        public static string Dash_GpuFanAuto {
+            get {
+                return ResourceManager.GetString("Dash_GpuFanAuto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manual (controle LinkFlow).
+        /// </summary>
+        public static string Dash_GpuFanManual {
+            get {
+                return ResourceManager.GetString("Dash_GpuFanManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fan 1: {0:N0} RPM  •  Fan 2: {1:N0} RPM.
+        /// </summary>
+        public static string Dash_GpuFanRpm {
+            get {
+                return ResourceManager.GetString("Dash_GpuFanRpm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotação indisponível.
+        /// </summary>
+        public static string Dash_GpuFanRpmMissing {
+            get {
+                return ResourceManager.GetString("Dash_GpuFanRpmMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinhas da GPU.
+        /// </summary>
+        public static string Dash_GpuFans {
+            get {
+                return ResourceManager.GetString("Dash_GpuFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico de temperatura da placa de vídeo.
+        /// </summary>
+        public static string Dash_GpuTempHistory {
+            get {
+                return ResourceManager.GetString("Dash_GpuTempHistory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uso da GPU.
+        /// </summary>
+        public static string Dash_GpuUsage {
+            get {
+                return ResourceManager.GetString("Dash_GpuUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hotspot {0}.
+        /// </summary>
+        public static string Dash_Hotspot {
+            get {
+                return ResourceManager.GetString("Dash_Hotspot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalar serviço.
+        /// </summary>
+        public static string Dash_InstallService {
+            get {
+                return ResourceManager.GetString("Dash_InstallService", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade do link · {0}.
+        /// </summary>
+        public static string Dash_LinkSpeed {
+            get {
+                return ResourceManager.GetString("Dash_LinkSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volumes locais.
+        /// </summary>
+        public static string Dash_LocalVolumes {
+            get {
+                return ResourceManager.GetString("Dash_LocalVolumes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ocupação do volume principal.
+        /// </summary>
+        public static string Dash_MainVolumeUsage {
+            get {
+                return ResourceManager.GetString("Dash_MainVolumeUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} em controle manual.
+        /// </summary>
+        public static string Dash_ManualFans {
+            get {
+                return ResourceManager.GetString("Dash_ManualFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memória.
+        /// </summary>
+        public static string Dash_Memory {
+            get {
+                return ResourceManager.GetString("Dash_Memory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uso da memória.
+        /// </summary>
+        public static string Dash_MemoryUsage {
+            get {
+                return ResourceManager.GetString("Dash_MemoryUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rede.
+        /// </summary>
+        public static string Dash_Network {
+            get {
+                return ResourceManager.GetString("Dash_Network", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem conexão ativa.
+        /// </summary>
+        public static string Dash_NoNetwork {
+            get {
+                return ResourceManager.GetString("Dash_NoNetwork", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum volume.
+        /// </summary>
+        public static string Dash_NoVolume {
+            get {
+                return ResourceManager.GetString("Dash_NoVolume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes do líquido e da bomba.
+        /// </summary>
+        public static string Dash_OpenCoolant {
+            get {
+                return ResourceManager.GetString("Dash_OpenCoolant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes do processador.
+        /// </summary>
+        public static string Dash_OpenCpu {
+            get {
+                return ResourceManager.GetString("Dash_OpenCpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes dos discos.
+        /// </summary>
+        public static string Dash_OpenDisks {
+            get {
+                return ResourceManager.GetString("Dash_OpenDisks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes das ventoinhas.
+        /// </summary>
+        public static string Dash_OpenFans {
+            get {
+                return ResourceManager.GetString("Dash_OpenFans", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir Ventoinhas.
+        /// </summary>
+        public static string Dash_OpenFansPage {
+            get {
+                return ResourceManager.GetString("Dash_OpenFansPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes da placa de vídeo.
+        /// </summary>
+        public static string Dash_OpenGpu {
+            get {
+                return ResourceManager.GetString("Dash_OpenGpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes da rede.
+        /// </summary>
+        public static string Dash_OpenNet {
+            get {
+                return ResourceManager.GetString("Dash_OpenNet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir detalhes da memória.
+        /// </summary>
+        public static string Dash_OpenRam {
+            get {
+                return ResourceManager.GetString("Dash_OpenRam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência.
+        /// </summary>
+        public static string Dash_Power {
+            get {
+                return ResourceManager.GetString("Dash_Power", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+↑ / Ctrl+↓ ajusta 5%.
+        /// </summary>
+        public static string Dash_PowerTip {
+            get {
+                return ResourceManager.GetString("Dash_PowerTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bomba · {0}.
+        /// </summary>
+        public static string Dash_Pump {
+            get {
+                return ResourceManager.GetString("Dash_Pump", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} bombas.
+        /// </summary>
+        public static string Dash_PumpsMany {
+            get {
+                return ResourceManager.GetString("Dash_PumpsMany", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 bomba.
+        /// </summary>
+        public static string Dash_PumpsOne {
+            get {
+                return ResourceManager.GetString("Dash_PumpsOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0.0} de {1:0} GB.
+        /// </summary>
+        public static string Dash_RamDetail {
+            get {
+                return ResourceManager.GetString("Dash_RamDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leitura às {0:HH:mm:ss}.
+        /// </summary>
+        public static string Dash_ReadAt {
+            get {
+                return ResourceManager.GetString("Dash_ReadAt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reiniciar como administrador.
+        /// </summary>
+        public static string Dash_RestartAsAdmin {
+            get {
+                return ResourceManager.GetString("Dash_RestartAsAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Armazenamento.
+        /// </summary>
+        public static string Dash_Storage {
+            get {
+                return ResourceManager.GetString("Dash_Storage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperaturas, utilização e refrigeração deste PC..
+        /// </summary>
+        public static string Dash_Subtitle {
+            get {
+                return ResourceManager.GetString("Dash_Subtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rede e discos.
+        /// </summary>
+        public static string Dash_TabNetDisks {
+            get {
+                return ResourceManager.GetString("Dash_TabNetDisks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visão geral.
+        /// </summary>
+        public static string Dash_TabOverview {
+            get {
+                return ResourceManager.GetString("Dash_TabOverview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura.
+        /// </summary>
+        public static string Dash_Temperature {
+            get {
+                return ResourceManager.GetString("Dash_Temperature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload · {0}.
+        /// </summary>
+        public static string Dash_Upload {
+            get {
+                return ResourceManager.GetString("Dash_Upload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0.#} GB livres de {1:0.#} GB.
+        /// </summary>
+        public static string Dash_VolumeFree {
+            get {
+                return ResourceManager.GetString("Dash_VolumeFree", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uso do volume {0}.
+        /// </summary>
+        public static string Dash_VolumeUsage {
+            get {
+                return ResourceManager.GetString("Dash_VolumeUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0}% ocupado.
+        /// </summary>
+        public static string Dash_VolumeUsed {
+            get {
+                return ResourceManager.GetString("Dash_VolumeUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VRAM {0:0.#} GB.
+        /// </summary>
+        public static string Dash_VramTotal {
+            get {
+                return ResourceManager.GetString("Dash_VramTotal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VRAM {0:0.0} de {1:0.#} GB.
+        /// </summary>
+        public static string Dash_VramUsed {
+            get {
+                return ResourceManager.GetString("Dash_VramUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
         public static string Language_English {

@@ -332,10 +332,10 @@ public partial class MainViewModel
         {
             int fans = Fans.Count(f => !f.IsPump), pumps = Fans.Count(f => f.IsPump);
             int manual = Fans.Count(f => !f.IsLinked);
-            var s = $"{fans} ventoinha{(fans == 1 ? "" : "s")}";
-            if (pumps > 0) s += $" • {pumps} bomba{(pumps == 1 ? "" : "s")}";
-            if (manual > 0) s += $" • {manual} em controle manual";
-            return s;
+            var parts = new List<string> { fans == 1 ? Strings.Dash_FansOne : string.Format(Strings.Dash_FansMany, fans) };
+            if (pumps > 0) parts.Add(pumps == 1 ? Strings.Dash_PumpsOne : string.Format(Strings.Dash_PumpsMany, pumps));
+            if (manual > 0) parts.Add(string.Format(Strings.Dash_ManualFans, manual));
+            return string.Join(" • ", parts);
         }
     }
 

@@ -358,4 +358,193 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Alerts_HistoryEmptyDetail" xml:space="preserve">
     <value>Temperature, pump, sensor and hub connection warnings show up here.</value>
   </data>
+  <data name="Dash_DismissNotice" xml:space="preserve">
+    <value>Dismiss</value>
+  </data>
+  <data name="Dash_ReadAt" xml:space="preserve">
+    <value>Read at {0:T}</value>
+  </data>
+  <data name="Dash_Subtitle" xml:space="preserve">
+    <value>Temperatures, usage and cooling of this PC.</value>
+  </data>
+  <data name="Dash_InstallService" xml:space="preserve">
+    <value>Install service</value>
+  </data>
+  <data name="Dash_RestartAsAdmin" xml:space="preserve">
+    <value>Restart as administrator</value>
+  </data>
+  <data name="Dash_TabOverview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Dash_TabNetDisks" xml:space="preserve">
+    <value>Network and disks</value>
+  </data>
+  <data name="Dash_OpenCpu" xml:space="preserve">
+    <value>Open processor details</value>
+  </data>
+  <data name="Dash_Cpu" xml:space="preserve">
+    <value>Processor</value>
+  </data>
+  <data name="Dash_Temperature" xml:space="preserve">
+    <value>Temperature</value>
+  </data>
+  <data name="Dash_CpuTempHistory" xml:space="preserve">
+    <value>Processor temperature history</value>
+  </data>
+  <data name="Dash_CpuUsage" xml:space="preserve">
+    <value>CPU usage</value>
+  </data>
+  <data name="Dash_OpenGpu" xml:space="preserve">
+    <value>Open graphics card details</value>
+  </data>
+  <data name="Dash_Gpu" xml:space="preserve">
+    <value>Graphics card</value>
+  </data>
+  <data name="Dash_GpuTempHistory" xml:space="preserve">
+    <value>Graphics card temperature history</value>
+  </data>
+  <data name="Dash_GpuUsage" xml:space="preserve">
+    <value>GPU usage</value>
+  </data>
+  <data name="Dash_Hotspot" xml:space="preserve">
+    <value>Hotspot {0}</value>
+  </data>
+  <data name="Dash_OpenRam" xml:space="preserve">
+    <value>Open memory details</value>
+  </data>
+  <data name="Dash_Memory" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="Dash_MemoryUsage" xml:space="preserve">
+    <value>Memory usage</value>
+  </data>
+  <data name="Dash_OpenFans" xml:space="preserve">
+    <value>Open fan details</value>
+  </data>
+  <data name="Dash_OpenCoolant" xml:space="preserve">
+    <value>Open coolant and pump details</value>
+  </data>
+  <data name="Dash_CoolantPump" xml:space="preserve">
+    <value>Coolant and pump</value>
+  </data>
+  <data name="Dash_Pump" xml:space="preserve">
+    <value>Pump · {0}</value>
+  </data>
+  <data name="Dash_OpenFansPage" xml:space="preserve">
+    <value>Open Fans</value>
+  </data>
+  <data name="Dash_FanProfiles" xml:space="preserve">
+    <value>Fan profiles</value>
+  </data>
+  <data name="Dash_Power" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="Dash_GlobalPower" xml:space="preserve">
+    <value>Global power</value>
+  </data>
+  <data name="Dash_PowerTip" xml:space="preserve">
+    <value>Ctrl+↑ / Ctrl+↓ adjusts by 5%</value>
+  </data>
+  <data name="Dash_Alerts" xml:space="preserve">
+    <value>Alerts</value>
+  </data>
+  <data name="Dash_GpuFans" xml:space="preserve">
+    <value>GPU fans</value>
+  </data>
+  <data name="Dash_OpenNet" xml:space="preserve">
+    <value>Open network details</value>
+  </data>
+  <data name="Dash_Network" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="Dash_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Dash_DownloadHistory" xml:space="preserve">
+    <value>Download history</value>
+  </data>
+  <data name="Dash_Upload" xml:space="preserve">
+    <value>Upload · {0}</value>
+  </data>
+  <data name="Dash_LinkSpeed" xml:space="preserve">
+    <value>Link speed · {0}</value>
+  </data>
+  <data name="Dash_OpenDisks" xml:space="preserve">
+    <value>Open disk details</value>
+  </data>
+  <data name="Dash_Storage" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="Dash_MainVolumeUsage" xml:space="preserve">
+    <value>Main volume usage</value>
+  </data>
+  <data name="Dash_DiskHistory" xml:space="preserve">
+    <value>Disk activity history</value>
+  </data>
+  <data name="Dash_LocalVolumes" xml:space="preserve">
+    <value>Local volumes</value>
+  </data>
+  <data name="Dash_VolumeUsed" xml:space="preserve">
+    <value>{0:0}% used</value>
+  </data>
+  <data name="Dash_VolumeUsage" xml:space="preserve">
+    <value>Volume {0} usage</value>
+  </data>
+  <data name="Dash_VolumeFree" xml:space="preserve">
+    <value>{0:0.#} GB free of {1:0.#} GB</value>
+  </data>
+  <data name="Dash_CpuPackage" xml:space="preserve">
+    <value>Package · {0:0} W</value>
+  </data>
+  <data name="Dash_VramUsed" xml:space="preserve">
+    <value>VRAM {0:0.0} of {1:0.#} GB</value>
+  </data>
+  <data name="Dash_VramTotal" xml:space="preserve">
+    <value>VRAM {0:0.#} GB</value>
+  </data>
+  <data name="Dash_RamDetail" xml:space="preserve">
+    <value>{0:0.0} of {1:0} GB</value>
+  </data>
+  <data name="Dash_GpuFanRpmMissing" xml:space="preserve">
+    <value>Speed unavailable</value>
+  </data>
+  <data name="Dash_GpuFanRpm" xml:space="preserve">
+    <value>Fan 1: {0:N0} RPM  •  Fan 2: {1:N0} RPM</value>
+  </data>
+  <data name="Dash_GpuFanAuto" xml:space="preserve">
+    <value>Automatic (vBIOS curve)</value>
+  </data>
+  <data name="Dash_GpuFanManual" xml:space="preserve">
+    <value>Manual (LinkFlow control)</value>
+  </data>
+  <data name="Dash_NoNetwork" xml:space="preserve">
+    <value>No active connection</value>
+  </data>
+  <data name="Dash_DiskMainDetail" xml:space="preserve">
+    <value>{0} · {1:0} GB free of {2:0} GB</value>
+  </data>
+  <data name="Dash_NoVolume" xml:space="preserve">
+    <value>No volumes</value>
+  </data>
+  <data name="Dash_DiskActivity" xml:space="preserve">
+    <value>{0:0}% activity</value>
+  </data>
+  <data name="Dash_DiskActivityMissing" xml:space="preserve">
+    <value>Activity unavailable</value>
+  </data>
+  <data name="Dash_FansOne" xml:space="preserve">
+    <value>1 fan</value>
+  </data>
+  <data name="Dash_FansMany" xml:space="preserve">
+    <value>{0} fans</value>
+  </data>
+  <data name="Dash_PumpsOne" xml:space="preserve">
+    <value>1 pump</value>
+  </data>
+  <data name="Dash_PumpsMany" xml:space="preserve">
+    <value>{0} pumps</value>
+  </data>
+  <data name="Dash_ManualFans" xml:space="preserve">
+    <value>{0} under manual control</value>
+  </data>
 </root>
