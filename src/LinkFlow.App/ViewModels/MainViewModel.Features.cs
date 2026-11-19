@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -140,7 +141,10 @@ public partial class MainViewModel
     private bool _isCompact;
 
     public static readonly string[] PageTitles =
-        { "Painel", "Ventoinhas", "Iluminação", "Tela LCD", "Widget", "Configurações", "Hardware", "Windows", "Drivers" };
+    [
+        Strings.Nav_Dashboard, Strings.Nav_Fans, Strings.Nav_Lighting, Strings.Nav_Lcd, Strings.Nav_Widget,
+        Strings.Nav_Settings, Strings.Nav_Hardware, Strings.Nav_Windows, Strings.Nav_Drivers,
+    ];
 
     public int SelectedPage
     {

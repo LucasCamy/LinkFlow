@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Markup;
 using LinkFlow.App.Resources;
-using LinkFlow.Core;
 
 namespace LinkFlow.App.Services;
 
@@ -27,6 +27,13 @@ public static class UiLanguage
     internal const bool FollowWindowsByDefault = false;
 
     private static bool _applied;
+
+    /// <summary>
+    /// Até <see cref="Apply"/>, os textos saem em português, e não no idioma do Windows: vale para o que aparece antes
+    /// da escolha do idioma e para os testes, que comparam textos em português em qualquer máquina.
+    /// </summary>
+    [ModuleInitializer]
+    internal static void UsePortugueseUntilApplied() => Strings.Culture = CultureInfo.GetCultureInfo(Portuguese);
 
     /// <summary>Cultura da interface (textos, números e datas). Português até <see cref="Apply"/>.</summary>
     public static CultureInfo Culture { get; private set; } = CultureInfo.GetCultureInfo(Portuguese);
@@ -68,7 +75,10 @@ public static class UiLanguage
         }
     }
 
-    /// <summary>Aplica o idioma ao processo inteiro. Só pode ser chamado uma vez, antes da primeira janela.</summary>
+    /// <summary>
+    /// Aplica o idioma ao processo inteiro. Só pode ser chamado uma vez, antes de o WPF começar a despachar (no construtor
+    /// do App): a cultura definida dentro de uma operação do dispatcher não vale para as operações seguintes.
+    /// </summary>
     public static void Apply(string language)
     {
         if (_applied) throw new InvalidOperationException("O idioma da interface já foi aplicado.");
@@ -86,6 +96,5 @@ public static class UiLanguage
         // Run e os outros FrameworkContentElement herdam o valor do elemento em que estão.
         FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement),
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
-        Log.Info($"Idioma da interface: {culture.Name}.");
     }
 }

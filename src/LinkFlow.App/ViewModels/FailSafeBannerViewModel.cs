@@ -1,6 +1,7 @@
 using System.Globalization;
 using LinkFlow.Core;
 using LinkFlow.App.Services;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -34,8 +35,7 @@ public sealed class FailSafeBannerViewModel : ObservableObject
         var stalled = s.Alerts.FirstOrDefault(a => a.Key == "engine-stalled");
         if (stalled != null)
         {
-            Set("Controle das ventoinhas travado", stalled.Message,
-                "O hub voltou ao modo hardware e o serviço será reiniciado.", recovering: false);
+            Set(Strings.Banner_Stalled, stalled.Message, Strings.Banner_StalledStatus, recovering: false);
             return;
         }
         if (!s.FailSafeActive)
@@ -48,11 +48,11 @@ public sealed class FailSafeBannerViewModel : ObservableObject
             .Where(a => a.Severity == AlertSeverity.Critical && IsCause(a.Key))
             .OrderBy(a => a.Since)
             .FirstOrDefault();
-        string reason = cause != null ? Describe(cause, now) : s.FailSafeReason ?? "Leitura crítica detectada.";
+        string reason = cause != null ? Describe(cause, now) : s.FailSafeReason ?? Strings.Banner_CriticalReading;
         string status = s.FailSafeRecovering
-            ? "Leituras normalizadas. Retomando o perfil selecionado em instantes."
-            : "Ventoinhas e bomba forçadas a 100%.";
-        Set("Modo de segurança ativo", reason, status, s.FailSafeRecovering);
+            ? Strings.Banner_Recovering
+            : Strings.Banner_Forced;
+        Set(Strings.Banner_Active, reason, status, s.FailSafeRecovering);
     }
 
     private void Set(string title, string reason, string status, bool recovering)
@@ -72,9 +72,9 @@ public sealed class FailSafeBannerViewModel : ObservableObject
         if (!alert.Key.StartsWith("pump:", StringComparison.Ordinal)) return alert.Message;
         // Bomba: quanto tempo está assim é o que importa ("Bomba com rotação baixa há 12 s · Pump: 0 RPM ...")
         var elapsed = now - alert.Since;
-        string since = elapsed.TotalSeconds < 1 ? string.Empty :
-            elapsed.TotalMinutes < 1 ? $" há {elapsed.TotalSeconds.ToString("0", Ui)} s" :
-            $" há {Math.Floor(elapsed.TotalMinutes).ToString("0", Ui)} min";
-        return $"{alert.Title}{since} · {alert.Message}";
+        return elapsed.TotalSeconds < 1 ? string.Format(Strings.Banner_PumpNow, alert.Title, alert.Message) :
+            elapsed.TotalMinutes < 1
+                ? string.Format(Strings.Banner_PumpForSeconds, alert.Title, elapsed.TotalSeconds.ToString("0", Ui), alert.Message)
+                : string.Format(Strings.Banner_PumpForMinutes, alert.Title, Math.Floor(elapsed.TotalMinutes).ToString("0", Ui), alert.Message);
     }
 }

@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using LinkFlow.App.Services;
 using LinkFlow.App.ViewModels;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App;
 
@@ -85,7 +86,7 @@ public partial class MainWindow : Window
     public AppUpdateViewModel Updates => App.Current.Updates;
     public bool IsMiniWidgetVisible => _miniWidget?.IsVisible == true;
     public WidgetViewModel Widget { get; }
-    public string ShortcutHint => $"F1–F5 perfis  •  Ctrl+1–9 páginas  •  LinkFlow {typeof(App).Assembly.GetName().Version!.ToString(3)}";
+    public string ShortcutHint => string.Format(Strings.Main_ShortcutHint, typeof(App).Assembly.GetName().Version!.ToString(3));
 
     // ------------------------------------------------------------------ Atalhos
 
@@ -123,7 +124,7 @@ public partial class MainWindow : Window
         {
             ShowFanDevices();
             if (!ViewModel.BeginRenameSelected())
-                ViewModel.ShowToast("Selecione um cartão para renomear (ou use o lápis ao passar o mouse)", canUndo: false);
+                ViewModel.ShowToast(Strings.Main_RenameHint, canUndo: false);
             e.Handled = true;
         }
         else if (ctrl && e.Key == Key.Q)
@@ -185,7 +186,7 @@ public partial class MainWindow : Window
     private void OnStateChanged(object? sender, EventArgs e)
     {
         MaxButton.Content = WindowState == WindowState.Maximized ? "" : "";
-        MaxButton.ToolTip = WindowState == WindowState.Maximized ? "Restaurar" : "Maximizar";
+        MaxButton.ToolTip = WindowState == WindowState.Maximized ? Strings.Main_Restore : Strings.Main_Maximize;
 
         if (WindowState == WindowState.Minimized && App.Current.Settings.Current.MinimizeToTray && !_closingForExit)
         {
@@ -219,13 +220,8 @@ public partial class MainWindow : Window
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
 
-    private bool ConfirmDisableFailSafe() => MessageBox.Show(this,
-        "Desligar o modo de segurança automático?\n\n" +
-        "Sem ele, o LinkFlow NÃO leva as ventoinhas e a bomba a 100% quando a CPU, a GPU ou o líquido " +
-        "atingem a temperatura crítica, quando a bomba para ou quando os sensores deixam de responder. " +
-        "Isso pode causar superaquecimento e danificar o hardware.\n\n" +
-        "Os alertas continuam aparecendo, e a alteração fica registrada no log.",
-        "Desligar a proteção", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+    private bool ConfirmDisableFailSafe() => MessageBox.Show(this, Strings.Main_DisableFailSafeMessage,
+        Strings.Main_DisableFailSafeTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
 
     /// <summary>Faixa do modo de segurança: entra deslizando e some em fade quando a proteção termina.</summary>
     private void UpdateFailSafeBar()

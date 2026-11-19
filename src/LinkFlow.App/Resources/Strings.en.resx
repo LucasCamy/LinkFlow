@@ -13,4 +13,349 @@
   <data name="Language_RestartNotice" xml:space="preserve">
     <value>The language changes when LinkFlow restarts.</value>
   </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Nav_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Nav_Fans" xml:space="preserve">
+    <value>Fans</value>
+  </data>
+  <data name="Nav_Lighting" xml:space="preserve">
+    <value>Lighting</value>
+  </data>
+  <data name="Nav_Lcd" xml:space="preserve">
+    <value>LCD screen</value>
+  </data>
+  <data name="Nav_Widget" xml:space="preserve">
+    <value>Widget</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Nav_Hardware" xml:space="preserve">
+    <value>Hardware</value>
+  </data>
+  <data name="Nav_Windows" xml:space="preserve">
+    <value>Windows</value>
+  </data>
+  <data name="Nav_Drivers" xml:space="preserve">
+    <value>Drivers</value>
+  </data>
+  <data name="Nav_DashboardTip" xml:space="preserve">
+    <value>Dashboard (Ctrl+1)</value>
+  </data>
+  <data name="Nav_FansTip" xml:space="preserve">
+    <value>Fans (Ctrl+2)</value>
+  </data>
+  <data name="Nav_LightingTip" xml:space="preserve">
+    <value>RGB lighting (Ctrl+3)</value>
+  </data>
+  <data name="Nav_LcdTip" xml:space="preserve">
+    <value>LCD screen (Ctrl+4)</value>
+  </data>
+  <data name="Nav_WidgetTip" xml:space="preserve">
+    <value>Floating widget (Ctrl+5)</value>
+  </data>
+  <data name="Nav_SettingsTip" xml:space="preserve">
+    <value>Settings (Ctrl+6)</value>
+  </data>
+  <data name="Nav_HardwareTip" xml:space="preserve">
+    <value>Hardware (Ctrl+7)</value>
+  </data>
+  <data name="Nav_WindowsTip" xml:space="preserve">
+    <value>Windows performance (Ctrl+8)</value>
+  </data>
+  <data name="Nav_DriversTip" xml:space="preserve">
+    <value>Drivers (Ctrl+9)</value>
+  </data>
+  <data name="Main_UpdateAvailable" xml:space="preserve">
+    <value>Update available</value>
+  </data>
+  <data name="Main_AlertHistory" xml:space="preserve">
+    <value>Alert history</value>
+  </data>
+  <data name="Main_EngineModeTip" xml:space="preserve">
+    <value>Where hardware control is running</value>
+  </data>
+  <data name="Main_EngineService" xml:space="preserve">
+    <value>Windows service</value>
+  </data>
+  <data name="Main_EngineServiceDisconnected" xml:space="preserve">
+    <value>Service disconnected</value>
+  </data>
+  <data name="Main_EngineLocal" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="Main_EngineSimulation" xml:space="preserve">
+    <value>Simulation</value>
+  </data>
+  <data name="Main_MiniWidget" xml:space="preserve">
+    <value>Mini widget</value>
+  </data>
+  <data name="Main_MiniWidgetTip" xml:space="preserve">
+    <value>Always-on-top mini widget (Ctrl+M)</value>
+  </data>
+  <data name="Main_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Main_Maximize" xml:space="preserve">
+    <value>Maximize</value>
+  </data>
+  <data name="Main_Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Main_CloseTip" xml:space="preserve">
+    <value>Close (keeps running in the tray)</value>
+  </data>
+  <data name="Main_ActiveProfile" xml:space="preserve">
+    <value>ACTIVE PROFILE</value>
+  </data>
+  <data name="Main_Undo" xml:space="preserve">
+    <value>Undo (Ctrl+Z)</value>
+  </data>
+  <data name="Main_DismissToast" xml:space="preserve">
+    <value>Dismiss</value>
+  </data>
+  <data name="Main_ShortcutHint" xml:space="preserve">
+    <value>F1–F5 profiles  •  Ctrl+1–9 pages  •  LinkFlow {0}</value>
+  </data>
+  <data name="Main_CurveFailSafe" xml:space="preserve">
+    <value>Protection on · fans at 100%</value>
+  </data>
+  <data name="Main_CurveActive" xml:space="preserve">
+    <value>Curve active • {0} → {1}%</value>
+  </data>
+  <data name="Main_CurveWaitingSensor" xml:space="preserve">
+    <value>waiting for sensor</value>
+  </data>
+  <data name="Main_FixedPower" xml:space="preserve">
+    <value>Fixed speed</value>
+  </data>
+  <data name="Main_RenameHint" xml:space="preserve">
+    <value>Select a card to rename it (or use the pencil that appears on hover)</value>
+  </data>
+  <data name="Main_DisableFailSafeTitle" xml:space="preserve">
+    <value>Turn off protection</value>
+  </data>
+  <data name="Main_DisableFailSafeMessage" xml:space="preserve">
+    <value>Turn off automatic safe mode?
+
+Without it, LinkFlow will NOT run the fans and the pump at 100% when the CPU, the GPU or the coolant reaches its critical temperature, when the pump stops or when the sensors stop responding. This can cause overheating and damage the hardware.
+
+Alerts keep showing up, and the change is recorded in the log.</value>
+  </data>
+  <data name="Mini_Title" xml:space="preserve">
+    <value>LinkFlow Widget</value>
+  </data>
+  <data name="Mini_Tip" xml:space="preserve">
+    <value>Drag to move • double-click opens LinkFlow • right-click: options</value>
+  </data>
+  <data name="Mini_Open" xml:space="preserve">
+    <value>Open LinkFlow</value>
+  </data>
+  <data name="Mini_Customize" xml:space="preserve">
+    <value>Customize widget...</value>
+  </data>
+  <data name="Mini_LockPosition" xml:space="preserve">
+    <value>Lock position</value>
+  </data>
+  <data name="Mini_AlwaysOnTop" xml:space="preserve">
+    <value>Always on top</value>
+  </data>
+  <data name="Mini_ClickThrough" xml:space="preserve">
+    <value>Clicks pass through the widget</value>
+  </data>
+  <data name="Mini_ClickThroughTip" xml:space="preserve">
+    <value>To click it again: press Ctrl+Alt+M twice or use the Widget tab</value>
+  </data>
+  <data name="Mini_Hide" xml:space="preserve">
+    <value>Hide widget</value>
+  </data>
+  <data name="Tray_Updates" xml:space="preserve">
+    <value>LinkFlow updates</value>
+  </data>
+  <data name="Tray_FanProfiles" xml:space="preserve">
+    <value>Fan profiles</value>
+  </data>
+  <data name="Tray_MiniWidget" xml:space="preserve">
+    <value>Mini widget</value>
+  </data>
+  <data name="Tray_LcdStream" xml:space="preserve">
+    <value>Show metrics on the LCD</value>
+  </data>
+  <data name="Tray_StartWithWindows" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="Tray_Exit" xml:space="preserve">
+    <value>Exit LinkFlow</value>
+  </data>
+  <data name="Tray_CloseInterface" xml:space="preserve">
+    <value>Close the interface (the service keeps running)</value>
+  </data>
+  <data name="Tray_FailSafe" xml:space="preserve">
+    <value>SAFE MODE</value>
+  </data>
+  <data name="Tray_HubDisconnected" xml:space="preserve">
+    <value>hub disconnected</value>
+  </data>
+  <data name="Tray_Fans" xml:space="preserve">
+    <value>Fans {0}</value>
+  </data>
+  <data name="Tray_StillRunningTitle" xml:space="preserve">
+    <value>LinkFlow is still running</value>
+  </data>
+  <data name="Tray_StillRunningService" xml:space="preserve">
+    <value>The window was closed, but the service keeps controlling the hardware. Click the icon to open it.</value>
+  </data>
+  <data name="Tray_StillRunningLocal" xml:space="preserve">
+    <value>Fan and RGB control keeps running in the tray. Click the icon to open it; use "Exit" in the menu to quit.</value>
+  </data>
+  <data name="Tray_ProfileApplied" xml:space="preserve">
+    <value>Profile applied</value>
+  </data>
+  <data name="Tray_UpdateFoundTitle" xml:space="preserve">
+    <value>LinkFlow {0} available</value>
+  </data>
+  <data name="Tray_UpdateFoundText" xml:space="preserve">
+    <value>Open Settings → Updates to download the new version.</value>
+  </data>
+  <data name="Startup_WaitingTray" xml:space="preserve">
+    <value>LinkFlow: waiting for the service…</value>
+  </data>
+  <data name="Startup_WaitingText" xml:space="preserve">
+    <value>Waiting for the Windows service to start. The service keeps controlling the fans.</value>
+  </data>
+  <data name="Startup_WaitingName" xml:space="preserve">
+    <value>LinkFlow waiting for the service</value>
+  </data>
+  <data name="Startup_Failed" xml:space="preserve">
+    <value>LinkFlow could not start.
+
+{0}</value>
+  </data>
+  <data name="Banner_Stalled" xml:space="preserve">
+    <value>Fan control is stuck</value>
+  </data>
+  <data name="Banner_StalledStatus" xml:space="preserve">
+    <value>The hub went back to hardware mode and the service will restart.</value>
+  </data>
+  <data name="Banner_Active" xml:space="preserve">
+    <value>Safe mode on</value>
+  </data>
+  <data name="Banner_CriticalReading" xml:space="preserve">
+    <value>Critical reading detected.</value>
+  </data>
+  <data name="Banner_Recovering" xml:space="preserve">
+    <value>Readings are back to normal. Returning to the selected profile shortly.</value>
+  </data>
+  <data name="Banner_Forced" xml:space="preserve">
+    <value>Fans and pump forced to 100%.</value>
+  </data>
+  <data name="Banner_PumpForSeconds" xml:space="preserve">
+    <value>{0} for {1} s · {2}</value>
+  </data>
+  <data name="Banner_PumpForMinutes" xml:space="preserve">
+    <value>{0} for {1} min · {2}</value>
+  </data>
+  <data name="Banner_PumpNow" xml:space="preserve">
+    <value>{0} · {1}</value>
+  </data>
+  <data name="Alerts_NonePending" xml:space="preserve">
+    <value>No pending alerts.</value>
+  </data>
+  <data name="Alerts_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Alerts_HistoryMore" xml:space="preserve">
+    <value>History (+{0})</value>
+  </data>
+  <data name="Alerts_ServiceDisconnected" xml:space="preserve">
+    <value>The LinkFlow service is disconnected</value>
+  </data>
+  <data name="Alerts_ServiceDisconnectedDetail" xml:space="preserve">
+    <value>Readings may be out of date.</value>
+  </data>
+  <data name="Alerts_CpuSensor" xml:space="preserve">
+    <value>CPU temperature sensor unavailable</value>
+  </data>
+  <data name="Alerts_CpuSensorDetail" xml:space="preserve">
+    <value>Run as administrator or install the LinkFlow service.</value>
+  </data>
+  <data name="Alerts_StatusActive" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Alerts_StatusEnded" xml:space="preserve">
+    <value>Ended</value>
+  </data>
+  <data name="Alerts_StatusDismissed" xml:space="preserve">
+    <value>{0} · dismissed</value>
+  </data>
+  <data name="Alerts_HistoryEmpty" xml:space="preserve">
+    <value>No recent alerts recorded</value>
+  </data>
+  <data name="Calibration_Title" xml:space="preserve">
+    <value>Calibrate fans</value>
+  </data>
+  <data name="Calibration_Step1" xml:space="preserve">
+    <value>• Measures the speed of each fan from 100% down to 20%.</value>
+  </data>
+  <data name="Calibration_Step2" xml:space="preserve">
+    <value>• If a fan stops at low power, finds out how much it needs to spin again and keeps it above that.</value>
+  </data>
+  <data name="Calibration_Step3" xml:space="preserve">
+    <value>• Saves a reference: LinkFlow warns you when a fan starts spinning well below normal (dust or a worn bearing).</value>
+  </data>
+  <data name="Calibration_Duration" xml:space="preserve">
+    <value>It takes about 2 minutes: the hub changes the speed gradually. The fans ramp up to full speed and then slow down. Avoid games and heavy tasks meanwhile. If the CPU, the GPU or the coolant reaches its alert temperature, the calibration stops and the fans go back to the profile.</value>
+  </data>
+  <data name="Calibration_Progress" xml:space="preserve">
+    <value>Calibration progress</value>
+  </data>
+  <data name="Calibration_CloseHint" xml:space="preserve">
+    <value>You can close this window: the calibration is canceled and the fans go back to the profile right away.</value>
+  </data>
+  <data name="Calibration_Start" xml:space="preserve">
+    <value>Start calibration</value>
+  </data>
+  <data name="Calibration_Cancel" xml:space="preserve">
+    <value>Cancel calibration</value>
+  </data>
+  <data name="Calibration_Again" xml:space="preserve">
+    <value>Calibrate again</value>
+  </data>
+  <data name="Calibration_NoFans" xml:space="preserve">
+    <value>No fan with a tachometer is connected to the hub.</value>
+  </data>
+  <data name="Calibration_OneFan" xml:space="preserve">
+    <value>1 fan will be calibrated. The pump does not change.</value>
+  </data>
+  <data name="Calibration_ManyFans" xml:space="preserve">
+    <value>{0} fans will be calibrated at the same time. The pump does not change.</value>
+  </data>
+  <data name="Calibration_Starting" xml:space="preserve">
+    <value>Starting the calibration...</value>
+  </data>
+  <data name="Calibration_Canceling" xml:space="preserve">
+    <value>Canceling...</value>
+  </data>
+  <data name="Calibration_Last" xml:space="preserve">
+    <value>Last calibration: {0}</value>
+  </data>
+  <data name="Calibration_LastDateFormat" xml:space="preserve">
+    <value>MMM d, yyyy 'at' h:mm tt</value>
+  </data>
+  <data name="Calibration_ResultRange" xml:space="preserve">
+    <value>{0} RPM max · minimum {1}%</value>
+  </data>
+  <data name="Calibration_NoRotation" xml:space="preserve">
+    <value>No rotation</value>
+  </data>
+  <data name="Alerts_HistoryEmptyDetail" xml:space="preserve">
+    <value>Temperature, pump, sensor and hub connection warnings show up here.</value>
+  </data>
 </root>

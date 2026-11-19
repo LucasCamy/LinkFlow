@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows.Input;
 using LinkFlow.Core;
 using LinkFlow.App.Services;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -61,9 +62,9 @@ public sealed class CalibrationViewModel : ObservableObject
     public int FanCount { get => _fanCount; private set { if (SetProperty(ref _fanCount, value)) OnPropertiesChanged(nameof(FanCountText), nameof(CanStart)); } }
     public string FanCountText => _fanCount switch
     {
-        0 => "Nenhuma ventoinha com tacômetro conectada ao hub.",
-        1 => "1 ventoinha será calibrada. A bomba não muda.",
-        _ => $"{_fanCount} ventoinhas serão calibradas ao mesmo tempo. A bomba não muda."
+        0 => Strings.Calibration_NoFans,
+        1 => Strings.Calibration_OneFan,
+        _ => string.Format(Strings.Calibration_ManyFans, _fanCount)
     };
 
     /// <summary>"Última calibração: 15/11/2026" (null se nenhuma ventoinha foi calibrada).</summary>
@@ -89,7 +90,7 @@ public sealed class CalibrationViewModel : ObservableObject
     {
         if (!CanStart) return;
         Progress = 0;
-        Message = "Iniciando a calibração...";
+        Message = Strings.Calibration_Starting;
         Results = [];
         _baselineRun = _latestRun;   // ignora resultados de calibrações anteriores
         Stage = CalibrationStage.Running;
@@ -99,7 +100,7 @@ public sealed class CalibrationViewModel : ObservableObject
     public void Cancel()
     {
         if (!IsRunning) return;
-        Message = "Cancelando...";
+        Message = Strings.Calibration_Canceling;
         _engine.CancelCalibration();
     }
 
@@ -108,7 +109,8 @@ public sealed class CalibrationViewModel : ObservableObject
     {
         FanCount = s.Fans.Count(f => !f.IsPump && LinkDeviceCatalog.IsFan(f.Model));
         var dates = _engine.Config.Fans.Values.Select(f => f.Calibration?.Date).Where(d => d != null).ToList();
-        LastCalibration = dates.Count == 0 ? null : $"Última calibração: {dates.Max()!.Value.ToString("dd/MM/yyyy 'às' HH:mm", Ui)}";
+        LastCalibration = dates.Count == 0 ? null
+            : string.Format(Strings.Calibration_Last, dates.Max()!.Value.ToString(Strings.Calibration_LastDateFormat, Ui));
 
         if (s.Calibration is { } seen) _latestRun = Math.Max(_latestRun, seen.RunId);
         // Só o resultado do pedido feito aqui (RunId maior que o anterior ao clique)
@@ -129,7 +131,7 @@ public sealed class CalibrationViewModel : ObservableObject
 
     /// <summary>Texto de uma linha do resultado: "2.150 RPM no máximo · mínimo 20%".</summary>
     public static string Describe(CalibrationFanResult r) =>
-        r.MaxRpm > 0 ? $"{r.MaxRpm.ToString("N0", Ui)} RPM no máximo · mínimo {r.MinPercent}%" : "Sem rotação";
+        r.MaxRpm > 0 ? string.Format(Strings.Calibration_ResultRange, r.MaxRpm.ToString("N0", Ui), r.MinPercent) : Strings.Calibration_NoRotation;
 }
 
 /// <summary>Uma linha do resultado no assistente.</summary>

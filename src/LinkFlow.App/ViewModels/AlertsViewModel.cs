@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -54,28 +55,28 @@ public sealed class AlertsViewModel : ObservableObject
     public bool HasHistory => _history.Count != 0;
     public int PendingCount => _pendingCount;
     public bool HasPending => _pendingCount != 0;
-    public string? PanelMessage => HasPending ? null : "Nenhum alerta pendente.";
+    public string? PanelMessage => HasPending ? null : Strings.Alerts_NonePending;
 
     public string HistoryLabel
     {
         get
         {
             int overflow = _pendingCount - _preview.Count - (_banner == null ? 0 : 1);
-            return overflow > 0 ? $"Histórico (+{overflow})" : "Histórico";
+            return overflow > 0 ? string.Format(Strings.Alerts_HistoryMore, overflow) : Strings.Alerts_History;
         }
     }
 
     internal void Update(EngineSnapshot snapshot, bool serviceDisconnected)
     {
         if (serviceDisconnected)
-            _serviceAlert ??= new(DisconnectedKey, DateTime.Now, AlertSeverity.Warning, "O serviço LinkFlow está desconectado",
-                "As leituras podem estar desatualizadas.");
+            _serviceAlert ??= new(DisconnectedKey, DateTime.Now, AlertSeverity.Warning, Strings.Alerts_ServiceDisconnected,
+                Strings.Alerts_ServiceDisconnectedDetail);
         else
             _serviceAlert = null;
 
         if (!serviceDisconnected && snapshot.SensorsReady && !snapshot.CpuSensorAvailable)
-            _cpuSensorAlert ??= new(CpuSensorKey, DateTime.Now, AlertSeverity.Warning, "Sensor de temperatura da CPU indisponível",
-                "Execute como administrador ou instale o serviço LinkFlow.");
+            _cpuSensorAlert ??= new(CpuSensorKey, DateTime.Now, AlertSeverity.Warning, Strings.Alerts_CpuSensor,
+                Strings.Alerts_CpuSensorDetail);
         else if (!serviceDisconnected)
             _cpuSensorAlert = null;
 
@@ -154,8 +155,8 @@ public sealed class AlertsViewModel : ObservableObject
         var history = _records.Take(HistoryLimit).Select(entry =>
         {
             var active = _active.FirstOrDefault(entry.Alert.SameOccurrence);
-            string status = active == null ? "Encerrado" : "Ativo";
-            if (entry.DismissedThrough >= (active ?? entry.Alert).Severity) status += " · dispensado";
+            string status = active == null ? Strings.Alerts_StatusEnded : Strings.Alerts_StatusActive;
+            if (entry.DismissedThrough >= (active ?? entry.Alert).Severity) status = string.Format(Strings.Alerts_StatusDismissed, status);
             return new AlertHistoryItem(entry.Alert, status);
         }).ToArray();
         if (_history.SequenceEqual(history)) return;
