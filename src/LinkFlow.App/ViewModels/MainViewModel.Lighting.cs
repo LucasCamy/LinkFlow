@@ -3,6 +3,7 @@ using System.Windows.Input;
 using LinkFlow.Core;
 using Microsoft.Win32;
 using LinkFlow.App.Services;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -19,16 +20,16 @@ public partial class MainViewModel
 
     internal event Action? RgbRefreshRequested;
 
-    public string GpuRgbStatus => !SyncGpu ? "Sincronização desligada" :
-        IsEngineDisconnected ? "Aguardando conexão com o serviço LinkFlow" :
-        !Snapshot.RgbDevicesReady ? "Detectando o controlador…" :
-        Snapshot.GpuRgbRetrying ? "GPU sem resposta. Tentando reconectar…" :
-        !Snapshot.GpuRgbAvailable ? "Controle RGB indisponível" :
+    public string GpuRgbStatus => !SyncGpu ? Strings.Lit_SincronizacaoDesligada :
+        IsEngineDisconnected ? Strings.Lit_AguardandoConexaoServicoLinkFlow :
+        !Snapshot.RgbDevicesReady ? Strings.Lit_DetectandoControlador :
+        Snapshot.GpuRgbRetrying ? Strings.Lit_GPUSemRespostaTentando :
+        !Snapshot.GpuRgbAvailable ? Strings.Lit_ControleRGBIndisponivel :
         Snapshot.GpuRgbApplied switch
         {
-            true => $"Cor enviada · {Snapshot.GpuRgbName}",
-            false => $"Envio recusado · {Snapshot.GpuRgbName}",
-            _ => $"Controlador detectado · {Snapshot.GpuRgbName}"
+            true => string.Format(Strings.Lit_CorEnviada, Snapshot.GpuRgbName),
+            false => string.Format(Strings.Lit_EnvioRecusado, Snapshot.GpuRgbName),
+            _ => string.Format(Strings.Lit_ControladorDetectado, Snapshot.GpuRgbName)
         };
 
     public string? GpuRgbIssue
@@ -39,8 +40,8 @@ public partial class MainViewModel
             string? diagnostic = Snapshot.GpuRgbDiagnostic is { } gpu ? EngineTextUi.Localize(Snapshot.GpuRgbDiagnosticText, gpu) : null;
             if (Snapshot.GpuRgbRetrying) return diagnostic;
             return diagnostic ?? (Snapshot.GpuRgbAvailable
-                ? Snapshot.GpuRgbApplied == false ? "O controlador da placa recusou o envio da cor." : null
-                : "Nenhum controlador ASUS Aura compatível foi identificado na placa de vídeo.");
+                ? Snapshot.GpuRgbApplied == false ? Strings.Lit_ControladorPlacaRecusouEnvio : null
+                : Strings.Lit_NenhumControladorASUSAura);
         }
     }
 
@@ -48,17 +49,17 @@ public partial class MainViewModel
     {
         get
         {
-            if (!SyncPeripherals) return "Sincronização desligada";
+            if (!SyncPeripherals) return Strings.Lit_SincronizacaoDesligada;
             if (_externalPeripherals is { } bridge) return bridge.Status;
-            if (_engine.IsRemote || !Snapshot.RgbDevicesReady) return "Verificando o G HUB na sessão do Windows…";
+            if (_engine.IsRemote || !Snapshot.RgbDevicesReady) return Strings.Lit_VerificandoHUBSessaoWindows;
             return (Snapshot.PeripheralsRgbDiagnostic is { } peripherals
                     ? EngineTextUi.Localize(Snapshot.PeripheralsRgbDiagnosticText, peripherals) : null)
-                ?? (!Snapshot.PeripheralsRgbAvailable ? "Controle RGB pelo G HUB indisponível." :
+                ?? (!Snapshot.PeripheralsRgbAvailable ? Strings.Lit_ControleRGBPeloHUB :
                 Snapshot.PeripheralsRgbApplied switch
                 {
-                    true => "Cor enviada pelo SDK do G HUB.",
-                    false => "O SDK do G HUB recusou a cor.",
-                    _ => "SDK do G HUB conectado. Aguardando o envio da cor."
+                    true => Strings.Lit_CorEnviadaPeloSDK,
+                    false => Strings.Lit_SDKHUBRecusouCor,
+                    _ => Strings.Lit_SDKHUBConectadoAguardando
                 });
         }
     }
@@ -86,7 +87,7 @@ public partial class MainViewModel
         RefreshLightingDiagnostics();
         _engine.RefreshRgb();
         RgbRefreshRequested?.Invoke();
-        ShowToast("Reenviando a iluminação dos dispositivos selecionados…", canUndo: false);
+        ShowToast(Strings.Lit_ReenviandoIluminacaoDispositivosSelecionados, canUndo: false);
     }
 
     /// <summary>Intensidade da correção (0 = desligada, 100 = gama 2,2).</summary>
@@ -103,7 +104,7 @@ public partial class MainViewModel
         }
     }
 
-    public string LedVividnessText => LedVividness < 1 ? "Desligada" : $"{LedVividness:0}%";
+    public string LedVividnessText => LedVividness < 1 ? Strings.Lit_Desligada : $"{LedVividness:0}%";
 
     private byte GetDeviceBrightness(string key) => _deviceBrightness.TryGetValue(key, out var v) ? v : (byte)100;
 
@@ -166,7 +167,7 @@ public partial class MainViewModel
     }
 
     private static string? DescribeConflict(List<string> controllers) => controllers.Count == 0 ? null :
-        $"Possível disputa pelo controle da iluminação com {string.Join(", ", controllers)}, em execução.";
+        string.Format(Strings.Lit_ConflictRunning, string.Join(", ", controllers));
 
     private static bool IsRunning(string name)
     {

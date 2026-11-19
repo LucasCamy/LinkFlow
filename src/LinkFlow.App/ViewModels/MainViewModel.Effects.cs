@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Media;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -43,15 +44,29 @@ public partial class MainViewModel
 
     public IReadOnlyList<RgbEffectOption> EffectOptions { get; } = new[]
     {
-        new RgbEffectOption(RgbEffect.Static, "Cor fixa", "", "Todos os dispositivos ficam com a cor escolhida."),
-        new RgbEffectOption(RgbEffect.Breathing, "Respirar", "", "A cor escolhida acende e apaga devagar, como uma respiração."),
-        new RgbEffectOption(RgbEffect.Rainbow, "Arco-íris", "", "Passa por todas as cores. Espalhado, forma uma onda pelas ventoinhas."),
-        new RgbEffectOption(RgbEffect.Palette, "Paleta", "", "Passa suavemente pelas cores da paleta, na ordem."),
-        new RgbEffectOption(RgbEffect.Random, "Aleatório", "", "Sorteia uma cor nova de tempos em tempos, com transição suave."),
+        new RgbEffectOption(RgbEffect.Static, Strings.Lit_CorFixa, "", Strings.Lit_TodosDispositivosFicamCor),
+        new RgbEffectOption(RgbEffect.Breathing, Strings.Lit_Respirar, "", Strings.Lit_CorEscolhidaAcendeApaga),
+        new RgbEffectOption(RgbEffect.Rainbow, Strings.Lit_ArcoIris, "", Strings.Lit_PassaTodasCoresEspalhado),
+        new RgbEffectOption(RgbEffect.Palette, Strings.Lit_Paleta, "", Strings.Lit_PassaSuavementePelasCores),
+        new RgbEffectOption(RgbEffect.Random, Strings.Lit_Aleatorio, "", Strings.Lit_SorteiaCorNovaTempos),
     };
 
     public IReadOnlyList<PalettePreset> PalettePresets { get; } = RgbEffects.Presets
-        .Select(p => new PalettePreset(p.Name, p.Colors, Gradient(p.Colors))).ToList();
+        .Select(p => new PalettePreset(PaletteName(p.Name), p.Colors, Gradient(p.Colors))).ToList();
+
+    /// <summary>Nome da paleta pronta no idioma da interface (no Core ele é o identificador, em português).</summary>
+    private static string PaletteName(string name) => name switch
+    {
+        "Neon" => Strings.Lit_PaletteNeon,
+        "Pôr do sol" => Strings.Lit_PaletteSunset,
+        "Oceano" => Strings.Lit_PaletteOcean,
+        "Fogo" => Strings.Lit_PaletteFire,
+        "Floresta" => Strings.Lit_PaletteForest,
+        "Aurora" => Strings.Lit_PaletteAurora,
+        "Gelo" => Strings.Lit_PaletteIce,
+        "Cyber" => Strings.Lit_PaletteCyber,
+        _ => name
+    };
 
     public ObservableCollection<string> PaletteColors { get; } = new();
 
@@ -79,9 +94,9 @@ public partial class MainViewModel
 
     public string EffectColorHint => _effect switch
     {
-        RgbEffect.Palette => "Escolha uma cor e toque em \"Adicionar à paleta\".",
-        RgbEffect.Rainbow => "O arco-íris usa todas as cores: a cor escolhida fica guardada para quando voltar à cor fixa.",
-        RgbEffect.Random => "O aleatório sorteia as cores: a cor escolhida fica guardada para quando voltar à cor fixa.",
+        RgbEffect.Palette => Strings.Lit_EscolhaCorToqueAdicionar,
+        RgbEffect.Rainbow => Strings.Lit_ArcoIrisUsaTodas,
+        RgbEffect.Random => Strings.Lit_AleatorioSorteiaCoresCor,
         _ => string.Empty
     };
 
@@ -97,7 +112,7 @@ public partial class MainViewModel
         }
     }
 
-    public string EffectSpeedText => _effectSpeed switch { <= 2 => "Bem lento", <= 4 => "Lento", <= 6 => "Médio", <= 8 => "Rápido", _ => "Muito rápido" };
+    public string EffectSpeedText => _effectSpeed switch { <= 2 => Strings.Lit_BemLento, <= 4 => Strings.Lit_Lento, <= 6 => Strings.Lit_Medio, <= 8 => Strings.Lit_Rapido, _ => Strings.Lit_MuitoRapido };
 
     public bool SpreadOnFans
     {

@@ -1381,4 +1381,322 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Fan_CurveEditorTip" xml:space="preserve">
     <value>Drag the points • double-click adds • right-click removes</value>
   </data>
+  <data name="Lit_EfeitosCoresBrilhoDispositivos" xml:space="preserve">
+    <value>Effects, colors and brightness of the RGB devices.</value>
+  </data>
+  <data name="Lit_ReenviarIluminacao" xml:space="preserve">
+    <value>Resend lighting</value>
+  </data>
+  <data name="Lit_ReconectaPlacaVideoLogitech" xml:space="preserve">
+    <value>Reconnects the graphics card and Logitech if they are on and reapplies the effect to the selected devices</value>
+  </data>
+  <data name="Lit_IluminacaoDinamicaWindowsEsta" xml:space="preserve">
+    <value>Windows Dynamic Lighting is on.</value>
+  </data>
+  <data name="Lit_ElaPodeAssumirControle" xml:space="preserve">
+    <value>It may take control of compatible keyboards and mice.</value>
+  </data>
+  <data name="Lit_AbrirConfiguracao" xml:space="preserve">
+    <value>Open settings</value>
+  </data>
+  <data name="Lit_EfeitoCor" xml:space="preserve">
+    <value>Effect and color</value>
+  </data>
+  <data name="Lit_Efeitos" xml:space="preserve">
+    <value>Effects</value>
+  </data>
+  <data name="Lit_VerAvisosDispositivos" xml:space="preserve">
+    <value>See device warnings</value>
+  </data>
+  <data name="Lit_PreviaEfeito" xml:space="preserve">
+    <value>Effect preview</value>
+  </data>
+  <data name="Lit_Velocidade" xml:space="preserve">
+    <value>Speed</value>
+  </data>
+  <data name="Lit_VelocidadeEfeito" xml:space="preserve">
+    <value>Effect speed</value>
+  </data>
+  <data name="Lit_Brilho" xml:space="preserve">
+    <value>Brightness</value>
+  </data>
+  <data name="Lit_BrilhoGeral" xml:space="preserve">
+    <value>Overall brightness</value>
+  </data>
+  <data name="Lit_EspalharPelasVentoinhas" xml:space="preserve">
+    <value>Spread across the fans</value>
+  </data>
+  <data name="Lit_CadaVentoinhaSegueFase" xml:space="preserve">
+    <value>Each fan follows its own phase. Turn it off to keep them in step with the other devices.</value>
+  </data>
+  <data name="Lit_CoresPaleta" xml:space="preserve">
+    <value>Palette colors</value>
+  </data>
+  <data name="Lit_AdicionaCorEscolhidaQuadro" xml:space="preserve">
+    <value>Adds the color chosen in the picker below (up to 8 colors)</value>
+  </data>
+  <data name="Lit_AdicionarPaleta" xml:space="preserve">
+    <value>Add to palette</value>
+  </data>
+  <data name="Lit_PaletasProntas" xml:space="preserve">
+    <value>Ready-made palettes</value>
+  </data>
+  <data name="Lit_UsarEstaPaletaTroca" xml:space="preserve">
+    <value>Use this palette (switches the effect to Palette)</value>
+  </data>
+  <data name="Lit_CorAjustesRGB" xml:space="preserve">
+    <value>Color and RGB adjustments</value>
+  </data>
+  <data name="Lit_CliqueOuArrasteEscolher" xml:space="preserve">
+    <value>Click or drag to pick • arrow keys for fine tuning (Shift = bigger steps)</value>
+  </data>
+  <data name="Lit_QuadroCores" xml:space="preserve">
+    <value>Color picker</value>
+  </data>
+  <data name="Lit_CorEscolhida" xml:space="preserve">
+    <value>Chosen color</value>
+  </data>
+  <data name="Lit_CodigoHEX" xml:space="preserve">
+    <value>HEX code</value>
+  </data>
+  <data name="Lit_DigiteRRGGBBOuRGB" xml:space="preserve">
+    <value>Type #RRGGBB or #RGB</value>
+  </data>
+  <data name="Lit_CodigoCor" xml:space="preserve">
+    <value>Color code</value>
+  </data>
+  <data name="Lit_Matiz" xml:space="preserve">
+    <value>Hue</value>
+  </data>
+  <data name="Lit_AjusteFino" xml:space="preserve">
+    <value>Fine tuning</value>
+  </data>
+  <data name="Lit_CoresRapidas" xml:space="preserve">
+    <value>Quick colors</value>
+  </data>
+  <data name="Lit_Recentes" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="Lit_NenhumaCorRecente" xml:space="preserve">
+    <value>No recent colors.</value>
+  </data>
+  <data name="Lit_OndeAplicar" xml:space="preserve">
+    <value>Where to apply</value>
+  </data>
+  <data name="Lit_AtiveRGBAjusteBrilho" xml:space="preserve">
+    <value>Turn on RGB and adjust the brightness of each device.</value>
+  </data>
+  <data name="Lit_BrilhoIndividual" xml:space="preserve">
+    <value>Individual brightness</value>
+  </data>
+  <data name="Lit_VentoinhasBombaICUELINK" xml:space="preserve">
+    <value>Fans and pump (iCUE LINK)</value>
+  </data>
+  <data name="Lit_BrilhoVentoinhas" xml:space="preserve">
+    <value>Fan brightness</value>
+  </data>
+  <data name="Lit_PlacaVideoASUSAura" xml:space="preserve">
+    <value>Graphics card (ASUS Aura)</value>
+  </data>
+  <data name="Lit_BrilhoPlacaVideo" xml:space="preserve">
+    <value>Graphics card brightness</value>
+  </data>
+  <data name="Lit_PlacaMaeSaidasARGB" xml:space="preserve">
+    <value>Motherboard and ARGB headers (MSI)</value>
+  </data>
+  <data name="Lit_BrilhoPlacaMae" xml:space="preserve">
+    <value>Motherboard brightness</value>
+  </data>
+  <data name="Lit_MemoriasDDR5Corsair" xml:space="preserve">
+    <value>DDR5 memory (Corsair)</value>
+  </data>
+  <data name="Lit_BrilhoMemorias" xml:space="preserve">
+    <value>Memory brightness</value>
+  </data>
+  <data name="Lit_PerifericosLogitechHUB" xml:space="preserve">
+    <value>Logitech peripherals (G HUB)</value>
+  </data>
+  <data name="Lit_BrilhoPerifericos" xml:space="preserve">
+    <value>Peripheral brightness</value>
+  </data>
+  <data name="Lit_CorDisplayLCD" xml:space="preserve">
+    <value>LCD display color</value>
+  </data>
+  <data name="Lit_AnelDestaquesTelaBomba" xml:space="preserve">
+    <value>The ring and highlights of the pump screen follow the color (or the effect).</value>
+  </data>
+  <data name="Lit_CorrecaoCorLEDs" xml:space="preserve">
+    <value>LED color correction</value>
+  </data>
+  <data name="Lit_CompenseDiferencaEntreCor" xml:space="preserve">
+    <value>Make up for the difference between the chosen color and the color the LEDs show.</value>
+  </data>
+  <data name="Lit_0CorCrua83" xml:space="preserve">
+    <value>0 = raw color • 83 = recommended • 100 = maximum contrast</value>
+  </data>
+  <data name="Lit_BrilhoDesteDispositivoEquilibra" xml:space="preserve">
+    <value>Brightness of this device (balances the ones that glow brighter)</value>
+  </data>
+  <data name="Lit_RemoverPaleta" xml:space="preserve">
+    <value>Remove {0} from the palette</value>
+  </data>
+  <data name="Lit_SincronizacaoDesligada" xml:space="preserve">
+    <value>Sync off</value>
+  </data>
+  <data name="Lit_AguardandoConexaoServicoLinkFlow" xml:space="preserve">
+    <value>Waiting for the LinkFlow service</value>
+  </data>
+  <data name="Lit_DetectandoControlador" xml:space="preserve">
+    <value>Detecting the controller…</value>
+  </data>
+  <data name="Lit_GPUSemRespostaTentando" xml:space="preserve">
+    <value>GPU not responding. Trying to reconnect…</value>
+  </data>
+  <data name="Lit_ControleRGBIndisponivel" xml:space="preserve">
+    <value>RGB control unavailable</value>
+  </data>
+  <data name="Lit_CorEnviada" xml:space="preserve">
+    <value>Color sent · {0}</value>
+  </data>
+  <data name="Lit_EnvioRecusado" xml:space="preserve">
+    <value>Send refused · {0}</value>
+  </data>
+  <data name="Lit_ControladorDetectado" xml:space="preserve">
+    <value>Controller detected · {0}</value>
+  </data>
+  <data name="Lit_ControladorPlacaRecusouEnvio" xml:space="preserve">
+    <value>The card's controller refused the color.</value>
+  </data>
+  <data name="Lit_NenhumControladorASUSAura" xml:space="preserve">
+    <value>No compatible ASUS Aura controller was found on the graphics card.</value>
+  </data>
+  <data name="Lit_VerificandoHUBSessaoWindows" xml:space="preserve">
+    <value>Checking G HUB in the Windows session…</value>
+  </data>
+  <data name="Lit_ControleRGBPeloHUB" xml:space="preserve">
+    <value>RGB control through G HUB unavailable.</value>
+  </data>
+  <data name="Lit_CorEnviadaPeloSDK" xml:space="preserve">
+    <value>Color sent through the G HUB SDK.</value>
+  </data>
+  <data name="Lit_SDKHUBRecusouCor" xml:space="preserve">
+    <value>The G HUB SDK refused the color.</value>
+  </data>
+  <data name="Lit_SDKHUBConectadoAguardando" xml:space="preserve">
+    <value>G HUB SDK connected. Waiting to send the color.</value>
+  </data>
+  <data name="Lit_ReenviandoIluminacaoDispositivosSelecionados" xml:space="preserve">
+    <value>Resending the lighting of the selected devices…</value>
+  </data>
+  <data name="Lit_Desligada" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Lit_ConflictRunning" xml:space="preserve">
+    <value>Possible conflict over lighting control with {0}, which is running.</value>
+  </data>
+  <data name="Lit_CorFixa" xml:space="preserve">
+    <value>Static color</value>
+  </data>
+  <data name="Lit_TodosDispositivosFicamCor" xml:space="preserve">
+    <value>All devices show the chosen color.</value>
+  </data>
+  <data name="Lit_Respirar" xml:space="preserve">
+    <value>Breathing</value>
+  </data>
+  <data name="Lit_CorEscolhidaAcendeApaga" xml:space="preserve">
+    <value>The chosen color fades in and out slowly, like breathing.</value>
+  </data>
+  <data name="Lit_ArcoIris" xml:space="preserve">
+    <value>Rainbow</value>
+  </data>
+  <data name="Lit_PassaTodasCoresEspalhado" xml:space="preserve">
+    <value>Cycles through all colors. When spread, it forms a wave across the fans.</value>
+  </data>
+  <data name="Lit_Paleta" xml:space="preserve">
+    <value>Palette</value>
+  </data>
+  <data name="Lit_PassaSuavementePelasCores" xml:space="preserve">
+    <value>Fades smoothly through the palette colors, in order.</value>
+  </data>
+  <data name="Lit_Aleatorio" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="Lit_SorteiaCorNovaTempos" xml:space="preserve">
+    <value>Picks a new color from time to time, with a smooth transition.</value>
+  </data>
+  <data name="Lit_EscolhaCorToqueAdicionar" xml:space="preserve">
+    <value>Pick a color and tap "Add to palette".</value>
+  </data>
+  <data name="Lit_ArcoIrisUsaTodas" xml:space="preserve">
+    <value>The rainbow uses every color: the chosen color is kept for when you go back to static color.</value>
+  </data>
+  <data name="Lit_AleatorioSorteiaCoresCor" xml:space="preserve">
+    <value>Random picks the colors: the chosen color is kept for when you go back to static color.</value>
+  </data>
+  <data name="Lit_BemLento" xml:space="preserve">
+    <value>Very slow</value>
+  </data>
+  <data name="Lit_Lento" xml:space="preserve">
+    <value>Slow</value>
+  </data>
+  <data name="Lit_Medio" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Lit_Rapido" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="Lit_MuitoRapido" xml:space="preserve">
+    <value>Very fast</value>
+  </data>
+  <data name="Lit_ProcurandoSDKHUB" xml:space="preserve">
+    <value>Looking for the G HUB SDK…</value>
+  </data>
+  <data name="Lit_SincronizacaoDesligadaIluminacaoPelo" xml:space="preserve">
+    <value>Sync off • lighting through G HUB.</value>
+  </data>
+  <data name="Lit_ReconectandoHUBTentativa" xml:space="preserve">
+    <value>Reconnecting to G HUB · attempt {0} of {1}…</value>
+  </data>
+  <data name="Lit_IluminacaoReenviadaPeloHUB" xml:space="preserve">
+    <value>Lighting resent through G HUB.</value>
+  </data>
+  <data name="Lit_HUBNaoAceitouReenvio" xml:space="preserve">
+    <value>G HUB did not accept the resend. Open G HUB to check the integration.</value>
+  </data>
+  <data name="Lit_AguardandoConexaoSDKHUB" xml:space="preserve">
+    <value>Waiting for the G HUB SDK connection…</value>
+  </data>
+  <data name="Lit_UltimoEnvioAceitoPelo" xml:space="preserve">
+    <value>Last send accepted by G HUB.</value>
+  </data>
+  <data name="Lit_HUBNaoAceitouComando" xml:space="preserve">
+    <value>G HUB did not accept the lighting command.</value>
+  </data>
+  <data name="Lit_SincronizacaoLIGHTSYNCEncontrouErro" xml:space="preserve">
+    <value>LIGHTSYNC sync hit an error. Check G HUB or try resending.</value>
+  </data>
+  <data name="Lit_PaletteNeon" xml:space="preserve">
+    <value>Neon</value>
+  </data>
+  <data name="Lit_PaletteSunset" xml:space="preserve">
+    <value>Sunset</value>
+  </data>
+  <data name="Lit_PaletteOcean" xml:space="preserve">
+    <value>Ocean</value>
+  </data>
+  <data name="Lit_PaletteFire" xml:space="preserve">
+    <value>Fire</value>
+  </data>
+  <data name="Lit_PaletteForest" xml:space="preserve">
+    <value>Forest</value>
+  </data>
+  <data name="Lit_PaletteAurora" xml:space="preserve">
+    <value>Aurora</value>
+  </data>
+  <data name="Lit_PaletteIce" xml:space="preserve">
+    <value>Ice</value>
+  </data>
+  <data name="Lit_PaletteCyber" xml:space="preserve">
+    <value>Cyber</value>
+  </data>
 </root>
