@@ -939,4 +939,482 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
   <data name="Hw_CatSensors" xml:space="preserve">
     <value>Sensores</value>
   </data>
+  <data name="Fan_MedirRotacaoCadaVentoinha" xml:space="preserve">
+    <value>Medir a rotação de cada ventoinha, definir o mínimo seguro e criar a referência de desgaste</value>
+  </data>
+  <data name="Fan_Calibrar" xml:space="preserve">
+    <value>Calibrar</value>
+  </data>
+  <data name="Fan_AtualizarListaVentoinhasBomba" xml:space="preserve">
+    <value>Atualizar a lista de ventoinhas, bomba, LCD e RGB</value>
+  </data>
+  <data name="Fan_PerfisCurvas" xml:space="preserve">
+    <value>Perfis e curvas</value>
+  </data>
+  <data name="Fan_TodasVentoinhasVoltamSeguir" xml:space="preserve">
+    <value>Todas as ventoinhas voltam a seguir a potência global</value>
+  </data>
+  <data name="Fan_RevincularTodas" xml:space="preserve">
+    <value>Revincular todas</value>
+  </data>
+  <data name="Fan_PerfisRefrigeracao" xml:space="preserve">
+    <value>Perfis de refrigeração</value>
+  </data>
+  <data name="Fan_AplicarPerfilSalvo" xml:space="preserve">
+    <value>Aplicar perfil salvo</value>
+  </data>
+  <data name="Fan_ExcluirPerfil" xml:space="preserve">
+    <value>Excluir perfil</value>
+  </data>
+  <data name="Fan_NomeNovoPerfil" xml:space="preserve">
+    <value>Nome do novo perfil</value>
+  </data>
+  <data name="Fan_SalvaConfiguracaoAtualComo" xml:space="preserve">
+    <value>Salva a configuração atual como perfil</value>
+  </data>
+  <data name="Fan_Salvar" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Fan_MesmaPotenciaTempoTodo" xml:space="preserve">
+    <value>Mesma potência o tempo todo</value>
+  </data>
+  <data name="Fan_PotenciaAcompanhaTemperatura" xml:space="preserve">
+    <value>A potência acompanha a temperatura</value>
+  </data>
+  <data name="Fan_CurvaAutomatica" xml:space="preserve">
+    <value>Curva automática</value>
+  </data>
+  <data name="Fan_ModoControle" xml:space="preserve">
+    <value>Modo de controle</value>
+  </data>
+  <data name="Fan_VentoinhasVinculadasSeguemEste" xml:space="preserve">
+    <value>Ventoinhas vinculadas seguem este valor.</value>
+  </data>
+  <data name="Fan_ProtecaoAtivaPerfilVolta" xml:space="preserve">
+    <value>Proteção ativa · o perfil volta quando as leituras estabilizarem.</value>
+  </data>
+  <data name="Fan_RestaurarPadrao" xml:space="preserve">
+    <value>Restaurar padrão</value>
+  </data>
+  <data name="Fan_TestarCurva" xml:space="preserve">
+    <value>Testar curva</value>
+  </data>
+  <data name="Fan_TemperaturaSimulada" xml:space="preserve">
+    <value>Temperatura simulada</value>
+  </data>
+  <data name="Fan_ArrasteTemperaturaOuvirVentoinhas" xml:space="preserve">
+    <value>Arraste a temperatura para ouvir as ventoinhas em cada ponto da curva. Ao sair da tela ou desligar, o controle volta às leituras reais. O modo de segurança continua usando as temperaturas reais.</value>
+  </data>
+  <data name="Fan_SensorReferencia" xml:space="preserve">
+    <value>Sensor de referência</value>
+  </data>
+  <data name="Fan_AIOLiquidoReageDevagar" xml:space="preserve">
+    <value>Para AIO, o líquido reage devagar e evita picos de ruído.</value>
+  </data>
+  <data name="Fan_HistereseQuedaAntesReduzir" xml:space="preserve">
+    <value>Histerese (queda antes de reduzir)</value>
+  </data>
+  <data name="Fan_HistereseCurva" xml:space="preserve">
+    <value>Histerese da curva</value>
+  </data>
+  <data name="Fan_EvitaVentoinhasFiquemAcelerando" xml:space="preserve">
+    <value>Evita que as ventoinhas fiquem acelerando e desacelerando.</value>
+  </data>
+  <data name="Fan_CurvasGrupo" xml:space="preserve">
+    <value>Curvas por grupo</value>
+  </data>
+  <data name="Fan_UseCurvasSensoresDiferentes" xml:space="preserve">
+    <value>Use curvas e sensores diferentes para o radiador, o gabinete e outros grupos.</value>
+  </data>
+  <data name="Fan_Dispositivo" xml:space="preserve">
+    <value> dispositivo(s)</value>
+  </data>
+  <data name="Fan_CurvaPropria" xml:space="preserve">
+    <value>Curva própria</value>
+  </data>
+  <data name="Fan_SensorEsteGrupoSegue" xml:space="preserve">
+    <value>Sensor que este grupo segue</value>
+  </data>
+  <data name="Fan_SensorGrupo" xml:space="preserve">
+    <value>Sensor do grupo</value>
+  </data>
+  <data name="Fan_EditarCurva" xml:space="preserve">
+    <value>Editar curva</value>
+  </data>
+  <data name="Fan_VoltarEditarCurvaGlobal" xml:space="preserve">
+    <value>← Voltar a editar a curva global</value>
+  </data>
+  <data name="Fan_ControleDispositivo" xml:space="preserve">
+    <value>Controle por dispositivo</value>
+  </data>
+  <data name="Fan_Ctrl" xml:space="preserve">
+    <value>Ctrl+A</value>
+  </data>
+  <data name="Fan_Todas" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="Fan_SoVentoinhas" xml:space="preserve">
+    <value>Só ventoinhas</value>
+  </data>
+  <data name="Fan_SelecionarEsteGrupo" xml:space="preserve">
+    <value>Selecionar este grupo</value>
+  </data>
+  <data name="Fan_Inverter" xml:space="preserve">
+    <value>Inverter</value>
+  </data>
+  <data name="Fan_Esc" xml:space="preserve">
+    <value>Esc</value>
+  </data>
+  <data name="Fan_Limpar" xml:space="preserve">
+    <value>Limpar</value>
+  </data>
+  <data name="Fan_SelecioneOuMaisCartoes" xml:space="preserve">
+    <value>Selecione um ou mais cartões para aplicar em lote</value>
+  </data>
+  <data name="Fan_PotenciaSelecao" xml:space="preserve">
+    <value>Potência da seleção</value>
+  </data>
+  <data name="Fan_Aplicar" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="Fan_SelecionadasVoltamSeguirPotencia" xml:space="preserve">
+    <value>As selecionadas voltam a seguir a potência global</value>
+  </data>
+  <data name="Fan_VincularGlobal" xml:space="preserve">
+    <value>Vincular ao global</value>
+  </data>
+  <data name="Fan_NomeGrupoExFrontal" xml:space="preserve">
+    <value>Nome do grupo (ex.: Frontal, Topo, Radiador)</value>
+  </data>
+  <data name="Fan_Grupo" xml:space="preserve">
+    <value>Grupo...</value>
+  </data>
+  <data name="Fan_Agrupar" xml:space="preserve">
+    <value>Agrupar</value>
+  </data>
+  <data name="Fan_SemGrupo" xml:space="preserve">
+    <value>Sem grupo</value>
+  </data>
+  <data name="Fan_NenhumDispositivoEncontradoHub" xml:space="preserve">
+    <value>Nenhum dispositivo encontrado no hub</value>
+  </data>
+  <data name="Fan_ConfiraICUELINKHub" xml:space="preserve">
+    <value>Confira se o iCUE LINK Hub está ligado ao USB da placa-mãe e se o iCUE está fechado. Depois, clique em Atualizar no topo da página.</value>
+  </data>
+  <data name="Fan_Renomear" xml:space="preserve">
+    <value>Renomear</value>
+  </data>
+  <data name="Fan_RestaurarNomeOriginal" xml:space="preserve">
+    <value>Restaurar nome original</value>
+  </data>
+  <data name="Fan_VincularPotenciaGlobal" xml:space="preserve">
+    <value>Vincular à potência global</value>
+  </data>
+  <data name="Fan_SelecionarGrupo" xml:space="preserve">
+    <value>Selecionar o grupo</value>
+  </data>
+  <data name="Fan_Selecionar" xml:space="preserve">
+    <value>Selecionar</value>
+  </data>
+  <data name="Fan_SelecionarVentoinha" xml:space="preserve">
+    <value>Selecionar ventoinha</value>
+  </data>
+  <data name="Fan_RenomearCtrl" xml:space="preserve">
+    <value>Renomear (Ctrl+R)</value>
+  </data>
+  <data name="Fan_EnterSalvaEscCancela" xml:space="preserve">
+    <value>Enter salva • Esc cancela • vazio volta ao nome original</value>
+  </data>
+  <data name="Fan_HubICUELINKNao" xml:space="preserve">
+    <value>Hub iCUE LINK não detectado</value>
+  </data>
+  <data name="Fan_ConfiraCaboUSBHub" xml:space="preserve">
+    <value>Confira o cabo USB do hub e feche o iCUE antes de atualizar a lista.</value>
+  </data>
+  <data name="Fan_AutomaticoVBIOS" xml:space="preserve">
+    <value>Automático (vBIOS)</value>
+  </data>
+  <data name="Fan_ControleManual" xml:space="preserve">
+    <value>Controle manual</value>
+  </data>
+  <data name="Fan_PotenciaVentoinhasGPU" xml:space="preserve">
+    <value>Potência das ventoinhas da GPU</value>
+  </data>
+  <data name="Fan_Automacao" xml:space="preserve">
+    <value>Automação</value>
+  </data>
+  <data name="Fan_HorarioSilencioso" xml:space="preserve">
+    <value>Horário silencioso</value>
+  </data>
+  <data name="Fan_UsePerfilEspecificoDurante" xml:space="preserve">
+    <value>Use um perfil específico durante o período escolhido.</value>
+  </data>
+  <data name="Fan_AtivarHorarioSilencioso" xml:space="preserve">
+    <value>Ativar horário silencioso</value>
+  </data>
+  <data name="Fan_Inicio" xml:space="preserve">
+    <value>Início</value>
+  </data>
+  <data name="Fan_InicioHorarioSilencioso" xml:space="preserve">
+    <value>Início do horário silencioso</value>
+  </data>
+  <data name="Fan_Fim" xml:space="preserve">
+    <value>Fim</value>
+  </data>
+  <data name="Fan_FimHorarioSilencioso" xml:space="preserve">
+    <value>Fim do horário silencioso</value>
+  </data>
+  <data name="Fan_PerfilHorarioSilencioso" xml:space="preserve">
+    <value>Perfil do horário silencioso</value>
+  </data>
+  <data name="Fan_PerfisAplicativo" xml:space="preserve">
+    <value>Perfis por aplicativo</value>
+  </data>
+  <data name="Fan_ApliquePerfilAbrirJogo" xml:space="preserve">
+    <value>Aplique um perfil ao abrir um jogo ou aplicativo. Ao fechar, o LinkFlow retoma o perfil anterior.</value>
+  </data>
+  <data name="Fan_NenhumaRegraAplicativo" xml:space="preserve">
+    <value>Nenhuma regra por aplicativo</value>
+  </data>
+  <data name="Fan_AdicioneJogoOuPrograma" xml:space="preserve">
+    <value>Adicione um jogo ou programa para trocar de perfil automaticamente quando ele abrir.</value>
+  </data>
+  <data name="Fan_RegraAtiva" xml:space="preserve">
+    <value>Regra ativa</value>
+  </data>
+  <data name="Fan_Abrir" xml:space="preserve">
+    <value>Ao abrir </value>
+  </data>
+  <data name="Fan_RemoverRegra" xml:space="preserve">
+    <value>Remover regra</value>
+  </data>
+  <data name="Fan_DigiteNomeProcessoOu" xml:space="preserve">
+    <value>Digite o nome do processo ou escolha um aplicativo aberto</value>
+  </data>
+  <data name="Fan_JogoOuAplicativo" xml:space="preserve">
+    <value>Jogo ou aplicativo</value>
+  </data>
+  <data name="Fan_AdicionarRegra" xml:space="preserve">
+    <value>Adicionar regra</value>
+  </data>
+  <data name="Fan_Ativo" xml:space="preserve">
+    <value>Ativo · {0}</value>
+  </data>
+  <data name="Fan_Potencia" xml:space="preserve">
+    <value>Potência de {0}</value>
+  </data>
+  <data name="Fan_Channel" xml:space="preserve">
+    <value>Canal {0:D2}</value>
+  </data>
+  <data name="Fan_CliqueDuploOuCtrl" xml:space="preserve">
+    <value>{0} • clique duplo ou Ctrl+R para renomear</value>
+  </data>
+  <data name="Fan_CliqueDuploOuCtrl2" xml:space="preserve">
+    <value>Clique duplo ou Ctrl+R para renomear</value>
+  </data>
+  <data name="Fan_VinculadaPotenciaGlobalMova" xml:space="preserve">
+    <value>Vinculada à potência global. Mova o slider para controlar só esta ventoinha.</value>
+  </data>
+  <data name="Fan_ControleManualCliqueVoltar" xml:space="preserve">
+    <value>Controle manual. Clique para voltar a seguir a potência global.</value>
+  </data>
+  <data name="Fan_Procurando" xml:space="preserve">
+    <value>Procurando...</value>
+  </data>
+  <data name="Fan_Atualizar" xml:space="preserve">
+    <value>Atualizar</value>
+  </data>
+  <data name="Fan_ProcurandoVentoinhasBombaLCD" xml:space="preserve">
+    <value>Procurando ventoinhas, bomba, LCD e RGB...</value>
+  </data>
+  <data name="Fan_ICUELINKHubNao" xml:space="preserve">
+    <value>iCUE LINK Hub não encontrado. Verifique o USB e se o iCUE está fechado.</value>
+  </data>
+  <data name="Fan_DispositivoEncontrado" xml:space="preserve">
+    <value>{0} dispositivo(s) encontrado(s)</value>
+  </data>
+  <data name="Fan_Novo" xml:space="preserve">
+    <value> • {0} novo(s)</value>
+  </data>
+  <data name="Fan_NaoEncontrado" xml:space="preserve">
+    <value> • {0} não encontrado(s)</value>
+  </data>
+  <data name="Fan_NenhumaMudanca" xml:space="preserve">
+    <value> • nenhuma mudança</value>
+  </data>
+  <data name="Fan_VoltouChamar" xml:space="preserve">
+    <value>"{0}" voltou a se chamar "{1}"</value>
+  </data>
+  <data name="Fan_CurvaTemperatura" xml:space="preserve">
+    <value>Curva de temperatura</value>
+  </data>
+  <data name="Fan_CurvaGrupo" xml:space="preserve">
+    <value>Curva do grupo "{0}"</value>
+  </data>
+  <data name="Fan_GrupoAgoraSeguePropria" xml:space="preserve">
+    <value>Grupo "{0}" agora segue a própria curva</value>
+  </data>
+  <data name="Fan_GrupoVoltouSeguirGlobal" xml:space="preserve">
+    <value>Grupo "{0}" voltou a seguir o global</value>
+  </data>
+  <data name="Fan_Agora" xml:space="preserve">
+    <value>{0}% agora</value>
+  </data>
+  <data name="Fan_SegueGlobal" xml:space="preserve">
+    <value>segue o global</value>
+  </data>
+  <data name="Fan_CtrlAltQualquerLugar" xml:space="preserve">
+    <value>{0}  •  F{1} (Ctrl+Alt+{2} em qualquer lugar)</value>
+  </data>
+  <data name="Fan_TodasVentoinhasVoltaramSeguir" xml:space="preserve">
+    <value>Todas as ventoinhas voltaram a seguir a potência global</value>
+  </data>
+  <data name="Fan_CurvaRestauradaPadrao" xml:space="preserve">
+    <value>Curva restaurada para o padrão</value>
+  </data>
+  <data name="Fan_QuadroEnviadoDisplayLCD" xml:space="preserve">
+    <value>Quadro enviado ao display LCD</value>
+  </data>
+  <data name="Fan_PerfilProntoEscolhaOutro" xml:space="preserve">
+    <value>"{0}" é um perfil pronto. Escolha outro nome.</value>
+  </data>
+  <data name="Fan_PerfilAtualizado" xml:space="preserve">
+    <value>Perfil "{0}" atualizado</value>
+  </data>
+  <data name="Fan_PerfilSalvo" xml:space="preserve">
+    <value>Perfil "{0}" salvo</value>
+  </data>
+  <data name="Fan_PerfilExcluido" xml:space="preserve">
+    <value>Perfil "{0}" excluído</value>
+  </data>
+  <data name="Fan_AlteracaoDesfeita" xml:space="preserve">
+    <value>Alteração desfeita</value>
+  </data>
+  <data name="Fan_NenhumaSelecionadaCtrlClique" xml:space="preserve">
+    <value>Nenhuma selecionada • Ctrl+clique ou Shift+clique nos cartões para selecionar várias</value>
+  </data>
+  <data name="Fan_1Selecionada" xml:space="preserve">
+    <value>1 selecionada</value>
+  </data>
+  <data name="Fan_Selecionadas" xml:space="preserve">
+    <value>{0} selecionadas</value>
+  </data>
+  <data name="Fan_AplicadoDispositivo" xml:space="preserve">
+    <value>{0}% aplicado em {1} dispositivo(s)</value>
+  </data>
+  <data name="Fan_DevicesLinked" xml:space="preserve">
+    <value>{0} dispositivo(s) vinculados à potência global</value>
+  </data>
+  <data name="Fan_GrupoRemovidoDispositivo" xml:space="preserve">
+    <value>Grupo removido de {0} dispositivo(s)</value>
+  </data>
+  <data name="Fan_DispositivoGrupo" xml:space="preserve">
+    <value>{0} dispositivo(s) no grupo "{1}"</value>
+  </data>
+  <data name="Fan_MaiorEntreCPUGPU" xml:space="preserve">
+    <value>Maior entre CPU e GPU</value>
+  </data>
+  <data name="Fan_TemperaturaCPU" xml:space="preserve">
+    <value>Temperatura da CPU</value>
+  </data>
+  <data name="Fan_TemperaturaGPU" xml:space="preserve">
+    <value>Temperatura da GPU</value>
+  </data>
+  <data name="Fan_TemperaturaLiquidoAIO" xml:space="preserve">
+    <value>Temperatura do líquido (AIO)</value>
+  </data>
+  <data name="Fan_CurvaAutomaticaAtivada" xml:space="preserve">
+    <value>Curva automática ativada</value>
+  </data>
+  <data name="Fan_PotenciaFixaAtivada" xml:space="preserve">
+    <value>Potência fixa ativada</value>
+  </data>
+  <data name="Fan_Ciano" xml:space="preserve">
+    <value>Ciano</value>
+  </data>
+  <data name="Fan_Azul" xml:space="preserve">
+    <value>Azul</value>
+  </data>
+  <data name="Fan_Roxo" xml:space="preserve">
+    <value>Roxo</value>
+  </data>
+  <data name="Fan_Rosa" xml:space="preserve">
+    <value>Rosa</value>
+  </data>
+  <data name="Fan_Vermelho" xml:space="preserve">
+    <value>Vermelho</value>
+  </data>
+  <data name="Fan_Laranja" xml:space="preserve">
+    <value>Laranja</value>
+  </data>
+  <data name="Fan_Amarelo" xml:space="preserve">
+    <value>Amarelo</value>
+  </data>
+  <data name="Fan_Verde" xml:space="preserve">
+    <value>Verde</value>
+  </data>
+  <data name="Fan_Branco" xml:space="preserve">
+    <value>Branco</value>
+  </data>
+  <data name="Fan_Apagado" xml:space="preserve">
+    <value>Apagado</value>
+  </data>
+  <data name="Fan_Display480x480Conectado" xml:space="preserve">
+    <value>Display 480x480 conectado</value>
+  </data>
+  <data name="Fan_DisplayLCDNaoEncontrado" xml:space="preserve">
+    <value>Display LCD não encontrado • tentando reconectar</value>
+  </data>
+  <data name="Fan_Detectando" xml:space="preserve">
+    <value>Detectando...</value>
+  </data>
+  <data name="Fan_Conectado" xml:space="preserve">
+    <value>Conectado • {0}</value>
+  </data>
+  <data name="Fan_NaoDetectado" xml:space="preserve">
+    <value>Não detectado</value>
+  </data>
+  <data name="Fan_PerfilAplicado" xml:space="preserve">
+    <value>Perfil "{0}" aplicado</value>
+  </data>
+  <data name="Fan_Salvo" xml:space="preserve">
+    <value>{0} (salvo)</value>
+  </data>
+  <data name="Fan_JaExisteRegra" xml:space="preserve">
+    <value>Já existe uma regra para "{0}"</value>
+  </data>
+  <data name="Fan_AbrirPerfilDesempenhoAplicado" xml:space="preserve">
+    <value>Ao abrir "{0}", o perfil Desempenho é aplicado (mude ao lado)</value>
+  </data>
+  <data name="Fan_Perfil" xml:space="preserve">
+    <value>Perfil {0} • {1}</value>
+  </data>
+  <data name="Fan_Aberto" xml:space="preserve">
+    <value>{0} aberto</value>
+  </data>
+  <data name="Fan_HorarioSilenciosoAte" xml:space="preserve">
+    <value>horário silencioso até {0:00}h</value>
+  </data>
+  <data name="Fan_Ativo2" xml:space="preserve">
+    <value>Ativo: {0} ({1})</value>
+  </data>
+  <data name="Fan_AutomacaoTerminou" xml:space="preserve">
+    <value>automação terminou</value>
+  </data>
+  <data name="Fan_PausadaVoceEscolheuOutro" xml:space="preserve">
+    <value>Pausada: você escolheu outro perfil</value>
+  </data>
+  <data name="Fan_UnknownModelSuffix" xml:space="preserve">
+    <value> • modelo não identificado</value>
+  </data>
+  <data name="Fan_DevicesManual" xml:space="preserve">
+    <value>{0} dispositivo(s) em controle manual</value>
+  </data>
+  <data name="Fan_Custom" xml:space="preserve">
+    <value>Personalizado</value>
+    <comment>Perfil quando o usuário ajusta a potência à mão</comment>
+  </data>
+  <data name="Fan_CurveEditorTip" xml:space="preserve">
+    <value>Arraste os pontos • clique duplo adiciona • clique direito remove</value>
+  </data>
 </root>

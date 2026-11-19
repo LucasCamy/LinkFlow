@@ -1,6 +1,7 @@
 <UserControl x:Class="LinkFlow.App.Views.FansPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:LinkFlow.App.Resources"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
 
@@ -15,20 +16,20 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="Ventoinhas" Style="{StaticResource SystemPageTitle}"/>
+                <TextBlock Text="{x:Static r:Strings.Nav_Fans}" Style="{StaticResource SystemPageTitle}"/>
                 <TextBlock Text="{Binding FanCountLabel}" Style="{StaticResource SystemDetail}"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
             <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" Click="Calibrate_Click"
-                    ToolTip="Medir a rotação de cada ventoinha, definir o mínimo seguro e criar a referência de desgaste"
-                    AutomationProperties.Name="Calibrar ventoinhas">
+                    ToolTip="{x:Static r:Strings.Fan_MedirRotacaoCadaVentoinha}"
+                    AutomationProperties.Name="{x:Static r:Strings.Calibration_Title}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource Icon}" Text="&#xE9D2;" FontSize="13" Margin="0,0,8,0"/>
-                    <TextBlock Text="Calibrar"/>
+                    <TextBlock Text="{x:Static r:Strings.Fan_Calibrar}"/>
                 </StackPanel>
             </Button>
             <Button Style="{StaticResource SecondaryButton}" Command="{Binding RescanDevicesCommand}"
-                    ToolTip="Atualizar a lista de ventoinhas, bomba, LCD e RGB">
+                    ToolTip="{x:Static r:Strings.Fan_AtualizarListaVentoinhasBomba}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE72C;" FontSize="13" Margin="0,0,8,0" RenderTransformOrigin="0.5,0.5">
                         <TextBlock.RenderTransform>
@@ -61,25 +62,25 @@
         </Grid>
 
         <TabControl x:Name="FanTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
-            <TabItem Header="Perfis e curvas" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Fan_PerfisCurvas}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
                             <StackPanel>
                                 <DockPanel>
                                     <Button DockPanel.Dock="Right" Style="{StaticResource SystemLinkButton}" Margin="12,0,0,0" Command="{Binding RelinkAllCommand}"
-                                            ToolTip="Todas as ventoinhas voltam a seguir a potência global">
+                                            ToolTip="{x:Static r:Strings.Fan_TodasVentoinhasVoltamSeguir}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
-                                            <TextBlock Text="Revincular todas"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_RevincularTodas}"/>
                                         </StackPanel>
                                     </Button>
                                     <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                         <TextBlock Text="&#xEC4A;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Perfis de refrigeração" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock Text="{Binding ActivePresetLabel, StringFormat='Ativo · {0}'}" Style="{StaticResource SystemDetail}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_PerfisRefrigeracao}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{Binding ActivePresetLabel, StringFormat={x:Static r:Strings.Fan_Ativo}}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
                                 <ItemsControl ItemsSource="{Binding PresetItems}" Margin="0,16,0,0">
@@ -110,11 +111,11 @@
                                         <DataTemplate>
                                             <Grid Margin="0,0,8,8">
                                                 <ToggleButton Style="{StaticResource Chip}" Margin="0" Padding="12,7,34,7" IsChecked="{Binding IsActive, Mode=OneWay}"
-                                                              Content="{Binding Name}" ToolTip="Aplicar perfil salvo"
+                                                              Content="{Binding Name}" ToolTip="{x:Static r:Strings.Fan_AplicarPerfilSalvo}"
                                                               Command="{Binding DataContext.ApplyProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                               CommandParameter="{Binding Name}"/>
                                                 <Button Style="{StaticResource IconButton}" Width="26" Height="26" FontSize="9" Content="&#xE711;" HorizontalAlignment="Right" Margin="0,0,4,0"
-                                                        ToolTip="Excluir perfil" AutomationProperties.Name="Excluir perfil"
+                                                        ToolTip="{x:Static r:Strings.Fan_ExcluirPerfil}" AutomationProperties.Name="{x:Static r:Strings.Fan_ExcluirPerfil}"
                                                         Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding Name}"/>
                                             </Grid>
@@ -129,14 +130,14 @@
                                         <ColumnDefinition Width="*" MaxWidth="9999"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="ProfileNameBox" Text="{Binding NewProfileName, UpdateSourceTrigger=PropertyChanged}" KeyDown="ProfileNameBox_KeyDown"
-                                             AutomationProperties.Name="Nome do novo perfil" ToolTip="Salva a configuração atual como perfil" MinWidth="160"/>
-                                    <TextBlock Text="Nome do novo perfil" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
+                                             AutomationProperties.Name="{x:Static r:Strings.Fan_NomeNovoPerfil}" ToolTip="{x:Static r:Strings.Fan_SalvaConfiguracaoAtualComo}" MinWidth="160"/>
+                                    <TextBlock Text="{x:Static r:Strings.Fan_NomeNovoPerfil}" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
                                                Foreground="{StaticResource TextSubtleBrush}"
                                                Visibility="{Binding NewProfileName, Converter={StaticResource NullToVisInverse}}"/>
                                     <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding SaveProfileCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="13" Margin="0,0,8,0"/>
-                                            <TextBlock Text="Salvar"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_Salvar}"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -147,24 +148,24 @@
                             <DockPanel>
                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
                                     <ToggleButton Style="{StaticResource Chip}" Margin="0,0,8,0" IsChecked="{Binding IsFixedMode, Mode=OneWay}"
-                                                  Command="{Binding SetModeCommand}" CommandParameter="Fixed" ToolTip="Mesma potência o tempo todo">
+                                                  Command="{Binding SetModeCommand}" CommandParameter="Fixed" ToolTip="{x:Static r:Strings.Fan_MesmaPotenciaTempoTodo}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE9E9;" FontSize="13" Margin="0,0,8,0"/>
-                                            <TextBlock Text="Potência fixa"/>
+                                            <TextBlock Text="{x:Static r:Strings.Main_FixedPower}"/>
                                         </StackPanel>
                                     </ToggleButton>
                                     <ToggleButton Style="{StaticResource Chip}" Margin="0" IsChecked="{Binding IsCurveMode, Mode=OneWay}"
-                                                  Command="{Binding SetModeCommand}" CommandParameter="Curve" ToolTip="A potência acompanha a temperatura">
+                                                  Command="{Binding SetModeCommand}" CommandParameter="Curve" ToolTip="{x:Static r:Strings.Fan_PotenciaAcompanhaTemperatura}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE9D9;" FontSize="13" Margin="0,0,8,0"/>
-                                            <TextBlock Text="Curva automática"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_CurvaAutomatica}"/>
                                         </StackPanel>
                                     </ToggleButton>
                                 </StackPanel>
                                 <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                     <TextBlock Text="&#xE9D9;" Style="{StaticResource SystemIcon}"/>
                                 </Border>
-                                <TextBlock Text="Modo de controle" Style="{StaticResource SystemSectionTitle}" VerticalAlignment="Center"/>
+                                <TextBlock Text="{x:Static r:Strings.Fan_ModoControle}" Style="{StaticResource SystemSectionTitle}" VerticalAlignment="Center"/>
                             </DockPanel>
                         </Border>
 
@@ -176,13 +177,13 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
-                                    <TextBlock Text="Potência global" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock Text="Ventoinhas vinculadas seguem este valor." Style="{StaticResource SystemDetail}"/>
-                                    <TextBlock Text="Proteção ativa · o perfil volta quando as leituras estabilizarem."
+                                    <TextBlock Text="{x:Static r:Strings.Dash_GlobalPower}" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="{x:Static r:Strings.Fan_VentoinhasVinculadasSeguemEste}" Style="{StaticResource SystemDetail}"/>
+                                    <TextBlock Text="{x:Static r:Strings.Fan_ProtecaoAtivaPerfilVolta}"
                                                Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"
                                                Visibility="{Binding IsFailSafeActive, Converter={StaticResource BoolToVis}}"/>
                                 </StackPanel>
-                                <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}" AutomationProperties.Name="Potência global" ToolTip="Ctrl+↑ / Ctrl+↓ ajusta 5%"/>
+                                <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}" AutomationProperties.Name="{x:Static r:Strings.Dash_GlobalPower}" ToolTip="{x:Static r:Strings.Dash_PowerTip}"/>
                                 <TextBlock Grid.Column="2" Text="{Binding GlobalSpeedFormatted}" FontSize="22" FontWeight="SemiBold" Width="70" TextAlignment="Right"
                                            Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
                             </Grid>
@@ -205,7 +206,7 @@
                                         <TextBlock Text="{Binding CurveTitle}" Style="{StaticResource SystemSectionTitle}"/>
                                         <TextBlock Text="{Binding CurveStatus}" Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="Restaurar padrão" Command="{Binding ResetCurveCommand}" VerticalAlignment="Top"/>
+                                    <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="{x:Static r:Strings.Fan_RestaurarPadrao}" Command="{Binding ResetCurveCommand}" VerticalAlignment="Top"/>
                                 </Grid>
                                 <c:CurveEditor x:Name="CurveEditorControl" Grid.Row="1" Height="240" Margin="0,12,0,12"
                                                Points="{Binding CurvePoints}" CurrentTemp="{Binding CurveCurrentTemp}" CurrentOutput="{Binding CurveCurrentOutput}"/>
@@ -235,33 +236,33 @@
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsActive}" Margin="0,0,16,0" VerticalAlignment="Center"
-                                                  AutomationProperties.Name="Testar curva">
-                                            <TextBlock Text="Testar curva" FontWeight="SemiBold"/>
+                                                  AutomationProperties.Name="{x:Static r:Strings.Fan_TestarCurva}">
+                                            <TextBlock Text="{x:Static r:Strings.Fan_TestarCurva}" FontWeight="SemiBold"/>
                                         </CheckBox>
                                         <Slider Grid.Column="1" Minimum="20" Maximum="100" SmallChange="1" LargeChange="5" IsSnapToTickEnabled="True" TickFrequency="1"
                                                 Value="{Binding Temperature}" IsEnabled="{Binding IsActive}" VerticalAlignment="Center"
-                                                AutomationProperties.Name="Temperatura simulada"/>
+                                                AutomationProperties.Name="{x:Static r:Strings.Fan_TemperaturaSimulada}"/>
                                         <TextBlock Grid.Column="2" Text="{Binding Summary}" FontWeight="SemiBold" MinWidth="110" TextAlignment="Right"
                                                    Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}"/>
                                         <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource Caption}" Margin="0,6,0,0" TextWrapping="Wrap"
-                                                   Text="Arraste a temperatura para ouvir as ventoinhas em cada ponto da curva. Ao sair da tela ou desligar, o controle volta às leituras reais. O modo de segurança continua usando as temperaturas reais."/>
+                                                   Text="{x:Static r:Strings.Fan_ArrasteTemperaturaOuvirVentoinhas}"/>
                                     </Grid>
                                 </Border>
 
                                 <c:AdaptiveUniformGrid Grid.Row="3" MinItemWidth="300" MaxColumns="2">
                                     <StackPanel Margin="0,0,16,8">
-                                        <TextBlock Text="Sensor de referência" Style="{StaticResource Label}" Margin="0,0,0,6"/>
-                                        <ComboBox AutomationProperties.Name="Sensor de referência" ItemsSource="{Binding CurveSources}" SelectedValuePath="Value" DisplayMemberPath="Label"
+                                        <TextBlock Text="{x:Static r:Strings.Fan_SensorReferencia}" Style="{StaticResource Label}" Margin="0,0,0,6"/>
+                                        <ComboBox AutomationProperties.Name="{x:Static r:Strings.Fan_SensorReferencia}" ItemsSource="{Binding CurveSources}" SelectedValuePath="Value" DisplayMemberPath="Label"
                                                   SelectedValue="{Binding CurveSourceValue}"/>
-                                        <TextBlock Text="Para AIO, o líquido reage devagar e evita picos de ruído." Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_AIOLiquidoReageDevagar}" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,8">
                                         <Grid Margin="0,0,0,6">
-                                            <TextBlock Text="Histerese (queda antes de reduzir)" Style="{StaticResource Label}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_HistereseQuedaAntesReduzir}" Style="{StaticResource Label}"/>
                                             <TextBlock Text="{Binding CurveHysteresisFormatted}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                                         </Grid>
-                                        <Slider Minimum="0" Maximum="10" Value="{Binding CurveHysteresis}" AutomationProperties.Name="Histerese da curva" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                                        <TextBlock Text="Evita que as ventoinhas fiquem acelerando e desacelerando." Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                                        <Slider Minimum="0" Maximum="10" Value="{Binding CurveHysteresis}" AutomationProperties.Name="{x:Static r:Strings.Fan_HistereseCurva}" IsSnapToTickEnabled="True" TickFrequency="1"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_EvitaVentoinhasFiquemAcelerando}" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </c:AdaptiveUniformGrid>
                             </Grid>
@@ -274,8 +275,8 @@
                                         <TextBlock Text="&#xE8EC;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Curvas por grupo" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock Text="Use curvas e sensores diferentes para o radiador, o gabinete e outros grupos." Style="{StaticResource SystemDetail}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_CurvasGrupo}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_UseCurvasSensoresDiferentes}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
                                 <ItemsControl ItemsSource="{Binding GroupCurves}" Focusable="False" Margin="0,14,0,0">
@@ -284,17 +285,17 @@
                                             <Border x:Name="Row" Background="{StaticResource BgBrush}" CornerRadius="10" Padding="12,8" Margin="0,0,0,6" BorderThickness="1" BorderBrush="Transparent">
                                                 <StackPanel>
                                                     <TextBlock FontWeight="SemiBold" TextWrapping="Wrap">
-                                                        <Run Text="{Binding Name, Mode=OneWay}"/><Run Text=" · " Foreground="{StaticResource TextSubtleBrush}"/><Run Text="{Binding Members, Mode=OneWay}" Foreground="{StaticResource TextMutedBrush}"/><Run Text=" dispositivo(s)" Foreground="{StaticResource TextMutedBrush}"/>
+                                                        <Run Text="{Binding Name, Mode=OneWay}"/><Run Text=" · " Foreground="{StaticResource TextSubtleBrush}"/><Run Text="{Binding Members, Mode=OneWay}" Foreground="{StaticResource TextMutedBrush}"/><Run Text="{x:Static r:Strings.Fan_Dispositivo}" Foreground="{StaticResource TextMutedBrush}"/>
                                                     </TextBlock>
                                                     <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}"/>
                                                     <WrapPanel Margin="0,8,0,0">
-                                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HasOwnCurve}" Content="Curva própria"
+                                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding HasOwnCurve}" Content="{x:Static r:Strings.Fan_CurvaPropria}"
                                                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                         <ComboBox Width="210" VerticalAlignment="Center" IsEnabled="{Binding HasOwnCurve}" Margin="0,0,8,0"
                                                                   ItemsSource="{Binding DataContext.CurveSources, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                   SelectedValuePath="Value" DisplayMemberPath="Label" SelectedValue="{Binding Source}"
-                                                                  ToolTip="Sensor que este grupo segue" AutomationProperties.Name="Sensor do grupo"/>
-                                                        <Button Style="{StaticResource SecondaryButton}" Content="Editar curva" VerticalAlignment="Center"
+                                                                  ToolTip="{x:Static r:Strings.Fan_SensorEsteGrupoSegue}" AutomationProperties.Name="{x:Static r:Strings.Fan_SensorGrupo}"/>
+                                                        <Button Style="{StaticResource SecondaryButton}" Content="{x:Static r:Strings.Fan_EditarCurva}" VerticalAlignment="Center"
                                                                 Command="{Binding DataContext.EditCurveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding Name}"
                                                                 Click="GroupCurve_Click"/>
                                                     </WrapPanel>
@@ -308,14 +309,14 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Content="← Voltar a editar a curva global" Command="{Binding EditCurveCommand}"
+                                <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Content="{x:Static r:Strings.Fan_VoltarEditarCurvaGlobal}" Command="{Binding EditCurveCommand}"
                                         CommandParameter="" Click="GroupCurve_Click" Visibility="{Binding IsEditingGroupCurve, Converter={StaticResource BoolToVis}}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem x:Name="DevicesTab" Header="Dispositivos" Style="{StaticResource SystemTab}">
+            <TabItem x:Name="DevicesTab" Header="{x:Static r:Strings.Det_ListDevices}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
@@ -325,27 +326,27 @@
                                         <TextBlock Text="&#xE8B3;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Controle por dispositivo" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_ControleDispositivo}" Style="{StaticResource SystemSectionTitle}"/>
                                         <TextBlock Text="{Binding SelectionSummary}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
                                 <WrapPanel Margin="0,14,0,0">
-                                    <Button Style="{StaticResource ChipButton}" Command="{Binding SelectAllCommand}" ToolTip="Ctrl+A">
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding SelectAllCommand}" ToolTip="{x:Static r:Strings.Fan_Ctrl}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE8B3;" FontSize="12" Margin="0,0,7,0"/>
-                                            <TextBlock Text="Todas"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_Todas}"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource ChipButton}" Command="{Binding SelectFansCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xEC4A;" FontSize="12" Margin="0,0,7,0"/>
-                                            <TextBlock Text="Só ventoinhas"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_SoVentoinhas}"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource ChipButton}" Command="{Binding SelectPumpsCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE9CA;" FontSize="12" Margin="0,0,7,0"/>
-                                            <TextBlock Text="Bomba"/>
+                                            <TextBlock Text="{x:Static r:Strings.Det_Pump}"/>
                                         </StackPanel>
                                     </Button>
                                     <ItemsControl ItemsSource="{Binding AvailableGroups}" Focusable="False">
@@ -354,7 +355,7 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button Style="{StaticResource ChipButton}" ToolTip="Selecionar este grupo"
+                                                <Button Style="{StaticResource ChipButton}" ToolTip="{x:Static r:Strings.Fan_SelecionarEsteGrupo}"
                                                         Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}">
                                                     <StackPanel Orientation="Horizontal">
@@ -368,20 +369,20 @@
                                     <Button Style="{StaticResource ChipButton}" Command="{Binding InvertSelectionCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE8AB;" FontSize="12" Margin="0,0,7,0"/>
-                                            <TextBlock Text="Inverter"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_Inverter}"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource ChipButton}" Command="{Binding ClearSelectionCommand}" ToolTip="Esc">
+                                    <Button Style="{StaticResource ChipButton}" Command="{Binding ClearSelectionCommand}" ToolTip="{x:Static r:Strings.Fan_Esc}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE894;" FontSize="12" Margin="0,0,7,0"/>
-                                            <TextBlock Text="Limpar"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_Limpar}"/>
                                         </StackPanel>
                                     </Button>
                                 </WrapPanel>
 
                                 <!-- Ações em lote: sempre visíveis (não empurram os cartões ao selecionar) -->
                                 <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,4,0,0"
-                                        IsEnabled="{Binding HasSelection}" ToolTip="Selecione um ou mais cartões para aplicar em lote">
+                                        IsEnabled="{Binding HasSelection}" ToolTip="{x:Static r:Strings.Fan_SelecioneOuMaisCartoes}">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Style.Triggers>
@@ -399,34 +400,34 @@
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="Potência" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding BatchPercent}" AutomationProperties.Name="Potência da seleção"/>
+                                            <TextBlock Text="{x:Static r:Strings.Dash_Power}" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding BatchPercent}" AutomationProperties.Name="{x:Static r:Strings.Fan_PotenciaSelecao}"/>
                                             <TextBlock Grid.Column="2" Text="{Binding BatchPercent, StringFormat={}{0}%}" Width="44" TextAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                            <Button Grid.Column="3" Style="{StaticResource PrimaryButton}" Content="Aplicar" Margin="10,0,0,0" Command="{Binding ApplyBatchCommand}"/>
+                                            <Button Grid.Column="3" Style="{StaticResource PrimaryButton}" Content="{x:Static r:Strings.Fan_Aplicar}" Margin="10,0,0,0" Command="{Binding ApplyBatchCommand}"/>
                                         </Grid>
                                         <WrapPanel Margin="0,4">
                                             <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,6" Command="{Binding LinkSelectedCommand}"
-                                                    ToolTip="As selecionadas voltam a seguir a potência global">
+                                                    ToolTip="{x:Static r:Strings.Fan_SelecionadasVoltamSeguirPotencia}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
-                                                    <TextBlock Text="Vincular ao global"/>
+                                                    <TextBlock Text="{x:Static r:Strings.Fan_VincularGlobal}"/>
                                                 </StackPanel>
                                             </Button>
                                             <Grid Margin="0,0,8,6">
-                                                <TextBox Width="130" Text="{Binding GroupNameInput, UpdateSourceTrigger=PropertyChanged}" ToolTip="Nome do grupo (ex.: Frontal, Topo, Radiador)"/>
-                                                <TextBlock Text="Grupo..." IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextSubtleBrush}"
+                                                <TextBox Width="130" Text="{Binding GroupNameInput, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static r:Strings.Fan_NomeGrupoExFrontal}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Fan_Grupo}" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextSubtleBrush}"
                                                            Visibility="{Binding GroupNameInput, Converter={StaticResource NullToVisInverse}}"/>
                                             </Grid>
-                                            <Button Style="{StaticResource SecondaryButton}" Content="Agrupar" Margin="0,0,8,6" Command="{Binding SetGroupCommand}"/>
-                                            <Button Style="{StaticResource SecondaryButton}" Content="Sem grupo" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
+                                            <Button Style="{StaticResource SecondaryButton}" Content="{x:Static r:Strings.Fan_Agrupar}" Margin="0,0,8,6" Command="{Binding SetGroupCommand}"/>
+                                            <Button Style="{StaticResource SecondaryButton}" Content="{x:Static r:Strings.Fan_SemGrupo}" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
                                         </WrapPanel>
                                     </c:AdaptiveUniformGrid>
                                 </Border>
                             </StackPanel>
                         </Border>
 
-                        <c:EmptyState Icon="&#xE9F5;" Title="Nenhum dispositivo encontrado no hub"
-                                      Detail="Confira se o iCUE LINK Hub está ligado ao USB da placa-mãe e se o iCUE está fechado. Depois, clique em Atualizar no topo da página."
+                        <c:EmptyState Icon="&#xE9F5;" Title="{x:Static r:Strings.Fan_NenhumDispositivoEncontradoHub}"
+                                      Detail="{x:Static r:Strings.Fan_ConfiraICUELINKHub}"
                                       Visibility="{Binding HasItems, ElementName=FanCards, Converter={StaticResource BoolToVisInverse}}"/>
                         <ItemsControl x:Name="FanCards" ItemsSource="{Binding Fans}" Margin="0,0,-12,0" Focusable="False">
                             <ItemsControl.ItemsPanel>
@@ -440,17 +441,17 @@
                                             MouseLeftButtonDown="FanCard_MouseLeftButtonDown" Background="{StaticResource SurfaceBrush}">
                                         <Border.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="Renomear" InputGestureText="Ctrl+R" Click="RenameMenu_Click">
+                                                <MenuItem Header="{x:Static r:Strings.Fan_Renomear}" InputGestureText="Ctrl+R" Click="RenameMenu_Click">
                                                     <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8AC;" FontSize="13"/></MenuItem.Icon>
                                                 </MenuItem>
-                                                <MenuItem Header="Restaurar nome original" Click="ResetNameMenu_Click" IsEnabled="{Binding HasCustomName}">
+                                                <MenuItem Header="{x:Static r:Strings.Fan_RestaurarNomeOriginal}" Click="ResetNameMenu_Click" IsEnabled="{Binding HasCustomName}">
                                                     <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE7A7;" FontSize="13"/></MenuItem.Icon>
                                                 </MenuItem>
                                                 <Separator/>
-                                                <MenuItem Header="Vincular à potência global" Click="LinkMenu_Click" IsEnabled="{Binding IsManual}">
+                                                <MenuItem Header="{x:Static r:Strings.Fan_VincularPotenciaGlobal}" Click="LinkMenu_Click" IsEnabled="{Binding IsManual}">
                                                     <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="13"/></MenuItem.Icon>
                                                 </MenuItem>
-                                                <MenuItem Header="Selecionar o grupo" Click="SelectGroupMenu_Click" IsEnabled="{Binding HasGroup}">
+                                                <MenuItem Header="{x:Static r:Strings.Fan_SelecionarGrupo}" Click="SelectGroupMenu_Click" IsEnabled="{Binding HasGroup}">
                                                     <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE8EC;" FontSize="13"/></MenuItem.Icon>
                                                 </MenuItem>
                                             </ContextMenu>
@@ -466,8 +467,8 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Selecionar"
-                                                          AutomationProperties.Name="Selecionar ventoinha"/>
+                                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="{x:Static r:Strings.Fan_Selecionar}"
+                                                          AutomationProperties.Name="{x:Static r:Strings.Fan_SelecionarVentoinha}"/>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                     <Grid Height="24">
                                                         <Grid.ColumnDefinitions>
@@ -481,12 +482,12 @@
                                                         <!-- Lápis: renomear (aparece ao passar o mouse no cartão) -->
                                                         <Button x:Name="RenameButton" Grid.Column="1" Style="{StaticResource IconButton}" Width="24" Height="22" FontSize="11"
                                                                 Content="&#xE8AC;" Margin="4,0,0,0" Opacity="0" Click="RenameButton_Click"
-                                                                ToolTip="Renomear (Ctrl+R)" AutomationProperties.Name="Renomear"
+                                                                ToolTip="{x:Static r:Strings.Fan_RenomearCtrl}" AutomationProperties.Name="{x:Static r:Strings.Fan_Renomear}"
                                                                 Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVisInverse}}"/>
                                                         <TextBox Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=Explicit}" Padding="6,0" FontSize="13"
                                                                  Height="24" MinHeight="0" VerticalContentAlignment="Center" MaxLength="40"
                                                                  Visibility="{Binding IsEditingName, Converter={StaticResource BoolToVis}}"
-                                                                 ToolTip="Enter salva • Esc cancela • vazio volta ao nome original"
+                                                                 ToolTip="{x:Static r:Strings.Fan_EnterSalvaEscCancela}"
                                                                  IsVisibleChanged="RenameBox_IsVisibleChanged" PreviewKeyDown="RenameBox_KeyDown" LostKeyboardFocus="RenameBox_LostFocus"/>
                                                     </Grid>
                                                     <TextBlock Text="{Binding ChannelLabel}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis"/>
@@ -501,10 +502,10 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Button x:Name="LinkButton" Style="{StaticResource IconButton}" Width="30" Height="28" FontSize="13" Margin="-6,0,6,0"
-                                                        Content="&#xE71B;" ToolTip="{Binding LinkTooltip}" AutomationProperties.Name="Vincular à potência global"
+                                                        Content="&#xE71B;" ToolTip="{Binding LinkTooltip}" AutomationProperties.Name="{x:Static r:Strings.Fan_VincularPotenciaGlobal}"
                                                         Command="{Binding DataContext.ToggleLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}" Foreground="{StaticResource AccentBrush}"/>
-                                                <Slider x:Name="FanSlider" Grid.Column="1" Minimum="{Binding SliderMinimum}" Maximum="100" Value="{Binding SliderValue}" AutomationProperties.Name="{Binding Name, StringFormat='Potência de {0}'}"/>
+                                                <Slider x:Name="FanSlider" Grid.Column="1" Minimum="{Binding SliderMinimum}" Maximum="100" Value="{Binding SliderValue}" AutomationProperties.Name="{Binding Name, StringFormat={x:Static r:Strings.Fan_Potencia}}"/>
                                                 <TextBlock Grid.Column="2" Text="{Binding PowerFormatted}" Width="42" TextAlignment="Right" VerticalAlignment="Center"
                                                            Foreground="{StaticResource TextMutedBrush}"/>
                                             </Grid>
@@ -537,8 +538,8 @@
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12"
                                 Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisInverse}}">
                             <StackPanel>
-                                <TextBlock Text="Hub iCUE LINK não detectado" Style="{StaticResource SystemSectionTitle}"/>
-                                <TextBlock Text="Confira o cabo USB do hub e feche o iCUE antes de atualizar a lista." Style="{StaticResource SystemDetail}"/>
+                                <TextBlock Text="{x:Static r:Strings.Fan_HubICUELINKNao}" Style="{StaticResource SystemSectionTitle}"/>
+                                <TextBlock Text="{x:Static r:Strings.Fan_ConfiraCaboUSBHub}" Style="{StaticResource SystemDetail}"/>
                             </StackPanel>
                         </Border>
 
@@ -557,11 +558,11 @@
                                     <TextBlock Text="&#xE950;" Style="{StaticResource SystemIcon}"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="Ventoinhas da GPU" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="{x:Static r:Strings.Dash_GpuFans}" Style="{StaticResource SystemSectionTitle}"/>
                                     <TextBlock Text="{Binding GpuName}" Style="{StaticResource SystemDetail}"/>
                                     <TextBlock Text="{Binding GpuFanRpmFormatted}" Style="{StaticResource Caption}"/>
                                 </StackPanel>
-                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsGpuFanAuto}" Content="Automático (vBIOS)" Margin="12,0,0,0"
+                                <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitch}" IsChecked="{Binding IsGpuFanAuto}" Content="{x:Static r:Strings.Fan_AutomaticoVBIOS}" Margin="12,0,0,0"
                                           VerticalAlignment="Center"/>
                                 <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,14,0,0" Visibility="{Binding IsGpuFanManual, Converter={StaticResource BoolToVis}}">
                                     <Grid.ColumnDefinitions>
@@ -569,8 +570,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Controle manual" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                                    <Slider Grid.Column="1" Minimum="30" Maximum="100" Value="{Binding GpuFanPercent}" AutomationProperties.Name="Potência das ventoinhas da GPU" Foreground="{StaticResource GpuBrush}"/>
+                                    <TextBlock Text="{x:Static r:Strings.Fan_ControleManual}" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                    <Slider Grid.Column="1" Minimum="30" Maximum="100" Value="{Binding GpuFanPercent}" AutomationProperties.Name="{x:Static r:Strings.Fan_PotenciaVentoinhasGPU}" Foreground="{StaticResource GpuBrush}"/>
                                     <TextBlock Grid.Column="2" Text="{Binding GpuFanPercentFormatted}" FontSize="16" FontWeight="SemiBold" Width="56" TextAlignment="Right"
                                                Foreground="{StaticResource GpuBrush}" VerticalAlignment="Center"/>
                                 </Grid>
@@ -579,7 +580,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem x:Name="AutomationTab" Header="Automação" Style="{StaticResource SystemTab}">
+            <TabItem x:Name="AutomationTab" Header="{x:Static r:Strings.Fan_Automacao}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <Border Style="{StaticResource Banner}" Background="{StaticResource AccentSoftBrush}" BorderBrush="{StaticResource AccentBrush}"
@@ -594,11 +595,11 @@
                                         <TextBlock Text="&#xE823;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Horário silencioso" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock Text="Use um perfil específico durante o período escolhido." Style="{StaticResource SystemDetail}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_HorarioSilencioso}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_UsePerfilEspecificoDurante}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
-                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding QuietEnabled}" Content="Ativar horário silencioso" Margin="0,14,0,12"/>
+                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding QuietEnabled}" Content="{x:Static r:Strings.Fan_AtivarHorarioSilencioso}" Margin="0,14,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="82"/>
@@ -607,19 +608,19 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Margin="0,0,10,0">
-                                        <TextBlock Text="Início" Style="{StaticResource Label}" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_Inicio}" Style="{StaticResource Label}" Margin="0,0,0,5"/>
                                         <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietStart}" ItemStringFormat="{}{0:00}h"
-                                                  AutomationProperties.Name="Início do horário silencioso"/>
+                                                  AutomationProperties.Name="{x:Static r:Strings.Fan_InicioHorarioSilencioso}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                        <TextBlock Text="Fim" Style="{StaticResource Label}" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_Fim}" Style="{StaticResource Label}" Margin="0,0,0,5"/>
                                         <ComboBox ItemsSource="{x:Static vm:MainViewModel.Hours}" SelectedItem="{Binding QuietEnd}" ItemStringFormat="{}{0:00}h"
-                                                  AutomationProperties.Name="Fim do horário silencioso"/>
+                                                  AutomationProperties.Name="{x:Static r:Strings.Fan_FimHorarioSilencioso}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Perfil" Style="{StaticResource Label}" Margin="0,0,0,5"/>
+                                        <TextBlock Text="{x:Static r:Strings.Det_Profile}" Style="{StaticResource Label}" Margin="0,0,0,5"/>
                                         <ComboBox ItemsSource="{Binding ProfileOptions}" SelectedValuePath="Key" DisplayMemberPath="Label" SelectedValue="{Binding QuietProfile}"
-                                                  AutomationProperties.Name="Perfil do horário silencioso"/>
+                                                  AutomationProperties.Name="{x:Static r:Strings.Fan_PerfilHorarioSilencioso}"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -632,12 +633,12 @@
                                         <TextBlock Text="&#xE8A7;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Perfis por aplicativo" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock Text="Aplique um perfil ao abrir um jogo ou aplicativo. Ao fechar, o LinkFlow retoma o perfil anterior." Style="{StaticResource SystemDetail}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_PerfisAplicativo}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock Text="{x:Static r:Strings.Fan_ApliquePerfilAbrirJogo}" Style="{StaticResource SystemDetail}"/>
                                     </StackPanel>
                                 </DockPanel>
-                                <c:EmptyState Icon="&#xE7FC;" Margin="0,18,0,6" Title="Nenhuma regra por aplicativo"
-                                              Detail="Adicione um jogo ou programa para trocar de perfil automaticamente quando ele abrir."
+                                <c:EmptyState Icon="&#xE7FC;" Margin="0,18,0,6" Title="{x:Static r:Strings.Fan_NenhumaRegraAplicativo}"
+                                              Detail="{x:Static r:Strings.Fan_AdicioneJogoOuPrograma}"
                                               Visibility="{Binding HasItems, ElementName=AppRuleList, Converter={StaticResource BoolToVisInverse}}"/>
                                 <ItemsControl x:Name="AppRuleList" ItemsSource="{Binding AppRules}" Focusable="False" Margin="0,14,0,0">
                                     <ItemsControl.ItemTemplate>
@@ -650,14 +651,14 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Regra ativa"/>
+                                                    <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="{x:Static r:Strings.Fan_RegraAtiva}"/>
                                                     <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
-                                                        <Run Text="Ao abrir "/><Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                        <Run Text="{x:Static r:Strings.Fan_Abrir}"/><Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold"/>
                                                     </TextBlock>
                                                     <ComboBox Grid.Column="2" Width="190" Margin="8,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Label"
                                                               ItemsSource="{Binding DataContext.ProfileOptions, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                               SelectedValue="{Binding Profile}"/>
-                                                    <Button Grid.Column="3" Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="11" Content="&#xE711;" ToolTip="Remover regra"
+                                                    <Button Grid.Column="3" Style="{StaticResource IconButton}" Width="30" Height="30" FontSize="11" Content="&#xE711;" ToolTip="{x:Static r:Strings.Fan_RemoverRegra}"
                                                             Foreground="{StaticResource DangerBrush}"
                                                             Command="{Binding DataContext.RemoveRuleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                                                 </Grid>
@@ -673,13 +674,13 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <ComboBox IsEditable="True" Text="{Binding NewRuleProcess, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RunningApps}"
-                                              DropDownOpened="RunningApps_DropDownOpened" ToolTip="Digite o nome do processo ou escolha um aplicativo aberto" AutomationProperties.Name="Jogo ou aplicativo"/>
-                                    <TextBlock Text="Jogo ou aplicativo" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
+                                              DropDownOpened="RunningApps_DropDownOpened" ToolTip="{x:Static r:Strings.Fan_DigiteNomeProcessoOu}" AutomationProperties.Name="{x:Static r:Strings.Fan_JogoOuAplicativo}"/>
+                                    <TextBlock Text="{x:Static r:Strings.Fan_JogoOuAplicativo}" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
                                                Foreground="{StaticResource TextSubtleBrush}" Visibility="{Binding NewRuleProcess, Converter={StaticResource NullToVisInverse}}"/>
                                     <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding AddRuleCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
-                                            <TextBlock Text="Adicionar regra"/>
+                                            <TextBlock Text="{x:Static r:Strings.Fan_AdicionarRegra}"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>

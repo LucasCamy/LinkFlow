@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Threading;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -107,8 +108,8 @@ public sealed class AutomationService : IDisposable
         }
 
         string? desired = null, reason = null, label = null;
-        if (rule != null) { desired = rule.Profile; reason = $"app:{rule.Process}"; label = $"{rule.Process} aberto"; }
-        else if (a.Quiet.Enabled && a.Quiet.Contains(DateTime.Now)) { desired = a.Quiet.Profile; reason = "quiet"; label = $"horário silencioso até {a.Quiet.EndHour:00}h"; }
+        if (rule != null) { desired = rule.Profile; reason = $"app:{rule.Process}"; label = string.Format(Strings.Fan_Aberto, rule.Process); }
+        else if (a.Quiet.Enabled && a.Quiet.Contains(DateTime.Now)) { desired = a.Quiet.Profile; reason = "quiet"; label = string.Format(Strings.Fan_HorarioSilenciosoAte, a.Quiet.EndHour); }
 
         if (reason != _reasonKey && reason != _suppressed) _suppressed = null; // motivo novo: volta a valer
         _reasonKey = reason;
@@ -123,25 +124,25 @@ public sealed class AutomationService : IDisposable
                 _vm.ApplyAutomationProfile(desired, label!);
             }
             _applied = desired;
-            SetStatus($"Ativo: {Label(desired)} ({label})");
+            SetStatus(string.Format(Strings.Fan_Ativo2, Label(desired), label));
         }
         else if (_applied != null)
         {
             // Motivo acabou: volta ao perfil que o usuário tinha
             _applied = null;
-            if (ProfileExists(cfg, _base) && current != _base) _vm.ApplyAutomationProfile(_base, "automação terminou");
+            if (ProfileExists(cfg, _base) && current != _base) _vm.ApplyAutomationProfile(_base, Strings.Fan_AutomacaoTerminou);
             SetStatus(string.Empty);
         }
         else
         {
-            SetStatus(reason != null && reason == _suppressed ? "Pausada: você escolheu outro perfil" : string.Empty);
+            SetStatus(reason != null && reason == _suppressed ? Strings.Fan_PausadaVoceEscolheuOutro : string.Empty);
         }
     }
 
     private static bool ProfileExists(ControlConfig c, string key) =>
         FanPresets.Find(key) != null || c.Profiles.Any(p => p.Name == key);
 
-    private static string Label(string key) => FanPresets.Find(key)?.Label ?? key;
+    private static string Label(string key) => PresetNames.Label(key);
 
     private void SetStatus(string s)
     {

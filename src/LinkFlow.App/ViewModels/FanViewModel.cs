@@ -1,4 +1,5 @@
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -60,10 +61,10 @@ public sealed class FanViewModel : ObservableObject
     public bool HasTachometer => LinkDeviceCatalog.HasTachometer(Model);
 
     public string ChannelLabel =>
-        $"Canal {Channel:D2}{(Group is { Length: > 0 } g ? $" • {g}" : string.Empty)}{(IsUnknownModel ? " • modelo não identificado" : string.Empty)}";
+        string.Format(Strings.Fan_Channel, Channel) + (Group is { Length: > 0 } g ? $" • {g}" : string.Empty) + (IsUnknownModel ? Strings.Fan_UnknownModelSuffix : string.Empty);
 
     public bool HasCustomName => _customName != null;
-    public string NameTooltip => HasCustomName ? $"{DefaultName} • clique duplo ou Ctrl+R para renomear" : "Clique duplo ou Ctrl+R para renomear";
+    public string NameTooltip => HasCustomName ? string.Format(Strings.Fan_CliqueDuploOuCtrl, DefaultName) : Strings.Fan_CliqueDuploOuCtrl2;
 
     public string? Group
     {
@@ -126,8 +127,8 @@ public sealed class FanViewModel : ObservableObject
     }
 
     public string LinkTooltip => _isLinked
-        ? "Vinculada à potência global. Mova o slider para controlar só esta ventoinha."
-        : "Controle manual. Clique para voltar a seguir a potência global.";
+        ? Strings.Fan_VinculadaPotenciaGlobalMova
+        : Strings.Fan_ControleManualCliqueVoltar;
 
     public byte ManualPercent => _manualPercent;
 

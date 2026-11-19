@@ -904,4 +904,481 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Hw_CatSensors" xml:space="preserve">
     <value>Sensors</value>
   </data>
+  <data name="Fan_MedirRotacaoCadaVentoinha" xml:space="preserve">
+    <value>Measure each fan's speed, set the safe minimum and create the wear reference</value>
+  </data>
+  <data name="Fan_Calibrar" xml:space="preserve">
+    <value>Calibrate</value>
+  </data>
+  <data name="Fan_AtualizarListaVentoinhasBomba" xml:space="preserve">
+    <value>Refresh the list of fans, pump, LCD and RGB</value>
+  </data>
+  <data name="Fan_PerfisCurvas" xml:space="preserve">
+    <value>Profiles and curves</value>
+  </data>
+  <data name="Fan_TodasVentoinhasVoltamSeguir" xml:space="preserve">
+    <value>All fans follow the global power again</value>
+  </data>
+  <data name="Fan_RevincularTodas" xml:space="preserve">
+    <value>Relink all</value>
+  </data>
+  <data name="Fan_PerfisRefrigeracao" xml:space="preserve">
+    <value>Cooling profiles</value>
+  </data>
+  <data name="Fan_AplicarPerfilSalvo" xml:space="preserve">
+    <value>Apply saved profile</value>
+  </data>
+  <data name="Fan_ExcluirPerfil" xml:space="preserve">
+    <value>Delete profile</value>
+  </data>
+  <data name="Fan_NomeNovoPerfil" xml:space="preserve">
+    <value>New profile name</value>
+  </data>
+  <data name="Fan_SalvaConfiguracaoAtualComo" xml:space="preserve">
+    <value>Saves the current settings as a profile</value>
+  </data>
+  <data name="Fan_Salvar" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Fan_MesmaPotenciaTempoTodo" xml:space="preserve">
+    <value>Same power all the time</value>
+  </data>
+  <data name="Fan_PotenciaAcompanhaTemperatura" xml:space="preserve">
+    <value>Power follows the temperature</value>
+  </data>
+  <data name="Fan_CurvaAutomatica" xml:space="preserve">
+    <value>Automatic curve</value>
+  </data>
+  <data name="Fan_ModoControle" xml:space="preserve">
+    <value>Control mode</value>
+  </data>
+  <data name="Fan_VentoinhasVinculadasSeguemEste" xml:space="preserve">
+    <value>Linked fans follow this value.</value>
+  </data>
+  <data name="Fan_ProtecaoAtivaPerfilVolta" xml:space="preserve">
+    <value>Protection on · the profile returns when the readings settle.</value>
+  </data>
+  <data name="Fan_RestaurarPadrao" xml:space="preserve">
+    <value>Restore default</value>
+  </data>
+  <data name="Fan_TestarCurva" xml:space="preserve">
+    <value>Test curve</value>
+  </data>
+  <data name="Fan_TemperaturaSimulada" xml:space="preserve">
+    <value>Simulated temperature</value>
+  </data>
+  <data name="Fan_ArrasteTemperaturaOuvirVentoinhas" xml:space="preserve">
+    <value>Drag the temperature to hear the fans at each point of the curve. When you leave this screen or turn it off, control goes back to the real readings. Safe mode keeps using the real temperatures.</value>
+  </data>
+  <data name="Fan_SensorReferencia" xml:space="preserve">
+    <value>Reference sensor</value>
+  </data>
+  <data name="Fan_AIOLiquidoReageDevagar" xml:space="preserve">
+    <value>For an AIO, the coolant reacts slowly and avoids noise spikes.</value>
+  </data>
+  <data name="Fan_HistereseQuedaAntesReduzir" xml:space="preserve">
+    <value>Hysteresis (drop before slowing down)</value>
+  </data>
+  <data name="Fan_HistereseCurva" xml:space="preserve">
+    <value>Curve hysteresis</value>
+  </data>
+  <data name="Fan_EvitaVentoinhasFiquemAcelerando" xml:space="preserve">
+    <value>Keeps the fans from constantly speeding up and slowing down.</value>
+  </data>
+  <data name="Fan_CurvasGrupo" xml:space="preserve">
+    <value>Curves per group</value>
+  </data>
+  <data name="Fan_UseCurvasSensoresDiferentes" xml:space="preserve">
+    <value>Use different curves and sensors for the radiator, the case and other groups.</value>
+  </data>
+  <data name="Fan_Dispositivo" xml:space="preserve">
+    <value> device(s)</value>
+  </data>
+  <data name="Fan_CurvaPropria" xml:space="preserve">
+    <value>Own curve</value>
+  </data>
+  <data name="Fan_SensorEsteGrupoSegue" xml:space="preserve">
+    <value>Sensor this group follows</value>
+  </data>
+  <data name="Fan_SensorGrupo" xml:space="preserve">
+    <value>Group sensor</value>
+  </data>
+  <data name="Fan_EditarCurva" xml:space="preserve">
+    <value>Edit curve</value>
+  </data>
+  <data name="Fan_VoltarEditarCurvaGlobal" xml:space="preserve">
+    <value>← Back to editing the global curve</value>
+  </data>
+  <data name="Fan_ControleDispositivo" xml:space="preserve">
+    <value>Per-device control</value>
+  </data>
+  <data name="Fan_Ctrl" xml:space="preserve">
+    <value>Ctrl+A</value>
+  </data>
+  <data name="Fan_Todas" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Fan_SoVentoinhas" xml:space="preserve">
+    <value>Fans only</value>
+  </data>
+  <data name="Fan_SelecionarEsteGrupo" xml:space="preserve">
+    <value>Select this group</value>
+  </data>
+  <data name="Fan_Inverter" xml:space="preserve">
+    <value>Invert</value>
+  </data>
+  <data name="Fan_Esc" xml:space="preserve">
+    <value>Esc</value>
+  </data>
+  <data name="Fan_Limpar" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Fan_SelecioneOuMaisCartoes" xml:space="preserve">
+    <value>Select one or more cards to apply in bulk</value>
+  </data>
+  <data name="Fan_PotenciaSelecao" xml:space="preserve">
+    <value>Selection power</value>
+  </data>
+  <data name="Fan_Aplicar" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Fan_SelecionadasVoltamSeguirPotencia" xml:space="preserve">
+    <value>The selected ones follow the global power again</value>
+  </data>
+  <data name="Fan_VincularGlobal" xml:space="preserve">
+    <value>Link to global</value>
+  </data>
+  <data name="Fan_NomeGrupoExFrontal" xml:space="preserve">
+    <value>Group name (e.g. Front, Top, Radiator)</value>
+  </data>
+  <data name="Fan_Grupo" xml:space="preserve">
+    <value>Group...</value>
+  </data>
+  <data name="Fan_Agrupar" xml:space="preserve">
+    <value>Group</value>
+  </data>
+  <data name="Fan_SemGrupo" xml:space="preserve">
+    <value>No group</value>
+  </data>
+  <data name="Fan_NenhumDispositivoEncontradoHub" xml:space="preserve">
+    <value>No devices found on the hub</value>
+  </data>
+  <data name="Fan_ConfiraICUELINKHub" xml:space="preserve">
+    <value>Check that the iCUE LINK Hub is connected to the motherboard USB and that iCUE is closed. Then click Refresh at the top of the page.</value>
+  </data>
+  <data name="Fan_Renomear" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Fan_RestaurarNomeOriginal" xml:space="preserve">
+    <value>Restore original name</value>
+  </data>
+  <data name="Fan_VincularPotenciaGlobal" xml:space="preserve">
+    <value>Link to the global power</value>
+  </data>
+  <data name="Fan_SelecionarGrupo" xml:space="preserve">
+    <value>Select the group</value>
+  </data>
+  <data name="Fan_Selecionar" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="Fan_SelecionarVentoinha" xml:space="preserve">
+    <value>Select fan</value>
+  </data>
+  <data name="Fan_RenomearCtrl" xml:space="preserve">
+    <value>Rename (Ctrl+R)</value>
+  </data>
+  <data name="Fan_EnterSalvaEscCancela" xml:space="preserve">
+    <value>Enter saves • Esc cancels • empty restores the original name</value>
+  </data>
+  <data name="Fan_HubICUELINKNao" xml:space="preserve">
+    <value>iCUE LINK Hub not detected</value>
+  </data>
+  <data name="Fan_ConfiraCaboUSBHub" xml:space="preserve">
+    <value>Check the hub's USB cable and close iCUE before refreshing the list.</value>
+  </data>
+  <data name="Fan_AutomaticoVBIOS" xml:space="preserve">
+    <value>Automatic (vBIOS)</value>
+  </data>
+  <data name="Fan_ControleManual" xml:space="preserve">
+    <value>Manual control</value>
+  </data>
+  <data name="Fan_PotenciaVentoinhasGPU" xml:space="preserve">
+    <value>GPU fan power</value>
+  </data>
+  <data name="Fan_Automacao" xml:space="preserve">
+    <value>Automation</value>
+  </data>
+  <data name="Fan_HorarioSilencioso" xml:space="preserve">
+    <value>Quiet hours</value>
+  </data>
+  <data name="Fan_UsePerfilEspecificoDurante" xml:space="preserve">
+    <value>Use a specific profile during the chosen period.</value>
+  </data>
+  <data name="Fan_AtivarHorarioSilencioso" xml:space="preserve">
+    <value>Turn on quiet hours</value>
+  </data>
+  <data name="Fan_Inicio" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Fan_InicioHorarioSilencioso" xml:space="preserve">
+    <value>Quiet hours start</value>
+  </data>
+  <data name="Fan_Fim" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Fan_FimHorarioSilencioso" xml:space="preserve">
+    <value>Quiet hours end</value>
+  </data>
+  <data name="Fan_PerfilHorarioSilencioso" xml:space="preserve">
+    <value>Quiet hours profile</value>
+  </data>
+  <data name="Fan_PerfisAplicativo" xml:space="preserve">
+    <value>Profiles per app</value>
+  </data>
+  <data name="Fan_ApliquePerfilAbrirJogo" xml:space="preserve">
+    <value>Apply a profile when a game or app opens. When it closes, LinkFlow goes back to the previous profile.</value>
+  </data>
+  <data name="Fan_NenhumaRegraAplicativo" xml:space="preserve">
+    <value>No per-app rules</value>
+  </data>
+  <data name="Fan_AdicioneJogoOuPrograma" xml:space="preserve">
+    <value>Add a game or program to switch profiles automatically when it opens.</value>
+  </data>
+  <data name="Fan_RegraAtiva" xml:space="preserve">
+    <value>Rule active</value>
+  </data>
+  <data name="Fan_Abrir" xml:space="preserve">
+    <value>When opening </value>
+  </data>
+  <data name="Fan_RemoverRegra" xml:space="preserve">
+    <value>Remove rule</value>
+  </data>
+  <data name="Fan_DigiteNomeProcessoOu" xml:space="preserve">
+    <value>Type the process name or pick an open app</value>
+  </data>
+  <data name="Fan_JogoOuAplicativo" xml:space="preserve">
+    <value>Game or app</value>
+  </data>
+  <data name="Fan_AdicionarRegra" xml:space="preserve">
+    <value>Add rule</value>
+  </data>
+  <data name="Fan_Ativo" xml:space="preserve">
+    <value>Active · {0}</value>
+  </data>
+  <data name="Fan_Potencia" xml:space="preserve">
+    <value>{0} power</value>
+  </data>
+  <data name="Fan_Channel" xml:space="preserve">
+    <value>Channel {0:D2}</value>
+  </data>
+  <data name="Fan_CliqueDuploOuCtrl" xml:space="preserve">
+    <value>{0} • double-click or Ctrl+R to rename</value>
+  </data>
+  <data name="Fan_CliqueDuploOuCtrl2" xml:space="preserve">
+    <value>Double-click or Ctrl+R to rename</value>
+  </data>
+  <data name="Fan_VinculadaPotenciaGlobalMova" xml:space="preserve">
+    <value>Linked to the global power. Move the slider to control only this fan.</value>
+  </data>
+  <data name="Fan_ControleManualCliqueVoltar" xml:space="preserve">
+    <value>Manual control. Click to follow the global power again.</value>
+  </data>
+  <data name="Fan_Procurando" xml:space="preserve">
+    <value>Searching...</value>
+  </data>
+  <data name="Fan_Atualizar" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Fan_ProcurandoVentoinhasBombaLCD" xml:space="preserve">
+    <value>Looking for fans, pump, LCD and RGB...</value>
+  </data>
+  <data name="Fan_ICUELINKHubNao" xml:space="preserve">
+    <value>iCUE LINK Hub not found. Check the USB cable and make sure iCUE is closed.</value>
+  </data>
+  <data name="Fan_DispositivoEncontrado" xml:space="preserve">
+    <value>{0} device(s) found</value>
+  </data>
+  <data name="Fan_Novo" xml:space="preserve">
+    <value> • {0} new</value>
+  </data>
+  <data name="Fan_NaoEncontrado" xml:space="preserve">
+    <value> • {0} not found</value>
+  </data>
+  <data name="Fan_NenhumaMudanca" xml:space="preserve">
+    <value> • no changes</value>
+  </data>
+  <data name="Fan_VoltouChamar" xml:space="preserve">
+    <value>"{0}" is named "{1}" again</value>
+  </data>
+  <data name="Fan_CurvaTemperatura" xml:space="preserve">
+    <value>Temperature curve</value>
+  </data>
+  <data name="Fan_CurvaGrupo" xml:space="preserve">
+    <value>"{0}" group curve</value>
+  </data>
+  <data name="Fan_GrupoAgoraSeguePropria" xml:space="preserve">
+    <value>Group "{0}" now follows its own curve</value>
+  </data>
+  <data name="Fan_GrupoVoltouSeguirGlobal" xml:space="preserve">
+    <value>Group "{0}" follows the global curve again</value>
+  </data>
+  <data name="Fan_Agora" xml:space="preserve">
+    <value>{0}% now</value>
+  </data>
+  <data name="Fan_SegueGlobal" xml:space="preserve">
+    <value>follows the global curve</value>
+  </data>
+  <data name="Fan_CtrlAltQualquerLugar" xml:space="preserve">
+    <value>{0}  •  F{1} (Ctrl+Alt+{2} anywhere)</value>
+  </data>
+  <data name="Fan_TodasVentoinhasVoltaramSeguir" xml:space="preserve">
+    <value>All fans follow the global power again</value>
+  </data>
+  <data name="Fan_CurvaRestauradaPadrao" xml:space="preserve">
+    <value>Curve restored to default</value>
+  </data>
+  <data name="Fan_QuadroEnviadoDisplayLCD" xml:space="preserve">
+    <value>Frame sent to the LCD display</value>
+  </data>
+  <data name="Fan_PerfilProntoEscolhaOutro" xml:space="preserve">
+    <value>"{0}" is a built-in profile. Choose another name.</value>
+  </data>
+  <data name="Fan_PerfilAtualizado" xml:space="preserve">
+    <value>Profile "{0}" updated</value>
+  </data>
+  <data name="Fan_PerfilSalvo" xml:space="preserve">
+    <value>Profile "{0}" saved</value>
+  </data>
+  <data name="Fan_PerfilExcluido" xml:space="preserve">
+    <value>Profile "{0}" deleted</value>
+  </data>
+  <data name="Fan_AlteracaoDesfeita" xml:space="preserve">
+    <value>Change undone</value>
+  </data>
+  <data name="Fan_NenhumaSelecionadaCtrlClique" xml:space="preserve">
+    <value>None selected • Ctrl+click or Shift+click the cards to select several</value>
+  </data>
+  <data name="Fan_1Selecionada" xml:space="preserve">
+    <value>1 selected</value>
+  </data>
+  <data name="Fan_Selecionadas" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="Fan_AplicadoDispositivo" xml:space="preserve">
+    <value>{0}% applied to {1} device(s)</value>
+  </data>
+  <data name="Fan_DevicesLinked" xml:space="preserve">
+    <value>{0} device(s) linked to the global power</value>
+  </data>
+  <data name="Fan_GrupoRemovidoDispositivo" xml:space="preserve">
+    <value>Group removed from {0} device(s)</value>
+  </data>
+  <data name="Fan_DispositivoGrupo" xml:space="preserve">
+    <value>{0} device(s) in group "{1}"</value>
+  </data>
+  <data name="Fan_MaiorEntreCPUGPU" xml:space="preserve">
+    <value>Higher of CPU and GPU</value>
+  </data>
+  <data name="Fan_TemperaturaCPU" xml:space="preserve">
+    <value>CPU temperature</value>
+  </data>
+  <data name="Fan_TemperaturaGPU" xml:space="preserve">
+    <value>GPU temperature</value>
+  </data>
+  <data name="Fan_TemperaturaLiquidoAIO" xml:space="preserve">
+    <value>Coolant temperature (AIO)</value>
+  </data>
+  <data name="Fan_CurvaAutomaticaAtivada" xml:space="preserve">
+    <value>Automatic curve on</value>
+  </data>
+  <data name="Fan_PotenciaFixaAtivada" xml:space="preserve">
+    <value>Fixed speed on</value>
+  </data>
+  <data name="Fan_Ciano" xml:space="preserve">
+    <value>Cyan</value>
+  </data>
+  <data name="Fan_Azul" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="Fan_Roxo" xml:space="preserve">
+    <value>Purple</value>
+  </data>
+  <data name="Fan_Rosa" xml:space="preserve">
+    <value>Pink</value>
+  </data>
+  <data name="Fan_Vermelho" xml:space="preserve">
+    <value>Red</value>
+  </data>
+  <data name="Fan_Laranja" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="Fan_Amarelo" xml:space="preserve">
+    <value>Yellow</value>
+  </data>
+  <data name="Fan_Verde" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="Fan_Branco" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="Fan_Apagado" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Fan_Display480x480Conectado" xml:space="preserve">
+    <value>480x480 display connected</value>
+  </data>
+  <data name="Fan_DisplayLCDNaoEncontrado" xml:space="preserve">
+    <value>LCD display not found • trying to reconnect</value>
+  </data>
+  <data name="Fan_Detectando" xml:space="preserve">
+    <value>Detecting...</value>
+  </data>
+  <data name="Fan_Conectado" xml:space="preserve">
+    <value>Connected • {0}</value>
+  </data>
+  <data name="Fan_NaoDetectado" xml:space="preserve">
+    <value>Not detected</value>
+  </data>
+  <data name="Fan_PerfilAplicado" xml:space="preserve">
+    <value>Profile "{0}" applied</value>
+  </data>
+  <data name="Fan_Salvo" xml:space="preserve">
+    <value>{0} (saved)</value>
+  </data>
+  <data name="Fan_JaExisteRegra" xml:space="preserve">
+    <value>There is already a rule for "{0}"</value>
+  </data>
+  <data name="Fan_AbrirPerfilDesempenhoAplicado" xml:space="preserve">
+    <value>When "{0}" opens, the Performance profile is applied (change it next to the rule)</value>
+  </data>
+  <data name="Fan_Perfil" xml:space="preserve">
+    <value>Profile {0} • {1}</value>
+  </data>
+  <data name="Fan_Aberto" xml:space="preserve">
+    <value>{0} open</value>
+  </data>
+  <data name="Fan_HorarioSilenciosoAte" xml:space="preserve">
+    <value>quiet hours until {0:00}:00</value>
+  </data>
+  <data name="Fan_Ativo2" xml:space="preserve">
+    <value>Active: {0} ({1})</value>
+  </data>
+  <data name="Fan_AutomacaoTerminou" xml:space="preserve">
+    <value>automation ended</value>
+  </data>
+  <data name="Fan_PausadaVoceEscolheuOutro" xml:space="preserve">
+    <value>Paused: you picked another profile</value>
+  </data>
+  <data name="Fan_UnknownModelSuffix" xml:space="preserve">
+    <value> • unidentified model</value>
+  </data>
+  <data name="Fan_DevicesManual" xml:space="preserve">
+    <value>{0} device(s) under manual control</value>
+  </data>
+  <data name="Fan_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="Fan_CurveEditorTip" xml:space="preserve">
+    <value>Drag the points • double-click adds • right-click removes</value>
+  </data>
 </root>

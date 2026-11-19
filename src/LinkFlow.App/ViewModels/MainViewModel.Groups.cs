@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -54,7 +55,7 @@ public partial class MainViewModel
     /// <summary>Curva em edição no editor: null = global; senão o nome do grupo.</summary>
     public string? CurveTarget => _curveTarget;
     public bool IsEditingGroupCurve => _curveTarget != null;
-    public string CurveTitle => _curveTarget == null ? "Curva de temperatura" : $"Curva do grupo \"{_curveTarget}\"";
+    public string CurveTitle => _curveTarget == null ? Strings.Fan_CurvaTemperatura : string.Format(Strings.Fan_CurvaGrupo, _curveTarget);
 
     /// <summary>O cartão da curva aparece no modo curva ou ao editar um grupo.</summary>
     public bool ShowCurveCard => IsCurveMode || _curveTarget != null;
@@ -93,7 +94,7 @@ public partial class MainViewModel
 
     internal void SetGroupCurveEnabled(string group, bool enabled)
     {
-        WithUndo(enabled ? $"Grupo \"{group}\" agora segue a própria curva" : $"Grupo \"{group}\" voltou a seguir o global", () =>
+        WithUndo(enabled ? string.Format(Strings.Fan_GrupoAgoraSeguePropria, group) : string.Format(Strings.Fan_GrupoVoltouSeguirGlobal, group), () =>
             _engine.UpdateConfig(c =>
             {
                 if (enabled) c.GroupCurves.TryAdd(group, c.Curve.Clone());
@@ -139,7 +140,7 @@ public partial class MainViewModel
     {
         foreach (var g in GroupCurves)
             g.Status = g.HasOwnCurve
-                ? s.GroupOutputs.TryGetValue(g.Name, out var o) ? $"{o}% agora" : "aguardando sensor"
-                : "segue o global";
+                ? s.GroupOutputs.TryGetValue(g.Name, out var o) ? string.Format(Strings.Fan_Agora, o) : Strings.Main_CurveWaitingSensor
+                : Strings.Fan_SegueGlobal;
     }
 }

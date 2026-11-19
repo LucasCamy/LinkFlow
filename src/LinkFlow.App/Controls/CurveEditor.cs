@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Controls;
 
@@ -58,7 +59,7 @@ public sealed class CurveEditor : FrameworkElement
         Focusable = true;
         Cursor = Cursors.Cross;
         MinHeight = 180;
-        ToolTip = "Arraste os pontos • clique duplo adiciona • clique direito remove";
+        ToolTip = Strings.Fan_CurveEditorTip;
     }
 
     private void OnPointsChanged()

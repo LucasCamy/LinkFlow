@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -53,7 +55,7 @@ public partial class MainViewModel
 
     public IReadOnlyList<ProfileOption> ProfileOptions =>
         FanPresets.All.Select(p => new ProfileOption(p.Key, p.Label))
-            .Concat(_engine.Config.Profiles.Select(p => new ProfileOption(p.Name, $"{p.Name} (salvo)")))
+            .Concat(_engine.Config.Profiles.Select(p => new ProfileOption(p.Name, string.Format(Strings.Fan_Salvo, p.Name))))
             .ToList();
 
     public string NewRuleProcess
@@ -77,12 +79,12 @@ public partial class MainViewModel
         if (name.Length == 0) return;
         if (_engine.Config.Automation.Rules.Any(r => string.Equals(r.Process, name, StringComparison.OrdinalIgnoreCase)))
         {
-            ShowToast($"Já existe uma regra para \"{name}\"", canUndo: false);
+            ShowToast(string.Format(Strings.Fan_JaExisteRegra, name), canUndo: false);
             return;
         }
         UpdateAutomation(a => a.Rules.Add(new AppRule { Process = name, Profile = FanPresets.Performance }));
         NewRuleProcess = string.Empty;
-        ShowToast($"Ao abrir \"{name}\", o perfil Desempenho é aplicado (mude ao lado)", canUndo: false);
+        ShowToast(string.Format(Strings.Fan_AbrirPerfilDesempenhoAplicado, name), canUndo: false);
     }, () => NewRuleProcess.Trim().Length > 0);
 
     public ICommand RemoveRuleCommand => _removeRuleCommand ??= new RelayCommand(p =>
@@ -162,7 +164,7 @@ public partial class MainViewModel
         else _engine.UpdateConfig(c => c.Profiles.FirstOrDefault(p => p.Name == key)?.ApplyTo(c));
         LoadConfig(_engine.Config);
         RefreshPresetChips();
-        ShowToast($"Perfil {FanPresets.Find(key)?.Label ?? key} • {reason}", canUndo: false);
+        ShowToast(string.Format(Strings.Fan_Perfil, PresetNames.Label(key), reason), canUndo: false);
         Log.Info($"Automação: perfil {key} ({reason}).");
     }
 }

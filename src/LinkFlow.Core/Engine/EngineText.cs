@@ -50,6 +50,12 @@ public static class EngineTexts
     public static readonly CultureInfo PortugueseCulture = CultureInfo.GetCultureInfo("pt-BR");
     public static readonly CultureInfo EnglishCulture = CultureInfo.GetCultureInfo("en");
 
+    /// <summary>
+    /// Idioma dos textos que o Core entrega prontos para a interface (nomes dos perfis). A interface define o dela em
+    /// UiLanguage.Apply; no serviço fica o português.
+    /// </summary>
+    public static CultureInfo DisplayCulture { get; set; } = PortugueseCulture;
+
     public static ResourceManager Resources { get; } = new("LinkFlow.Core.Resources.EngineStrings", typeof(EngineTexts).Assembly);
 
     /// <summary>Cultura de um idioma salvo na configuração ("en" = inglês; qualquer outro valor, português).</summary>
@@ -193,6 +199,18 @@ public static class EngineTexts
     public const string GHubAgentLeft = nameof(GHubAgentLeft);
     public const string GHubColorRefused = nameof(GHubColorRefused);
     public const string GHubSendError = nameof(GHubSendError);
+
+    // ---------------------------------------------------------------- perfis prontos (mostrados pela interface)
+    public const string PresetSilent = nameof(PresetSilent);
+    public const string PresetSilentDesc = nameof(PresetSilentDesc);
+    public const string PresetBalanced = nameof(PresetBalanced);
+    public const string PresetBalancedDesc = nameof(PresetBalancedDesc);
+    public const string PresetPerformance = nameof(PresetPerformance);
+    public const string PresetPerformanceDesc = nameof(PresetPerformanceDesc);
+    public const string PresetMax = nameof(PresetMax);
+    public const string PresetMaxDesc = nameof(PresetMaxDesc);
+    public const string PresetAuto = nameof(PresetAuto);
+    public const string PresetAutoDesc = nameof(PresetAutoDesc);
 
     // ---------------------------------------------------------------- status do hub
     public const string HubSearching = nameof(HubSearching);

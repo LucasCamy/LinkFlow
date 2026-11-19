@@ -237,13 +237,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public bool IsLcdConnected => Snapshot.LcdConnected;
     public string LcdStatus => Snapshot.LcdConnected
-        ? "Display 480x480 conectado"
-        : "Display LCD não encontrado • tentando reconectar";
+        ? Strings.Fan_Display480x480Conectado
+        : Strings.Fan_DisplayLCDNaoEncontrado;
 
-    public string MotherboardRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.MotherboardRgbAvailable ? $"Conectado • {Snapshot.MotherboardRgbName}" : "Não detectado";
-    public string RamRgbStatus => !Snapshot.RgbDevicesReady ? "Detectando..." :
-        Snapshot.RamRgbAvailable ? $"Conectado • {Snapshot.RamRgbName}" : "Não detectado";
+    public string MotherboardRgbStatus => !Snapshot.RgbDevicesReady ? Strings.Fan_Detectando :
+        Snapshot.MotherboardRgbAvailable ? string.Format(Strings.Fan_Conectado, Snapshot.MotherboardRgbName) : Strings.Fan_NaoDetectado;
+    public string RamRgbStatus => !Snapshot.RgbDevicesReady ? Strings.Fan_Detectando :
+        Snapshot.RamRgbAvailable ? string.Format(Strings.Fan_Conectado, Snapshot.RamRgbName) : Strings.Fan_NaoDetectado;
     public string RgbSyncStatus => EngineTextUi.Localize(Snapshot.RgbStatusText, Snapshot.RgbStatus);
 
     // ------------------------------------------------------------------ Controle de ventoinhas (UI → engine)
@@ -292,7 +292,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string ActivePreset => _activePreset;
 
     /// <summary>Nome amigável do perfil ativo (ex.: "Curva inteligente" em vez da chave "Automático").</summary>
-    public string ActivePresetLabel => FanPresets.Find(_activePreset)?.Label ?? _activePreset;
+    public string ActivePresetLabel => PresetNames.Label(_activePreset);
 
     /// <summary>Velocidade que uma ventoinha vinculada recebe (exibição imediata, sem esperar o engine).</summary>
     public byte LinkedTargetFor(FanViewModel fan)
@@ -304,14 +304,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public void ApplyPreset(string key)
     {
-        var label = FanPresets.Find(key)?.Label ?? key;
-        WithUndo($"Perfil \"{label}\" aplicado", () => _engine.UpdateConfig(c => FanPresets.Apply(c, key)));
+        var label = PresetNames.Label(key);
+        WithUndo(string.Format(Strings.Fan_PerfilAplicado, label), () => _engine.UpdateConfig(c => FanPresets.Apply(c, key)));
         RefreshPresetChips();
     }
 
     public void ApplyProfileByName(string name)
     {
-        WithUndo($"Perfil \"{name}\" aplicado",
+        WithUndo(string.Format(Strings.Fan_PerfilAplicado, name),
             () => _engine.UpdateConfig(c => c.Profiles.FirstOrDefault(p => p.Name == name)?.ApplyTo(c)));
         RefreshPresetChips();
     }

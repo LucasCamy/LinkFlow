@@ -17,7 +17,7 @@ public sealed class PresetItem : ObservableObject
     public string Icon => Preset.Icon;
     public string Description => Preset.Description;
     public int Index => FanPresets.All.ToList().IndexOf(Preset) + 1;
-    public string Tooltip => $"{Description}  •  F{Index} (Ctrl+Alt+{Index} em qualquer lugar)";
+    public string Tooltip => string.Format(Strings.Fan_CtrlAltQualquerLugar, Description, Index, Index);
     public bool IsActive => _owner.ActivePreset == Key;
     public void Refresh() => OnPropertyChanged(nameof(IsActive));
 }
@@ -102,16 +102,16 @@ public partial class MainViewModel
         SetGroupCommand = new RelayCommand(SetGroupForSelection, () => HasSelection && !string.IsNullOrWhiteSpace(GroupNameInput));
         ClearGroupCommand = new RelayCommand(() => SetGroupNameForSelection(null), () => HasSelection);
         ToggleLinkCommand = new RelayCommand(p => { if (p is FanViewModel f) f.IsLinked = !f.IsLinked; });
-        RelinkAllCommand = new RelayCommand(() => WithUndo("Todas as ventoinhas voltaram a seguir a potência global", () =>
+        RelinkAllCommand = new RelayCommand(() => WithUndo(Strings.Fan_TodasVentoinhasVoltaramSeguir, () =>
             _engine.UpdateConfig(c => { foreach (var f in c.Fans.Values) f.Linked = true; })));
 
         SetModeCommand = new RelayCommand(p => SetMode(p?.ToString() == "Curve" ? FanControlMode.Curve : FanControlMode.Fixed));
-        ResetCurveCommand = new RelayCommand(() => WithUndo("Curva restaurada para o padrão", () =>
+        ResetCurveCommand = new RelayCommand(() => WithUndo(Strings.Fan_CurvaRestauradaPadrao, () =>
             _engine.UpdateConfig(c => TargetCurve(c).Points = FanCurveConfig.DefaultPoints())));
 
         ApplyColorCommand = new RelayCommand(p => { if (p is string hex) ApplyHex(hex, addRecent: true); });
         ResendRgbCommand = new RelayCommand(RefreshRgb);
-        TransmitLcdCommand = new RelayCommand(() => { _engine.RequestLcdFrame(); ShowToast("Quadro enviado ao display LCD", canUndo: false); });
+        TransmitLcdCommand = new RelayCommand(() => { _engine.RequestLcdFrame(); ShowToast(Strings.Fan_QuadroEnviadoDisplayLCD, canUndo: false); });
         GlobalStepCommand = new RelayCommand(p =>
         {
             if (int.TryParse(p?.ToString(), out var step))
@@ -252,11 +252,11 @@ public partial class MainViewModel
         if (name.Length == 0) return;
         if (FanPresets.Find(name) != null)
         {
-            ShowToast($"\"{name}\" é um perfil pronto. Escolha outro nome.", canUndo: false);
+            ShowToast(string.Format(Strings.Fan_PerfilProntoEscolhaOutro, name), canUndo: false);
             return;
         }
         bool replaced = _engine.Config.Profiles.Any(p => p.Name == name);
-        WithUndo(replaced ? $"Perfil \"{name}\" atualizado" : $"Perfil \"{name}\" salvo", () =>
+        WithUndo(replaced ? string.Format(Strings.Fan_PerfilAtualizado, name) : string.Format(Strings.Fan_PerfilSalvo, name), () =>
             _engine.UpdateConfig(c =>
             {
                 c.Profiles.RemoveAll(p => p.Name == name);
@@ -267,7 +267,7 @@ public partial class MainViewModel
     }
 
     private void DeleteProfile(string name) =>
-        WithUndo($"Perfil \"{name}\" excluído", () => _engine.UpdateConfig(c => c.Profiles.RemoveAll(p => p.Name == name)));
+        WithUndo(string.Format(Strings.Fan_PerfilExcluido, name), () => _engine.UpdateConfig(c => c.Profiles.RemoveAll(p => p.Name == name)));
 
     private ControlConfig? _undoConfig;
     private DispatcherTimer _toastTimer = null!;
@@ -305,7 +305,7 @@ public partial class MainViewModel
         _undoConfig = null;
         _engine.ReplaceConfig(prev);
         LoadConfig(_engine.Config);
-        ShowToast("Alteração desfeita", canUndo: false);
+        ShowToast(Strings.Fan_AlteracaoDesfeita, canUndo: false);
     }
 
     // ------------------------------------------------------------------ Seleção múltipla e grupos
@@ -321,9 +321,9 @@ public partial class MainViewModel
     public bool HasSelection => SelectedCount > 0;
     public string SelectionSummary => SelectedCount switch
     {
-        0 => "Nenhuma selecionada • Ctrl+clique ou Shift+clique nos cartões para selecionar várias",
-        1 => "1 selecionada",
-        var n => $"{n} selecionadas"
+        0 => Strings.Fan_NenhumaSelecionadaCtrlClique,
+        1 => Strings.Fan_1Selecionada,
+        var n => string.Format(Strings.Fan_Selecionadas, n)
     };
 
     public string FanCountLabel
@@ -406,7 +406,7 @@ public partial class MainViewModel
     {
         var targets = Selected;
         byte pct = _batchPercent;
-        WithUndo($"{pct}% aplicado em {targets.Count} dispositivo(s)", () =>
+        WithUndo(string.Format(Strings.Fan_AplicadoDispositivo, pct, targets.Count), () =>
             _engine.UpdateConfig(c =>
             {
                 foreach (var f in targets)
@@ -422,7 +422,7 @@ public partial class MainViewModel
     private void SetLinkForSelection(bool linked)
     {
         var targets = Selected;
-        WithUndo($"{targets.Count} dispositivo(s) {(linked ? "vinculados à potência global" : "em controle manual")}", () =>
+        WithUndo(string.Format(linked ? Strings.Fan_DevicesLinked : Strings.Fan_DevicesManual, targets.Count), () =>
             _engine.UpdateConfig(c => { foreach (var f in targets) c.EditFan(f.Key).Linked = linked; }));
     }
 
@@ -431,7 +431,7 @@ public partial class MainViewModel
     private void SetGroupNameForSelection(string? group)
     {
         var targets = Selected;
-        WithUndo(group == null ? $"Grupo removido de {targets.Count} dispositivo(s)" : $"{targets.Count} dispositivo(s) no grupo \"{group}\"", () =>
+        WithUndo(group == null ? string.Format(Strings.Fan_GrupoRemovidoDispositivo, targets.Count) : string.Format(Strings.Fan_DispositivoGrupo, targets.Count, group), () =>
             _engine.UpdateConfig(c => { foreach (var f in targets) c.EditFan(f.Key).Group = group; }));
         GroupNameInput = string.Empty;
         RefreshGroups();
@@ -456,10 +456,10 @@ public partial class MainViewModel
 
     public IReadOnlyList<CurveSourceOption> CurveSources { get; } = new[]
     {
-        new CurveSourceOption(CurveSource.MaxCpuGpu, "Maior entre CPU e GPU"),
-        new CurveSourceOption(CurveSource.Cpu, "Temperatura da CPU"),
-        new CurveSourceOption(CurveSource.Gpu, "Temperatura da GPU"),
-        new CurveSourceOption(CurveSource.Coolant, "Temperatura do líquido (AIO)"),
+        new CurveSourceOption(CurveSource.MaxCpuGpu, Strings.Fan_MaiorEntreCPUGPU),
+        new CurveSourceOption(CurveSource.Cpu, Strings.Fan_TemperaturaCPU),
+        new CurveSourceOption(CurveSource.Gpu, Strings.Fan_TemperaturaGPU),
+        new CurveSourceOption(CurveSource.Coolant, Strings.Fan_TemperaturaLiquidoAIO),
     };
 
     public IReadOnlyList<CurvePoint> CurvePoints
@@ -519,7 +519,7 @@ public partial class MainViewModel
     {
         if (mode == Mode) return;
         CurveTest.Stop();
-        WithUndo(mode == FanControlMode.Curve ? "Curva automática ativada" : "Potência fixa ativada", () =>
+        WithUndo(mode == FanControlMode.Curve ? Strings.Fan_CurvaAutomaticaAtivada : Strings.Fan_PotenciaFixaAtivada, () =>
             _engine.UpdateConfig(c =>
             {
                 c.Mode = mode;
@@ -537,10 +537,10 @@ public partial class MainViewModel
 
     public IReadOnlyList<NamedColor> QuickColors { get; } = new[]
     {
-        new NamedColor("Ciano", "#00F0FF"), new NamedColor("Azul", "#2563EB"), new NamedColor("Roxo", "#A855F7"),
-        new NamedColor("Rosa", "#EC4899"), new NamedColor("Vermelho", "#EF4444"), new NamedColor("Laranja", "#F97316"),
-        new NamedColor("Amarelo", "#FACC15"), new NamedColor("Verde", "#10B981"), new NamedColor("Branco", "#FFFFFF"),
-        new NamedColor("Apagado", "#000000"),
+        new NamedColor(Strings.Fan_Ciano, "#00F0FF"), new NamedColor(Strings.Fan_Azul, "#2563EB"), new NamedColor(Strings.Fan_Roxo, "#A855F7"),
+        new NamedColor(Strings.Fan_Rosa, "#EC4899"), new NamedColor(Strings.Fan_Vermelho, "#EF4444"), new NamedColor(Strings.Fan_Laranja, "#F97316"),
+        new NamedColor(Strings.Fan_Amarelo, "#FACC15"), new NamedColor(Strings.Fan_Verde, "#10B981"), new NamedColor(Strings.Fan_Branco, "#FFFFFF"),
+        new NamedColor(Strings.Fan_Apagado, "#000000"),
     };
 
     public string HexInput
