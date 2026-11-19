@@ -123,7 +123,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     private bool _hubConnected;
     private bool _hubEverConnected;
     private string _hubFirmware = string.Empty;
-    private string _hubStatus = "Procurando iCUE LINK Hub...";
+    private EngineText _hubStatus = EngineText.Of(EngineTexts.HubSearching);
     private List<FanState> _fans = new();
     private float? _coolant;
     private int? _coolantChannel;
@@ -138,7 +138,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     private volatile int _curveOutput = -1;
     private volatile bool _failSafe;
     private long? _failSafeRecoveryStarted;
-    private string? _failSafeReason;
+    private EngineText? _failSafeReason;
     private float? _curveTestTemp;
     private long _curveTestUntil;
     private readonly HashSet<string> _failSafeCauses = new();
@@ -203,14 +203,16 @@ public sealed partial class LinkFlowEngine : IDisposable
         if (initialConfig == null && _store is { LoadedFromFallback: true })
         {
             // Antes o arquivo inválido virava padrão em silêncio (perfis e curvas sumiam sem explicação)
+            var title = EngineText.Of(_store.RecoveredFromBackup ? EngineTexts.ConfigRecoveredTitle : EngineTexts.ConfigResetTitle);
+            var message = EngineText.Of(_store.RecoveredFromBackup ? EngineTexts.ConfigRecovered : EngineTexts.ConfigReset);
             _alerts["config-recovered"] = new EngineAlert
             {
                 Key = "config-recovered",
                 Severity = AlertSeverity.Warning,
-                Title = _store.RecoveredFromBackup ? "Configuração recuperada da cópia" : "Configuração redefinida",
-                Message = _store.RecoveredFromBackup
-                    ? "O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas."
-                    : "O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido.",
+                Title = title.ToPortuguese(),
+                Message = message.ToPortuguese(),
+                TitleText = title,
+                MessageText = message,
                 Since = DateTime.Now
             };
         }
@@ -395,7 +397,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     public void RescanDevices()
     {
         Log.Info("Reatualizando dispositivos a pedido do usuário.");
-        lock (_stateLock) _hubStatus = "Procurando dispositivos...";
+        lock (_stateLock) _hubStatus = EngineText.Of(EngineTexts.HubSearchingDevices);
         Interlocked.Exchange(ref _forceReconnectHub, 1);
         Interlocked.Exchange(ref _forceReconnectAux, 1);
         Interlocked.Exchange(ref _rescanRgb, 1);
@@ -420,7 +422,8 @@ public sealed partial class LinkFlowEngine : IDisposable
                 IsSimulated = IsSimulated,
                 HubConnected = _hubConnected,
                 HubFirmware = _hubFirmware,
-                HubStatus = _hubStatus,
+                HubStatus = _hubStatus.ToPortuguese(),
+                HubStatusText = _hubStatus,
                 SensorsReady = _sensorsReady,
                 CpuSensorAvailable = t.CpuSensorAvailable,
                 CpuName = t.CpuName,
@@ -454,7 +457,8 @@ public sealed partial class LinkFlowEngine : IDisposable
                 GroupOutputs = new Dictionary<string, int>(_groupOutputs),
                 CurveInputTemp = _curveInputTemp,
                 FailSafeActive = _failSafe,
-                FailSafeReason = _failSafe ? _failSafeReason : null,
+                FailSafeReason = _failSafe ? _failSafeReason?.ToPortuguese() : null,
+                FailSafeReasonText = _failSafe ? _failSafeReason : null,
                 FailSafeRecovering = _failSafe && _failSafeRecoveryStarted != null,
                 CurveTestTemp = _curveTestTemp,
                 Calibration = _calibrationStatus,
@@ -481,7 +485,8 @@ public sealed partial class LinkFlowEngine : IDisposable
                 RgbStatus = BuildRgbStatus(cfg.Rgb),
                 Alerts = _alerts.Values.OrderByDescending(a => a.Severity).ThenBy(a => a.Since).Select(a => new EngineAlert
                 {
-                    Key = a.Key, Severity = a.Severity, Title = a.Title, Message = a.Message, Since = a.Since
+                    Key = a.Key, Severity = a.Severity, Title = a.Title, Message = a.Message, Since = a.Since,
+                    TitleText = a.TitleText, MessageText = a.MessageText
                 }).ToList()
             };
         }
@@ -502,24 +507,35 @@ public sealed partial class LinkFlowEngine : IDisposable
     }
 
     /// <summary>Chamar com _stateLock adquirido.</summary>
-    private void RaiseAlert(string key, AlertSeverity severity, string title, string message)
+    private void RaiseAlert(string key, AlertSeverity severity, EngineText titleText, EngineText messageText)
     {
+        string title = titleText.ToPortuguese(), message = messageText.ToPortuguese();
         if (_alerts.TryGetValue(key, out var existing))
         {
             bool escalated = severity > existing.Severity;
             existing.Severity = severity;
             existing.Title = title;
             existing.Message = message;
+            existing.TitleText = titleText;
+            existing.MessageText = messageText;
             if (!escalated) return;
         }
         else
         {
-            existing = new EngineAlert { Key = key, Severity = severity, Title = title, Message = message, Since = DateTime.Now };
+            existing = new EngineAlert
+            {
+                Key = key, Severity = severity, Title = title, Message = message, TitleText = titleText, MessageText = messageText,
+                Since = DateTime.Now
+            };
             _alerts[key] = existing;
         }
 
         Log.Warn($"ALERTA [{severity}] {title}: {message}");
-        var copy = new EngineAlert { Key = key, Severity = severity, Title = title, Message = message, Since = existing.Since };
+        var copy = new EngineAlert
+        {
+            Key = key, Severity = severity, Title = title, Message = message, TitleText = titleText, MessageText = messageText,
+            Since = existing.Since
+        };
         var handler = AlertRaised;
         if (handler != null) ThreadPool.QueueUserWorkItem(_ => { try { handler(copy); } catch { } });
     }

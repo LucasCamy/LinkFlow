@@ -1,13 +1,14 @@
 using System.Windows.Input;
 using LinkFlow.Core;
 using LinkFlow.App.Resources;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
 public sealed record AlertNotice(string Key, DateTime Since, AlertSeverity Severity, string Title, string Message)
 {
     internal static AlertNotice From(EngineAlert alert) =>
-        new(alert.Key, alert.Since, alert.Severity, alert.Title, alert.Message);
+        new(alert.Key, alert.Since, alert.Severity, alert.LocalizedTitle(), alert.LocalizedMessage());
 
     internal bool SameOccurrence(AlertNotice other) => Key == other.Key && Since == other.Since;
 }

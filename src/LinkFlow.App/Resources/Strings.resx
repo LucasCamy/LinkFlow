@@ -378,4 +378,160 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
   <data name="Alerts_HistoryEmptyDetail" xml:space="preserve">
     <value>Avisos de temperatura, bomba, sensores e conexão com o hub aparecem aqui.</value>
   </data>
+  <data name="Engine_ConfigRecoveredTitle" xml:space="preserve">
+    <value>Configuração recuperada da cópia</value>
+    <comment>Texto do serviço (código ConfigRecoveredTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_ConfigRecovered" xml:space="preserve">
+    <value>O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas.</value>
+    <comment>Texto do serviço (código ConfigRecovered em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_ConfigResetTitle" xml:space="preserve">
+    <value>Configuração redefinida</value>
+    <comment>Texto do serviço (código ConfigResetTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_ConfigReset" xml:space="preserve">
+    <value>O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido.</value>
+    <comment>Texto do serviço (código ConfigReset em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_ConflictTitle" xml:space="preserve">
+    <value>Outro programa controla o hub</value>
+    <comment>Texto do serviço (código ConflictTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_Conflict" xml:space="preserve">
+    <value>{0} está em execução. Dois programas no iCUE LINK Hub embaralham os comandos (cores trocadas, leituras de 0 RPM e modo de segurança sem motivo). Feche-o ou desative o controle do hub nele.</value>
+    <comment>Texto do serviço (código Conflict em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubLostTitle" xml:space="preserve">
+    <value>Hub desconectado</value>
+    <comment>Texto do serviço (código HubLostTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubLost" xml:space="preserve">
+    <value>O iCUE LINK Hub parou de responder. Tentando reconectar automaticamente.</value>
+    <comment>Texto do serviço (código HubLost em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_PumpLowTitle" xml:space="preserve">
+    <value>Bomba com rotação baixa</value>
+    <comment>Texto do serviço (código PumpLowTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_PumpLow" xml:space="preserve">
+    <value>{0}: {1} RPM (mínimo {2}). Verifique a bomba!</value>
+    <comment>Texto do serviço (código PumpLow em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FanStoppedTitle" xml:space="preserve">
+    <value>Ventoinha parada</value>
+    <comment>Texto do serviço (código FanStoppedTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FanStopped" xml:space="preserve">
+    <value>{0} está em 0 RPM com {1}% de potência.</value>
+    <comment>Texto do serviço (código FanStopped em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FanWearTitle" xml:space="preserve">
+    <value>Ventoinha girando abaixo da calibração</value>
+    <comment>Texto do serviço (código FanWearTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FanWear" xml:space="preserve">
+    <value>{0}: {1} RPM a {2}%, esperado cerca de {3} RPM ({4:P0} abaixo). Limpe a poeira; se continuar, o rolamento pode estar gasto.</value>
+    <comment>Texto do serviço (código FanWear em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_SensorLostTitle" xml:space="preserve">
+    <value>Curva sem leitura de temperatura</value>
+    <comment>Texto do serviço (código SensorLostTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_SensorLost" xml:space="preserve">
+    <value>Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s.</value>
+    <comment>Texto do serviço (código SensorLost em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_SensorLostNoFailSafe" xml:space="preserve">
+    <value>Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s. Com o modo de segurança desligado, as ventoinhas mantêm a última velocidade.</value>
+    <comment>Texto do serviço (código SensorLostNoFailSafe em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_TempCriticalTitle" xml:space="preserve">
+    <value>{0} em temperatura crítica</value>
+    <comment>Texto do serviço (código TempCriticalTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_TempCritical" xml:space="preserve">
+    <value>{0} a {1:0.#} °C (limite {2:0.#} °C).</value>
+    <comment>Texto do serviço (código TempCritical em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_TempWarnTitle" xml:space="preserve">
+    <value>{0} muito quente</value>
+    <comment>Texto do serviço (código TempWarnTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_TempWarn" xml:space="preserve">
+    <value>{0} a {1:0.#} °C (alerta em {2:0.#} °C).</value>
+    <comment>Texto do serviço (código TempWarn em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_SensorCpu" xml:space="preserve">
+    <value>CPU</value>
+    <comment>Texto do serviço (código SensorCpu em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_SensorGpu" xml:space="preserve">
+    <value>GPU</value>
+    <comment>Texto do serviço (código SensorGpu em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_SensorCoolant" xml:space="preserve">
+    <value>Líquido</value>
+    <comment>Texto do serviço (código SensorCoolant em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FailSafeOnTitle" xml:space="preserve">
+    <value>Modo de segurança ativado</value>
+    <comment>Texto do serviço (código FailSafeOnTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FailSafeOn" xml:space="preserve">
+    <value>{0} Ventoinhas em 100%.</value>
+    <comment>Texto do serviço (código FailSafeOn em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FailSafeActiveTitle" xml:space="preserve">
+    <value>Modo de segurança ativo</value>
+    <comment>Texto do serviço (código FailSafeActiveTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FailSafeStabilizing" xml:space="preserve">
+    <value>Leituras abaixo do limite crítico. Aguardando estabilização para retomar o perfil selecionado.</value>
+    <comment>Texto do serviço (código FailSafeStabilizing em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_FailSafeWaitingReadings" xml:space="preserve">
+    <value>Aguardando leituras válidas dos sensores que acionaram a proteção.</value>
+    <comment>Texto do serviço (código FailSafeWaitingReadings em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_EngineStalledTitle" xml:space="preserve">
+    <value>Controle das ventoinhas travado</value>
+    <comment>Texto do serviço (código EngineStalledTitle em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_EngineStalled" xml:space="preserve">
+    <value>O LinkFlow detectou que {0}. O hub voltou ao controle próprio (modo hardware).</value>
+    <comment>Texto do serviço (código EngineStalled em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_WatchdogLaneEnded" xml:space="preserve">
+    <value>a fila '{0}' encerrou sozinha</value>
+    <comment>Texto do serviço (código WatchdogLaneEnded em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_WatchdogLaneStuck" xml:space="preserve">
+    <value>a fila '{0}' está travada há {1:0} s</value>
+    <comment>Texto do serviço (código WatchdogLaneStuck em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubSearching" xml:space="preserve">
+    <value>Procurando iCUE LINK Hub...</value>
+    <comment>Texto do serviço (código HubSearching em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubSearchingDevices" xml:space="preserve">
+    <value>Procurando dispositivos...</value>
+    <comment>Texto do serviço (código HubSearchingDevices em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubConnected" xml:space="preserve">
+    <value>Conectado • FW {0} • {1} dispositivos</value>
+    <comment>Texto do serviço (código HubConnected em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubReconnecting" xml:space="preserve">
+    <value>Reconectando ao iCUE LINK Hub...</value>
+    <comment>Texto do serviço (código HubReconnecting em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubNotFound" xml:space="preserve">
+    <value>iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)</value>
+    <comment>Texto do serviço (código HubNotFound em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
+  <data name="Engine_HubNotFoundConflict" xml:space="preserve">
+    <value>iCUE LINK Hub não encontrado: feche {0}</value>
+    <comment>Texto do serviço (código HubNotFoundConflict em EngineTexts); o português tem de ser igual ao do Core</comment>
+  </data>
 </root>

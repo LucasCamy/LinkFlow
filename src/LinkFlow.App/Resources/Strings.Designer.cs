@@ -436,6 +436,357 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to O arquivo de configuração estava danificado. O LinkFlow usou a última cópia salva; confira perfis e curvas..
+        /// </summary>
+        public static string Engine_ConfigRecovered {
+            get {
+                return ResourceManager.GetString("Engine_ConfigRecovered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configuração recuperada da cópia.
+        /// </summary>
+        public static string Engine_ConfigRecoveredTitle {
+            get {
+                return ResourceManager.GetString("Engine_ConfigRecoveredTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O arquivo de configuração estava danificado e não havia cópia. O LinkFlow voltou ao padrão; o arquivo antigo foi guardado como config.json.corrompido..
+        /// </summary>
+        public static string Engine_ConfigReset {
+            get {
+                return ResourceManager.GetString("Engine_ConfigReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configuração redefinida.
+        /// </summary>
+        public static string Engine_ConfigResetTitle {
+            get {
+                return ResourceManager.GetString("Engine_ConfigResetTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} está em execução. Dois programas no iCUE LINK Hub embaralham os comandos (cores trocadas, leituras de 0 RPM e modo de segurança sem motivo). Feche-o ou desative o controle do hub nele..
+        /// </summary>
+        public static string Engine_Conflict {
+            get {
+                return ResourceManager.GetString("Engine_Conflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Outro programa controla o hub.
+        /// </summary>
+        public static string Engine_ConflictTitle {
+            get {
+                return ResourceManager.GetString("Engine_ConflictTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow detectou que {0}. O hub voltou ao controle próprio (modo hardware)..
+        /// </summary>
+        public static string Engine_EngineStalled {
+            get {
+                return ResourceManager.GetString("Engine_EngineStalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controle das ventoinhas travado.
+        /// </summary>
+        public static string Engine_EngineStalledTitle {
+            get {
+                return ResourceManager.GetString("Engine_EngineStalledTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de segurança ativo.
+        /// </summary>
+        public static string Engine_FailSafeActiveTitle {
+            get {
+                return ResourceManager.GetString("Engine_FailSafeActiveTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Ventoinhas em 100%..
+        /// </summary>
+        public static string Engine_FailSafeOn {
+            get {
+                return ResourceManager.GetString("Engine_FailSafeOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de segurança ativado.
+        /// </summary>
+        public static string Engine_FailSafeOnTitle {
+            get {
+                return ResourceManager.GetString("Engine_FailSafeOnTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leituras abaixo do limite crítico. Aguardando estabilização para retomar o perfil selecionado..
+        /// </summary>
+        public static string Engine_FailSafeStabilizing {
+            get {
+                return ResourceManager.GetString("Engine_FailSafeStabilizing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando leituras válidas dos sensores que acionaram a proteção..
+        /// </summary>
+        public static string Engine_FailSafeWaitingReadings {
+            get {
+                return ResourceManager.GetString("Engine_FailSafeWaitingReadings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} está em 0 RPM com {1}% de potência..
+        /// </summary>
+        public static string Engine_FanStopped {
+            get {
+                return ResourceManager.GetString("Engine_FanStopped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinha parada.
+        /// </summary>
+        public static string Engine_FanStoppedTitle {
+            get {
+                return ResourceManager.GetString("Engine_FanStoppedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} RPM a {2}%, esperado cerca de {3} RPM ({4:P0} abaixo). Limpe a poeira; se continuar, o rolamento pode estar gasto..
+        /// </summary>
+        public static string Engine_FanWear {
+            get {
+                return ResourceManager.GetString("Engine_FanWear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ventoinha girando abaixo da calibração.
+        /// </summary>
+        public static string Engine_FanWearTitle {
+            get {
+                return ResourceManager.GetString("Engine_FanWearTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conectado • FW {0} • {1} dispositivos.
+        /// </summary>
+        public static string Engine_HubConnected {
+            get {
+                return ResourceManager.GetString("Engine_HubConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O iCUE LINK Hub parou de responder. Tentando reconectar automaticamente..
+        /// </summary>
+        public static string Engine_HubLost {
+            get {
+                return ResourceManager.GetString("Engine_HubLost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hub desconectado.
+        /// </summary>
+        public static string Engine_HubLostTitle {
+            get {
+                return ResourceManager.GetString("Engine_HubLostTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto).
+        /// </summary>
+        public static string Engine_HubNotFound {
+            get {
+                return ResourceManager.GetString("Engine_HubNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to iCUE LINK Hub não encontrado: feche {0}.
+        /// </summary>
+        public static string Engine_HubNotFoundConflict {
+            get {
+                return ResourceManager.GetString("Engine_HubNotFoundConflict", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reconectando ao iCUE LINK Hub....
+        /// </summary>
+        public static string Engine_HubReconnecting {
+            get {
+                return ResourceManager.GetString("Engine_HubReconnecting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Procurando iCUE LINK Hub....
+        /// </summary>
+        public static string Engine_HubSearching {
+            get {
+                return ResourceManager.GetString("Engine_HubSearching", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Procurando dispositivos....
+        /// </summary>
+        public static string Engine_HubSearchingDevices {
+            get {
+                return ResourceManager.GetString("Engine_HubSearchingDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1} RPM (mínimo {2}). Verifique a bomba!.
+        /// </summary>
+        public static string Engine_PumpLow {
+            get {
+                return ResourceManager.GetString("Engine_PumpLow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bomba com rotação baixa.
+        /// </summary>
+        public static string Engine_PumpLowTitle {
+            get {
+                return ResourceManager.GetString("Engine_PumpLowTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Líquido.
+        /// </summary>
+        public static string Engine_SensorCoolant {
+            get {
+                return ResourceManager.GetString("Engine_SensorCoolant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CPU.
+        /// </summary>
+        public static string Engine_SensorCpu {
+            get {
+                return ResourceManager.GetString("Engine_SensorCpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU.
+        /// </summary>
+        public static string Engine_SensorGpu {
+            get {
+                return ResourceManager.GetString("Engine_SensorGpu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s..
+        /// </summary>
+        public static string Engine_SensorLost {
+            get {
+                return ResourceManager.GetString("Engine_SensorLost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma temperatura de CPU, GPU ou líquido há {0:0} s. Com o modo de segurança desligado, as ventoinhas mantêm a última velocidade..
+        /// </summary>
+        public static string Engine_SensorLostNoFailSafe {
+            get {
+                return ResourceManager.GetString("Engine_SensorLostNoFailSafe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Curva sem leitura de temperatura.
+        /// </summary>
+        public static string Engine_SensorLostTitle {
+            get {
+                return ResourceManager.GetString("Engine_SensorLostTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} a {1:0.#} °C (limite {2:0.#} °C)..
+        /// </summary>
+        public static string Engine_TempCritical {
+            get {
+                return ResourceManager.GetString("Engine_TempCritical", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} em temperatura crítica.
+        /// </summary>
+        public static string Engine_TempCriticalTitle {
+            get {
+                return ResourceManager.GetString("Engine_TempCriticalTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} a {1:0.#} °C (alerta em {2:0.#} °C)..
+        /// </summary>
+        public static string Engine_TempWarn {
+            get {
+                return ResourceManager.GetString("Engine_TempWarn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} muito quente.
+        /// </summary>
+        public static string Engine_TempWarnTitle {
+            get {
+                return ResourceManager.GetString("Engine_TempWarnTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a fila &apos;{0}&apos; encerrou sozinha.
+        /// </summary>
+        public static string Engine_WatchdogLaneEnded {
+            get {
+                return ResourceManager.GetString("Engine_WatchdogLaneEnded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a fila &apos;{0}&apos; está travada há {1:0} s.
+        /// </summary>
+        public static string Engine_WatchdogLaneStuck {
+            get {
+                return ResourceManager.GetString("Engine_WatchdogLaneStuck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
         public static string Language_English {

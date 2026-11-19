@@ -9,6 +9,10 @@ public sealed class EngineAlert
     public string Title { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public DateTime Since { get; set; } = DateTime.Now;
+
+    /// <summary>Título e mensagem para a interface traduzir (Title e Message são o português, como reserva).</summary>
+    public EngineText? TitleText { get; set; }
+    public EngineText? MessageText { get; set; }
 }
 
 public sealed class FanState
@@ -37,6 +41,7 @@ public sealed class EngineSnapshot
     public bool HubConnected { get; set; }
     public string HubFirmware { get; set; } = string.Empty;
     public string HubStatus { get; set; } = "Procurando iCUE LINK Hub...";
+    public EngineText? HubStatusText { get; set; }
 
     // Sensores
     public bool SensorsReady { get; set; }
@@ -80,6 +85,7 @@ public sealed class EngineSnapshot
 
     /// <summary>O que acionou o modo de segurança (ex.: "CPU a 98 °C (limite 95 °C)."). Null fora dele.</summary>
     public string? FailSafeReason { get; set; }
+    public EngineText? FailSafeReasonText { get; set; }
 
     /// <summary>Leituras já voltaram ao normal; aguardando estabilizar para retomar o perfil.</summary>
     public bool FailSafeRecovering { get; set; }

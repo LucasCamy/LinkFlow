@@ -223,15 +223,13 @@ public sealed partial class LinkFlowEngine
         lock (_stateLock)
         {
             float? coolant = _coolant;
-            TempAlert("cpu-temp", "CPU", cpu, s.CpuWarn, s.CpuCritical);
-            TempAlert("gpu-temp", "GPU", gpu, s.GpuWarn, s.GpuCritical);
+            TempAlert("cpu-temp", EngineTexts.SensorCpu, cpu, s.CpuWarn, s.CpuCritical);
+            TempAlert("gpu-temp", EngineTexts.SensorGpu, gpu, s.GpuWarn, s.GpuCritical);
             if (curveInputMissingFor is { } missing && missing >= _opt.SensorLossTimeout)
             {
                 RaiseAlert("sensor-lost", s.FailSafeEnabled ? AlertSeverity.Critical : AlertSeverity.Warning,
-                    "Curva sem leitura de temperatura",
-                    s.FailSafeEnabled
-                        ? $"Nenhuma temperatura de CPU, GPU ou líquido há {missing.TotalSeconds:0} s."
-                        : $"Nenhuma temperatura de CPU, GPU ou líquido há {missing.TotalSeconds:0} s. Com o modo de segurança desligado, as ventoinhas mantêm a última velocidade.");
+                    EngineText.Of(EngineTexts.SensorLostTitle),
+                    EngineText.Of(s.FailSafeEnabled ? EngineTexts.SensorLost : EngineTexts.SensorLostNoFailSafe, missing.TotalSeconds));
             }
             else if (curveInputMissingFor == null)
             {
@@ -249,7 +247,7 @@ public sealed partial class LinkFlowEngine
                 }
                 else coolantReadingsValid = false;
             }
-            TempAlert("coolant-temp", "Líquido", coolant, s.CoolantWarn, s.CoolantCritical);
+            TempAlert("coolant-temp", EngineTexts.SensorCoolant, coolant, s.CoolantWarn, s.CoolantCritical);
 
             EngineAlert? critical = null;
             if (s.FailSafeEnabled)
@@ -271,9 +269,9 @@ public sealed partial class LinkFlowEngine
             {
                 _failSafe = true;
                 _failSafeRecoveryStarted = null;
-                _failSafeReason = critical.Message;   // atualizado a cada leitura (ex.: "há 12 s")
-                RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativado",
-                    $"{critical.Message} Ventoinhas em 100%.");
+                _failSafeReason = critical.MessageText;   // atualizado a cada leitura (ex.: "há 12 s")
+                RaiseAlert("failsafe", AlertSeverity.Critical, EngineText.Of(EngineTexts.FailSafeOnTitle),
+                    EngineText.Of(EngineTexts.FailSafeOn, critical.MessageText ?? new EngineText()));
             }
             else if (_failSafe)
             {
@@ -291,14 +289,14 @@ public sealed partial class LinkFlowEngine
                 {
                     long started = _failSafeRecoveryStarted ??= Stopwatch.GetTimestamp();
                     if (Stopwatch.GetElapsedTime(started) >= _opt.FailSafeRecoveryDelay) _failSafe = false;
-                    else RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativo",
-                        "Leituras abaixo do limite crítico. Aguardando estabilização para retomar o perfil selecionado.");
+                    else RaiseAlert("failsafe", AlertSeverity.Critical, EngineText.Of(EngineTexts.FailSafeActiveTitle),
+                        EngineText.Of(EngineTexts.FailSafeStabilizing));
                 }
                 else
                 {
                     _failSafeRecoveryStarted = null;
-                    RaiseAlert("failsafe", AlertSeverity.Critical, "Modo de segurança ativo",
-                        "Aguardando leituras válidas dos sensores que acionaram a proteção.");
+                    RaiseAlert("failsafe", AlertSeverity.Critical, EngineText.Of(EngineTexts.FailSafeActiveTitle),
+                        EngineText.Of(EngineTexts.FailSafeWaitingReadings));
                 }
             }
 
@@ -319,7 +317,7 @@ public sealed partial class LinkFlowEngine
         }
     }
 
-    private void TempAlert(string key, string label, float? value, float warn, float critical)
+    private void TempAlert(string key, string labelCode, float? value, float warn, float critical)
     {
         if (value is not { } v || !float.IsFinite(v))
         {
@@ -329,11 +327,15 @@ public sealed partial class LinkFlowEngine
 
         if (v >= critical)
         {
-            RaiseAlert(key, AlertSeverity.Critical, $"{label} em temperatura crítica", $"{label} a {Degrees(v)} (limite {Degrees(critical)}).");
+            var label = EngineText.Of(labelCode);
+            RaiseAlert(key, AlertSeverity.Critical, EngineText.Of(EngineTexts.TempCriticalTitle, label),
+                EngineText.Of(EngineTexts.TempCritical, label, v, critical));
         }
         else if (v >= warn)
         {
-            RaiseAlert(key, AlertSeverity.Warning, $"{label} muito quente", $"{label} a {Degrees(v)} (alerta em {Degrees(warn)}).");
+            var label = EngineText.Of(labelCode);
+            RaiseAlert(key, AlertSeverity.Warning, EngineText.Of(EngineTexts.TempWarnTitle, label),
+                EngineText.Of(EngineTexts.TempWarn, label, v, warn));
         }
         else if (v < warn - 3 || _alerts.GetValueOrDefault(key)?.Severity == AlertSeverity.Critical)
         {

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 using LinkFlow.Core;
 using LinkFlow.App.Resources;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -174,7 +175,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     // ------------------------------------------------------------------ Telemetria exibida
 
     public bool IsConnected => Snapshot.HubConnected;
-    public string ConnectionStatus => Snapshot.HubStatus;
+    public string ConnectionStatus => EngineTextUi.Localize(Snapshot.HubStatusText, Snapshot.HubStatus);
     public string HubStatusColor => Snapshot.HubConnected ? "#10B981" : "#F59E0B";
     public string EngineModeLabel => _engine.IsRemote
         ? (_engine.IsConnected ? Strings.Main_EngineService : Strings.Main_EngineServiceDisconnected)

@@ -22,10 +22,10 @@ public sealed partial class LinkFlowEngine
         for (int i = 0; i < WatchedLaneNames.Length; i++)
         {
             long beat = Volatile.Read(ref _laneBeats[i]);
-            string? problem = null;
-            if (_lanes.Count > i && _lanes[i].IsCompleted) problem = $"a fila '{WatchedLaneNames[i]}' encerrou sozinha";
+            EngineText? problem = null;
+            if (_lanes.Count > i && _lanes[i].IsCompleted) problem = EngineText.Of(EngineTexts.WatchdogLaneEnded, WatchedLaneNames[i]);
             else if (beat != 0 && Stopwatch.GetElapsedTime(beat) > _opt.LaneStallTimeout)
-                problem = $"a fila '{WatchedLaneNames[i]}' está travada há {Stopwatch.GetElapsedTime(beat).TotalSeconds:0} s";
+                problem = EngineText.Of(EngineTexts.WatchdogLaneStuck, WatchedLaneNames[i], Stopwatch.GetElapsedTime(beat).TotalSeconds);
             if (problem != null)
             {
                 OnLaneStalled(problem);
@@ -42,7 +42,7 @@ public sealed partial class LinkFlowEngine
         }
     }
 
-    private void OnLaneStalled(string problem)
+    private void OnLaneStalled(EngineText problem)
     {
         if (Interlocked.Exchange(ref _stallReported, 1) == 1) return;
         Log.Error($"WATCHDOG: {problem}. Devolvendo o hub ao modo hardware.");
@@ -52,8 +52,8 @@ public sealed partial class LinkFlowEngine
         {
             try
             {
-                RaiseAlert("engine-stalled", AlertSeverity.Critical, "Controle das ventoinhas travado",
-                    $"O LinkFlow detectou que {problem}. O hub voltou ao controle próprio (modo hardware).");
+                RaiseAlert("engine-stalled", AlertSeverity.Critical, EngineText.Of(EngineTexts.EngineStalledTitle),
+                    EngineText.Of(EngineTexts.EngineStalled, problem));
             }
             finally { Monitor.Exit(_stateLock); }
         }
@@ -62,7 +62,7 @@ public sealed partial class LinkFlowEngine
         var release = Task.Run(() => _hub.Disconnect(restoreHardwareMode: true));
         if (!release.Wait(TimeSpan.FromSeconds(2))) Log.Error("WATCHDOG: o hub não liberou a tempo.");
 
-        try { _opt.LaneStalled?.Invoke(problem); }
+        try { _opt.LaneStalled?.Invoke(problem.ToPortuguese()); }
         catch (Exception ex) { Log.Error("WATCHDOG: falha no tratamento de travamento", ex); }
     }
 }
