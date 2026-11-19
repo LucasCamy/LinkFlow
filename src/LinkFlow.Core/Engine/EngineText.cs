@@ -162,6 +162,38 @@ public static class EngineTexts
     public const string LcdImageMissing = nameof(LcdImageMissing);
     public const string LcdGif = nameof(LcdGif);
 
+    // ---------------------------------------------------------------- diagnósticos de hardware (tela Iluminação)
+    public const string GpuNeedsX64 = nameof(GpuNeedsX64);
+    public const string GpuNvapiInit = nameof(GpuNvapiInit);
+    public const string GpuNvapiEnum = nameof(GpuNvapiEnum);
+    public const string GpuPci = nameof(GpuPci);
+    public const string GpuNotFound = nameof(GpuNotFound);
+    public const string GpuNvapiMissing = nameof(GpuNvapiMissing);
+    public const string GpuNvapiAccess = nameof(GpuNvapiAccess);
+    public const string GpuNoSignature = nameof(GpuNoSignature);
+    public const string GpuIdUnreadable = nameof(GpuIdUnreadable);
+    public const string GpuFirmwareUnknown = nameof(GpuFirmwareUnknown);
+    public const string GpuLedCount = nameof(GpuLedCount);
+    public const string GpuDirectModeLost = nameof(GpuDirectModeLost);
+    public const string GpuColorMismatch = nameof(GpuColorMismatch);
+    public const string GpuI2cMissing = nameof(GpuI2cMissing);
+    public const string GpuAuraFailed = nameof(GpuAuraFailed);
+    public const string GHubNeedsSession = nameof(GHubNeedsSession);
+    public const string GHubElevated = nameof(GHubElevated);
+    public const string GHubArch = nameof(GHubArch);
+    public const string GHubSdkMissing = nameof(GHubSdkMissing);
+    public const string GHubAgentNoSdk = nameof(GHubAgentNoSdk);
+    public const string GHubOpenHub = nameof(GHubOpenHub);
+    public const string GHubNotStarted = nameof(GHubNotStarted);
+    public const string GHubSelectRefused = nameof(GHubSelectRefused);
+    public const string GHubIncompatible = nameof(GHubIncompatible);
+    public const string GHubDllLoad = nameof(GHubDllLoad);
+    public const string GHubEntryPoint = nameof(GHubEntryPoint);
+    public const string GHubInitError = nameof(GHubInitError);
+    public const string GHubAgentLeft = nameof(GHubAgentLeft);
+    public const string GHubColorRefused = nameof(GHubColorRefused);
+    public const string GHubSendError = nameof(GHubSendError);
+
     // ---------------------------------------------------------------- status do hub
     public const string HubSearching = nameof(HubSearching);
     public const string HubSearchingDevices = nameof(HubSearchingDevices);

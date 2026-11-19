@@ -108,6 +108,7 @@ public sealed class EngineSnapshot
     public string GpuRgbName { get; set; } = string.Empty;
     public bool? GpuRgbApplied { get; set; }
     public string? GpuRgbDiagnostic { get; set; }
+    public EngineText? GpuRgbDiagnosticText { get; set; }
     public bool MotherboardRgbAvailable { get; set; }
     public string MotherboardRgbName { get; set; } = string.Empty;
     public bool RamRgbAvailable { get; set; }
@@ -116,6 +117,7 @@ public sealed class EngineSnapshot
     public string PeripheralsRgbName { get; set; } = string.Empty;
     public bool? PeripheralsRgbApplied { get; set; }
     public string? PeripheralsRgbDiagnostic { get; set; }
+    public EngineText? PeripheralsRgbDiagnosticText { get; set; }
     public bool RgbDevicesReady { get; set; }
     public string RgbStatus { get; set; } = string.Empty;
     public EngineText? RgbStatusText { get; set; }

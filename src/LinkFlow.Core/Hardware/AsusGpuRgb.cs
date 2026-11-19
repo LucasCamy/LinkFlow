@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Globalization;
 
 namespace LinkFlow.Core;
 
@@ -74,7 +75,8 @@ public sealed class AsusGpuRgb : IRgbDevice
     public bool IsAvailable { get; private set; }
     public string ControllerName { get; private set; } = string.Empty;
     public int LedCount { get; private set; }
-    public string? Diagnostic { get; private set; }
+    public EngineText? DiagnosticText { get; private set; }
+    public string? Diagnostic => DiagnosticText?.ToPortuguese();
     public bool NeedsInitializationRetry { get; private set; }
     public string Name => ControllerName;
 
@@ -83,10 +85,10 @@ public sealed class AsusGpuRgb : IRgbDevice
         lock (_syncLock)
         {
             ResetController();
-            Diagnostic = null;
+            DiagnosticText = null;
             if (IntPtr.Size != 8)
             {
-                Diagnostic = "O controle Aura da GPU requer o LinkFlow x64.";
+                DiagnosticText = EngineText.Of(EngineTexts.GpuNeedsX64);
                 return;
             }
 
@@ -99,7 +101,7 @@ public sealed class AsusGpuRgb : IRgbDevice
                     if (initStatus != 0)
                     {
                         NeedsInitializationRetry = IsRetryableStatus(initStatus);
-                        Diagnostic = $"Falha ao iniciar o NVAPI (código {initStatus}).";
+                        DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiInit, initStatus.ToString(CultureInfo.InvariantCulture));
                         return;
                     }
 
@@ -116,11 +118,11 @@ public sealed class AsusGpuRgb : IRgbDevice
                 if (status != 0)
                 {
                     NeedsInitializationRetry = IsRetryableStatus(status);
-                    Diagnostic = $"Falha ao listar as GPUs NVIDIA (NVAPI {status}).";
+                    DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiEnum, status.ToString(CultureInfo.InvariantCulture));
                     return;
                 }
 
-                string? pciError = null;
+                EngineText? pciError = null;
                 for (int index = 0; index < Math.Min(count, handles.Length); index++)
                 {
                     var handle = handles[index];
@@ -128,7 +130,7 @@ public sealed class AsusGpuRgb : IRgbDevice
                     if (status != 0)
                     {
                         NeedsInitializationRetry |= IsRetryableStatus(status);
-                        pciError ??= $"Falha ao identificar o adaptador PCI (NVAPI {status}).";
+                        pciError ??= EngineText.Of(EngineTexts.GpuPci, status.ToString(CultureInfo.InvariantCulture));
                         continue;
                     }
 
@@ -137,7 +139,7 @@ public sealed class AsusGpuRgb : IRgbDevice
                     _gpu = handle;
                     if (!ProbeController()) continue;
 
-                    Diagnostic = null;
+                    DiagnosticText = null;
                     NeedsInitializationRetry = false;
                     IsAvailable = true;
                     Log.Info($"Aura da GPU detectado em PCI {device:X8}/{subsystem:X8}: {ControllerName}, {LedCount} LEDs.");
@@ -145,15 +147,15 @@ public sealed class AsusGpuRgb : IRgbDevice
                 }
 
                 _gpu = IntPtr.Zero;
-                Diagnostic ??= pciError ?? "Nenhuma GPU NVIDIA da ASUS encontrada para o controle Aura.";
+                DiagnosticText ??= pciError ?? EngineText.Of(EngineTexts.GpuNotFound);
             }
             catch (DllNotFoundException)
             {
-                Diagnostic = "A biblioteca NVAPI do driver NVIDIA está indisponível.";
+                DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiMissing);
             }
             catch (Exception ex) when (ex is EntryPointNotFoundException or BadImageFormatException or SEHException)
             {
-                Diagnostic = $"Não foi possível acessar o controlador Aura via NVAPI. {ex.Message}";
+                DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiAccess, ex.Message);
                 _gpu = IntPtr.Zero;
             }
         }
@@ -172,7 +174,7 @@ public sealed class AsusGpuRgb : IRgbDevice
         {
             byte command = (byte)(0xA0 + index);
             if (!Transfer(_read, command, 1, command)) return false;
-            if (_data[0] != index) return Fail("A GPU ASUS não respondeu com a assinatura esperada do controlador Aura.");
+            if (_data[0] != index) return Fail(EngineText.Of(EngineTexts.GpuNoSignature));
         }
 
         // São 15 caracteres de identificação. O último byte do campo é reservado ao terminador.
@@ -180,19 +182,19 @@ public sealed class AsusGpuRgb : IRgbDevice
         for (int index = 0; index < firmwareBytes.Length; index++)
         {
             if (!ReadRegister((ushort)(FirmwareRegister + index), out firmwareBytes[index])) return false;
-            if (firmwareBytes[index] is < 0x20 or > 0x7E) return Fail("A identificação do controlador Aura está ilegível.");
+            if (firmwareBytes[index] is < 0x20 or > 0x7E) return Fail(EngineText.Of(EngineTexts.GpuIdUnreadable));
         }
 
         string firmware = Encoding.ASCII.GetString(firmwareBytes);
         if (firmware is not ("AUMA0-E6K5-0107" or "AUMA0-E6K5-1107" or "AUMA0-E6K5-1110" or "AUMA0-E6K5-1111"
             or "AUMA0-E6K5-0008" or "AUMA0-E6K5-1113" or "AUMA0-E6K5-1114"))
         {
-            return Fail($"Firmware Aura sem protocolo confirmado ({firmware}).");
+            return Fail(EngineText.Of(EngineTexts.GpuFirmwareUnknown, firmware));
         }
 
         ControllerName = firmware;
         if (!ReadRegister(LedCountRegister, out byte count)) return false;
-        if (count is 0 or > MaxLedCount) return Fail($"Quantidade de LEDs inválida no controlador Aura ({count}).");
+        if (count is 0 or > MaxLedCount) return Fail(EngineText.Of(EngineTexts.GpuLedCount, count.ToString(CultureInfo.InvariantCulture)));
         LedCount = count;
         return true;
     }
@@ -218,7 +220,7 @@ public sealed class AsusGpuRgb : IRgbDevice
                 _directConfigured = true;
             }
 
-            Diagnostic = null;
+            DiagnosticText = null;
             return true;
         }
     }
@@ -250,7 +252,7 @@ public sealed class AsusGpuRgb : IRgbDevice
     private bool ConfirmDirectColor(ReadOnlySpan<byte> color)
     {
         if (!ReadRegister(DirectModeRegister, out byte direct)) return false;
-        if (direct != 1) return Fail("O controlador Aura não manteve o modo direto após aplicar a cor.");
+        if (direct != 1) return Fail(EngineText.Of(EngineTexts.GpuDirectModeLost));
 
         ushort first = DirectColorRegister;
         ushort last = (ushort)(first + (LedCount - 1) * color.Length);
@@ -260,7 +262,7 @@ public sealed class AsusGpuRgb : IRgbDevice
                 !ReadRegister((ushort)(last + channel), out byte lastValue))
                 return false;
             if (firstValue != color[channel] || lastValue != color[channel])
-                return Fail("O controlador Aura devolveu uma cor diferente da enviada.");
+                return Fail(EngineText.Of(EngineTexts.GpuColorMismatch));
         }
 
         return true;
@@ -320,7 +322,7 @@ public sealed class AsusGpuRgb : IRgbDevice
 
     private bool Transfer(NvApiI2c? operation, byte command, int count, ushort register)
     {
-        if (operation is null || _gpu == IntPtr.Zero) return Fail("A interface I²C da GPU está indisponível.");
+        if (operation is null || _gpu == IntPtr.Zero) return Fail(EngineText.Of(EngineTexts.GpuI2cMissing));
 
         _command[0] = command;
         var info = new NvI2cInfo
@@ -346,15 +348,15 @@ public sealed class AsusGpuRgb : IRgbDevice
         if (status == 0) return true;
         if (status is -6 or -8 or -10) IsAvailable = false; // Requer redetecção do adaptador.
         if (!IsAvailable) NeedsInitializationRetry |= IsRetryableStatus(status);
-        return Fail($"Falha no Aura da GPU em 0x{register:X4} (comando 0x{command:X2}, NVAPI {status}).");
+        return Fail(EngineText.Of(EngineTexts.GpuAuraFailed, $"{register:X4}", $"{command:X2}", status.ToString(CultureInfo.InvariantCulture)));
     }
 
     // Erro genérico de transporte, GPU indisponível, identificador inválido ou dispositivo ocupado.
     private static bool IsRetryableStatus(int status) => status is -1 or -6 or -8 or -10 or -108;
 
-    private bool Fail(string diagnostic)
+    private bool Fail(EngineText diagnostic)
     {
-        Diagnostic = diagnostic;
+        DiagnosticText = diagnostic;
         return false;
     }
 
