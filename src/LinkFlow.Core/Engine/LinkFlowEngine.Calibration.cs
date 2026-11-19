@@ -71,28 +71,27 @@ public sealed partial class LinkFlowEngine
     public bool StartCalibration()
     {
         // Lida antes da trava de estado (HotReading usa a de configuração; as duas nunca ficam aninhadas)
-        string? hot = HotReading(starting: true);
+        EngineText? hot = HotReading(starting: true);
         lock (_stateLock)
         {
             if (_calibrationStatus?.Running == true) return false;
             int run = ++_calibrationRunId;
-            string? refusal = !_hubConnected || !_hasHubSpeeds ? "O hub precisa estar conectado e informando a rotação."
-                : _failSafe ? "O modo de segurança está ativo. Aguarde as temperaturas normalizarem."
+            EngineText? refusal = !_hubConnected || !_hasHubSpeeds ? EngineText.Of(EngineTexts.CalRefusedHub)
+                : _failSafe ? EngineText.Of(EngineTexts.CalRefusedFailSafe)
                 // A varredura desce as ventoinhas até 20%: já no alerta, ela pararia logo no começo
-                : hot != null ? $"{hot} A calibração baixa as ventoinhas até 20% e seria interrompida. " +
-                                "Tente com o PC ocioso, depois que a temperatura cair."
+                : hot != null ? EngineText.Of(EngineTexts.CalRefusedHot, hot)
                 : null;
             var targets = _fans.Where(f => !f.IsPump && LinkDeviceCatalog.IsFan(f.Model)).Select(f => (f.Channel, f.Key)).ToList();
-            refusal ??= targets.Count == 0 ? "Nenhuma ventoinha com tacômetro foi encontrada no hub." : null;
+            refusal ??= targets.Count == 0 ? EngineText.Of(EngineTexts.CalRefusedNoFans) : null;
             if (refusal != null)
             {
-                _calibrationStatus = new CalibrationStatus { RunId = run, Outcome = CalibrationOutcome.Aborted, Message = refusal };
+                _calibrationStatus = Status(run, CalibrationOutcome.Aborted, refusal);
                 return false;
             }
 
             _calibrationCts?.Dispose();
             _calibrationCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
-            _calibrationStatus = new CalibrationStatus { RunId = run, Outcome = CalibrationOutcome.Running, Message = "Preparando as ventoinhas..." };
+            _calibrationStatus = Status(run, CalibrationOutcome.Running, EngineText.Of(EngineTexts.CalPreparing));
             var ct = _calibrationCts.Token;
             Log.Info($"Calibração iniciada: {targets.Count} ventoinha(s).");
             _ = Task.Run(() => RunCalibrationAsync(targets, ct));
@@ -107,7 +106,7 @@ public sealed partial class LinkFlowEngine
     {
         var sweeps = targets.ToDictionary(t => t.Channel, _ => new List<CalibrationPoint>());
         var starts = new Dictionary<int, byte?>();
-        string? abort = null;
+        EngineText? abort = null;
         bool cancelled = false;
         try
         {
@@ -116,7 +115,7 @@ public sealed partial class LinkFlowEngine
             for (int i = 0; i < CalibrationSweep.Length; i++)
             {
                 byte percent = CalibrationSweep[i];
-                SetCalibrationProgress(i / (double)totalSteps, percent, $"Medindo a rotação em {percent}%...");
+                SetCalibrationProgress(i / (double)totalSteps, percent, EngineText.Of(EngineTexts.CalMeasuring, percent));
                 var rpm = await MeasureAsync(targets.ToDictionary(t => t.Channel, _ => percent), ct);
                 foreach (var (channel, value) in rpm) sweeps[channel].Add(new CalibrationPoint(percent, value));
             }
@@ -125,12 +124,12 @@ public sealed partial class LinkFlowEngine
             var stalled = targets.Where(t => sweeps[t.Channel].Any(p => p.Rpm == 0)).Select(t => t.Channel).ToHashSet();
             if (stalled.Count > 0)
             {
-                SetCalibrationProgress((totalSteps - 1) / (double)totalSteps, null, "Algumas ventoinhas pararam. Testando a partida...");
+                SetCalibrationProgress((totalSteps - 1) / (double)totalSteps, null, EngineText.Of(EngineTexts.CalStalled));
                 for (byte percent = FanLimits.MinPercent; percent <= CalibrationStartLimit && stalled.Count > 0; percent += 5)
                 {
                     // Fora do teste, as demais ficam no mínimo para não interferir
                     var speeds = targets.ToDictionary(t => t.Channel, t => stalled.Contains(t.Channel) ? percent : (byte)FanLimits.MinPercent);
-                    SetCalibrationProgress((totalSteps - 1) / (double)totalSteps, percent, $"Testando a partida em {percent}%...");
+                    SetCalibrationProgress((totalSteps - 1) / (double)totalSteps, percent, EngineText.Of(EngineTexts.CalStartTest, percent));
                     var rpm = await MeasureAsync(speeds, ct);
                     foreach (int channel in stalled.ToList())
                     {
@@ -143,17 +142,17 @@ public sealed partial class LinkFlowEngine
                 foreach (int channel in stalled) starts[channel] = CalibrationStartLimit;
             }
         }
-        catch (OperationCanceledException) when (_cts.IsCancellationRequested) { abort = "O LinkFlow foi encerrado durante a calibração."; }
+        catch (OperationCanceledException) when (_cts.IsCancellationRequested) { abort = EngineText.Of(EngineTexts.CalAppClosed); }
         catch (OperationCanceledException)
         {
-            abort = "Calibração cancelada.";
+            abort = EngineText.Of(EngineTexts.CalCancelled);
             cancelled = true;
         }
-        catch (CalibrationAbortedException ex) { abort = ex.Message; }
+        catch (CalibrationAbortedException ex) { abort = ex.Text; }
         catch (Exception ex)
         {
             Log.Error("Erro na calibração", ex);
-            abort = $"Erro na calibração: {ex.Message}";
+            abort = EngineText.Of(EngineTexts.CalError, ex.Message);
         }
         finally
         {
@@ -164,14 +163,10 @@ public sealed partial class LinkFlowEngine
 
         if (abort != null)
         {
-            Log.Warn($"Calibração interrompida: {abort}");
+            Log.Warn($"Calibração interrompida: {abort.ToPortuguese()}");
             lock (_stateLock)
-                _calibrationStatus = new CalibrationStatus
-                {
-                    RunId = _calibrationRunId,
-                    Outcome = cancelled ? CalibrationOutcome.Cancelled : CalibrationOutcome.Aborted,
-                    Message = cancelled ? "Calibração cancelada. Nada foi alterado." : $"{abort} Nada foi alterado."
-                };
+                _calibrationStatus = Status(_calibrationRunId, cancelled ? CalibrationOutcome.Cancelled : CalibrationOutcome.Aborted,
+                    cancelled ? abort : EngineText.Of(EngineTexts.CalNothingChanged, abort));
             return;
         }
 
@@ -181,17 +176,11 @@ public sealed partial class LinkFlowEngine
 
         var summary = Summarize(targets, results);
         Log.Info("Calibração concluída: " + string.Join("; ", summary.Select(r => $"{r.Name} {r.MaxRpm} RPM, mín. {r.MinPercent}%{(r.Note != null ? $" ({r.Note})" : "")}")));
-        lock (_stateLock)
-            _calibrationStatus = new CalibrationStatus
-            {
-                RunId = _calibrationRunId,
-                Outcome = CalibrationOutcome.Completed,
-                Progress = 1,
-                Message = summary.Any(r => r.Warning)
-                    ? "Calibração concluída. Confira as ventoinhas marcadas."
-                    : "Calibração concluída. Todas as ventoinhas responderam normalmente.",
-                Results = summary
-            };
+        var done = Status(_calibrationRunId, CalibrationOutcome.Completed,
+            EngineText.Of(summary.Any(r => r.Warning) ? EngineTexts.CalDoneWarnings : EngineTexts.CalDoneOk));
+        done.Progress = 1;
+        done.Results = summary;
+        lock (_stateLock) _calibrationStatus = done;
     }
 
     private List<CalibrationFanResult> Summarize(List<(int Channel, string Key)> targets, Dictionary<string, FanCalibration> results)
@@ -216,25 +205,29 @@ public sealed partial class LinkFlowEngine
             fans.TryGetValue(t.Channel, out var f);
             string name = cfg.GetFan(t.Key).Name ?? f?.DefaultName ?? $"Canal {t.Channel}";
             int median = medianByModel.GetValueOrDefault(f?.Model ?? string.Empty);
-            string? note = null;
+            EngineText? note = null;
             bool warning = false;
             if (cal.MaxRpm == 0)
             {
-                note = "Não girou em nenhuma potência. Verifique o cabo e se a hélice está livre.";
+                note = EngineText.Of(EngineTexts.CalNoteNoSpin);
                 warning = true;
             }
             else if (median > 0 && cal.MaxRpm < median * 0.8)
             {
-                note = $"Máximo {(1 - cal.MaxRpm / (double)median):P0} abaixo das outras do mesmo modelo. Pode ser poeira ou desgaste.";
+                note = EngineText.Of(EngineTexts.CalNoteBelowModel, 1 - cal.MaxRpm / (double)median);
                 warning = true;
             }
             else if (cal.MinPercent > FanLimits.MinPercent)
             {
                 note = cal.StartPercent is { } s
-                    ? $"Parou em potência baixa e só voltou a girar em {s}%. O LinkFlow vai mantê-la em pelo menos {cal.MinPercent}%."
-                    : $"O LinkFlow vai mantê-la em pelo menos {cal.MinPercent}%.";
+                    ? EngineText.Of(EngineTexts.CalNoteStart, s, cal.MinPercent)
+                    : EngineText.Of(EngineTexts.CalNoteMin, cal.MinPercent);
             }
-            return new CalibrationFanResult { Key = t.Key, Name = name, MaxRpm = cal.MaxRpm, MinPercent = cal.MinPercent, Note = note, Warning = warning };
+            return new CalibrationFanResult
+            {
+                Key = t.Key, Name = name, MaxRpm = cal.MaxRpm, MinPercent = cal.MinPercent, Note = note?.ToPortuguese(), NoteText = note,
+                Warning = warning
+            };
         }).ToList();
     }
 
@@ -252,7 +245,7 @@ public sealed partial class LinkFlowEngine
             bool applied;
             lock (_stateLock) applied = speeds.All(kv => _fans.FirstOrDefault(f => f.Channel == kv.Key)?.AppliedPercent == kv.Value);
             if (applied) break;
-            if (Stopwatch.GetTimestamp() > deadline) throw new CalibrationAbortedException("O hub não aplicou as potências da calibração.");
+            if (Stopwatch.GetTimestamp() > deadline) throw new CalibrationAbortedException(EngineText.Of(EngineTexts.CalHubNotApplied));
             await Task.Delay(Poll, ct).ConfigureAwait(false);
         }
 
@@ -295,7 +288,7 @@ public sealed partial class LinkFlowEngine
                 return samples[^1].Rpm;
             }
             if (now - lastReadAt > Ticks(_opt.CalibrationReadTimeout))
-                throw new CalibrationAbortedException("O hub parou de informar a rotação durante a calibração.");
+                throw new CalibrationAbortedException(EngineText.Of(EngineTexts.CalHubNoReadings));
 
             CheckCalibrationSafety();
             await Task.Delay(Poll, ct).ConfigureAwait(false);
@@ -316,8 +309,8 @@ public sealed partial class LinkFlowEngine
             hub = _hubConnected && _hasHubSpeeds;
             failSafe = _failSafe;
         }
-        string? reason = failSafe ? "O modo de segurança foi acionado."
-            : !hub ? "O hub deixou de responder."
+        EngineText? reason = failSafe ? EngineText.Of(EngineTexts.CalAbortFailSafe)
+            : !hub ? EngineText.Of(EngineTexts.CalAbortHubLost)
             : HotReading(starting: false);
         if (reason != null) throw new CalibrationAbortedException(reason);
     }
@@ -326,7 +319,7 @@ public sealed partial class LinkFlowEngine
     /// CPU, GPU ou líquido na temperatura de alerta (ou acima): o texto do motivo, ou null se todas estão abaixo.
     /// Toma as travas de configuração e de estado uma depois da outra, nunca aninhadas.
     /// </summary>
-    private string? HotReading(bool starting)
+    private EngineText? HotReading(bool starting)
     {
         SafetyConfig s;
         lock (_configLock) s = _config.Safety;
@@ -337,20 +330,27 @@ public sealed partial class LinkFlowEngine
             gpu = _telemetry.GpuTemperature;
             coolant = _coolant;
         }
-        string? Hot(string what, float? value, float warn) => value is { } v && float.IsFinite(v) && v >= warn
-            ? starting ? $"{what} está a {Degrees(v)}, acima do alerta ({Degrees(warn)})." : $"{what} chegou a {Degrees(v)}."
+        EngineText? Hot(string subject, float? value, float warn) => value is { } v && float.IsFinite(v) && v >= warn
+            ? starting ? EngineText.Of(EngineTexts.CalHotStarting, EngineText.Of(subject), v, warn)
+                       : EngineText.Of(EngineTexts.CalHotReached, EngineText.Of(subject), v)
             : null;
-        return Hot("A CPU", cpu, s.CpuWarn) ?? Hot("A GPU", gpu, s.GpuWarn) ?? Hot("O líquido", coolant, s.CoolantWarn);
+        return Hot(EngineTexts.CalSubjectCpu, cpu, s.CpuWarn) ?? Hot(EngineTexts.CalSubjectGpu, gpu, s.GpuWarn) ??
+               Hot(EngineTexts.CalSubjectCoolant, coolant, s.CoolantWarn);
     }
 
-    private void SetCalibrationProgress(double progress, byte? percent, string message)
+    private void SetCalibrationProgress(double progress, byte? percent, EngineText message)
     {
-        lock (_stateLock)
-            _calibrationStatus = new CalibrationStatus
-            {
-                RunId = _calibrationRunId, Outcome = CalibrationOutcome.Running, Progress = Math.Clamp(progress, 0, 1), Percent = percent, Message = message
-            };
+        var status = Status(_calibrationRunId, CalibrationOutcome.Running, message);
+        status.Progress = Math.Clamp(progress, 0, 1);
+        status.Percent = percent;
+        lock (_stateLock) _calibrationStatus = status;
     }
 
-    private sealed class CalibrationAbortedException(string message) : Exception(message);
+    private static CalibrationStatus Status(int run, CalibrationOutcome outcome, EngineText message) =>
+        new() { RunId = run, Outcome = outcome, Message = message.ToPortuguese(), MessageText = message };
+
+    private sealed class CalibrationAbortedException(EngineText text) : Exception(text.ToPortuguese())
+    {
+        public EngineText Text { get; } = text;
+    }
 }

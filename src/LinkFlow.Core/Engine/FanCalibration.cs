@@ -104,6 +104,7 @@ public sealed class CalibrationFanResult
 
     /// <summary>Observação (ex.: "parou abaixo de 30%" ou "37% abaixo das outras do mesmo modelo").</summary>
     public string? Note { get; set; }
+    public EngineText? NoteText { get; set; }
     public bool Warning { get; set; }
 }
 
@@ -119,6 +120,9 @@ public sealed class CalibrationStatus
     /// <summary>0 a 1.</summary>
     public double Progress { get; set; }
     public string Message { get; set; } = string.Empty;
+
+    /// <summary><see cref="Message"/> para a interface traduzir.</summary>
+    public EngineText? MessageText { get; set; }
 
     /// <summary>Potência sendo medida agora.</summary>
     public byte? Percent { get; set; }

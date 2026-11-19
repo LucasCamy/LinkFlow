@@ -82,6 +82,49 @@ public static class EngineTexts
     public const string WatchdogLaneEnded = nameof(WatchdogLaneEnded);
     public const string WatchdogLaneStuck = nameof(WatchdogLaneStuck);
 
+    // ---------------------------------------------------------------- calibração
+    public const string CalRefusedHub = nameof(CalRefusedHub);
+    public const string CalRefusedFailSafe = nameof(CalRefusedFailSafe);
+    public const string CalRefusedHot = nameof(CalRefusedHot);
+    public const string CalRefusedNoFans = nameof(CalRefusedNoFans);
+    public const string CalPreparing = nameof(CalPreparing);
+    public const string CalMeasuring = nameof(CalMeasuring);
+    public const string CalStalled = nameof(CalStalled);
+    public const string CalStartTest = nameof(CalStartTest);
+    public const string CalAppClosed = nameof(CalAppClosed);
+    public const string CalCancelled = nameof(CalCancelled);
+    public const string CalError = nameof(CalError);
+    public const string CalNothingChanged = nameof(CalNothingChanged);
+    public const string CalDoneWarnings = nameof(CalDoneWarnings);
+    public const string CalDoneOk = nameof(CalDoneOk);
+    public const string CalNoteNoSpin = nameof(CalNoteNoSpin);
+    public const string CalNoteBelowModel = nameof(CalNoteBelowModel);
+    public const string CalNoteStart = nameof(CalNoteStart);
+    public const string CalNoteMin = nameof(CalNoteMin);
+    public const string CalHubNotApplied = nameof(CalHubNotApplied);
+    public const string CalHubNoReadings = nameof(CalHubNoReadings);
+    public const string CalAbortFailSafe = nameof(CalAbortFailSafe);
+    public const string CalAbortHubLost = nameof(CalAbortHubLost);
+    public const string CalHotStarting = nameof(CalHotStarting);
+    public const string CalHotReached = nameof(CalHotReached);
+    public const string CalSubjectCpu = nameof(CalSubjectCpu);
+    public const string CalSubjectGpu = nameof(CalSubjectGpu);
+    public const string CalSubjectCoolant = nameof(CalSubjectCoolant);
+
+    // ---------------------------------------------------------------- RGB
+    public const string RgbDetecting = nameof(RgbDetecting);
+    public const string RgbNoneSynced = nameof(RgbNoneSynced);
+    public const string RgbSynced = nameof(RgbSynced);
+    public const string RgbFailed = nameof(RgbFailed);
+    public const string RgbSyncedAndFailed = nameof(RgbSyncedAndFailed);
+    public const string RgbListPair = nameof(RgbListPair);
+    public const string RgbDevHub = nameof(RgbDevHub);
+    public const string RgbDevGpu = nameof(RgbDevGpu);
+    public const string RgbDevMotherboard = nameof(RgbDevMotherboard);
+    public const string RgbDevRam = nameof(RgbDevRam);
+    public const string RgbDevPeripherals = nameof(RgbDevPeripherals);
+    public const string RgbDevLcd = nameof(RgbDevLcd);
+
     // ---------------------------------------------------------------- status do hub
     public const string HubSearching = nameof(HubSearching);
     public const string HubSearchingDevices = nameof(HubSearchingDevices);
@@ -132,6 +175,45 @@ public static class EngineTexts
         [HubReconnecting] = "Reconectando ao iCUE LINK Hub...",
         [HubNotFound] = "iCUE LINK Hub não encontrado (verifique o USB ou se o iCUE está aberto)",
         [HubNotFoundConflict] = "iCUE LINK Hub não encontrado: feche {0}",
+        [CalRefusedHub] = "O hub precisa estar conectado e informando a rotação.",
+        [CalRefusedFailSafe] = "O modo de segurança está ativo. Aguarde as temperaturas normalizarem.",
+        [CalRefusedHot] = "{0} A calibração baixa as ventoinhas até 20% e seria interrompida. Tente com o PC ocioso, depois que a temperatura cair.",
+        [CalRefusedNoFans] = "Nenhuma ventoinha com tacômetro foi encontrada no hub.",
+        [CalPreparing] = "Preparando as ventoinhas...",
+        [CalMeasuring] = "Medindo a rotação em {0}%...",
+        [CalStalled] = "Algumas ventoinhas pararam. Testando a partida...",
+        [CalStartTest] = "Testando a partida em {0}%...",
+        [CalAppClosed] = "O LinkFlow foi encerrado durante a calibração.",
+        [CalCancelled] = "Calibração cancelada. Nada foi alterado.",
+        [CalError] = "Erro na calibração: {0}",
+        [CalNothingChanged] = "{0} Nada foi alterado.",
+        [CalDoneWarnings] = "Calibração concluída. Confira as ventoinhas marcadas.",
+        [CalDoneOk] = "Calibração concluída. Todas as ventoinhas responderam normalmente.",
+        [CalNoteNoSpin] = "Não girou em nenhuma potência. Verifique o cabo e se a hélice está livre.",
+        [CalNoteBelowModel] = "Máximo {0:P0} abaixo das outras do mesmo modelo. Pode ser poeira ou desgaste.",
+        [CalNoteStart] = "Parou em potência baixa e só voltou a girar em {0}%. O LinkFlow vai mantê-la em pelo menos {1}%.",
+        [CalNoteMin] = "O LinkFlow vai mantê-la em pelo menos {0}%.",
+        [CalHubNotApplied] = "O hub não aplicou as potências da calibração.",
+        [CalHubNoReadings] = "O hub parou de informar a rotação durante a calibração.",
+        [CalAbortFailSafe] = "O modo de segurança foi acionado.",
+        [CalAbortHubLost] = "O hub deixou de responder.",
+        [CalHotStarting] = "{0} está a {1:0.#} °C, acima do alerta ({2:0.#} °C).",
+        [CalHotReached] = "{0} chegou a {1:0.#} °C.",
+        [CalSubjectCpu] = "A CPU",
+        [CalSubjectGpu] = "A GPU",
+        [CalSubjectCoolant] = "O líquido",
+        [RgbDetecting] = "Detectando dispositivos RGB...",
+        [RgbNoneSynced] = "Nenhum dispositivo sincronizado",
+        [RgbSynced] = "Sincronizado: {0}",
+        [RgbFailed] = "Falhou: {0}",
+        [RgbSyncedAndFailed] = "Sincronizado: {0} • Falhou: {1}",
+        [RgbListPair] = "{0}, {1}",
+        [RgbDevHub] = "Fans/Bomba",
+        [RgbDevGpu] = "GPU",
+        [RgbDevMotherboard] = "Placa-mãe",
+        [RgbDevRam] = "RAM DDR5",
+        [RgbDevPeripherals] = "Periféricos",
+        [RgbDevLcd] = "LCD",
     };
 
     /// <summary>

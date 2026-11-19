@@ -350,26 +350,32 @@ public sealed partial class LinkFlowEngine
         return new RgbConfig { R = r, G = g, B = b, Brightness = rgb.Brightness, SyncLcd = rgb.SyncLcd };
     }
 
-    private string BuildRgbStatus(RgbConfig rgb)
+    private EngineText BuildRgbStatus(RgbConfig rgb)
     {
-        if (!_rgbReady) return "Detectando dispositivos RGB...";
-        var ok = new List<string>();
-        var fail = new List<string>();
-        void Add(bool enabled, bool? r, string name)
+        if (!_rgbReady) return EngineText.Of(EngineTexts.RgbDetecting);
+        var ok = new List<EngineText>();
+        var fail = new List<EngineText>();
+        void Add(bool enabled, bool? r, string device)
         {
             if (!enabled) return;
-            if (r == true) ok.Add(name);
-            else if (r == false) fail.Add(name);
+            if (r == true) ok.Add(EngineText.Of(device));
+            else if (r == false) fail.Add(EngineText.Of(device));
         }
-        Add(rgb.SyncHub, _rgbHubOk, "Fans/Bomba");
-        Add(rgb.SyncGpu, _rgbGpuOk, "GPU");
-        Add(rgb.SyncMotherboard, _rgbMbOk, "Placa-mãe");
-        Add(rgb.SyncRam, _rgbRamOk, "RAM DDR5");
-        Add(rgb.SyncPeripherals, _rgbPeripheralsOk, "Periféricos");
-        Add(rgb.SyncLcd, _rgbLcdOk, "LCD");
-        if (ok.Count == 0 && fail.Count == 0) return "Nenhum dispositivo sincronizado";
-        var s = ok.Count > 0 ? $"Sincronizado: {string.Join(", ", ok)}" : string.Empty;
-        if (fail.Count > 0) s += (s.Length > 0 ? " • " : string.Empty) + $"Falhou: {string.Join(", ", fail)}";
-        return s;
+        Add(rgb.SyncHub, _rgbHubOk, EngineTexts.RgbDevHub);
+        Add(rgb.SyncGpu, _rgbGpuOk, EngineTexts.RgbDevGpu);
+        Add(rgb.SyncMotherboard, _rgbMbOk, EngineTexts.RgbDevMotherboard);
+        Add(rgb.SyncRam, _rgbRamOk, EngineTexts.RgbDevRam);
+        Add(rgb.SyncPeripherals, _rgbPeripheralsOk, EngineTexts.RgbDevPeripherals);
+        Add(rgb.SyncLcd, _rgbLcdOk, EngineTexts.RgbDevLcd);
+
+        // Lista de tamanho variável num texto de modelo fixo: "a, b, c" vira par(par(a, b), c)
+        static EngineText List(List<EngineText> items) => items.Aggregate((a, b) => EngineText.Of(EngineTexts.RgbListPair, a, b));
+        return (ok.Count, fail.Count) switch
+        {
+            (0, 0) => EngineText.Of(EngineTexts.RgbNoneSynced),
+            (_, 0) => EngineText.Of(EngineTexts.RgbSynced, List(ok)),
+            (0, _) => EngineText.Of(EngineTexts.RgbFailed, List(fail)),
+            _ => EngineText.Of(EngineTexts.RgbSyncedAndFailed, List(ok), List(fail)),
+        };
     }
 }

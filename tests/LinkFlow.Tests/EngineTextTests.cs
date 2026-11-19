@@ -18,7 +18,7 @@ public sealed class EngineTextTests
         XDocument.Load(Path.Combine(StringResourceTests.AppSourceDir, "Resources", file)).Root!.Elements("data")
             .ToDictionary(d => (string)d.Attribute("name")!, d => ((string?)d.Element("value") ?? "").Replace("\r\n", "\n"));
 
-    private static string? English(string code) => Resx("Strings.en.resx").GetValueOrDefault("Engine_" + code);
+    internal static string? English(string code) => Resx("Strings.en.resx").GetValueOrDefault("Engine_" + code);
 
     [Fact]
     public void Every_code_has_a_portuguese_text()
@@ -95,6 +95,26 @@ public sealed class EngineTextTests
         Assert.Equal("GPU em temperatura crítica", copy.LocalizedTitle());
         Assert.Equal("GPU a 91,5 °C (limite 90 °C).", copy.LocalizedMessage());
         Assert.Equal("GPU at 91.5 °C (limit 90 °C).", EngineTexts.Format(copy.MessageText!, English, En));
+    }
+
+    [Fact]
+    public void Rgb_status_lists_the_synced_devices_in_each_language()
+    {
+        using var f = new EngineFixture();
+        f.Engine.UpdateConfig(c =>
+        {
+            c.Rgb.SyncHub = true;
+            c.Rgb.SyncGpu = true;
+            c.Rgb.SyncMotherboard = true;
+            c.Rgb.SyncRam = false;
+            c.Rgb.SyncPeripherals = false;
+            c.Rgb.SyncLcd = false;
+        });
+        EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().RgbStatus == "Sincronizado: Fans/Bomba, GPU, Placa-mãe",
+            because: "três dispositivos sincronizados");
+
+        var text = f.Engine.GetSnapshot().RgbStatusText!;
+        Assert.Equal("Synced: Fans/Pump, GPU, Motherboard", EngineTexts.Format(text, English, En));
     }
 
     [Fact]

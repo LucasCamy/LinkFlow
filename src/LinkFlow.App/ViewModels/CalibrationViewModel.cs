@@ -118,13 +118,14 @@ public sealed class CalibrationViewModel : ObservableObject
         if (c.Running)
         {
             Progress = Math.Round(c.Progress * 100);
-            Message = c.Message;
+            Message = EngineTextUi.Localize(c.MessageText, c.Message);
             return;
         }
         Outcome = c.Outcome;
         Progress = c.Outcome == CalibrationOutcome.Completed ? 100 : Progress;
-        Message = c.Message;
-        Results = c.Results.Select(x => new CalibrationResultRow(x.Name, Describe(x), x.Note, x.Warning)).ToList();
+        Message = EngineTextUi.Localize(c.MessageText, c.Message);
+        Results = c.Results.Select(x => new CalibrationResultRow(x.Name, Describe(x),
+            x.Note is { } note ? EngineTextUi.Localize(x.NoteText, note) : null, x.Warning)).ToList();
         _baselineRun = c.RunId;
         Stage = CalibrationStage.Done;
     }
