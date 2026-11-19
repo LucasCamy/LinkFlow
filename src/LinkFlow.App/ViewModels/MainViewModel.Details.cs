@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Input;
 using LinkFlow.Core;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -29,7 +30,7 @@ public sealed class FanDetailRow : ObservableObject
 public partial class MainViewModel
 {
     private const int LongHistoryLength = 600; // 10 minutos a 1 amostra/s
-    private static readonly CultureInfo Pt = CultureInfo.GetCultureInfo("pt-BR");
+    private static CultureInfo Ui => UiLanguage.Culture;
 
     private readonly Dictionary<string, Queue<double>> _history = new();
     private string? _detailKind;
@@ -224,7 +225,7 @@ public partial class MainViewModel
             var all = q.ToArray();
             var window = all.Length > _detailRangeSeconds ? all[^_detailRangeSeconds..] : all;
             _detailHistory = window.Length >= 2 ? window : null;
-            string F(double v) => $"{v.ToString(series.Format, Pt)} {series.Unit}".Replace(" °C", "°C");
+            string F(double v) => $"{v.ToString(series.Format, Ui)} {series.Unit}".Replace(" °C", "°C");
             DetailNow = F(window[^1]);
             DetailMin = F(window.Min());
             DetailMax = F(window.Max());
@@ -252,7 +253,7 @@ public partial class MainViewModel
         var s = Snapshot;
         var rows = new List<DetailRow>();
         var fanRows = new List<FanDetailRow>();
-        string Mhz(float? v) => v is { } x ? (x >= 1000 ? $"{(x / 1000).ToString("0.00", Pt)} GHz" : $"{x:0} MHz") : Fmt.Missing;
+        string Mhz(float? v) => v is { } x ? (x >= 1000 ? $"{(x / 1000).ToString("0.00", Ui)} GHz" : $"{x:0} MHz") : Fmt.Missing;
         string W(float? v) => v is { } x ? $"{x:0} W" : Fmt.Missing;
 
         switch (_detailKind)
@@ -274,7 +275,7 @@ public partial class MainViewModel
                 rows.Add(new("Clock da memória", Mhz(s.GpuMemClockMhz)));
                 rows.Add(new("Potência", W(s.GpuPower)));
                 rows.Add(new("Memória de vídeo", s.GpuVramUsedGb is { } u && s.GpuVramTotalGb is { } t
-                    ? $"{u.ToString("0.0", Pt)} de {t:0} GB ({u / t * 100:0}%)" : Fmt.Missing));
+                    ? $"{u.ToString("0.0", Ui)} de {t:0} GB ({u / t * 100:0}%)" : Fmt.Missing));
                 rows.Add(new("Fans da GPU", GpuFanModeText, GpuFanRpmFormatted));
                 rows.Add(new("Alerta / crítico", $"{GpuWarn:0}°C / {GpuCritical:0}°C"));
                 break;
@@ -282,7 +283,7 @@ public partial class MainViewModel
                 rows.Add(new("Temperatura do líquido", CoolantTempFormatted));
                 rows.Add(new("Bomba", PumpRpmFormatted, s.Fans.FirstOrDefault(f => f.IsPump) is { } p ? $"{p.AppliedPercent}% de potência" : null));
                 rows.Add(new("Diferença líquido → CPU", s.CoolantTemp is { } c && s.CpuSensorAvailable && s.CpuTemp is { } cpu
-                    ? $"{(cpu - c).ToString("0.0", Pt)}°C" : Fmt.Missing, "Quanto menor, melhor a troca de calor"));
+                    ? $"{(cpu - c).ToString("0.0", Ui)}°C" : Fmt.Missing, "Quanto menor, melhor a troca de calor"));
                 rows.Add(new("Alerta / crítico", $"{CoolantWarn:0}°C / {CoolantCritical:0}°C"));
                 rows.Add(new("Curva usando o líquido", CurveSourceValue == CurveSource.Coolant ? "Sim" : "Não"));
                 foreach (var f in Fans.Where(f => f.IsPump)) fanRows.Add(FanRow(f));
@@ -298,9 +299,9 @@ public partial class MainViewModel
                 break;
             case "ram":
                 rows.Add(new("Uso", RamUsageFormatted));
-                rows.Add(new("Usada", s.RamUsedGb is { } used ? $"{used.ToString("0.0", Pt)} GB" : Fmt.Missing));
+                rows.Add(new("Usada", s.RamUsedGb is { } used ? $"{used.ToString("0.0", Ui)} GB" : Fmt.Missing));
                 rows.Add(new("Total", s.RamTotalGb is { } tot ? $"{tot:0} GB" : Fmt.Missing));
-                rows.Add(new("Livre", s.RamUsedGb is { } u2 && s.RamTotalGb is { } t2 ? $"{(t2 - u2).ToString("0.0", Pt)} GB" : Fmt.Missing));
+                rows.Add(new("Livre", s.RamUsedGb is { } u2 && s.RamTotalGb is { } t2 ? $"{(t2 - u2).ToString("0.0", Ui)} GB" : Fmt.Missing));
                 break;
             case "net":
                 var net = s.Network;
@@ -308,12 +309,12 @@ public partial class MainViewModel
                 rows.Add(new("Download", NetDownFormatted));
                 rows.Add(new("Upload", NetUpFormatted));
                 rows.Add(new("Velocidade do link", NetLinkFormatted));
-                rows.Add(new("Desde que o LinkFlow abriu", net != null ? $"↓ {(net.SessionDownBytes / 1e9).ToString("0.00", Pt)} GB • ↑ {(net.SessionUpBytes / 1e9).ToString("0.00", Pt)} GB" : Fmt.Missing));
+                rows.Add(new("Desde que o LinkFlow abriu", net != null ? $"↓ {(net.SessionDownBytes / 1e9).ToString("0.00", Ui)} GB • ↑ {(net.SessionUpBytes / 1e9).ToString("0.00", Ui)} GB" : Fmt.Missing));
                 break;
             case "disk":
                 foreach (var v in s.Volumes)
-                    fanRows.Add(new FanDetailRow($"{v.Letter} {v.Label}".Trim(), $"{v.FreeGb.ToString("0", Pt)} GB livres", $"{v.UsedPercent:0}%",
-                        v.UsedPercent >= 90 ? "#F43F5E" : v.UsedPercent >= 75 ? "#F59E0B" : "#10B981", $"de {v.TotalGb.ToString("0", Pt)} GB"));
+                    fanRows.Add(new FanDetailRow($"{v.Letter} {v.Label}".Trim(), $"{v.FreeGb.ToString("0", Ui)} GB livres", $"{v.UsedPercent:0}%",
+                        v.UsedPercent >= 90 ? "#F43F5E" : v.UsedPercent >= 75 ? "#F59E0B" : "#10B981", $"de {v.TotalGb.ToString("0", Ui)} GB"));
                 foreach (var d in s.Disks ?? new())
                 {
                     rows.Add(new(d.Name, d.ActivityPercent is { } a ? $"{a:0}% de atividade" : Fmt.Missing,

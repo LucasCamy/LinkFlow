@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.Controls;
 
@@ -22,7 +23,7 @@ public sealed class HistoryChart : FrameworkElement
     public double MinRange { get => (double)GetValue(MinRangeProperty); set => SetValue(MinRangeProperty, value); }
     public string Unit { get => (string)GetValue(UnitProperty); set => SetValue(UnitProperty, value); }
 
-    private static readonly CultureInfo Pt = CultureInfo.GetCultureInfo("pt-BR");
+    private static CultureInfo Ui => UiLanguage.Culture;
     private static readonly Typeface Face = new("Segoe UI");
     private static readonly Brush LabelBrush = Freeze(new SolidColorBrush(Color.FromRgb(100, 116, 139)));
     private static readonly Pen GridPen = Freeze(new Pen(new SolidColorBrush(Color.FromRgb(30, 41, 59)), 1));
@@ -47,9 +48,9 @@ public sealed class HistoryChart : FrameworkElement
     }
 
     private FormattedText Text(string s, double size, Brush brush) =>
-        new(s, Pt, FlowDirection.LeftToRight, Face, size, brush, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        new(s, Ui, FlowDirection.LeftToRight, Face, size, brush, VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-    private string Fmt(double v) => (Math.Abs(v) >= 100 ? v.ToString("N0", Pt) : v.ToString("0.#", Pt)) + (Unit == "°C" ? "°" : $" {Unit}");
+    private string Fmt(double v) => (Math.Abs(v) >= 100 ? v.ToString("N0", Ui) : v.ToString("0.#", Ui)) + (Unit == "°C" ? "°" : $" {Unit}");
 
     protected override void OnRender(DrawingContext dc)
     {

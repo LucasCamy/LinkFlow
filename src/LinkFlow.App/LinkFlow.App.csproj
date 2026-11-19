@@ -24,6 +24,8 @@
     <Version>2.4.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Company>LinkFlow</Company>
+    <!-- Strings.resx é o português; os outros idiomas vão em assemblies satélite (en\LinkFlow.App.resources.dll) -->
+    <NeutralLanguage>pt-BR</NeutralLanguage>
     <Description>LinkFlow - controle de ventoinhas, RGB e LCD para Corsair iCUE LINK</Description>
       <!-- Baixo consumo: sem GC em segundo plano (thread e memória extras) -->
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
@@ -40,5 +42,20 @@
     <Resource Include="Assets\linkflow.ico" />
     <Resource Include="Assets\linkflow.png" />
   </ItemGroup>
+
+  <!--
+    Textos da interface: Resources\Strings.resx (português, idioma neutro) e Strings.<idioma>.resx.
+    A classe Strings é gerada em Resources\Strings.Designer.cs, que fica no código-fonte: o projeto
+    temporário do WPF (wpftmp), que compila o C# antes do XAML, só enxerga arquivos que existem quando
+    o projeto é avaliado. Por isso a geração é feita aqui, e não pelo CoreResGen (que a criaria em obj).
+  -->
+  <Target Name="GenerateStringsClass" BeforeTargets="BeforeBuild"
+          Inputs="Resources\Strings.resx" Outputs="Resources\Strings.Designer.cs">
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <GenerateResource Sources="Resources\Strings.resx" OutputResources="$(IntermediateOutputPath)Strings.accessor.resources"
+                      StronglyTypedLanguage="C#" StronglyTypedNamespace="LinkFlow.App.Resources"
+                      StronglyTypedClassName="Strings" StronglyTypedFileName="Resources\Strings.Designer.cs"
+                      PublicClass="true" ExecuteAsTool="false" />
+  </Target>
 
 </Project>

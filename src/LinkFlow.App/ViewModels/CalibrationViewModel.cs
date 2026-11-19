@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows.Input;
 using LinkFlow.Core;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -12,7 +13,7 @@ public enum CalibrationStage { Intro, Running, Done }
 /// </summary>
 public sealed class CalibrationViewModel : ObservableObject
 {
-    private static readonly CultureInfo PtBr = CultureInfo.GetCultureInfo("pt-BR");
+    private static CultureInfo Ui => UiLanguage.Culture;
     private readonly IEngineClient _engine;
     private CalibrationStage _stage;
     private int _baselineRun, _latestRun;
@@ -107,7 +108,7 @@ public sealed class CalibrationViewModel : ObservableObject
     {
         FanCount = s.Fans.Count(f => !f.IsPump && LinkDeviceCatalog.IsFan(f.Model));
         var dates = _engine.Config.Fans.Values.Select(f => f.Calibration?.Date).Where(d => d != null).ToList();
-        LastCalibration = dates.Count == 0 ? null : $"Última calibração: {dates.Max()!.Value.ToString("dd/MM/yyyy 'às' HH:mm", PtBr)}";
+        LastCalibration = dates.Count == 0 ? null : $"Última calibração: {dates.Max()!.Value.ToString("dd/MM/yyyy 'às' HH:mm", Ui)}";
 
         if (s.Calibration is { } seen) _latestRun = Math.Max(_latestRun, seen.RunId);
         // Só o resultado do pedido feito aqui (RunId maior que o anterior ao clique)
@@ -128,7 +129,7 @@ public sealed class CalibrationViewModel : ObservableObject
 
     /// <summary>Texto de uma linha do resultado: "2.150 RPM no máximo · mínimo 20%".</summary>
     public static string Describe(CalibrationFanResult r) =>
-        r.MaxRpm > 0 ? $"{r.MaxRpm.ToString("N0", PtBr)} RPM no máximo · mínimo {r.MinPercent}%" : "Sem rotação";
+        r.MaxRpm > 0 ? $"{r.MaxRpm.ToString("N0", Ui)} RPM no máximo · mínimo {r.MinPercent}%" : "Sem rotação";
 }
 
 /// <summary>Uma linha do resultado no assistente.</summary>
