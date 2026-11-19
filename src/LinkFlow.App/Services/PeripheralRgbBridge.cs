@@ -33,6 +33,9 @@ public sealed class PeripheralRgbBridge : IDisposable
     public string Status => _status.Text;
     public bool HasIssue => _status.HasIssue;
     public bool IsAvailable => _device.IsAvailable;
+
+    /// <summary>Diagnóstico do SDK no idioma da interface (null sem problema).</summary>
+    private string? LocalizedDiagnostic => _device.Diagnostic is { } text ? EngineTextUi.Localize(_device.DiagnosticText, text) : null;
     public event Action? StatusChanged;
 
     public void RequestResend()
@@ -116,7 +119,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                             else if (_engine.Config.Rgb.SyncPeripherals && !_disposed)
                             {
                                 nextAttempt = Environment.TickCount64 + RetryDelayMs;
-                                SetStatus(_device.Diagnostic ?? "O G HUB não aceitou o reenvio. Abra o G HUB para conferir a integração.", hasIssue: true);
+                                SetStatus(LocalizedDiagnostic ?? "O G HUB não aceitou o reenvio. Abra o G HUB para conferir a integração.", hasIssue: true);
                             }
                             if (_disposed || !_engine.Config.Rgb.SyncPeripherals) continue;
                             rgb = _engine.Config.Rgb;
@@ -132,7 +135,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                             {
                                 applied = null;
                                 nextAttempt = Environment.TickCount64 + RetryDelayMs;
-                                var diagnostic = _device.Diagnostic;
+                                var diagnostic = LocalizedDiagnostic;
                                 SetStatus(diagnostic ?? "Aguardando conexão com o SDK do G HUB…", diagnostic != null);
                             }
                             else
@@ -158,7 +161,7 @@ public sealed class PeripheralRgbBridge : IDisposable
                                     {
                                         applied = null;
                                         nextAttempt = Environment.TickCount64 + RetryDelayMs;
-                                        SetStatus(_device.Diagnostic ?? "O G HUB não aceitou o comando de iluminação.", hasIssue: true);
+                                        SetStatus(LocalizedDiagnostic ?? "O G HUB não aceitou o comando de iluminação.", hasIssue: true);
                                     }
                                 }
                                 if (animated) rgbClock.RecordFrame(frame, interval, writeTime);

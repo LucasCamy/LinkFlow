@@ -167,6 +167,18 @@ public sealed class EngineTextTests
     }
 
     [Fact]
+    public void Hardware_diagnostics_keep_the_portuguese_log_text_and_translate()
+    {
+        // O log continua com o mesmo texto de antes (a análise das rajadas do NVAPI procura este formato)
+        var aura = EngineText.Of(EngineTexts.GpuAuraFailed, $"{0x8120:X4}", $"{0x03:X2}", "-1");
+        Assert.Equal("Falha no Aura da GPU em 0x8120 (comando 0x03, NVAPI -1).", aura.ToPortuguese());
+        Assert.Equal("GPU Aura failure at 0x8120 (command 0x03, NVAPI -1).", EngineTexts.Format(aura, En));
+
+        Assert.Contains("menu Iniciar", LogitechPeripheralsRgb.ElevatedDiagnostic.ToPortuguese());
+        Assert.Contains("Start menu", EngineTexts.Format(LogitechPeripheralsRgb.ElevatedDiagnostic, En));
+    }
+
+    [Fact]
     public void Old_snapshot_without_codes_still_shows_the_portuguese_text()
     {
         var snapshot = JsonSerializer.Deserialize<EngineSnapshot>("""{ "hubStatus": "Conectado • FW 1 • 3 dispositivos" }""", Json.Compact)!;

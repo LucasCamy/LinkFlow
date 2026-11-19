@@ -58,6 +58,9 @@ public interface IRgbDevice : IDisposable
     string Name { get; }
     bool IsAvailable { get; }
     string? Diagnostic => null;
+
+    /// <summary><see cref="Diagnostic"/> para a interface traduzir.</summary>
+    EngineText? DiagnosticText => null;
     bool NeedsInitializationRetry => false;
     TimeSpan? MinAnimationInterval => null;
 

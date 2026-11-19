@@ -20,7 +20,7 @@ public class ElevationTests
     [Fact]
     public void ElevatedDiagnosticTellsHowToReopen()
     {
-        Assert.Contains("administrador", LogitechPeripheralsRgb.ElevatedDiagnostic);
-        Assert.Contains("menu Iniciar", LogitechPeripheralsRgb.ElevatedDiagnostic);
+        Assert.Contains("administrador", LogitechPeripheralsRgb.ElevatedDiagnostic.ToPortuguese());
+        Assert.Contains("menu Iniciar", LogitechPeripheralsRgb.ElevatedDiagnostic.ToPortuguese());
     }
 }

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using LinkFlow.Core;
 using Microsoft.Win32;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -35,8 +36,9 @@ public partial class MainViewModel
         get
         {
             if (!SyncGpu || IsEngineDisconnected || !Snapshot.RgbDevicesReady) return null;
-            if (Snapshot.GpuRgbRetrying) return Snapshot.GpuRgbDiagnostic;
-            return Snapshot.GpuRgbDiagnostic ?? (Snapshot.GpuRgbAvailable
+            string? diagnostic = Snapshot.GpuRgbDiagnostic is { } gpu ? EngineTextUi.Localize(Snapshot.GpuRgbDiagnosticText, gpu) : null;
+            if (Snapshot.GpuRgbRetrying) return diagnostic;
+            return diagnostic ?? (Snapshot.GpuRgbAvailable
                 ? Snapshot.GpuRgbApplied == false ? "O controlador da placa recusou o envio da cor." : null
                 : "Nenhum controlador ASUS Aura compatível foi identificado na placa de vídeo.");
         }
@@ -49,7 +51,9 @@ public partial class MainViewModel
             if (!SyncPeripherals) return "Sincronização desligada";
             if (_externalPeripherals is { } bridge) return bridge.Status;
             if (_engine.IsRemote || !Snapshot.RgbDevicesReady) return "Verificando o G HUB na sessão do Windows…";
-            return Snapshot.PeripheralsRgbDiagnostic ?? (!Snapshot.PeripheralsRgbAvailable ? "Controle RGB pelo G HUB indisponível." :
+            return (Snapshot.PeripheralsRgbDiagnostic is { } peripherals
+                    ? EngineTextUi.Localize(Snapshot.PeripheralsRgbDiagnosticText, peripherals) : null)
+                ?? (!Snapshot.PeripheralsRgbAvailable ? "Controle RGB pelo G HUB indisponível." :
                 Snapshot.PeripheralsRgbApplied switch
                 {
                     true => "Cor enviada pelo SDK do G HUB.",

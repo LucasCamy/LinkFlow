@@ -306,4 +306,94 @@
     <value>GIF{0} • {1} quadros</value>
     <comment>{0} = posição na lista ou vazio, {1} = quadros</comment>
   </data>
+  <data name="GpuNeedsX64" xml:space="preserve">
+    <value>O controle Aura da GPU requer o LinkFlow x64.</value>
+  </data>
+  <data name="GpuNvapiInit" xml:space="preserve">
+    <value>Falha ao iniciar o NVAPI (código {0}).</value>
+  </data>
+  <data name="GpuNvapiEnum" xml:space="preserve">
+    <value>Falha ao listar as GPUs NVIDIA (NVAPI {0}).</value>
+  </data>
+  <data name="GpuPci" xml:space="preserve">
+    <value>Falha ao identificar o adaptador PCI (NVAPI {0}).</value>
+  </data>
+  <data name="GpuNotFound" xml:space="preserve">
+    <value>Nenhuma GPU NVIDIA da ASUS encontrada para o controle Aura.</value>
+  </data>
+  <data name="GpuNvapiMissing" xml:space="preserve">
+    <value>A biblioteca NVAPI do driver NVIDIA está indisponível.</value>
+  </data>
+  <data name="GpuNvapiAccess" xml:space="preserve">
+    <value>Não foi possível acessar o controlador Aura via NVAPI. {0}</value>
+  </data>
+  <data name="GpuNoSignature" xml:space="preserve">
+    <value>A GPU ASUS não respondeu com a assinatura esperada do controlador Aura.</value>
+  </data>
+  <data name="GpuIdUnreadable" xml:space="preserve">
+    <value>A identificação do controlador Aura está ilegível.</value>
+  </data>
+  <data name="GpuFirmwareUnknown" xml:space="preserve">
+    <value>Firmware Aura sem protocolo confirmado ({0}).</value>
+  </data>
+  <data name="GpuLedCount" xml:space="preserve">
+    <value>Quantidade de LEDs inválida no controlador Aura ({0}).</value>
+  </data>
+  <data name="GpuDirectModeLost" xml:space="preserve">
+    <value>O controlador Aura não manteve o modo direto após aplicar a cor.</value>
+  </data>
+  <data name="GpuColorMismatch" xml:space="preserve">
+    <value>O controlador Aura devolveu uma cor diferente da enviada.</value>
+  </data>
+  <data name="GpuI2cMissing" xml:space="preserve">
+    <value>A interface I²C da GPU está indisponível.</value>
+  </data>
+  <data name="GpuAuraFailed" xml:space="preserve">
+    <value>Falha no Aura da GPU em 0x{0} (comando 0x{1}, NVAPI {2}).</value>
+  </data>
+  <data name="GHubNeedsSession" xml:space="preserve">
+    <value>O SDK Logitech precisa da sessão interativa do Windows.</value>
+  </data>
+  <data name="GHubElevated" xml:space="preserve">
+    <value>O LinkFlow está aberto como administrador e o G HUB não aceita iluminação de apps elevados. Feche o LinkFlow pela bandeja e abra de novo pelo menu Iniciar.</value>
+  </data>
+  <data name="GHubArch" xml:space="preserve">
+    <value>O SDK Logitech não está disponível para a arquitetura deste processo.</value>
+  </data>
+  <data name="GHubSdkMissing" xml:space="preserve">
+    <value>SDK de iluminação não encontrado na instalação do Logitech G HUB.</value>
+  </data>
+  <data name="GHubAgentNoSdk" xml:space="preserve">
+    <value>Agente do G HUB em execução. O SDK não iniciou. Confira se jogos e aplicativos podem controlar a iluminação no G HUB.</value>
+  </data>
+  <data name="GHubOpenHub" xml:space="preserve">
+    <value>SDK instalado. Abra o G HUB nesta sessão do Windows para conectar a iluminação.</value>
+  </data>
+  <data name="GHubNotStarted" xml:space="preserve">
+    <value>O SDK Logitech não iniciou. Confira o G HUB e a autorização de iluminação.</value>
+  </data>
+  <data name="GHubSelectRefused" xml:space="preserve">
+    <value>O SDK iniciou, mas o G HUB recusou a seleção dos dispositivos LIGHTSYNC.</value>
+  </data>
+  <data name="GHubIncompatible" xml:space="preserve">
+    <value>O SDK de iluminação do G HUB é incompatível com este processo.</value>
+  </data>
+  <data name="GHubDllLoad" xml:space="preserve">
+    <value>O SDK do G HUB está instalado, mas o Windows não conseguiu carregar a DLL ou suas dependências.</value>
+  </data>
+  <data name="GHubEntryPoint" xml:space="preserve">
+    <value>O SDK instalado do G HUB não oferece as funções de iluminação necessárias.</value>
+  </data>
+  <data name="GHubInitError" xml:space="preserve">
+    <value>O SDK Logitech retornou um erro ao iniciar a iluminação.</value>
+  </data>
+  <data name="GHubAgentLeft" xml:space="preserve">
+    <value>O agente do G HUB saiu desta sessão do Windows. Abra o G HUB para reconectar.</value>
+  </data>
+  <data name="GHubColorRefused" xml:space="preserve">
+    <value>O SDK iniciou, mas o G HUB não aceitou a cor. Confira a integração e a autorização de iluminação no G HUB.</value>
+  </data>
+  <data name="GHubSendError" xml:space="preserve">
+    <value>O SDK Logitech retornou um erro ao enviar a cor.</value>
+  </data>
 </root>

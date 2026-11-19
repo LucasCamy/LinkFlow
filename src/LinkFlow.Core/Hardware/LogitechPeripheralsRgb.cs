@@ -19,7 +19,8 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
     private bool _disposed;
 
     public bool IsAvailable { get; private set; }
-    public string? Diagnostic { get; private set; }
+    public EngineText? DiagnosticText { get; private set; }
+    public string? Diagnostic => DiagnosticText?.ToPortuguese();
     public string Name => "Periféricos Logitech G";
 
     public LogitechPeripheralsRgb() { }
@@ -40,7 +41,7 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                 int sessionId = process.SessionId;
                 if (sessionId == 0)
                 {
-                    Report("O SDK Logitech precisa da sessão interativa do Windows.");
+                    Report(EngineText.Of(EngineTexts.GHubNeedsSession));
                     return;
                 }
 
@@ -63,14 +64,14 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                     };
                     if (sdkFile == null)
                     {
-                        Report("O SDK Logitech não está disponível para a arquitetura deste processo.");
+                        Report(EngineText.Of(EngineTexts.GHubArch));
                         return;
                     }
 
                     string? sdkPath = FindSdk(sdkFile);
                     if (sdkPath == null)
                     {
-                        Report("SDK de iluminação não encontrado na instalação do Logitech G HUB.");
+                        Report(EngineText.Of(EngineTexts.GHubSdkMissing));
                         return;
                     }
                     _native = new NativeSdk(sdkPath);
@@ -82,9 +83,9 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                     ReleaseSdk();
                     Report(IsAgentInSession(sessionId) switch
                     {
-                        true => "Agente do G HUB em execução. O SDK não iniciou. Confira se jogos e aplicativos podem controlar a iluminação no G HUB.",
-                        false => "SDK instalado. Abra o G HUB nesta sessão do Windows para conectar a iluminação.",
-                        _ => "O SDK Logitech não iniciou. Confira o G HUB e a autorização de iluminação."
+                        true => EngineText.Of(EngineTexts.GHubAgentNoSdk),
+                        false => EngineText.Of(EngineTexts.GHubOpenHub),
+                        _ => EngineText.Of(EngineTexts.GHubNotStarted)
                     });
                     return;
                 }
@@ -96,16 +97,16 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
                 }
                 if (!_native.SelectTarget(AllDeviceTypes))
                 {
-                    Fail("O SDK iniciou, mas o G HUB recusou a seleção dos dispositivos LIGHTSYNC.");
+                    Fail(EngineText.Of(EngineTexts.GHubSelectRefused));
                     return;
                 }
-                Diagnostic = null;
+                DiagnosticText = null;
                 IsAvailable = true;
             }
-            catch (BadImageFormatException ex) { Fail("O SDK de iluminação do G HUB é incompatível com este processo.", ex); }
-            catch (DllNotFoundException ex) { Fail("O SDK do G HUB está instalado, mas o Windows não conseguiu carregar a DLL ou suas dependências.", ex); }
-            catch (EntryPointNotFoundException ex) { Fail("O SDK instalado do G HUB não oferece as funções de iluminação necessárias.", ex); }
-            catch (Exception ex) { Fail("O SDK Logitech retornou um erro ao iniciar a iluminação.", ex); }
+            catch (BadImageFormatException ex) { Fail(EngineText.Of(EngineTexts.GHubIncompatible), ex); }
+            catch (DllNotFoundException ex) { Fail(EngineText.Of(EngineTexts.GHubDllLoad), ex); }
+            catch (EntryPointNotFoundException ex) { Fail(EngineText.Of(EngineTexts.GHubEntryPoint), ex); }
+            catch (Exception ex) { Fail(EngineText.Of(EngineTexts.GHubInitError), ex); }
         }
     }
 
@@ -123,10 +124,10 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
 
                 using var process = Process.GetCurrentProcess();
                 Fail(IsAgentInSession(process.SessionId) == false
-                    ? "O agente do G HUB saiu desta sessão do Windows. Abra o G HUB para reconectar."
-                    : "O SDK iniciou, mas o G HUB não aceitou a cor. Confira a integração e a autorização de iluminação no G HUB.");
+                    ? EngineText.Of(EngineTexts.GHubAgentLeft)
+                    : EngineText.Of(EngineTexts.GHubColorRefused));
             }
-            catch (Exception ex) { Fail("O SDK Logitech retornou um erro ao enviar a cor.", ex); }
+            catch (Exception ex) { Fail(EngineText.Of(EngineTexts.GHubSendError), ex); }
             return false;
         }
     }
@@ -155,7 +156,7 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         lock (_syncLock)
         {
             ReleaseSdk();
-            Diagnostic = null;
+            DiagnosticText = null;
         }
     }
 
@@ -179,7 +180,7 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         catch (Exception ex) { Log.Debug($"SDK Logitech ao encerrar a sessão: {ex.Message}"); }
     }
 
-    private void Fail(string diagnostic, Exception? exception = null)
+    private void Fail(EngineText diagnostic, Exception? exception = null)
     {
         ReleaseSdk();
         Report(diagnostic, exception);
@@ -192,11 +193,12 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         _native = null;
     }
 
-    private void Report(string diagnostic, Exception? exception = null)
+    private void Report(EngineText diagnostic, Exception? exception = null)
     {
-        if (Diagnostic == diagnostic) return;
-        Diagnostic = diagnostic;
-        Log.Warn(exception == null ? diagnostic : $"{diagnostic} {exception.Message}");
+        string text = diagnostic.ToPortuguese();
+        if (Diagnostic == text) return;
+        DiagnosticText = diagnostic;
+        Log.Warn(exception == null ? text : $"{text} {exception.Message}");
     }
 
     private static string? FindSdk(string file)
@@ -228,9 +230,7 @@ public sealed class LogitechPeripheralsRgb : IRgbDevice
         return null;
     }
 
-    public const string ElevatedDiagnostic =
-        "O LinkFlow está aberto como administrador e o G HUB não aceita iluminação de apps elevados. " +
-        "Feche o LinkFlow pela bandeja e abra de novo pelo menu Iniciar.";
+    public static EngineText ElevatedDiagnostic => EngineText.Of(EngineTexts.GHubElevated);
 
     /// <summary>Elevado, o SDK só funciona se o agente do G HUB também estiver elevado.</summary>
     public static bool IsBlockedByElevation(bool selfElevated, bool? agentElevated) => selfElevated && agentElevated != true;
