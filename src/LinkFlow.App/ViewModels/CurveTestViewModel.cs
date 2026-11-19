@@ -1,5 +1,6 @@
 using System.Globalization;
 using LinkFlow.Core;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -11,7 +12,7 @@ namespace LinkFlow.App.ViewModels;
 public sealed class CurveTestViewModel : ObservableObject
 {
     public const double MinTemp = 20, MaxTemp = 100;
-    private static readonly CultureInfo PtBr = CultureInfo.GetCultureInfo("pt-BR");
+    private static CultureInfo Ui => UiLanguage.Culture;
 
     private readonly Action<float?> _send;
     private readonly Func<IReadOnlyList<CurvePoint>> _points;
@@ -63,7 +64,7 @@ public sealed class CurveTestViewModel : ObservableObject
     /// <summary>Velocidade que a curva desenhada dá para <see cref="Temperature"/>.</summary>
     public byte PreviewPercent => new FanCurveConfig { Points = _points().ToList() }.Evaluate((float)_temperature);
 
-    public string Summary => $"{_temperature.ToString("0", PtBr)} °C → {PreviewPercent}%";
+    public string Summary => $"{_temperature.ToString("0", Ui)} °C → {PreviewPercent}%";
 
     /// <summary>Encerra o teste (saiu da tela, mudou de modo, escondeu a janela).</summary>
     public void Stop() => IsActive = false;

@@ -18,6 +18,9 @@ public sealed class StartupOptions
     /// <summary>Teste visual: abre o painel de detalhes (cpu, gpu, coolant, fans, ram).</summary>
     public string? ScreenshotDetail { get; private set; }
 
+    /// <summary>Idioma da interface só nesta execução ("pt-BR", "en"), sem alterar o salvo (testes e revisão da tradução).</summary>
+    public string? Language { get; private set; }
+
     /// <summary>Teste visual: seleciona as N primeiras ventoinhas.</summary>
     public int ScreenshotSelect { get; private set; }
     public int? ScreenshotWidth { get; private set; }
@@ -70,6 +73,9 @@ public sealed class StartupOptions
                     break;
                 case "--detail":
                     o.ScreenshotDetail = Next();
+                    break;
+                case "--lang":
+                    o.Language = Next();
                     break;
                 case "--select":
                     o.ScreenshotSelect = int.TryParse(Next(), out var sel) ? sel : 0;

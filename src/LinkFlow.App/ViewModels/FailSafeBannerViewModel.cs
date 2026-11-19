@@ -1,5 +1,6 @@
 using System.Globalization;
 using LinkFlow.Core;
+using LinkFlow.App.Services;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -9,7 +10,7 @@ namespace LinkFlow.App.ViewModels;
 /// </summary>
 public sealed class FailSafeBannerViewModel : ObservableObject
 {
-    private static readonly CultureInfo PtBr = CultureInfo.GetCultureInfo("pt-BR");
+    private static CultureInfo Ui => UiLanguage.Culture;
     private bool _isVisible;
     private string _title = string.Empty, _reason = string.Empty, _status = string.Empty;
     private bool _isRecovering;
@@ -72,8 +73,8 @@ public sealed class FailSafeBannerViewModel : ObservableObject
         // Bomba: quanto tempo está assim é o que importa ("Bomba com rotação baixa há 12 s · Pump: 0 RPM ...")
         var elapsed = now - alert.Since;
         string since = elapsed.TotalSeconds < 1 ? string.Empty :
-            elapsed.TotalMinutes < 1 ? $" há {elapsed.TotalSeconds.ToString("0", PtBr)} s" :
-            $" há {Math.Floor(elapsed.TotalMinutes).ToString("0", PtBr)} min";
+            elapsed.TotalMinutes < 1 ? $" há {elapsed.TotalSeconds.ToString("0", Ui)} s" :
+            $" há {Math.Floor(elapsed.TotalMinutes).ToString("0", Ui)} min";
         return $"{alert.Title}{since} · {alert.Message}";
     }
 }

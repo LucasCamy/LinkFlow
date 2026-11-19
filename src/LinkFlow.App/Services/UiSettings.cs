@@ -22,6 +22,9 @@ public sealed class UiSettings
     /// </summary>
     public bool? AdvancedSystemTools { get; set; }
 
+    /// <summary>Idioma da interface ("pt-BR", "en"); null = padrão (ver <see cref="UiLanguage"/>).</summary>
+    public string? Language { get; set; }
+
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
     public double? WindowWidth { get; set; }
