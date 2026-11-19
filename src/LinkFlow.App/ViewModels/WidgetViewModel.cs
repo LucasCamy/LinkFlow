@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using LinkFlow.App.Services;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -25,12 +26,12 @@ public sealed class WidgetItemViewModel : ObservableObject
     public SensorDef? Def { get; private set; }
     public string Id => Setting.Id;
     public string Label => Def?.ShortLabel.ToUpperInvariant() ?? Setting.Id;
-    public string FullLabel => Def?.Label ?? $"{Setting.Id} (não encontrado)";
+    public string FullLabel => Def?.Label ?? string.Format(Strings.Wid_NaoEncontrado, Setting.Id);
     public string Group => Def?.Group ?? string.Empty;
     public string Color => _owner.UseSensorColors ? Def?.Color ?? "#94A3B8" : _owner.AccentColor;
     public bool CanToggleDisplay => Def is { HasPercent: true, HasValue: true };
     public bool IsPercent => Setting.Display == SensorDisplay.Percent;
-    public string DisplayLabel => IsPercent ? "%" : "Valor";
+    public string DisplayLabel => IsPercent ? "%" : Strings.Wid_Valor;
     public string Text { get => _text; private set => SetProperty(ref _text, value); }
     public double Ratio { get => _ratio; private set => SetProperty(ref _ratio, value); }
     public bool HasRatio => _available && Def != null;
@@ -293,15 +294,15 @@ public sealed class WidgetViewModel : ObservableObject
     public bool LockPosition { get => _s.LockPosition; set => Set(_s.LockPosition, value, v => _s.LockPosition = v); }
 
     internal bool IsGameOverlayPublishing => _gameOverlayStatus is RtssOverlayStatus.Publishing or RtssOverlayStatus.Busy;
-    public string GameOverlayStatus => !IsWidgetEnabled ? "Mostre o widget para enviar as leituras ao RTSS." :
-        !HasItems ? "Adicione uma leitura ao widget para exibir no jogo." : _gameOverlayStatus switch
+    public string GameOverlayStatus => !IsWidgetEnabled ? Strings.Wid_MostreWidgetEnviarLeituras :
+        !HasItems ? Strings.Wid_AdicioneLeituraWidgetExibir : _gameOverlayStatus switch
     {
-        RtssOverlayStatus.Publishing => "Leituras enviadas ao RTSS.",
-        RtssOverlayStatus.NotRunning => "Abra o RivaTuner Statistics Server para receber as leituras.",
-        RtssOverlayStatus.Unavailable => "Sem acesso ao OSD. Confira se o RTSS está atualizado e acessível nesta sessão.",
-        RtssOverlayStatus.NoFreeSlot => "O RTSS está sem espaço para mais informações no OSD.",
-        RtssOverlayStatus.Busy => "Aguardando o RTSS liberar a atualização.",
-        _ => "Aguardando o envio das leituras ao RTSS."
+        RtssOverlayStatus.Publishing => Strings.Wid_LeiturasEnviadasRTSS,
+        RtssOverlayStatus.NotRunning => Strings.Wid_AbraRivaTunerStatisticsServer,
+        RtssOverlayStatus.Unavailable => Strings.Wid_SemAcessoOSDConfira,
+        RtssOverlayStatus.NoFreeSlot => Strings.Wid_RTSSEstaSemEspaco,
+        RtssOverlayStatus.Busy => Strings.Wid_AguardandoRTSSLiberarAtualizacao,
+        _ => Strings.Wid_AguardandoEnvioLeiturasRTSS
     };
 
     internal void SetGameOverlayStatus(RtssOverlayStatus? status)

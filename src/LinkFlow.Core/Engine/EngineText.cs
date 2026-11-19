@@ -212,6 +212,49 @@ public static class EngineTexts
     public const string PresetAuto = nameof(PresetAuto);
     public const string PresetAutoDesc = nameof(PresetAutoDesc);
 
+    // ---------------------------------------------------------------- catálogo de sensores (widget, overlay)
+    public const string SensorGroupCpu = nameof(SensorGroupCpu);
+    public const string SensorGroupGpu = nameof(SensorGroupGpu);
+    public const string SensorGroupCooling = nameof(SensorGroupCooling);
+    public const string SensorGroupMemory = nameof(SensorGroupMemory);
+    public const string SensorGroupNetwork = nameof(SensorGroupNetwork);
+    public const string SensorGroupStorage = nameof(SensorGroupStorage);
+    public const string SensorGroupSystem = nameof(SensorGroupSystem);
+    public const string SensorCpuTemp = nameof(SensorCpuTemp);
+    public const string SensorCpuLoad = nameof(SensorCpuLoad);
+    public const string SensorCpuCoreMax = nameof(SensorCpuCoreMax);
+    public const string SensorShortCore = nameof(SensorShortCore);
+    public const string SensorCpuClock = nameof(SensorCpuClock);
+    public const string SensorCpuPower = nameof(SensorCpuPower);
+    public const string SensorGpuTemp = nameof(SensorGpuTemp);
+    public const string SensorGpuHotspot = nameof(SensorGpuHotspot);
+    public const string SensorGpuLoad = nameof(SensorGpuLoad);
+    public const string SensorGpuVram = nameof(SensorGpuVram);
+    public const string SensorGpuClock = nameof(SensorGpuClock);
+    public const string SensorGpuPower = nameof(SensorGpuPower);
+    public const string SensorGpuFan = nameof(SensorGpuFan);
+    public const string SensorShortGpuFan = nameof(SensorShortGpuFan);
+    public const string SensorCoolantTemp = nameof(SensorCoolantTemp);
+    public const string SensorShortCoolant = nameof(SensorShortCoolant);
+    public const string SensorPump = nameof(SensorPump);
+    public const string SensorFansAvg = nameof(SensorFansAvg);
+    public const string SensorRam = nameof(SensorRam);
+    public const string SensorShortNetDown = nameof(SensorShortNetDown);
+    public const string SensorShortNetUp = nameof(SensorShortNetUp);
+    public const string SensorNetSession = nameof(SensorNetSession);
+    public const string SensorShortTraffic = nameof(SensorShortTraffic);
+    public const string SensorTime = nameof(SensorTime);
+    public const string SensorUptime = nameof(SensorUptime);
+    public const string SensorShortUptime = nameof(SensorShortUptime);
+    public const string SensorVolume = nameof(SensorVolume);
+    public const string SensorVolumeUsed = nameof(SensorVolumeUsed);
+    public const string SensorVolumeFree = nameof(SensorVolumeFree);
+    public const string SensorDiskActivity = nameof(SensorDiskActivity);
+    public const string SensorDiskShort = nameof(SensorDiskShort);
+    public const string SensorDiskRw = nameof(SensorDiskRw);
+    public const string SensorDiskRwValue = nameof(SensorDiskRwValue);
+    public const string SensorDiskTemp = nameof(SensorDiskTemp);
+
     // ---------------------------------------------------------------- status do hub
     public const string HubSearching = nameof(HubSearching);
     public const string HubSearchingDevices = nameof(HubSearchingDevices);

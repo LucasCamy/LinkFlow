@@ -6047,5 +6047,644 @@ namespace LinkFlow.App.Resources {
                 return ResourceManager.GetString("Tray_Updates", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abra o RivaTuner Statistics Server para receber as leituras..
+        /// </summary>
+        public static string Wid_AbraRivaTunerStatisticsServer {
+            get {
+                return ResourceManager.GetString("Wid_AbraRivaTunerStatisticsServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adicionar informações.
+        /// </summary>
+        public static string Wid_AdicionarInformacoes {
+            get {
+                return ResourceManager.GetString("Wid_AdicionarInformacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adicione uma leitura ao widget para exibir no jogo..
+        /// </summary>
+        public static string Wid_AdicioneLeituraWidgetExibir {
+            get {
+                return ResourceManager.GetString("Wid_AdicioneLeituraWidgetExibir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando o envio das leituras ao RTSS..
+        /// </summary>
+        public static string Wid_AguardandoEnvioLeiturasRTSS {
+            get {
+                return ResourceManager.GetString("Wid_AguardandoEnvioLeiturasRTSS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando o RTSS liberar a atualização..
+        /// </summary>
+        public static string Wid_AguardandoRTSSLiberarAtualizacao {
+            get {
+                return ResourceManager.GetString("Wid_AguardandoRTSSLiberarAtualizacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alternar entre porcentagem e valor real.
+        /// </summary>
+        public static string Wid_AlternarEntrePorcentagemValor {
+            get {
+                return ResourceManager.GetString("Wid_AlternarEntrePorcentagemValor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alternar o widget flutuante (Ctrl+Alt+M).
+        /// </summary>
+        public static string Wid_AlternarWidgetFlutuanteCtrl {
+            get {
+                return ResourceManager.GetString("Wid_AlternarWidgetFlutuanteCtrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aparência.
+        /// </summary>
+        public static string Wid_Aparencia {
+            get {
+                return ResourceManager.GetString("Wid_Aparencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arredondamento dos cantos.
+        /// </summary>
+        public static string Wid_ArredondamentoCantos {
+            get {
+                return ResourceManager.GetString("Wid_ArredondamentoCantos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar RTSS.
+        /// </summary>
+        public static string Wid_BaixarRTSS {
+            get {
+                return ResourceManager.GetString("Wid_BaixarRTSS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Barras.
+        /// </summary>
+        public static string Wid_Barras {
+            get {
+                return ResourceManager.GetString("Wid_Barras", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Borda.
+        /// </summary>
+        public static string Wid_Borda {
+            get {
+                return ResourceManager.GetString("Wid_Borda", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cada informação com sua cor.
+        /// </summary>
+        public static string Wid_CadaInformacaoSuaCor {
+            get {
+                return ResourceManager.GetString("Wid_CadaInformacaoSuaCor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cantos.
+        /// </summary>
+        public static string Wid_Cantos {
+            get {
+                return ResourceManager.GetString("Wid_Cantos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em coluna.
+        /// </summary>
+        public static string Wid_Coluna {
+            get {
+                return ResourceManager.GetString("Wid_Coluna", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Colunas.
+        /// </summary>
+        public static string Wid_Colunas {
+            get {
+                return ResourceManager.GetString("Wid_Colunas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Colunas da grade.
+        /// </summary>
+        public static string Wid_ColunasGrade {
+            get {
+                return ResourceManager.GetString("Wid_ColunasGrade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comportamento.
+        /// </summary>
+        public static string Wid_Comportamento {
+            get {
+                return ResourceManager.GetString("Wid_Comportamento", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cores e transparência.
+        /// </summary>
+        public static string Wid_CoresTransparencia {
+            get {
+                return ResourceManager.GetString("Wid_CoresTransparencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor do fundo.
+        /// </summary>
+        public static string Wid_CorFundo {
+            get {
+                return ResourceManager.GetString("Wid_CorFundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor de fundo {0}.
+        /// </summary>
+        public static string Wid_CorFundo2 {
+            get {
+                return ResourceManager.GetString("Wid_CorFundo2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor única {0}.
+        /// </summary>
+        public static string Wid_CorUnica {
+            get {
+                return ResourceManager.GetString("Wid_CorUnica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cor dos valores.
+        /// </summary>
+        public static string Wid_CorValores {
+            get {
+                return ResourceManager.GetString("Wid_CorValores", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deixar cliques passarem.
+        /// </summary>
+        public static string Wid_DeixarCliquesPassarem {
+            get {
+                return ResourceManager.GetString("Wid_DeixarCliquesPassarem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Encaixar nas bordas.
+        /// </summary>
+        public static string Wid_EncaixarBordas {
+            get {
+                return ResourceManager.GetString("Wid_EncaixarBordas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolha abaixo as informações que deseja acompanhar..
+        /// </summary>
+        public static string Wid_EscolhaAbaixoInformacoesDeseja {
+            get {
+                return ResourceManager.GetString("Wid_EscolhaAbaixoInformacoesDeseja", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolha informações na aba Widget.
+        /// </summary>
+        public static string Wid_EscolhaInformacoesAbaWidget {
+            get {
+                return ResourceManager.GetString("Wid_EscolhaInformacoesAbaWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fonte e detalhes.
+        /// </summary>
+        public static string Wid_FonteDetalhes {
+            get {
+                return ResourceManager.GetString("Wid_FonteDetalhes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Formato e tamanho.
+        /// </summary>
+        public static string Wid_FormatoTamanho {
+            get {
+                return ResourceManager.GetString("Wid_FormatoTamanho", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fundo.
+        /// </summary>
+        public static string Wid_Fundo {
+            get {
+                return ResourceManager.GetString("Wid_Fundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grade.
+        /// </summary>
+        public static string Wid_Grade {
+            get {
+                return ResourceManager.GetString("Wid_Grade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↘ Inferior direito.
+        /// </summary>
+        public static string Wid_InferiorDireito {
+            get {
+                return ResourceManager.GetString("Wid_InferiorDireito", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↙ Inferior esquerdo.
+        /// </summary>
+        public static string Wid_InferiorEsquerdo {
+            get {
+                return ResourceManager.GetString("Wid_InferiorEsquerdo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Janela flutuante.
+        /// </summary>
+        public static string Wid_JanelaFlutuante {
+            get {
+                return ResourceManager.GetString("Wid_JanelaFlutuante", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leituras enviadas ao RTSS..
+        /// </summary>
+        public static string Wid_LeiturasEnviadasRTSS {
+            get {
+                return ResourceManager.GetString("Wid_LeiturasEnviadasRTSS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em linha.
+        /// </summary>
+        public static string Wid_Linha {
+            get {
+                return ResourceManager.GetString("Wid_Linha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mantém o widget acima das janelas, inclusive ao usar outro monitor..
+        /// </summary>
+        public static string Wid_MantemWidgetAcimaJanelas {
+            get {
+                return ResourceManager.GetString("Wid_MantemWidgetAcimaJanelas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marque o que deseja acompanhar. Discos físicos podem levar alguns segundos para aparecer..
+        /// </summary>
+        public static string Wid_MarqueDesejaAcompanharDiscos {
+            get {
+                return ResourceManager.GetString("Wid_MarqueDesejaAcompanharDiscos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostra as leituras do widget em jogos compatíveis, inclusive em tela cheia exclusiva. A posição é ajustada no RTSS..
+        /// </summary>
+        public static string Wid_MostraLeiturasWidgetJogos {
+            get {
+                return ResourceManager.GetString("Wid_MostraLeiturasWidgetJogos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostrar widget.
+        /// </summary>
+        public static string Wid_MostrarWidget {
+            get {
+                return ResourceManager.GetString("Wid_MostrarWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostre o widget para enviar as leituras ao RTSS..
+        /// </summary>
+        public static string Wid_MostreWidgetEnviarLeituras {
+            get {
+                return ResourceManager.GetString("Wid_MostreWidgetEnviarLeituras", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O mouse interage com a janela atrás do widget. Desative aqui para voltar a mover a janela..
+        /// </summary>
+        public static string Wid_MouseInterageJanelaAtras {
+            get {
+                return ResourceManager.GetString("Wid_MouseInterageJanelaAtras", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mover {0} para baixo.
+        /// </summary>
+        public static string Wid_MoverBaixo {
+            get {
+                return ResourceManager.GetString("Wid_MoverBaixo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mover {0} para cima.
+        /// </summary>
+        public static string Wid_MoverCima {
+            get {
+                return ResourceManager.GetString("Wid_MoverCima", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (não encontrado).
+        /// </summary>
+        public static string Wid_NaoEncontrado {
+            get {
+                return ResourceManager.GetString("Wid_NaoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir a página do RTSS..
+        /// </summary>
+        public static string Wid_NaoFoiPossivelAbrir {
+            get {
+                return ResourceManager.GetString("Wid_NaoFoiPossivelAbrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nomes.
+        /// </summary>
+        public static string Wid_Nomes {
+            get {
+                return ResourceManager.GetString("Wid_Nomes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ocultar em tela cheia.
+        /// </summary>
+        public static string Wid_OcultarTelaCheia {
+            get {
+                return ResourceManager.GetString("Wid_OcultarTelaCheia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oculta só quando a tela cheia está no monitor do widget. Desative para manter sobre janelas sem bordas..
+        /// </summary>
+        public static string Wid_OcultaSoQuandoTela {
+            get {
+                return ResourceManager.GetString("Wid_OcultaSoQuandoTela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opacidade.
+        /// </summary>
+        public static string Wid_Opacidade {
+            get {
+                return ResourceManager.GetString("Wid_Opacidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opacidade do fundo.
+        /// </summary>
+        public static string Wid_OpacidadeFundo {
+            get {
+                return ResourceManager.GetString("Wid_OpacidadeFundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opacidade do widget.
+        /// </summary>
+        public static string Wid_OpacidadeWidget {
+            get {
+                return ResourceManager.GetString("Wid_OpacidadeWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Overlay em jogos (RTSS).
+        /// </summary>
+        public static string Wid_OverlayJogosRTSS {
+            get {
+                return ResourceManager.GetString("Wid_OverlayJogosRTSS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Personalize o monitor flutuante da área de trabalho..
+        /// </summary>
+        public static string Wid_PersonalizeMonitorFlutuanteArea {
+            get {
+                return ResourceManager.GetString("Wid_PersonalizeMonitorFlutuanteArea", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Posição.
+        /// </summary>
+        public static string Wid_Posicao {
+            get {
+                return ResourceManager.GetString("Wid_Posicao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A prévia se ajusta ao espaço. Use Mostrar widget para conferir no tamanho escolhido..
+        /// </summary>
+        public static string Wid_PreviaAjustaEspacoUse {
+            get {
+                return ResourceManager.GetString("Wid_PreviaAjustaEspacoUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prévia ao vivo.
+        /// </summary>
+        public static string Wid_PreviaVivo {
+            get {
+                return ResourceManager.GetString("Wid_PreviaVivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Redefine as informações e a aparência do widget.
+        /// </summary>
+        public static string Wid_RedefineInformacoesAparenciaWidget {
+            get {
+                return ResourceManager.GetString("Wid_RedefineInformacoesAparenciaWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover {0}.
+        /// </summary>
+        public static string Wid_Remover {
+            get {
+                return ResourceManager.GetString("Wid_Remover", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O RTSS está sem espaço para mais informações no OSD..
+        /// </summary>
+        public static string Wid_RTSSEstaSemEspaco {
+            get {
+                return ResourceManager.GetString("Wid_RTSSEstaSemEspaco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem acesso ao OSD. Confira se o RTSS está atualizado e acessível nesta sessão..
+        /// </summary>
+        public static string Wid_SemAcessoOSDConfira {
+            get {
+                return ResourceManager.GetString("Wid_SemAcessoOSDConfira", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↗ Superior direito.
+        /// </summary>
+        public static string Wid_SuperiorDireito {
+            get {
+                return ResourceManager.GetString("Wid_SuperiorDireito", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↖ Superior esquerdo.
+        /// </summary>
+        public static string Wid_SuperiorEsquerdo {
+            get {
+                return ResourceManager.GetString("Wid_SuperiorEsquerdo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tamanho.
+        /// </summary>
+        public static string Wid_Tamanho {
+            get {
+                return ResourceManager.GetString("Wid_Tamanho", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tamanho do widget.
+        /// </summary>
+        public static string Wid_TamanhoWidget {
+            get {
+                return ResourceManager.GetString("Wid_TamanhoWidget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ↑ Topo central.
+        /// </summary>
+        public static string Wid_TopoCentral {
+            get {
+                return ResourceManager.GetString("Wid_TopoCentral", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transparência somente do fundo.
+        /// </summary>
+        public static string Wid_TransparenciaSomenteFundo {
+            get {
+                return ResourceManager.GetString("Wid_TransparenciaSomenteFundo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use os atalhos abaixo ou arraste a janela flutuante..
+        /// </summary>
+        public static string Wid_UseAtalhosAbaixoOu {
+            get {
+                return ResourceManager.GetString("Wid_UseAtalhosAbaixoOu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use as setas para mudar a ordem..
+        /// </summary>
+        public static string Wid_UseSetasMudarOrdem {
+            get {
+                return ResourceManager.GetString("Wid_UseSetasMudarOrdem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Valor.
+        /// </summary>
+        public static string Wid_Valor {
+            get {
+                return ResourceManager.GetString("Wid_Valor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No widget.
+        /// </summary>
+        public static string Wid_Widget {
+            get {
+                return ResourceManager.GetString("Wid_Widget", resourceCulture);
+            }
+        }
     }
 }

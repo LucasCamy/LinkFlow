@@ -1,6 +1,7 @@
 <UserControl x:Class="LinkFlow.App.Views.WidgetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:LinkFlow.App.Resources"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              TextOptions.TextFormattingMode="Display">
     <!-- Conteúdo do widget: usado pela janela flutuante e pela prévia na aba Widget -->
@@ -21,7 +22,7 @@
             </Style>
         </Border.Style>
         <Grid>
-            <TextBlock Text="Escolha informações na aba Widget" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="4"
+            <TextBlock Text="{x:Static r:Strings.Wid_EscolhaInformacoesAbaWidget}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="4"
                        Visibility="{Binding HasItems, Converter={StaticResource BoolToVisInverse}}"/>
             <ItemsControl ItemsSource="{Binding Items}" Focusable="False" IsTabStop="False">
                 <ItemsControl.ItemsPanel>

@@ -426,4 +426,127 @@
   <data name="PresetAutoDesc" xml:space="preserve">
     <value>Segue a temperatura</value>
   </data>
+  <data name="SensorGroupCpu" xml:space="preserve">
+    <value>Processador</value>
+  </data>
+  <data name="SensorGroupGpu" xml:space="preserve">
+    <value>Placa de vídeo</value>
+  </data>
+  <data name="SensorGroupCooling" xml:space="preserve">
+    <value>Refrigeração</value>
+  </data>
+  <data name="SensorGroupMemory" xml:space="preserve">
+    <value>Memória</value>
+  </data>
+  <data name="SensorGroupNetwork" xml:space="preserve">
+    <value>Rede</value>
+  </data>
+  <data name="SensorGroupStorage" xml:space="preserve">
+    <value>Discos</value>
+  </data>
+  <data name="SensorGroupSystem" xml:space="preserve">
+    <value>Sistema</value>
+  </data>
+  <data name="SensorCpuTemp" xml:space="preserve">
+    <value>Temperatura da CPU</value>
+  </data>
+  <data name="SensorCpuLoad" xml:space="preserve">
+    <value>Uso da CPU</value>
+  </data>
+  <data name="SensorCpuCoreMax" xml:space="preserve">
+    <value>Núcleo mais ocupado</value>
+  </data>
+  <data name="SensorShortCore" xml:space="preserve">
+    <value>Núcleo</value>
+  </data>
+  <data name="SensorCpuClock" xml:space="preserve">
+    <value>Clock da CPU</value>
+  </data>
+  <data name="SensorCpuPower" xml:space="preserve">
+    <value>Potência da CPU</value>
+  </data>
+  <data name="SensorGpuTemp" xml:space="preserve">
+    <value>Temperatura da GPU</value>
+  </data>
+  <data name="SensorGpuHotspot" xml:space="preserve">
+    <value>Hotspot da GPU</value>
+  </data>
+  <data name="SensorGpuLoad" xml:space="preserve">
+    <value>Uso da GPU</value>
+  </data>
+  <data name="SensorGpuVram" xml:space="preserve">
+    <value>Memória de vídeo</value>
+  </data>
+  <data name="SensorGpuClock" xml:space="preserve">
+    <value>Clock da GPU</value>
+  </data>
+  <data name="SensorGpuPower" xml:space="preserve">
+    <value>Potência da GPU</value>
+  </data>
+  <data name="SensorGpuFan" xml:space="preserve">
+    <value>Fans da GPU</value>
+  </data>
+  <data name="SensorShortGpuFan" xml:space="preserve">
+    <value>Fan GPU</value>
+  </data>
+  <data name="SensorCoolantTemp" xml:space="preserve">
+    <value>Temperatura do líquido</value>
+  </data>
+  <data name="SensorShortCoolant" xml:space="preserve">
+    <value>Líquido</value>
+  </data>
+  <data name="SensorPump" xml:space="preserve">
+    <value>Bomba</value>
+  </data>
+  <data name="SensorFansAvg" xml:space="preserve">
+    <value>Ventoinhas (média)</value>
+  </data>
+  <data name="SensorRam" xml:space="preserve">
+    <value>Memória RAM</value>
+  </data>
+  <data name="SensorShortNetDown" xml:space="preserve">
+    <value>↓ Rede</value>
+  </data>
+  <data name="SensorShortNetUp" xml:space="preserve">
+    <value>↑ Rede</value>
+  </data>
+  <data name="SensorNetSession" xml:space="preserve">
+    <value>Tráfego desde que ligou</value>
+  </data>
+  <data name="SensorShortTraffic" xml:space="preserve">
+    <value>Tráfego</value>
+  </data>
+  <data name="SensorTime" xml:space="preserve">
+    <value>Hora</value>
+  </data>
+  <data name="SensorUptime" xml:space="preserve">
+    <value>Tempo ligado</value>
+  </data>
+  <data name="SensorShortUptime" xml:space="preserve">
+    <value>Ligado</value>
+  </data>
+  <data name="SensorVolume" xml:space="preserve">
+    <value>Espaço em {0}</value>
+  </data>
+  <data name="SensorVolumeUsed" xml:space="preserve">
+    <value>{0}% usado</value>
+  </data>
+  <data name="SensorVolumeFree" xml:space="preserve">
+    <value>{0} GB livres</value>
+  </data>
+  <data name="SensorDiskActivity" xml:space="preserve">
+    <value>Atividade • {0}</value>
+  </data>
+  <data name="SensorDiskShort" xml:space="preserve">
+    <value>Disco {0}</value>
+  </data>
+  <data name="SensorDiskRw" xml:space="preserve">
+    <value>Leitura/escrita • {0}</value>
+  </data>
+  <data name="SensorDiskRwValue" xml:space="preserve">
+    <value>L {0} • E {1}</value>
+  </data>
+  <data name="SensorDiskTemp" xml:space="preserve">
+    <value>Temperatura • {0}</value>
+  </data>
 </root>

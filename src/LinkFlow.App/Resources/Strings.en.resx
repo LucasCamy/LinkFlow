@@ -2005,4 +2005,217 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Lcd_CouldNotOpenMany" xml:space="preserve">
     <value>Could not open: {0}</value>
   </data>
+  <data name="Wid_AlternarWidgetFlutuanteCtrl" xml:space="preserve">
+    <value>Toggle the floating widget (Ctrl+Alt+M)</value>
+  </data>
+  <data name="Wid_PersonalizeMonitorFlutuanteArea" xml:space="preserve">
+    <value>Customize the floating desktop monitor.</value>
+  </data>
+  <data name="Wid_PreviaVivo" xml:space="preserve">
+    <value>Live preview</value>
+  </data>
+  <data name="Wid_PreviaAjustaEspacoUse" xml:space="preserve">
+    <value>The preview fits the available space. Use Show widget to check it at the chosen size.</value>
+  </data>
+  <data name="Wid_Widget" xml:space="preserve">
+    <value>On the widget</value>
+  </data>
+  <data name="Wid_UseSetasMudarOrdem" xml:space="preserve">
+    <value>Use the arrows to change the order.</value>
+  </data>
+  <data name="Wid_EscolhaAbaixoInformacoesDeseja" xml:space="preserve">
+    <value>Choose below the information you want to follow.</value>
+  </data>
+  <data name="Wid_AlternarEntrePorcentagemValor" xml:space="preserve">
+    <value>Switch between percentage and actual value</value>
+  </data>
+  <data name="Wid_AdicionarInformacoes" xml:space="preserve">
+    <value>Add information</value>
+  </data>
+  <data name="Wid_MarqueDesejaAcompanharDiscos" xml:space="preserve">
+    <value>Check what you want to follow. Physical disks may take a few seconds to show up.</value>
+  </data>
+  <data name="Wid_Aparencia" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Wid_RedefineInformacoesAparenciaWidget" xml:space="preserve">
+    <value>Resets the widget information and appearance</value>
+  </data>
+  <data name="Wid_FormatoTamanho" xml:space="preserve">
+    <value>Shape and size</value>
+  </data>
+  <data name="Wid_Linha" xml:space="preserve">
+    <value>Row</value>
+  </data>
+  <data name="Wid_Coluna" xml:space="preserve">
+    <value>Column</value>
+  </data>
+  <data name="Wid_Grade" xml:space="preserve">
+    <value>Grid</value>
+  </data>
+  <data name="Wid_Tamanho" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Wid_TamanhoWidget" xml:space="preserve">
+    <value>Widget size</value>
+  </data>
+  <data name="Wid_Colunas" xml:space="preserve">
+    <value>Columns</value>
+  </data>
+  <data name="Wid_ColunasGrade" xml:space="preserve">
+    <value>Grid columns</value>
+  </data>
+  <data name="Wid_CoresTransparencia" xml:space="preserve">
+    <value>Colors and transparency</value>
+  </data>
+  <data name="Wid_Opacidade" xml:space="preserve">
+    <value>Opacity</value>
+  </data>
+  <data name="Wid_OpacidadeWidget" xml:space="preserve">
+    <value>Widget opacity</value>
+  </data>
+  <data name="Wid_Fundo" xml:space="preserve">
+    <value>Background</value>
+  </data>
+  <data name="Wid_TransparenciaSomenteFundo" xml:space="preserve">
+    <value>Background-only transparency</value>
+  </data>
+  <data name="Wid_OpacidadeFundo" xml:space="preserve">
+    <value>Background opacity</value>
+  </data>
+  <data name="Wid_CorFundo" xml:space="preserve">
+    <value>Background color</value>
+  </data>
+  <data name="Wid_CorValores" xml:space="preserve">
+    <value>Value color</value>
+  </data>
+  <data name="Wid_CadaInformacaoSuaCor" xml:space="preserve">
+    <value>Each item with its own color</value>
+  </data>
+  <data name="Wid_FonteDetalhes" xml:space="preserve">
+    <value>Font and details</value>
+  </data>
+  <data name="Wid_Cantos" xml:space="preserve">
+    <value>Corners</value>
+  </data>
+  <data name="Wid_ArredondamentoCantos" xml:space="preserve">
+    <value>Corner rounding</value>
+  </data>
+  <data name="Wid_Nomes" xml:space="preserve">
+    <value>Names</value>
+  </data>
+  <data name="Wid_Barras" xml:space="preserve">
+    <value>Bars</value>
+  </data>
+  <data name="Wid_Borda" xml:space="preserve">
+    <value>Border</value>
+  </data>
+  <data name="Wid_Comportamento" xml:space="preserve">
+    <value>Behavior</value>
+  </data>
+  <data name="Wid_JanelaFlutuante" xml:space="preserve">
+    <value>Floating window</value>
+  </data>
+  <data name="Wid_MantemWidgetAcimaJanelas" xml:space="preserve">
+    <value>Keeps the widget above other windows, including when using another monitor.</value>
+  </data>
+  <data name="Wid_OcultarTelaCheia" xml:space="preserve">
+    <value>Hide in full screen</value>
+  </data>
+  <data name="Wid_OcultaSoQuandoTela" xml:space="preserve">
+    <value>Hides only when full screen is on the widget's monitor. Turn it off to stay over borderless windows.</value>
+  </data>
+  <data name="Wid_DeixarCliquesPassarem" xml:space="preserve">
+    <value>Let clicks pass through</value>
+  </data>
+  <data name="Wid_MouseInterageJanelaAtras" xml:space="preserve">
+    <value>The mouse interacts with the window behind the widget. Turn this off here to move the window again.</value>
+  </data>
+  <data name="Wid_OverlayJogosRTSS" xml:space="preserve">
+    <value>In-game overlay (RTSS)</value>
+  </data>
+  <data name="Wid_MostraLeiturasWidgetJogos" xml:space="preserve">
+    <value>Shows the widget readings in compatible games, including exclusive full screen. The position is set in RTSS.</value>
+  </data>
+  <data name="Wid_BaixarRTSS" xml:space="preserve">
+    <value>Download RTSS</value>
+  </data>
+  <data name="Wid_Posicao" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="Wid_UseAtalhosAbaixoOu" xml:space="preserve">
+    <value>Use the shortcuts below or drag the floating window.</value>
+  </data>
+  <data name="Wid_SuperiorEsquerdo" xml:space="preserve">
+    <value>↖ Top left</value>
+  </data>
+  <data name="Wid_TopoCentral" xml:space="preserve">
+    <value>↑ Top center</value>
+  </data>
+  <data name="Wid_SuperiorDireito" xml:space="preserve">
+    <value>↗ Top right</value>
+  </data>
+  <data name="Wid_InferiorEsquerdo" xml:space="preserve">
+    <value>↙ Bottom left</value>
+  </data>
+  <data name="Wid_InferiorDireito" xml:space="preserve">
+    <value>↘ Bottom right</value>
+  </data>
+  <data name="Wid_EncaixarBordas" xml:space="preserve">
+    <value>Snap to edges</value>
+  </data>
+  <data name="Wid_MostrarWidget" xml:space="preserve">
+    <value>Show widget</value>
+  </data>
+  <data name="Wid_MoverCima" xml:space="preserve">
+    <value>Move {0} up</value>
+  </data>
+  <data name="Wid_MoverBaixo" xml:space="preserve">
+    <value>Move {0} down</value>
+  </data>
+  <data name="Wid_Remover" xml:space="preserve">
+    <value>Remove {0}</value>
+  </data>
+  <data name="Wid_CorFundo2" xml:space="preserve">
+    <value>Background color {0}</value>
+  </data>
+  <data name="Wid_CorUnica" xml:space="preserve">
+    <value>Single color {0}</value>
+  </data>
+  <data name="Wid_EscolhaInformacoesAbaWidget" xml:space="preserve">
+    <value>Choose information in the Widget tab</value>
+  </data>
+  <data name="Wid_NaoEncontrado" xml:space="preserve">
+    <value>{0} (not found)</value>
+  </data>
+  <data name="Wid_Valor" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Wid_MostreWidgetEnviarLeituras" xml:space="preserve">
+    <value>Show the widget to send the readings to RTSS.</value>
+  </data>
+  <data name="Wid_AdicioneLeituraWidgetExibir" xml:space="preserve">
+    <value>Add a reading to the widget to show it in game.</value>
+  </data>
+  <data name="Wid_LeiturasEnviadasRTSS" xml:space="preserve">
+    <value>Readings sent to RTSS.</value>
+  </data>
+  <data name="Wid_AbraRivaTunerStatisticsServer" xml:space="preserve">
+    <value>Open RivaTuner Statistics Server to receive the readings.</value>
+  </data>
+  <data name="Wid_SemAcessoOSDConfira" xml:space="preserve">
+    <value>No access to the OSD. Check that RTSS is up to date and reachable in this session.</value>
+  </data>
+  <data name="Wid_RTSSEstaSemEspaco" xml:space="preserve">
+    <value>RTSS has no room for more information on the OSD.</value>
+  </data>
+  <data name="Wid_AguardandoRTSSLiberarAtualizacao" xml:space="preserve">
+    <value>Waiting for RTSS to allow the update.</value>
+  </data>
+  <data name="Wid_AguardandoEnvioLeiturasRTSS" xml:space="preserve">
+    <value>Waiting to send the readings to RTSS.</value>
+  </data>
+  <data name="Wid_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Could not open the RTSS page.</value>
+  </data>
 </root>

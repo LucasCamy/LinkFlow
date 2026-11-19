@@ -202,8 +202,7 @@ public sealed class XamlHardcodedTextTests
     private static readonly HashSet<string> NotYetTranslated =
     [
         "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/ImportDialog.xaml", "Views/SettingsPage.xaml",
-        "Views/WidgetPage.xaml", "Views/WidgetView.xaml", "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml",
-        "Views/WindowsPage.xaml",
+        "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml", "Views/WindowsPage.xaml",
     ];
 
     private static IEnumerable<string> XamlFiles(string root) =>
