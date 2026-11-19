@@ -574,4 +574,224 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
   <data name="Dash_ManualFans" xml:space="preserve">
     <value>{0} em controle manual</value>
   </data>
+  <data name="Det_CloseTip" xml:space="preserve">
+    <value>Fechar (Esc)</value>
+  </data>
+  <data name="Det_CloseName" xml:space="preserve">
+    <value>Fechar detalhes</value>
+  </data>
+  <data name="Det_Now" xml:space="preserve">
+    <value>AGORA</value>
+    <comment>Rótulos das estatísticas (maiúsculas)</comment>
+  </data>
+  <data name="Det_Min" xml:space="preserve">
+    <value>MÍNIMO</value>
+  </data>
+  <data name="Det_Max" xml:space="preserve">
+    <value>MÁXIMO</value>
+  </data>
+  <data name="Det_Avg" xml:space="preserve">
+    <value>MÉDIA</value>
+  </data>
+  <data name="Det_Info" xml:space="preserve">
+    <value>Informações</value>
+  </data>
+  <data name="Det_Disks" xml:space="preserve">
+    <value>Discos</value>
+  </data>
+  <data name="Det_PumpFallback" xml:space="preserve">
+    <value>Bomba do AIO</value>
+  </data>
+  <data name="Det_FansSubtitle" xml:space="preserve">
+    <value>{0} ventoinha(s) • perfil {1}</value>
+    <comment>{0} = ventoinhas, {1} = perfil ativo</comment>
+  </data>
+  <data name="Det_DisksSubtitle" xml:space="preserve">
+    <value>{0} volume(s) • {1} disco(s) físico(s)</value>
+  </data>
+  <data name="Det_ListDisks" xml:space="preserve">
+    <value>Volumes e discos</value>
+  </data>
+  <data name="Det_ListDevices" xml:space="preserve">
+    <value>Dispositivos</value>
+  </data>
+  <data name="Det_AdjustLimits" xml:space="preserve">
+    <value>Ajustar limites de alerta</value>
+  </data>
+  <data name="Det_Usage" xml:space="preserve">
+    <value>Uso</value>
+  </data>
+  <data name="Det_Clock" xml:space="preserve">
+    <value>Clock</value>
+  </data>
+  <data name="Det_Hotspot" xml:space="preserve">
+    <value>Hotspot</value>
+  </data>
+  <data name="Det_GpuFans" xml:space="preserve">
+    <value>Fans da GPU</value>
+  </data>
+  <data name="Det_Coolant" xml:space="preserve">
+    <value>Líquido</value>
+  </data>
+  <data name="Det_Pump" xml:space="preserve">
+    <value>Bomba</value>
+  </data>
+  <data name="Det_AvgRpm" xml:space="preserve">
+    <value>RPM médio</value>
+  </data>
+  <data name="Det_Used" xml:space="preserve">
+    <value>Usada</value>
+  </data>
+  <data name="Det_Upload" xml:space="preserve">
+    <value>Upload</value>
+  </data>
+  <data name="Det_Activity" xml:space="preserve">
+    <value>Atividade</value>
+  </data>
+  <data name="Det_Read" xml:space="preserve">
+    <value>Leitura</value>
+  </data>
+  <data name="Det_Write" xml:space="preserve">
+    <value>Escrita</value>
+  </data>
+  <data name="Det_LastPartial" xml:space="preserve">
+    <value>Últimos {0} (o histórico começa quando o LinkFlow abre)</value>
+    <comment>{0} = duração (ex.: 6 s, 5 min)</comment>
+  </data>
+  <data name="Det_Last" xml:space="preserve">
+    <value>Últimos {0}</value>
+  </data>
+  <data name="Det_NoReadings" xml:space="preserve">
+    <value>Sem leituras deste sensor ainda</value>
+  </data>
+  <data name="Det_Model" xml:space="preserve">
+    <value>Modelo</value>
+  </data>
+  <data name="Det_CpuSensorHint" xml:space="preserve">
+    <value>Sensor indisponível sem administrador/serviço</value>
+  </data>
+  <data name="Det_AvgClock" xml:space="preserve">
+    <value>Clock médio</value>
+  </data>
+  <data name="Det_Cores" xml:space="preserve">
+    <value>{0} núcleos</value>
+  </data>
+  <data name="Det_PackagePower" xml:space="preserve">
+    <value>Potência do pacote</value>
+  </data>
+  <data name="Det_AlertCritical" xml:space="preserve">
+    <value>Alerta / crítico</value>
+  </data>
+  <data name="Det_CoreClock" xml:space="preserve">
+    <value>Clock do núcleo</value>
+  </data>
+  <data name="Det_MemClock" xml:space="preserve">
+    <value>Clock da memória</value>
+  </data>
+  <data name="Det_VideoMemory" xml:space="preserve">
+    <value>Memória de vídeo</value>
+  </data>
+  <data name="Det_VramValue" xml:space="preserve">
+    <value>{0:0.0} de {1:0} GB ({2:0}%)</value>
+  </data>
+  <data name="Det_CoolantTemp" xml:space="preserve">
+    <value>Temperatura do líquido</value>
+  </data>
+  <data name="Det_PumpPower" xml:space="preserve">
+    <value>{0}% de potência</value>
+  </data>
+  <data name="Det_CoolantToCpu" xml:space="preserve">
+    <value>Diferença líquido → CPU</value>
+  </data>
+  <data name="Det_CoolantToCpuHint" xml:space="preserve">
+    <value>Quanto menor, melhor a troca de calor</value>
+  </data>
+  <data name="Det_CurveUsesCoolant" xml:space="preserve">
+    <value>Curva usando o líquido</value>
+  </data>
+  <data name="Det_Yes" xml:space="preserve">
+    <value>Sim</value>
+  </data>
+  <data name="Det_No" xml:space="preserve">
+    <value>Não</value>
+  </data>
+  <data name="Det_Profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Det_Mode" xml:space="preserve">
+    <value>Modo</value>
+  </data>
+  <data name="Det_FixedPower" xml:space="preserve">
+    <value>Potência fixa {0}</value>
+    <comment>{0} = potência (ex.: 55%)</comment>
+  </data>
+  <data name="Det_ManualControl" xml:space="preserve">
+    <value>Em controle manual</value>
+  </data>
+  <data name="Det_OfTotal" xml:space="preserve">
+    <value>{0} de {1}</value>
+  </data>
+  <data name="Det_Stopped" xml:space="preserve">
+    <value>Paradas</value>
+  </data>
+  <data name="Det_NoneStopped" xml:space="preserve">
+    <value>Nenhuma</value>
+  </data>
+  <data name="Det_CheckCables" xml:space="preserve">
+    <value>Verifique cabos/conectores</value>
+  </data>
+  <data name="Det_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Det_Free" xml:space="preserve">
+    <value>Livre</value>
+  </data>
+  <data name="Det_Adapter" xml:space="preserve">
+    <value>Adaptador</value>
+  </data>
+  <data name="Det_LinkSpeed" xml:space="preserve">
+    <value>Velocidade do link</value>
+  </data>
+  <data name="Det_Session" xml:space="preserve">
+    <value>Desde que o LinkFlow abriu</value>
+  </data>
+  <data name="Det_VolumeFree" xml:space="preserve">
+    <value>{0:0} GB livres</value>
+  </data>
+  <data name="Det_VolumeOf" xml:space="preserve">
+    <value>de {0:0} GB</value>
+  </data>
+  <data name="Det_DiskRates" xml:space="preserve">
+    <value>L {0} • E {1}</value>
+    <comment>L = leitura, E = escrita (velocidades)</comment>
+  </data>
+  <data name="Det_PhysicalDisks" xml:space="preserve">
+    <value>Discos físicos</value>
+  </data>
+  <data name="Det_ReadingDisks" xml:space="preserve">
+    <value>Lendo...</value>
+  </data>
+  <data name="Det_DisksOnDemand" xml:space="preserve">
+    <value>A leitura de discos liga só com o painel aberto (economia)</value>
+  </data>
+  <data name="Det_KindGlobal" xml:space="preserve">
+    <value>Global</value>
+    <comment>Ventoinha seguindo a potência global</comment>
+  </data>
+  <data name="Det_KindManual" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="Chart_Collecting" xml:space="preserve">
+    <value>Coletando dados...</value>
+  </data>
+  <data name="Chart_Now" xml:space="preserve">
+    <value>agora</value>
+    <comment>Fim do eixo de tempo do gráfico</comment>
+  </data>
+  <data name="Chart_SecondsAgo" xml:space="preserve">
+    <value>há {0} s</value>
+  </data>
+  <data name="Chart_MinutesAgo" xml:space="preserve">
+    <value>há {0} min {1} s</value>
+  </data>
 </root>
