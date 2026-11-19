@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using LinkFlow.App.Services;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -14,6 +15,28 @@ public partial class HardwarePage : UserControl
 
     private sealed record PartGroup(string Category, IReadOnlyList<HardwarePart> Parts)
     {
+        /// <summary>Nome da categoria no idioma da interface (Category continua em português: é a chave interna).</summary>
+        public string Label => LabelFor(Category);
+
+        public static string LabelFor(string category) => category switch
+        {
+            "Processador" => Strings.Dash_Cpu,
+            "Placa de vídeo" => Strings.Dash_Gpu,
+            "Memória" => Strings.Dash_Memory,
+            "Armazenamento" => Strings.Dash_Storage,
+            "Rede" => Strings.Dash_Network,
+            "Ventoinhas" => Strings.Nav_Fans,
+            "Placa-mãe" => Strings.Hw_CatMotherboard,
+            "Monitor" => Strings.Hw_CatMonitor,
+            "Display LCD" => Strings.Hw_CatLcd,
+            "Áudio" => Strings.Hw_CatAudio,
+            "Periféricos" => Strings.Hw_CatPeripherals,
+            "Bombas" => Strings.Hw_CatPumps,
+            "Módulos LINK" => Strings.Hw_CatLinkModules,
+            "Sensores" => Strings.Hw_CatSensors,
+            _ => category   // Windows, BIOS, RGB, Hub, iCUE LINK
+        };
+
         public string Icon => Category switch
         {
             "Windows" => "\uECAA",
@@ -35,16 +58,16 @@ public partial class HardwarePage : UserControl
         SupportedParts.ItemsSource = GroupParts(
         [
             new("Ventoinhas", "Corsair iCUE LINK System Hub",
-                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Fan).Select(f => f.Name)) + " · RPM e curvas de velocidade"),
+                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Fan).Select(f => f.Name)) + Strings.Hw_RPMCurvasVelocidade),
             new("Bombas", "Corsair iCUE LINK System Hub",
-                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Pump).Select(f => f.Name)) + " · RPM e controle de velocidade"),
-            new("Módulos LINK", "Identificação pelo hub",
+                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Pump).Select(f => f.Name)) + Strings.Hw_RPMControleVelocidade),
+            new("Módulos LINK", Strings.Hw_IdentificacaoPeloHub,
                 string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Module).Select(f => f.Name))),
-            new("RGB", "iCUE LINK, ASUS Aura, MSI Mystic Light, Corsair DDR5 RGB e Logitech G",
-                "A disponibilidade depende do controlador. A memória usa PawnIO e os periféricos Logitech usam G HUB."),
-            new("Sensores", "CPUs, GPUs e discos compatíveis com LibreHardwareMonitor",
-                "As métricas disponíveis variam por modelo e permissões do Windows."),
-            new("Display LCD", "Corsair iCUE LINK LCD", "Métricas, fotos e GIFs")
+            new("RGB", Strings.Hw_ICUELINKASUSAura,
+                Strings.Hw_DisponibilidadeDependeControladorMemoria),
+            new("Sensores", Strings.Hw_CPUsGPUsDiscosCompativeis,
+                Strings.Hw_MetricasDisponiveisVariamModelo),
+            new("Display LCD", "Corsair iCUE LINK LCD", Strings.Hw_MetricasFotosGIFs)
         ]);
     }
 
@@ -53,28 +76,28 @@ public partial class HardwarePage : UserControl
         if (DataContext is not MainViewModel vm) return;
         ScanButton.IsEnabled = false;
         InventoryFilterPanel.IsEnabled = false;
-        InventoryStatus.Text = "Lendo as peças deste PC…";
+        InventoryStatus.Text = Strings.Hw_LendoPecasDestePC;
         try
         {
             var snapshot = vm.Snapshot;
             var parts = new List<HardwarePart>();
             if (snapshot.HubConnected)
             {
-                parts.Add(new("Hub", "Corsair iCUE LINK System Hub", $"Firmware {snapshot.HubFirmware}"));
+                parts.Add(new("Hub", "Corsair iCUE LINK System Hub", string.Format(Strings.Hw_Firmware, snapshot.HubFirmware)));
                 parts.AddRange(snapshot.Fans.Select(f => new HardwarePart("iCUE LINK",
                     vm.Fans.FirstOrDefault(fan => fan.Key == f.Key)?.Name ?? f.DefaultName,
-                    $"Canal {f.Channel}")));
+                    string.Format(Strings.Hw_Canal, f.Channel))));
             }
-            if (snapshot.LcdConnected) parts.Add(new("Display LCD", "Corsair iCUE LINK LCD", "Conectado"));
+            if (snapshot.LcdConnected) parts.Add(new("Display LCD", "Corsair iCUE LINK LCD", Strings.Hw_Conectado));
 
             if (App.Current.Options.Simulate)
             {
-                if (snapshot.CpuName is { } cpu) parts.Insert(0, new("Processador", cpu, "Simulado"));
-                if (snapshot.GpuName is { } gpu) parts.Insert(0, new("Placa de vídeo", gpu, "Simulada"));
-                parts.Insert(0, new("Memória", "Módulo DDR5 (simulado)", "32 GiB · 6000 MT/s configurados · DIMMA2"));
-                parts.Insert(0, new("Armazenamento", "SSD de 1 TB (simulado)", "SSD · NVMe · 1000 GB"));
+                if (snapshot.CpuName is { } cpu) parts.Insert(0, new("Processador", cpu, Strings.Hw_Simulado));
+                if (snapshot.GpuName is { } gpu) parts.Insert(0, new("Placa de vídeo", gpu, Strings.Hw_SimulatedF));
+                parts.Insert(0, new("Memória", Strings.Hw_ModuloDDR5Simulado, Strings.Hw_32GiB6000MT));
+                parts.Insert(0, new("Armazenamento", Strings.Hw_SSD1TBSimulado, "SSD · NVMe · 1000 GB"));
                 AddGpuMemory(parts, snapshot);
-                ShowInventory(parts, " Inventário simulado.");
+                ShowInventory(parts, Strings.Hw_InventarioSimulado);
                 return;
             }
 
@@ -82,7 +105,7 @@ public partial class HardwarePage : UserControl
             parts.InsertRange(0, inventory.Parts);
             AddGpuMemory(parts, vm.Snapshot);
             ShowInventory(parts, inventory.Unavailable.Count == 0 ? string.Empty :
-                $" Leitura indisponível para {string.Join(", ", inventory.Unavailable)}.");
+                string.Format(Strings.Hw_ReadUnavailable, string.Join(", ", inventory.Unavailable.Select(PartGroup.LabelFor))));
         }
         catch (Exception ex)
         {
@@ -90,7 +113,7 @@ public partial class HardwarePage : UserControl
             _parts = null;
             DetectedParts.ItemsSource = null;
             InventoryFilterPanel.Visibility = Visibility.Collapsed;
-            InventoryStatus.Text = "Não foi possível ler o inventário. Tente novamente.";
+            InventoryStatus.Text = Strings.Hw_NaoFoiPossivelLer;
         }
         finally
         {
@@ -108,7 +131,7 @@ public partial class HardwarePage : UserControl
 
         int index = parts.FindIndex(Matches);
         var gpu = parts[index];
-        string vram = $"{snapshot.GpuVramTotalGb:0.#} GiB de VRAM";
+        string vram = string.Format(Strings.Hw_GiBVRAM, snapshot.GpuVramTotalGb);
         parts[index] = gpu with { Details = gpu.Details.Length == 0 ? vram : $"{gpu.Details} · {vram}" };
     }
 
@@ -117,7 +140,7 @@ public partial class HardwarePage : UserControl
         _parts = parts;
         _inventoryNote = note;
         InventoryFilterPanel.Visibility = parts.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        ScanButton.Content = "Detectar novamente";
+        ScanButton.Content = Strings.Hw_DetectarNovamente;
         ApplyFilter();
     }
 
@@ -130,10 +153,10 @@ public partial class HardwarePage : UserControl
         var compare = CultureInfo.CurrentCulture.CompareInfo;
         bool Contains(string value) => compare.IndexOf(value, filter, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
         var results = filter.Length == 0 ? _parts : _parts.Where(part =>
-            Contains(part.Name) || Contains(part.Category) || Contains(part.Details)).ToArray();
+            Contains(part.Name) || Contains(part.Category) || Contains(PartGroup.LabelFor(part.Category)) || Contains(part.Details)).ToArray();
         DetectedParts.ItemsSource = GroupParts(results);
-        InventoryStatus.Text = (filter.Length == 0 ? $"{results.Count} itens no inventário." :
-            $"{results.Count} de {_parts.Count} itens.") + _inventoryNote;
+        InventoryStatus.Text = (filter.Length == 0 ? string.Format(Strings.Hw_ItensInventario, results.Count) :
+            string.Format(Strings.Hw_Itens, results.Count, _parts.Count)) + _inventoryNote;
     }
 
     private static IReadOnlyList<PartGroup> GroupParts(IEnumerable<HardwarePart> parts) =>

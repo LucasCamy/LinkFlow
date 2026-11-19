@@ -1,6 +1,7 @@
 <UserControl x:Class="LinkFlow.App.Views.HardwarePage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:LinkFlow.App.Resources"
              xmlns:c="clr-namespace:LinkFlow.App.Controls">
     <UserControl.Resources>
         <DataTemplate x:Key="PartGroupCard">
@@ -10,7 +11,7 @@
                         <Border Style="{StaticResource SystemIconTile}" Width="34" Height="34" Margin="0,0,10,0">
                             <TextBlock Text="{Binding Icon}" Style="{StaticResource SystemIcon}" FontSize="15"/>
                         </Border>
-                        <TextBlock Text="{Binding Category}" Style="{StaticResource SystemSectionTitle}" FontSize="15"
+                        <TextBlock Text="{Binding Label}" Style="{StaticResource SystemSectionTitle}" FontSize="15"
                                    VerticalAlignment="Center"/>
                     </DockPanel>
                     <ItemsControl ItemsSource="{Binding Parts}">
@@ -40,12 +41,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,18">
-            <TextBlock Text="Hardware" Style="{StaticResource SystemPageTitle}"/>
-            <TextBlock Text="Especificações deste PC e compatibilidade com o LinkFlow." Style="{StaticResource SystemDetail}"/>
+            <TextBlock Text="{x:Static r:Strings.Nav_Hardware}" Style="{StaticResource SystemPageTitle}"/>
+            <TextBlock Text="{x:Static r:Strings.Hw_EspecificacoesDestePCCompatibilidade}" Style="{StaticResource SystemDetail}"/>
         </StackPanel>
 
         <TabControl x:Name="HardwareTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
-            <TabItem Header="Meu PC" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Hw_MeuPC}" Style="{StaticResource SystemTab}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -55,21 +56,21 @@
                         <StackPanel>
                             <DockPanel>
                                 <Button x:Name="ScanButton" DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}"
-                                        Content="Detectar hardware" Click="Scan_Click" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                        Content="{x:Static r:Strings.Hw_DetectarHardware}" Click="Scan_Click" VerticalAlignment="Center" Margin="12,0,0,0"/>
                                 <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                     <TextBlock Text="&#xE7F8;" Style="{StaticResource SystemIcon}"/>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Inventário do PC" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock x:Name="InventoryStatus" Text="Leia os componentes e suas especificações."
+                                    <TextBlock Text="{x:Static r:Strings.Hw_InventarioPC}" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock x:Name="InventoryStatus" Text="{x:Static r:Strings.Hw_LeiaComponentesSuasEspecificacoes}"
                                                Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
                                 </StackPanel>
                             </DockPanel>
                             <Grid x:Name="InventoryFilterPanel" Margin="0,14,0,0" MaxWidth="480"
                                   HorizontalAlignment="Left" Visibility="Collapsed">
                                 <TextBox x:Name="InventoryFilter" Style="{StaticResource SystemSearch}" Width="320"
-                                         TextChanged="Filter_Changed" Tag="Filtrar por peça ou especificação"
-                                         AutomationProperties.Name="Filtrar peças"/>
+                                         TextChanged="Filter_Changed" Tag="{x:Static r:Strings.Hw_FiltrarPecaOuEspecificacao}"
+                                         AutomationProperties.Name="{x:Static r:Strings.Hw_FiltrarPecas}"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -81,7 +82,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Compatibilidade" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Hw_Compatibilidade}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <ItemsControl x:Name="SupportedParts" ItemsPanel="{StaticResource PartGroupsPanel}"
                                   ItemTemplate="{StaticResource PartGroupCard}" Margin="0,0,-12,12"/>
