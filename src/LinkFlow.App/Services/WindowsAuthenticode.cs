@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -35,20 +36,20 @@ internal static class WindowsAuthenticode
             }, fileInfo, false);
             int status = WinVerifyTrust(-1, in VerifyAuthenticode, ref data);
             if (status != 0)
-                throw new InvalidOperationException($"O Windows rejeitou a assinatura do instalador (0x{status:X8}).");
+                throw new InvalidOperationException(string.Format(Strings.Drv_WindowsRejeitouAssinaturaInstalador, status));
 
             // Lê o certificado da mesma assinatura que a política Authenticode acabou de verificar.
             nint provider = WTHelperProvDataFromStateData(data.StateData);
             nint signer = provider == 0 ? 0 : WTHelperGetProvSignerFromChain(provider, 0, false, 0);
             nint certificate = signer == 0 ? 0 : WTHelperGetProvCertFromChain(signer, 0);
-            if (certificate == 0) throw new InvalidOperationException("O Windows não identificou o editor do instalador.");
+            if (certificate == 0) throw new InvalidOperationException(Strings.Drv_WindowsNaoIdentificouEditor);
 
             nint context = Marshal.PtrToStructure<ProviderCertificate>(certificate).Context;
             uint size = CertGetNameString(context, SimpleDisplayName, 0, 0, null, 0);
-            if (size < 2) throw new InvalidOperationException("O certificado do instalador não informou o nome do editor.");
+            if (size < 2) throw new InvalidOperationException(Strings.Drv_CertificadoInstaladorNaoInformou);
             var name = new StringBuilder((int)size);
             if (CertGetNameString(context, SimpleDisplayName, 0, 0, name, size) <= 1)
-                throw new InvalidOperationException("O Windows não conseguiu ler o nome do editor do instalador.");
+                throw new InvalidOperationException(Strings.Drv_WindowsNaoConseguiuLer);
             return name.ToString();
         }
         finally

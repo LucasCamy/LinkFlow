@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -18,7 +19,7 @@ internal static class AmdChipsetDrivers
         if (!match.Success) return null;
 
         string chipset = match.Groups[1].Value.ToUpperInvariant();
-        string name = $"Chipset AMD {chipset}";
+        string name = string.Format(Strings.Drv_ChipsetAMD, chipset);
         string socket = chipset is "X570" or "B550" or "A520" ? "am4" : "am5";
         var support = new Uri($"https://www.amd.com/en/support/downloads/drivers.html/chipsets/{socket}/{chipset.ToLowerInvariant()}.html");
         string html = await OfficialDriverInstaller.GetMetadataAsync(support).ConfigureAwait(false);
@@ -26,14 +27,14 @@ internal static class AmdChipsetDrivers
         if (packages.Length != 1 || !Uri.TryCreate(packages[0].Groups[1].Value, UriKind.Absolute, out var download) ||
             !OfficialDriverInstaller.IsOfficialDownload(DriverPublisher.Amd, download) ||
             !Version.TryParse(packages[0].Groups[2].Value, out var available))
-            return new ManufacturerDriverSource(name, $"{processor} · consulte o pacote indicado para o Windows na página da AMD.", support);
+            return new ManufacturerDriverSource(name, string.Format(Strings.Drv_ConsultePacoteIndicadoWindows, processor), support);
 
         string version = packages[0].Groups[2].Value;
         var (installedText, installed) = InstalledVersion();
-        string current = installedText == null ? "versão instalada indisponível" : $"instalada {installedText}";
-        string details = $"{processor} · {current} · disponível {version}";
-        if (installed == available) details += " · versão atual";
-        if (installed > available) details += " · a versão instalada é mais recente";
+        string current = installedText == null ? Strings.Drv_VersaoInstaladaIndisponivel : string.Format(Strings.Drv_Instalada2, installedText);
+        string details = string.Format(Strings.Drv_Disponivel, processor, current, version);
+        if (installed == available) details += Strings.Drv_VersaoAtual;
+        if (installed > available) details += Strings.Drv_VersaoInstaladaMaisRecente;
         var package = installed == null || installed < available
             ? new ManufacturerDriverPackage($"AMD Chipset {chipset} {version}", DriverPublisher.Amd, download)
             : null;

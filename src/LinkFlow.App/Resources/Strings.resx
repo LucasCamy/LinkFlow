@@ -150,11 +150,7 @@
     <value>Desligar a proteção</value>
   </data>
   <data name="Main_DisableFailSafeMessage" xml:space="preserve">
-    <value>Desligar o modo de segurança automático?
-
-Sem ele, o LinkFlow NÃO leva as ventoinhas e a bomba a 100% quando a CPU, a GPU ou o líquido atingem a temperatura crítica, quando a bomba para ou quando os sensores deixam de responder. Isso pode causar superaquecimento e danificar o hardware.
-
-Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
+    <value>Desligar o modo de segurança automático?&#xA;&#xA;Sem ele, o LinkFlow NÃO leva as ventoinhas e a bomba a 100% quando a CPU, a GPU ou o líquido atingem a temperatura crítica, quando a bomba para ou quando os sensores deixam de responder. Isso pode causar superaquecimento e danificar o hardware.&#xA;&#xA;Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
   </data>
   <data name="Mini_Title" xml:space="preserve">
     <value>LinkFlow Widget</value>
@@ -245,9 +241,7 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
     <value>LinkFlow aguardando o serviço</value>
   </data>
   <data name="Startup_Failed" xml:space="preserve">
-    <value>O LinkFlow não conseguiu iniciar.
-
-{0}</value>
+    <value>O LinkFlow não conseguiu iniciar.&#xA;&#xA;{0}</value>
     <comment>{0} = mensagem do erro</comment>
   </data>
   <data name="Banner_Stalled" xml:space="preserve">
@@ -2523,22 +2517,16 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
     <value>LinkFlow.Service.exe não encontrado na pasta do aplicativo.</value>
   </data>
   <data name="Set_LinkFlowVaiInstalarServico" xml:space="preserve">
-    <value>O LinkFlow vai instalar o serviço do Windows "LinkFlowService" e reabrir a interface conectada a ele.
-
-</value>
+    <value>O LinkFlow vai instalar o serviço do Windows "LinkFlowService" e reabrir a interface conectada a ele.&#xA;&#xA;</value>
   </data>
   <data name="Set_ControleVentoinhasRGBLCD" xml:space="preserve">
-    <value>• O controle das ventoinhas, RGB e LCD passa a rodar em segundo plano, mesmo sem janela aberta.
-</value>
+    <value>• O controle das ventoinhas, RGB e LCD passa a rodar em segundo plano, mesmo sem janela aberta.&#xA;</value>
   </data>
   <data name="Set_IniciaAutomaticamenteWindowsReinicia" xml:space="preserve">
-    <value>• Inicia automaticamente com o Windows e reinicia sozinho se falhar.
-</value>
+    <value>• Inicia automaticamente com o Windows e reinicia sozinho se falhar.&#xA;</value>
   </data>
   <data name="Set_InterfaceDeixaPedirPermissao" xml:space="preserve">
-    <value>• A interface deixa de pedir permissão de administrador.
-
-</value>
+    <value>• A interface deixa de pedir permissão de administrador.&#xA;&#xA;</value>
   </data>
   <data name="Set_WindowsVaiPedirConfirmacao" xml:space="preserve">
     <value>O Windows vai pedir confirmação (UAC). Continuar?</value>
@@ -2550,9 +2538,7 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
     <value>Instalação cancelada.</value>
   </data>
   <data name="Set_RemoverServicoLinkFlowServiceLinkFlow" xml:space="preserve">
-    <value>Remover o serviço LinkFlowService?
-
-O LinkFlow volta ao modo local: o controle do hardware só funciona com o aplicativo aberto (ou na bandeja).</value>
+    <value>Remover o serviço LinkFlowService?&#xA;&#xA;O LinkFlow volta ao modo local: o controle do hardware só funciona com o aplicativo aberto (ou na bandeja).</value>
   </data>
   <data name="Set_RemocaoCancelada" xml:space="preserve">
     <value>Remoção cancelada.</value>
@@ -2645,8 +2631,7 @@ O LinkFlow volta ao modo local: o controle do hardware só funciona com o aplica
     <value>Exportado: {0} • {1} perfil(is), {2} imagem(ns)</value>
   </data>
   <data name="Set_NaoFoiPossivelExportar" xml:space="preserve">
-    <value>Não foi possível exportar:
-{0}</value>
+    <value>Não foi possível exportar:&#xA;{0}</value>
   </data>
   <data name="Set_ExportarConfiguracoes" xml:space="preserve">
     <value>Exportar configurações</value>
@@ -2673,22 +2658,16 @@ O LinkFlow volta ao modo local: o controle do hardware só funciona com o aplica
     <value>Gerando o pacote de diagnóstico...</value>
   </data>
   <data name="Set_PacoteDiagnosticoSalvoArquivo" xml:space="preserve">
-    <value>Pacote de diagnóstico salvo em:
-{0}
-
-{1} arquivo(s) de log, config.json e hardware-summary.txt </value>
+    <value>Pacote de diagnóstico salvo em:&#xA;{0}&#xA;&#xA;{1} arquivo(s) de log, config.json e hardware-summary.txt </value>
   </data>
   <data name="Set_NomeUsuarioComputadorSubstituidos" xml:space="preserve">
-    <value>(nome de usuário e do computador substituídos).
-
-Abrir a pasta do arquivo?</value>
+    <value>(nome de usuário e do computador substituídos).&#xA;&#xA;Abrir a pasta do arquivo?</value>
   </data>
   <data name="Set_PacoteDiagnostico" xml:space="preserve">
     <value>Pacote de diagnóstico</value>
   </data>
   <data name="Set_NaoFoiPossivelGerar" xml:space="preserve">
-    <value>Não foi possível gerar o pacote de diagnóstico:
-{0}</value>
+    <value>Não foi possível gerar o pacote de diagnóstico:&#xA;{0}</value>
   </data>
   <data name="Set_Importar2" xml:space="preserve">
     <value>O que importar</value>
@@ -3138,11 +3117,7 @@ Abrir a pasta do arquivo?</value>
     <value>Revisar e executar reparo</value>
   </data>
   <data name="Win_ExecutarEsteReparo" xml:space="preserve">
-    <value>{0}
-
-{1}
-
-Executar este reparo?</value>
+    <value>{0}&#xA;&#xA;{1}&#xA;&#xA;Executar este reparo?</value>
   </data>
   <data name="Win_RevisarReparo" xml:space="preserve">
     <value>Revisar reparo</value>
@@ -3536,5 +3511,428 @@ Executar este reparo?</value>
   </data>
   <data name="Win_NaoFoiPossivelIniciar" xml:space="preserve">
     <value>Não foi possível iniciar o Windows PowerShell.</value>
+  </data>
+  <data name="Drv_UpdatesMany" xml:space="preserve">
+    <value>{0} atualizações disponíveis. Revise o driver que deseja instalar.</value>
+  </data>
+  <data name="Drv_SourcesMany" xml:space="preserve">
+    <value>{0} fontes encontradas.</value>
+  </data>
+  <data name="Drv_ConsulteAtualizacoesConfiraVersoes" xml:space="preserve">
+    <value>Consulte atualizações e confira as versões instaladas neste PC.</value>
+  </data>
+  <data name="Drv_Fabricantes" xml:space="preserve">
+    <value>Fabricantes</value>
+  </data>
+  <data name="Drv_ConsulteFontesOficiaisPecas" xml:space="preserve">
+    <value>Consulte as fontes oficiais das peças detectadas.</value>
+  </data>
+  <data name="Drv_BuscarFabricantes" xml:space="preserve">
+    <value>Buscar nos fabricantes</value>
+  </data>
+  <data name="Drv_ProgressoDownload" xml:space="preserve">
+    <value>Progresso do download</value>
+  </data>
+  <data name="Drv_WindowsUpdate" xml:space="preserve">
+    <value>Windows Update</value>
+  </data>
+  <data name="Drv_ConfiraAtualizacoesWindowsOferece" xml:space="preserve">
+    <value>Confira as atualizações que o Windows oferece para este PC.</value>
+  </data>
+  <data name="Drv_BuscarAtualizacoes" xml:space="preserve">
+    <value>Buscar atualizações</value>
+  </data>
+  <data name="Drv_Abrir" xml:space="preserve">
+    <value>Abrir ↗</value>
+  </data>
+  <data name="Drv_AbrirWindowsUpdateConfiguracoes" xml:space="preserve">
+    <value>Abrir Windows Update nas Configurações</value>
+  </data>
+  <data name="Drv_ResultadosFabricantes" xml:space="preserve">
+    <value>Resultados dos fabricantes</value>
+  </data>
+  <data name="Drv_SiteOficial" xml:space="preserve">
+    <value>Site oficial ↗</value>
+  </data>
+  <data name="Drv_NenhumaFonteOficialEncontrada" xml:space="preserve">
+    <value>Nenhuma fonte oficial encontrada</value>
+  </data>
+  <data name="Drv_CatalogoNaoTemSite" xml:space="preserve">
+    <value>O catálogo não tem um site de fabricante para as peças detectadas. O Windows Update ainda pode oferecer drivers.</value>
+  </data>
+  <data name="Drv_TodosDriversEstaoAtualizados" xml:space="preserve">
+    <value>Todos os drivers estão atualizados</value>
+  </data>
+  <data name="Drv_WindowsUpdateNaoOfereceu" xml:space="preserve">
+    <value>O Windows Update não ofereceu nenhuma atualização de driver para este PC.</value>
+  </data>
+  <data name="Drv_OfertasWindowsUpdate" xml:space="preserve">
+    <value>Ofertas do Windows Update</value>
+  </data>
+  <data name="Drv_RevisarInstalar" xml:space="preserve">
+    <value>Revisar e instalar</value>
+  </data>
+  <data name="Drv_Instalados" xml:space="preserve">
+    <value>Instalados</value>
+  </data>
+  <data name="Drv_LerDrivers" xml:space="preserve">
+    <value>Ler drivers</value>
+  </data>
+  <data name="Drv_DriversDestePC" xml:space="preserve">
+    <value>Drivers deste PC</value>
+  </data>
+  <data name="Drv_LeiaInventarioDispositivosConectados" xml:space="preserve">
+    <value>Leia o inventário dos dispositivos conectados.</value>
+  </data>
+  <data name="Drv_FiltrarDriversInstalados" xml:space="preserve">
+    <value>Filtrar drivers instalados</value>
+  </data>
+  <data name="Drv_Versao" xml:space="preserve">
+    <value>Versão</value>
+  </data>
+  <data name="Drv_Dispositivo" xml:space="preserve">
+    <value>Dispositivo</value>
+  </data>
+  <data name="Drv_ArquivoINF" xml:space="preserve">
+    <value>Arquivo INF</value>
+  </data>
+  <data name="Drv_DataDriver" xml:space="preserve">
+    <value>Data do driver</value>
+  </data>
+  <data name="Drv_IDHardware" xml:space="preserve">
+    <value>ID de hardware</value>
+  </data>
+  <data name="Drv_CatalogoMicrosoft" xml:space="preserve">
+    <value>Catálogo Microsoft ↗</value>
+  </data>
+  <data name="Drv_NenhumDriverCorrespondeFiltro" xml:space="preserve">
+    <value>Nenhum driver corresponde ao filtro</value>
+  </data>
+  <data name="Drv_TenteNomeDispositivoFabricante" xml:space="preserve">
+    <value>Tente o nome do dispositivo, o fabricante, a versão ou parte do ID de hardware.</value>
+  </data>
+  <data name="Drv_FiltrarDispositivoVersaoOu" xml:space="preserve">
+    <value>Filtrar por dispositivo, versão ou ID</value>
+  </data>
+  <data name="Drv_SiteOficial2" xml:space="preserve">
+    <value>Site oficial de {0}</value>
+  </data>
+  <data name="Drv_Baixar" xml:space="preserve">
+    <value>Baixar {0}</value>
+  </data>
+  <data name="Drv_RevisarInstalar2" xml:space="preserve">
+    <value>Revisar e instalar {0}</value>
+  </data>
+  <data name="Drv_CatalogoMicrosoft2" xml:space="preserve">
+    <value>Catálogo Microsoft para {0}</value>
+  </data>
+  <data name="Drv_RealtekHighDefinitionAudio" xml:space="preserve">
+    <value>Realtek High Definition Audio (simulado)</value>
+  </data>
+  <data name="Drv_ControladorNVMExpressSimulado" xml:space="preserve">
+    <value>Controlador NVM Express (simulado)</value>
+  </data>
+  <data name="Drv_BuscandoDriversWindowsUpdate" xml:space="preserve">
+    <value>Buscando drivers no Windows Update…</value>
+  </data>
+  <data name="Drv_DriverVideoSimulado" xml:space="preserve">
+    <value>Driver de vídeo (simulado)</value>
+  </data>
+  <data name="Drv_AtualizacaoDemonstracao" xml:space="preserve">
+    <value>Atualização de demonstração</value>
+  </data>
+  <data name="Drv_WindowsUpdateRetornouBusca" xml:space="preserve">
+    <value>O Windows Update retornou uma busca parcial sem drivers para exibir.</value>
+  </data>
+  <data name="Drv_WindowsUpdateNaoOfereceu2" xml:space="preserve">
+    <value>O Windows Update não ofereceu drivers nesta busca.</value>
+  </data>
+  <data name="Drv_UpdatesOne" xml:space="preserve">
+    <value>{0} atualização disponível. Revise o driver que deseja instalar.</value>
+  </data>
+  <data name="Drv_WindowsUpdateRetornouResultados" xml:space="preserve">
+    <value> O Windows Update retornou resultados parciais.</value>
+  </data>
+  <data name="Drv_BuscaFalhouWindowsUpdate" xml:space="preserve">
+    <value>A busca falhou no Windows Update (0x{0:X8}). Tente novamente ou abra o Windows Update.</value>
+  </data>
+  <data name="Drv_NaoFoiPossivelConcluir" xml:space="preserve">
+    <value>Não foi possível concluir a busca. Tente novamente ou abra o Windows Update.</value>
+  </data>
+  <data name="Drv_VerificandoBaixandoInstalando" xml:space="preserve">
+    <value>Verificando, baixando e instalando {0}…</value>
+  </data>
+  <data name="Drv_InstalacaoSimuladaConcluida" xml:space="preserve">
+    <value>Instalação simulada concluída.</value>
+  </data>
+  <data name="Drv_InstalacaoCanceladaConfirmacaoWindows" xml:space="preserve">
+    <value>Instalação cancelada na confirmação do Windows.</value>
+  </data>
+  <data name="Drv_Instalado" xml:space="preserve">
+    <value>{0} instalado.</value>
+  </data>
+  <data name="Drv_InstaladoReinicieWindowsConcluir" xml:space="preserve">
+    <value>{0} instalado. Reinicie o Windows para concluir.</value>
+  </data>
+  <data name="Drv_WindowsUpdateDeixouOferecer" xml:space="preserve">
+    <value>O Windows Update deixou de oferecer este driver. Faça uma nova busca para conferir.</value>
+  </data>
+  <data name="Drv_WindowsPrecisaSerReiniciado" xml:space="preserve">
+    <value>O Windows precisa ser reiniciado antes de instalar este driver.</value>
+  </data>
+  <data name="Drv_WindowsUpdateEstaInstalando" xml:space="preserve">
+    <value>O Windows Update está instalando outra atualização. Tente novamente quando terminar.</value>
+  </data>
+  <data name="Drv_EsteDriverPrecisaSer" xml:space="preserve">
+    <value>Este driver precisa ser revisto no Windows Update. Abra a página para conferir.</value>
+  </data>
+  <data name="Drv_WindowsUpdateNaoConcluiu" xml:space="preserve">
+    <value>O Windows Update não concluiu o download do driver.</value>
+  </data>
+  <data name="Drv_WindowsUpdateNaoConfirmou" xml:space="preserve">
+    <value>O Windows Update não confirmou a instalação. Consulte o log do LinkFlow.</value>
+  </data>
+  <data name="Drv_WindowsUpdateRetornouErro" xml:space="preserve">
+    <value>O Windows Update retornou o erro 0x{0:X8}. Abra o Windows Update para conferir.</value>
+  </data>
+  <data name="Drv_NaoFoiPossivelIniciar" xml:space="preserve">
+    <value>Não foi possível iniciar a instalação do driver. Consulte o log do LinkFlow.</value>
+  </data>
+  <data name="Drv_IdentificandoPecasConsultandoFabricantes" xml:space="preserve">
+    <value>Identificando as peças e consultando os fabricantes…</value>
+  </data>
+  <data name="Drv_NVIDIAGeForceRTX4080" xml:space="preserve">
+    <value>NVIDIA GeForce RTX 4080 (simulada)</value>
+  </data>
+  <data name="Drv_GameReadyWHQLInstalada" xml:space="preserve">
+    <value>Game Ready WHQL · instalada 621.01 · NVIDIA 621.24</value>
+  </data>
+  <data name="Drv_GameReady62124" xml:space="preserve">
+    <value>Game Ready 621.24 (simulado)</value>
+  </data>
+  <data name="Drv_RadeonRyzenSimulados" xml:space="preserve">
+    <value>Radeon e Ryzen (simulados)</value>
+  </data>
+  <data name="Drv_AMDAutoDetectDrivers" xml:space="preserve">
+    <value>AMD · Auto-Detect de drivers</value>
+  </data>
+  <data name="Drv_AMDAutoDetectSimulado" xml:space="preserve">
+    <value>AMD Auto-Detect (simulado)</value>
+  </data>
+  <data name="Drv_BaixarAutoDetect" xml:space="preserve">
+    <value>Baixar Auto-Detect</value>
+  </data>
+  <data name="Drv_NenhumaFonteOficialCatalogo" xml:space="preserve">
+    <value>Nenhuma fonte oficial do catálogo foi associada ao hardware detectado.</value>
+  </data>
+  <data name="Drv_SourcesOne" xml:space="preserve">
+    <value>{0} fonte encontrada.</value>
+  </data>
+  <data name="Drv_ParteConsultaFicouIndisponivel" xml:space="preserve">
+    <value> Parte da consulta ficou indisponível.</value>
+  </data>
+  <data name="Drv_NaoFoiPossivelConsultar" xml:space="preserve">
+    <value>Não foi possível consultar os fabricantes. Tente novamente.</value>
+  </data>
+  <data name="Drv_LendoDriversDispositivosConectados" xml:space="preserve">
+    <value>Lendo os drivers dos dispositivos conectados…</value>
+  </data>
+  <data name="Drv_NaoFoiPossivelLer" xml:space="preserve">
+    <value>Não foi possível ler os drivers. Tente novamente.</value>
+  </data>
+  <data name="Drv_NenhumDriverDispositivoEncontrado" xml:space="preserve">
+    <value>Nenhum driver de dispositivo encontrado</value>
+  </data>
+  <data name="Drv_WindowsNaoInformouDrivers" xml:space="preserve">
+    <value>O Windows não informou drivers para os dispositivos conectados. Tente atualizar a lista.</value>
+  </data>
+  <data name="Drv_DriversDispositivosConectados" xml:space="preserve">
+    <value>{0} drivers de dispositivos conectados.</value>
+  </data>
+  <data name="Drv_DriversCorrespondemFiltro" xml:space="preserve">
+    <value>{0} de {1} drivers correspondem ao filtro.</value>
+  </data>
+  <data name="Drv_ParteInventarioFicouIndisponivel" xml:space="preserve">
+    <value> Parte do inventário ficou indisponível.</value>
+  </data>
+  <data name="Drv_BaixarAbrirInstaladorOficial" xml:space="preserve">
+    <value>Baixar {0} e abrir o instalador oficial?&#xA;&#xA;Conclua a instalação na janela do fabricante.</value>
+  </data>
+  <data name="Drv_InstaladorFabricante" xml:space="preserve">
+    <value>Instalador do fabricante</value>
+  </data>
+  <data name="Drv_DownloadAberturaInstaladorSimulados" xml:space="preserve">
+    <value>Download e abertura do instalador simulados.</value>
+  </data>
+  <data name="Drv_PreparandoDownload" xml:space="preserve">
+    <value>Preparando o download de {0}…</value>
+  </data>
+  <data name="Drv_VerificandoAssinaturaInstalador" xml:space="preserve">
+    <value>Verificando a assinatura do instalador…</value>
+  </data>
+  <data name="Drv_Baixando" xml:space="preserve">
+    <value>Baixando {0} · {1:0}%</value>
+  </data>
+  <data name="Drv_BaixandoMiB" xml:space="preserve">
+    <value>Baixando {0} · {1:N0} MiB</value>
+  </data>
+  <data name="Drv_InstaladorAbertoContinueJanela" xml:space="preserve">
+    <value>Instalador de {0} aberto. Continue na janela do fabricante.</value>
+  </data>
+  <data name="Drv_AberturaInstaladorFoiCancelada" xml:space="preserve">
+    <value>A abertura do instalador foi cancelada no Windows.</value>
+  </data>
+  <data name="Drv_DownloadOuAberturaFalhou" xml:space="preserve">
+    <value>O download ou a abertura falhou. Tente novamente ou use o site oficial.</value>
+  </data>
+  <data name="Drv_CancelandoDownload" xml:space="preserve">
+    <value>Cancelando o download…</value>
+  </data>
+  <data name="Drv_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Não foi possível abrir a página oficial.</value>
+  </data>
+  <data name="Drv_NaoFoiPossivelAbrir2" xml:space="preserve">
+    <value>Não foi possível abrir o Windows Update.</value>
+  </data>
+  <data name="Drv_RevisarInstalacao" xml:space="preserve">
+    <value>Revisar instalação</value>
+  </data>
+  <data name="Drv_InstalarAtualizacaoDriver" xml:space="preserve">
+    <value>Instalar atualização de driver?</value>
+  </data>
+  <data name="Drv_WindowsUpdateVaiBaixar" xml:space="preserve">
+    <value>O Windows Update vai baixar e instalar este driver. O Windows pode pedir para reiniciar ao terminar.</value>
+  </data>
+  <data name="Drv_TermosLicenca" xml:space="preserve">
+    <value>Termos de licença</value>
+  </data>
+  <data name="Drv_InstalarDriver" xml:space="preserve">
+    <value>Instalar driver</value>
+  </data>
+  <data name="Drv_AceitarTermosInstalar" xml:space="preserve">
+    <value>Aceitar termos e instalar</value>
+  </data>
+  <data name="Drv_BaixarInstalar" xml:space="preserve">
+    <value>Baixar e instalar</value>
+  </data>
+  <data name="Drv_Pacote" xml:space="preserve">
+    <value>Pacote de {0}</value>
+  </data>
+  <data name="Drv_ConsultaNVIDIAFalhouAbra" xml:space="preserve">
+    <value>A consulta à NVIDIA falhou. Abra o site oficial para conferir.</value>
+  </data>
+  <data name="Drv_ChipsetRyzen" xml:space="preserve">
+    <value>Chipset Ryzen</value>
+  </data>
+  <data name="Drv_AMDAutoDetectIdentifica" xml:space="preserve">
+    <value>AMD · O Auto-Detect identifica o hardware e mostra os drivers compatíveis no instalador.</value>
+  </data>
+  <data name="Drv_DispositivosIntel" xml:space="preserve">
+    <value>Dispositivos Intel</value>
+  </data>
+  <data name="Drv_NVIDIAConsulteCatalogoOficial" xml:space="preserve">
+    <value>NVIDIA · Consulte o catálogo oficial para este modelo.</value>
+  </data>
+  <data name="Drv_CatalogoModelosNVIDIAEsta" xml:space="preserve">
+    <value>O catálogo de modelos da NVIDIA está vazio.</value>
+  </data>
+  <data name="Drv_VersaoInstaladaIndisponivel" xml:space="preserve">
+    <value>versão instalada indisponível</value>
+  </data>
+  <data name="Drv_Instalada" xml:space="preserve">
+    <value>instalada {0}.{1:D2}</value>
+  </data>
+  <data name="Drv_DriverNVIDIA" xml:space="preserve">
+    <value>Driver NVIDIA</value>
+  </data>
+  <data name="Drv_WHQLDisponivel" xml:space="preserve">
+    <value>{0} WHQL · {1} · disponível {2}</value>
+  </data>
+  <data name="Drv_VersaoAtual" xml:space="preserve">
+    <value> · versão atual</value>
+  </data>
+  <data name="Drv_VersaoInstaladaMaisRecente" xml:space="preserve">
+    <value> · a versão instalada é mais recente</value>
+  </data>
+  <data name="Drv_NVIDIANaoRetornouPacote" xml:space="preserve">
+    <value>A NVIDIA não retornou um pacote WHQL para este modelo e versão do Windows.</value>
+  </data>
+  <data name="Drv_Video" xml:space="preserve">
+    <value>Vídeo</value>
+  </data>
+  <data name="Drv_SistemaChipset" xml:space="preserve">
+    <value>Sistema e chipset</value>
+  </data>
+  <data name="Drv_MSIDriversPlacaMae" xml:space="preserve">
+    <value>MSI · Drivers da placa-mãe</value>
+  </data>
+  <data name="Drv_DriversPlacaMae" xml:space="preserve">
+    <value>{0} · Drivers da placa-mãe</value>
+  </data>
+  <data name="Drv_FabricanteNaoForneceuLink" xml:space="preserve">
+    <value>O fabricante não forneceu o link do instalador.</value>
+  </data>
+  <data name="Drv_WindowsNaoConseguiuAbrir" xml:space="preserve">
+    <value>O Windows não conseguiu abrir o instalador do fabricante.</value>
+  </data>
+  <data name="Drv_LinkAMDAutoDetect" xml:space="preserve">
+    <value>O link do AMD Auto-Detect mudou. Abra o site oficial para baixar a ferramenta.</value>
+  </data>
+  <data name="Drv_FabricanteParouEnviarDados" xml:space="preserve">
+    <value>O fabricante parou de enviar dados. Tente o download novamente.</value>
+  </data>
+  <data name="Drv_DownloadInstaladorFicouIncompleto" xml:space="preserve">
+    <value>O download do instalador ficou incompleto.</value>
+  </data>
+  <data name="Drv_LinkInstaladorSaiuDominio" xml:space="preserve">
+    <value>O link do instalador saiu do domínio do fabricante.</value>
+  </data>
+  <data name="Drv_FabricanteRetornouRedirecionamentosDemais" xml:space="preserve">
+    <value>O fabricante retornou redirecionamentos demais para o instalador.</value>
+  </data>
+  <data name="Drv_WindowsNaoConfirmouAssinatura" xml:space="preserve">
+    <value>O Windows não confirmou a assinatura do fabricante. Abra a página oficial para conferir o pacote.</value>
+  </data>
+  <data name="Drv_InstaladorDesteDriverPode" xml:space="preserve">
+    <value>O instalador deste driver pode exigir interação no Windows Update.</value>
+  </data>
+  <data name="Drv_TermosLicencaEstaoIndisponiveis" xml:space="preserve">
+    <value>Os termos de licença estão indisponíveis.</value>
+  </data>
+  <data name="Drv_WindowsUpdateNaoConcluiu2" xml:space="preserve">
+    <value>O Windows Update não concluiu a busca por drivers.</value>
+  </data>
+  <data name="Drv_WindowsRejeitouAssinaturaInstalador" xml:space="preserve">
+    <value>O Windows rejeitou a assinatura do instalador (0x{0:X8}).</value>
+  </data>
+  <data name="Drv_WindowsNaoIdentificouEditor" xml:space="preserve">
+    <value>O Windows não identificou o editor do instalador.</value>
+  </data>
+  <data name="Drv_CertificadoInstaladorNaoInformou" xml:space="preserve">
+    <value>O certificado do instalador não informou o nome do editor.</value>
+  </data>
+  <data name="Drv_WindowsNaoConseguiuLer" xml:space="preserve">
+    <value>O Windows não conseguiu ler o nome do editor do instalador.</value>
+  </data>
+  <data name="Drv_ChipsetAMD" xml:space="preserve">
+    <value>Chipset AMD {0}</value>
+  </data>
+  <data name="Drv_ConsultePacoteIndicadoWindows" xml:space="preserve">
+    <value>{0} · consulte o pacote indicado para o Windows na página da AMD.</value>
+  </data>
+  <data name="Drv_Instalada2" xml:space="preserve">
+    <value>instalada {0}</value>
+  </data>
+  <data name="Drv_Disponivel" xml:space="preserve">
+    <value>{0} · {1} · disponível {2}</value>
+  </data>
+  <data name="Drv_LinkFlowTelemetriaIndisponivel" xml:space="preserve">
+    <value>LinkFlow&#xA;Telemetria indisponível</value>
+  </data>
+  <data name="Drv_LinkFlowAguardandoLeituras" xml:space="preserve">
+    <value>LinkFlow&#xA;Aguardando leituras</value>
+  </data>
+  <data name="Win_Measuring" xml:space="preserve">
+    <value>Em medição…</value>
   </data>
 </root>

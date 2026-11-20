@@ -1642,6 +1642,1270 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A abertura do instalador foi cancelada no Windows..
+        /// </summary>
+        public static string Drv_AberturaInstaladorFoiCancelada {
+            get {
+                return ResourceManager.GetString("Drv_AberturaInstaladorFoiCancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir ↗.
+        /// </summary>
+        public static string Drv_Abrir {
+            get {
+                return ResourceManager.GetString("Drv_Abrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir Windows Update nas Configurações.
+        /// </summary>
+        public static string Drv_AbrirWindowsUpdateConfiguracoes {
+            get {
+                return ResourceManager.GetString("Drv_AbrirWindowsUpdateConfiguracoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aceitar termos e instalar.
+        /// </summary>
+        public static string Drv_AceitarTermosInstalar {
+            get {
+                return ResourceManager.GetString("Drv_AceitarTermosInstalar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AMD · Auto-Detect de drivers.
+        /// </summary>
+        public static string Drv_AMDAutoDetectDrivers {
+            get {
+                return ResourceManager.GetString("Drv_AMDAutoDetectDrivers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AMD · O Auto-Detect identifica o hardware e mostra os drivers compatíveis no instalador..
+        /// </summary>
+        public static string Drv_AMDAutoDetectIdentifica {
+            get {
+                return ResourceManager.GetString("Drv_AMDAutoDetectIdentifica", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AMD Auto-Detect (simulado).
+        /// </summary>
+        public static string Drv_AMDAutoDetectSimulado {
+            get {
+                return ResourceManager.GetString("Drv_AMDAutoDetectSimulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arquivo INF.
+        /// </summary>
+        public static string Drv_ArquivoINF {
+            get {
+                return ResourceManager.GetString("Drv_ArquivoINF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualização de demonstração.
+        /// </summary>
+        public static string Drv_AtualizacaoDemonstracao {
+            get {
+                return ResourceManager.GetString("Drv_AtualizacaoDemonstracao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixando {0} · {1:0}%.
+        /// </summary>
+        public static string Drv_Baixando {
+            get {
+                return ResourceManager.GetString("Drv_Baixando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixando {0} · {1:N0} MiB.
+        /// </summary>
+        public static string Drv_BaixandoMiB {
+            get {
+                return ResourceManager.GetString("Drv_BaixandoMiB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar {0}.
+        /// </summary>
+        public static string Drv_Baixar {
+            get {
+                return ResourceManager.GetString("Drv_Baixar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar {0} e abrir o instalador oficial?
+        ///
+        ///Conclua a instalação na janela do fabricante..
+        /// </summary>
+        public static string Drv_BaixarAbrirInstaladorOficial {
+            get {
+                return ResourceManager.GetString("Drv_BaixarAbrirInstaladorOficial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar Auto-Detect.
+        /// </summary>
+        public static string Drv_BaixarAutoDetect {
+            get {
+                return ResourceManager.GetString("Drv_BaixarAutoDetect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar e instalar.
+        /// </summary>
+        public static string Drv_BaixarInstalar {
+            get {
+                return ResourceManager.GetString("Drv_BaixarInstalar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A busca falhou no Windows Update (0x{0:X8}). Tente novamente ou abra o Windows Update..
+        /// </summary>
+        public static string Drv_BuscaFalhouWindowsUpdate {
+            get {
+                return ResourceManager.GetString("Drv_BuscaFalhouWindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Buscando drivers no Windows Update….
+        /// </summary>
+        public static string Drv_BuscandoDriversWindowsUpdate {
+            get {
+                return ResourceManager.GetString("Drv_BuscandoDriversWindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Buscar atualizações.
+        /// </summary>
+        public static string Drv_BuscarAtualizacoes {
+            get {
+                return ResourceManager.GetString("Drv_BuscarAtualizacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Buscar nos fabricantes.
+        /// </summary>
+        public static string Drv_BuscarFabricantes {
+            get {
+                return ResourceManager.GetString("Drv_BuscarFabricantes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelando o download….
+        /// </summary>
+        public static string Drv_CancelandoDownload {
+            get {
+                return ResourceManager.GetString("Drv_CancelandoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Catálogo Microsoft ↗.
+        /// </summary>
+        public static string Drv_CatalogoMicrosoft {
+            get {
+                return ResourceManager.GetString("Drv_CatalogoMicrosoft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Catálogo Microsoft para {0}.
+        /// </summary>
+        public static string Drv_CatalogoMicrosoft2 {
+            get {
+                return ResourceManager.GetString("Drv_CatalogoMicrosoft2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O catálogo de modelos da NVIDIA está vazio..
+        /// </summary>
+        public static string Drv_CatalogoModelosNVIDIAEsta {
+            get {
+                return ResourceManager.GetString("Drv_CatalogoModelosNVIDIAEsta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O catálogo não tem um site de fabricante para as peças detectadas. O Windows Update ainda pode oferecer drivers..
+        /// </summary>
+        public static string Drv_CatalogoNaoTemSite {
+            get {
+                return ResourceManager.GetString("Drv_CatalogoNaoTemSite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O certificado do instalador não informou o nome do editor..
+        /// </summary>
+        public static string Drv_CertificadoInstaladorNaoInformou {
+            get {
+                return ResourceManager.GetString("Drv_CertificadoInstaladorNaoInformou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chipset AMD {0}.
+        /// </summary>
+        public static string Drv_ChipsetAMD {
+            get {
+                return ResourceManager.GetString("Drv_ChipsetAMD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chipset Ryzen.
+        /// </summary>
+        public static string Drv_ChipsetRyzen {
+            get {
+                return ResourceManager.GetString("Drv_ChipsetRyzen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confira as atualizações que o Windows oferece para este PC..
+        /// </summary>
+        public static string Drv_ConfiraAtualizacoesWindowsOferece {
+            get {
+                return ResourceManager.GetString("Drv_ConfiraAtualizacoesWindowsOferece", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A consulta à NVIDIA falhou. Abra o site oficial para conferir..
+        /// </summary>
+        public static string Drv_ConsultaNVIDIAFalhouAbra {
+            get {
+                return ResourceManager.GetString("Drv_ConsultaNVIDIAFalhouAbra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consulte atualizações e confira as versões instaladas neste PC..
+        /// </summary>
+        public static string Drv_ConsulteAtualizacoesConfiraVersoes {
+            get {
+                return ResourceManager.GetString("Drv_ConsulteAtualizacoesConfiraVersoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consulte as fontes oficiais das peças detectadas..
+        /// </summary>
+        public static string Drv_ConsulteFontesOficiaisPecas {
+            get {
+                return ResourceManager.GetString("Drv_ConsulteFontesOficiaisPecas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · consulte o pacote indicado para o Windows na página da AMD..
+        /// </summary>
+        public static string Drv_ConsultePacoteIndicadoWindows {
+            get {
+                return ResourceManager.GetString("Drv_ConsultePacoteIndicadoWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Controlador NVM Express (simulado).
+        /// </summary>
+        public static string Drv_ControladorNVMExpressSimulado {
+            get {
+                return ResourceManager.GetString("Drv_ControladorNVMExpressSimulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data do driver.
+        /// </summary>
+        public static string Drv_DataDriver {
+            get {
+                return ResourceManager.GetString("Drv_DataDriver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1} · disponível {2}.
+        /// </summary>
+        public static string Drv_Disponivel {
+            get {
+                return ResourceManager.GetString("Drv_Disponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dispositivo.
+        /// </summary>
+        public static string Drv_Dispositivo {
+            get {
+                return ResourceManager.GetString("Drv_Dispositivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dispositivos Intel.
+        /// </summary>
+        public static string Drv_DispositivosIntel {
+            get {
+                return ResourceManager.GetString("Drv_DispositivosIntel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download e abertura do instalador simulados..
+        /// </summary>
+        public static string Drv_DownloadAberturaInstaladorSimulados {
+            get {
+                return ResourceManager.GetString("Drv_DownloadAberturaInstaladorSimulados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O download do instalador ficou incompleto..
+        /// </summary>
+        public static string Drv_DownloadInstaladorFicouIncompleto {
+            get {
+                return ResourceManager.GetString("Drv_DownloadInstaladorFicouIncompleto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O download ou a abertura falhou. Tente novamente ou use o site oficial..
+        /// </summary>
+        public static string Drv_DownloadOuAberturaFalhou {
+            get {
+                return ResourceManager.GetString("Drv_DownloadOuAberturaFalhou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Driver NVIDIA.
+        /// </summary>
+        public static string Drv_DriverNVIDIA {
+            get {
+                return ResourceManager.GetString("Drv_DriverNVIDIA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} de {1} drivers correspondem ao filtro..
+        /// </summary>
+        public static string Drv_DriversCorrespondemFiltro {
+            get {
+                return ResourceManager.GetString("Drv_DriversCorrespondemFiltro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Drivers deste PC.
+        /// </summary>
+        public static string Drv_DriversDestePC {
+            get {
+                return ResourceManager.GetString("Drv_DriversDestePC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} drivers de dispositivos conectados..
+        /// </summary>
+        public static string Drv_DriversDispositivosConectados {
+            get {
+                return ResourceManager.GetString("Drv_DriversDispositivosConectados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · Drivers da placa-mãe.
+        /// </summary>
+        public static string Drv_DriversPlacaMae {
+            get {
+                return ResourceManager.GetString("Drv_DriversPlacaMae", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Driver de vídeo (simulado).
+        /// </summary>
+        public static string Drv_DriverVideoSimulado {
+            get {
+                return ResourceManager.GetString("Drv_DriverVideoSimulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Este driver precisa ser revisto no Windows Update. Abra a página para conferir..
+        /// </summary>
+        public static string Drv_EsteDriverPrecisaSer {
+            get {
+                return ResourceManager.GetString("Drv_EsteDriverPrecisaSer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O fabricante não forneceu o link do instalador..
+        /// </summary>
+        public static string Drv_FabricanteNaoForneceuLink {
+            get {
+                return ResourceManager.GetString("Drv_FabricanteNaoForneceuLink", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O fabricante parou de enviar dados. Tente o download novamente..
+        /// </summary>
+        public static string Drv_FabricanteParouEnviarDados {
+            get {
+                return ResourceManager.GetString("Drv_FabricanteParouEnviarDados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O fabricante retornou redirecionamentos demais para o instalador..
+        /// </summary>
+        public static string Drv_FabricanteRetornouRedirecionamentosDemais {
+            get {
+                return ResourceManager.GetString("Drv_FabricanteRetornouRedirecionamentosDemais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fabricantes.
+        /// </summary>
+        public static string Drv_Fabricantes {
+            get {
+                return ResourceManager.GetString("Drv_Fabricantes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filtrar por dispositivo, versão ou ID.
+        /// </summary>
+        public static string Drv_FiltrarDispositivoVersaoOu {
+            get {
+                return ResourceManager.GetString("Drv_FiltrarDispositivoVersaoOu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Filtrar drivers instalados.
+        /// </summary>
+        public static string Drv_FiltrarDriversInstalados {
+            get {
+                return ResourceManager.GetString("Drv_FiltrarDriversInstalados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game Ready 621.24 (simulado).
+        /// </summary>
+        public static string Drv_GameReady62124 {
+            get {
+                return ResourceManager.GetString("Drv_GameReady62124", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game Ready WHQL · instalada 621.01 · NVIDIA 621.24.
+        /// </summary>
+        public static string Drv_GameReadyWHQLInstalada {
+            get {
+                return ResourceManager.GetString("Drv_GameReadyWHQLInstalada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Identificando as peças e consultando os fabricantes….
+        /// </summary>
+        public static string Drv_IdentificandoPecasConsultandoFabricantes {
+            get {
+                return ResourceManager.GetString("Drv_IdentificandoPecasConsultandoFabricantes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID de hardware.
+        /// </summary>
+        public static string Drv_IDHardware {
+            get {
+                return ResourceManager.GetString("Drv_IDHardware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalação cancelada na confirmação do Windows..
+        /// </summary>
+        public static string Drv_InstalacaoCanceladaConfirmacaoWindows {
+            get {
+                return ResourceManager.GetString("Drv_InstalacaoCanceladaConfirmacaoWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalação simulada concluída..
+        /// </summary>
+        public static string Drv_InstalacaoSimuladaConcluida {
+            get {
+                return ResourceManager.GetString("Drv_InstalacaoSimuladaConcluida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to instalada {0}.{1:D2}.
+        /// </summary>
+        public static string Drv_Instalada {
+            get {
+                return ResourceManager.GetString("Drv_Instalada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to instalada {0}.
+        /// </summary>
+        public static string Drv_Instalada2 {
+            get {
+                return ResourceManager.GetString("Drv_Instalada2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} instalado..
+        /// </summary>
+        public static string Drv_Instalado {
+            get {
+                return ResourceManager.GetString("Drv_Instalado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalador de {0} aberto. Continue na janela do fabricante..
+        /// </summary>
+        public static string Drv_InstaladorAbertoContinueJanela {
+            get {
+                return ResourceManager.GetString("Drv_InstaladorAbertoContinueJanela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O instalador deste driver pode exigir interação no Windows Update..
+        /// </summary>
+        public static string Drv_InstaladorDesteDriverPode {
+            get {
+                return ResourceManager.GetString("Drv_InstaladorDesteDriverPode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} instalado. Reinicie o Windows para concluir..
+        /// </summary>
+        public static string Drv_InstaladoReinicieWindowsConcluir {
+            get {
+                return ResourceManager.GetString("Drv_InstaladoReinicieWindowsConcluir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalador do fabricante.
+        /// </summary>
+        public static string Drv_InstaladorFabricante {
+            get {
+                return ResourceManager.GetString("Drv_InstaladorFabricante", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalados.
+        /// </summary>
+        public static string Drv_Instalados {
+            get {
+                return ResourceManager.GetString("Drv_Instalados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalar atualização de driver?.
+        /// </summary>
+        public static string Drv_InstalarAtualizacaoDriver {
+            get {
+                return ResourceManager.GetString("Drv_InstalarAtualizacaoDriver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalar driver.
+        /// </summary>
+        public static string Drv_InstalarDriver {
+            get {
+                return ResourceManager.GetString("Drv_InstalarDriver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leia o inventário dos dispositivos conectados..
+        /// </summary>
+        public static string Drv_LeiaInventarioDispositivosConectados {
+            get {
+                return ResourceManager.GetString("Drv_LeiaInventarioDispositivosConectados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lendo os drivers dos dispositivos conectados….
+        /// </summary>
+        public static string Drv_LendoDriversDispositivosConectados {
+            get {
+                return ResourceManager.GetString("Drv_LendoDriversDispositivosConectados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ler drivers.
+        /// </summary>
+        public static string Drv_LerDrivers {
+            get {
+                return ResourceManager.GetString("Drv_LerDrivers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O link do AMD Auto-Detect mudou. Abra o site oficial para baixar a ferramenta..
+        /// </summary>
+        public static string Drv_LinkAMDAutoDetect {
+            get {
+                return ResourceManager.GetString("Drv_LinkAMDAutoDetect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow
+        ///Aguardando leituras.
+        /// </summary>
+        public static string Drv_LinkFlowAguardandoLeituras {
+            get {
+                return ResourceManager.GetString("Drv_LinkFlowAguardandoLeituras", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow
+        ///Telemetria indisponível.
+        /// </summary>
+        public static string Drv_LinkFlowTelemetriaIndisponivel {
+            get {
+                return ResourceManager.GetString("Drv_LinkFlowTelemetriaIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O link do instalador saiu do domínio do fabricante..
+        /// </summary>
+        public static string Drv_LinkInstaladorSaiuDominio {
+            get {
+                return ResourceManager.GetString("Drv_LinkInstaladorSaiuDominio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSI · Drivers da placa-mãe.
+        /// </summary>
+        public static string Drv_MSIDriversPlacaMae {
+            get {
+                return ResourceManager.GetString("Drv_MSIDriversPlacaMae", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir a página oficial..
+        /// </summary>
+        public static string Drv_NaoFoiPossivelAbrir {
+            get {
+                return ResourceManager.GetString("Drv_NaoFoiPossivelAbrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir o Windows Update..
+        /// </summary>
+        public static string Drv_NaoFoiPossivelAbrir2 {
+            get {
+                return ResourceManager.GetString("Drv_NaoFoiPossivelAbrir2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível concluir a busca. Tente novamente ou abra o Windows Update..
+        /// </summary>
+        public static string Drv_NaoFoiPossivelConcluir {
+            get {
+                return ResourceManager.GetString("Drv_NaoFoiPossivelConcluir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível consultar os fabricantes. Tente novamente..
+        /// </summary>
+        public static string Drv_NaoFoiPossivelConsultar {
+            get {
+                return ResourceManager.GetString("Drv_NaoFoiPossivelConsultar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível iniciar a instalação do driver. Consulte o log do LinkFlow..
+        /// </summary>
+        public static string Drv_NaoFoiPossivelIniciar {
+            get {
+                return ResourceManager.GetString("Drv_NaoFoiPossivelIniciar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível ler os drivers. Tente novamente..
+        /// </summary>
+        public static string Drv_NaoFoiPossivelLer {
+            get {
+                return ResourceManager.GetString("Drv_NaoFoiPossivelLer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma fonte oficial do catálogo foi associada ao hardware detectado..
+        /// </summary>
+        public static string Drv_NenhumaFonteOficialCatalogo {
+            get {
+                return ResourceManager.GetString("Drv_NenhumaFonteOficialCatalogo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma fonte oficial encontrada.
+        /// </summary>
+        public static string Drv_NenhumaFonteOficialEncontrada {
+            get {
+                return ResourceManager.GetString("Drv_NenhumaFonteOficialEncontrada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum driver corresponde ao filtro.
+        /// </summary>
+        public static string Drv_NenhumDriverCorrespondeFiltro {
+            get {
+                return ResourceManager.GetString("Drv_NenhumDriverCorrespondeFiltro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum driver de dispositivo encontrado.
+        /// </summary>
+        public static string Drv_NenhumDriverDispositivoEncontrado {
+            get {
+                return ResourceManager.GetString("Drv_NenhumDriverDispositivoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NVIDIA · Consulte o catálogo oficial para este modelo..
+        /// </summary>
+        public static string Drv_NVIDIAConsulteCatalogoOficial {
+            get {
+                return ResourceManager.GetString("Drv_NVIDIAConsulteCatalogoOficial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NVIDIA GeForce RTX 4080 (simulada).
+        /// </summary>
+        public static string Drv_NVIDIAGeForceRTX4080 {
+            get {
+                return ResourceManager.GetString("Drv_NVIDIAGeForceRTX4080", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A NVIDIA não retornou um pacote WHQL para este modelo e versão do Windows..
+        /// </summary>
+        public static string Drv_NVIDIANaoRetornouPacote {
+            get {
+                return ResourceManager.GetString("Drv_NVIDIANaoRetornouPacote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ofertas do Windows Update.
+        /// </summary>
+        public static string Drv_OfertasWindowsUpdate {
+            get {
+                return ResourceManager.GetString("Drv_OfertasWindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pacote de {0}.
+        /// </summary>
+        public static string Drv_Pacote {
+            get {
+                return ResourceManager.GetString("Drv_Pacote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  Parte da consulta ficou indisponível..
+        /// </summary>
+        public static string Drv_ParteConsultaFicouIndisponivel {
+            get {
+                return ResourceManager.GetString("Drv_ParteConsultaFicouIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  Parte do inventário ficou indisponível..
+        /// </summary>
+        public static string Drv_ParteInventarioFicouIndisponivel {
+            get {
+                return ResourceManager.GetString("Drv_ParteInventarioFicouIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preparando o download de {0}….
+        /// </summary>
+        public static string Drv_PreparandoDownload {
+            get {
+                return ResourceManager.GetString("Drv_PreparandoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Progresso do download.
+        /// </summary>
+        public static string Drv_ProgressoDownload {
+            get {
+                return ResourceManager.GetString("Drv_ProgressoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Radeon e Ryzen (simulados).
+        /// </summary>
+        public static string Drv_RadeonRyzenSimulados {
+            get {
+                return ResourceManager.GetString("Drv_RadeonRyzenSimulados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Realtek High Definition Audio (simulado).
+        /// </summary>
+        public static string Drv_RealtekHighDefinitionAudio {
+            get {
+                return ResourceManager.GetString("Drv_RealtekHighDefinitionAudio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resultados dos fabricantes.
+        /// </summary>
+        public static string Drv_ResultadosFabricantes {
+            get {
+                return ResourceManager.GetString("Drv_ResultadosFabricantes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisar instalação.
+        /// </summary>
+        public static string Drv_RevisarInstalacao {
+            get {
+                return ResourceManager.GetString("Drv_RevisarInstalacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisar e instalar.
+        /// </summary>
+        public static string Drv_RevisarInstalar {
+            get {
+                return ResourceManager.GetString("Drv_RevisarInstalar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisar e instalar {0}.
+        /// </summary>
+        public static string Drv_RevisarInstalar2 {
+            get {
+                return ResourceManager.GetString("Drv_RevisarInstalar2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sistema e chipset.
+        /// </summary>
+        public static string Drv_SistemaChipset {
+            get {
+                return ResourceManager.GetString("Drv_SistemaChipset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Site oficial ↗.
+        /// </summary>
+        public static string Drv_SiteOficial {
+            get {
+                return ResourceManager.GetString("Drv_SiteOficial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Site oficial de {0}.
+        /// </summary>
+        public static string Drv_SiteOficial2 {
+            get {
+                return ResourceManager.GetString("Drv_SiteOficial2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} fontes encontradas..
+        /// </summary>
+        public static string Drv_SourcesMany {
+            get {
+                return ResourceManager.GetString("Drv_SourcesMany", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} fonte encontrada..
+        /// </summary>
+        public static string Drv_SourcesOne {
+            get {
+                return ResourceManager.GetString("Drv_SourcesOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tente o nome do dispositivo, o fabricante, a versão ou parte do ID de hardware..
+        /// </summary>
+        public static string Drv_TenteNomeDispositivoFabricante {
+            get {
+                return ResourceManager.GetString("Drv_TenteNomeDispositivoFabricante", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Termos de licença.
+        /// </summary>
+        public static string Drv_TermosLicenca {
+            get {
+                return ResourceManager.GetString("Drv_TermosLicenca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Os termos de licença estão indisponíveis..
+        /// </summary>
+        public static string Drv_TermosLicencaEstaoIndisponiveis {
+            get {
+                return ResourceManager.GetString("Drv_TermosLicencaEstaoIndisponiveis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Todos os drivers estão atualizados.
+        /// </summary>
+        public static string Drv_TodosDriversEstaoAtualizados {
+            get {
+                return ResourceManager.GetString("Drv_TodosDriversEstaoAtualizados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} atualizações disponíveis. Revise o driver que deseja instalar..
+        /// </summary>
+        public static string Drv_UpdatesMany {
+            get {
+                return ResourceManager.GetString("Drv_UpdatesMany", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} atualização disponível. Revise o driver que deseja instalar..
+        /// </summary>
+        public static string Drv_UpdatesOne {
+            get {
+                return ResourceManager.GetString("Drv_UpdatesOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificando a assinatura do instalador….
+        /// </summary>
+        public static string Drv_VerificandoAssinaturaInstalador {
+            get {
+                return ResourceManager.GetString("Drv_VerificandoAssinaturaInstalador", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificando, baixando e instalando {0}….
+        /// </summary>
+        public static string Drv_VerificandoBaixandoInstalando {
+            get {
+                return ResourceManager.GetString("Drv_VerificandoBaixandoInstalando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão.
+        /// </summary>
+        public static string Drv_Versao {
+            get {
+                return ResourceManager.GetString("Drv_Versao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · versão atual.
+        /// </summary>
+        public static string Drv_VersaoAtual {
+            get {
+                return ResourceManager.GetString("Drv_VersaoAtual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to versão instalada indisponível.
+        /// </summary>
+        public static string Drv_VersaoInstaladaIndisponivel {
+            get {
+                return ResourceManager.GetString("Drv_VersaoInstaladaIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · a versão instalada é mais recente.
+        /// </summary>
+        public static string Drv_VersaoInstaladaMaisRecente {
+            get {
+                return ResourceManager.GetString("Drv_VersaoInstaladaMaisRecente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vídeo.
+        /// </summary>
+        public static string Drv_Video {
+            get {
+                return ResourceManager.GetString("Drv_Video", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} WHQL · {1} · disponível {2}.
+        /// </summary>
+        public static string Drv_WHQLDisponivel {
+            get {
+                return ResourceManager.GetString("Drv_WHQLDisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não confirmou a assinatura do fabricante. Abra a página oficial para conferir o pacote..
+        /// </summary>
+        public static string Drv_WindowsNaoConfirmouAssinatura {
+            get {
+                return ResourceManager.GetString("Drv_WindowsNaoConfirmouAssinatura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não conseguiu abrir o instalador do fabricante..
+        /// </summary>
+        public static string Drv_WindowsNaoConseguiuAbrir {
+            get {
+                return ResourceManager.GetString("Drv_WindowsNaoConseguiuAbrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não conseguiu ler o nome do editor do instalador..
+        /// </summary>
+        public static string Drv_WindowsNaoConseguiuLer {
+            get {
+                return ResourceManager.GetString("Drv_WindowsNaoConseguiuLer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não identificou o editor do instalador..
+        /// </summary>
+        public static string Drv_WindowsNaoIdentificouEditor {
+            get {
+                return ResourceManager.GetString("Drv_WindowsNaoIdentificouEditor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não informou drivers para os dispositivos conectados. Tente atualizar a lista..
+        /// </summary>
+        public static string Drv_WindowsNaoInformouDrivers {
+            get {
+                return ResourceManager.GetString("Drv_WindowsNaoInformouDrivers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows precisa ser reiniciado antes de instalar este driver..
+        /// </summary>
+        public static string Drv_WindowsPrecisaSerReiniciado {
+            get {
+                return ResourceManager.GetString("Drv_WindowsPrecisaSerReiniciado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows rejeitou a assinatura do instalador (0x{0:X8})..
+        /// </summary>
+        public static string Drv_WindowsRejeitouAssinaturaInstalador {
+            get {
+                return ResourceManager.GetString("Drv_WindowsRejeitouAssinaturaInstalador", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Update.
+        /// </summary>
+        public static string Drv_WindowsUpdate {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update deixou de oferecer este driver. Faça uma nova busca para conferir..
+        /// </summary>
+        public static string Drv_WindowsUpdateDeixouOferecer {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateDeixouOferecer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update está instalando outra atualização. Tente novamente quando terminar..
+        /// </summary>
+        public static string Drv_WindowsUpdateEstaInstalando {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateEstaInstalando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update não concluiu o download do driver..
+        /// </summary>
+        public static string Drv_WindowsUpdateNaoConcluiu {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateNaoConcluiu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update não concluiu a busca por drivers..
+        /// </summary>
+        public static string Drv_WindowsUpdateNaoConcluiu2 {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateNaoConcluiu2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update não confirmou a instalação. Consulte o log do LinkFlow..
+        /// </summary>
+        public static string Drv_WindowsUpdateNaoConfirmou {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateNaoConfirmou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update não ofereceu nenhuma atualização de driver para este PC..
+        /// </summary>
+        public static string Drv_WindowsUpdateNaoOfereceu {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateNaoOfereceu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update não ofereceu drivers nesta busca..
+        /// </summary>
+        public static string Drv_WindowsUpdateNaoOfereceu2 {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateNaoOfereceu2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update retornou uma busca parcial sem drivers para exibir..
+        /// </summary>
+        public static string Drv_WindowsUpdateRetornouBusca {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateRetornouBusca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update retornou o erro 0x{0:X8}. Abra o Windows Update para conferir..
+        /// </summary>
+        public static string Drv_WindowsUpdateRetornouErro {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateRetornouErro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  O Windows Update retornou resultados parciais..
+        /// </summary>
+        public static string Drv_WindowsUpdateRetornouResultados {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateRetornouResultados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows Update vai baixar e instalar este driver. O Windows pode pedir para reiniciar ao terminar..
+        /// </summary>
+        public static string Drv_WindowsUpdateVaiBaixar {
+            get {
+                return ResourceManager.GetString("Drv_WindowsUpdateVaiBaixar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 1 selecionada.
         /// </summary>
         public static string Fan_1Selecionada {
@@ -9304,6 +10568,15 @@ namespace LinkFlow.App.Resources {
         public static string Win_MbpsTaxaProvisoria {
             get {
                 return ResourceManager.GetString("Win_MbpsTaxaProvisoria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em medição….
+        /// </summary>
+        public static string Win_Measuring {
+            get {
+                return ResourceManager.GetString("Win_Measuring", resourceCulture);
             }
         }
         

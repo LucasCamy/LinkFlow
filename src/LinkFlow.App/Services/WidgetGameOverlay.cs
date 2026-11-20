@@ -2,6 +2,7 @@ using System.Text;
 using System.Windows.Threading;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -79,7 +80,7 @@ internal sealed class WidgetGameOverlay : IDisposable
 
     internal static string Format(IEnumerable<WidgetItemViewModel> items, EngineSnapshot snapshot, bool isConnected)
     {
-        if (!isConnected) return "LinkFlow\nTelemetria indisponível";
+        if (!isConnected) return Strings.Drv_LinkFlowTelemetriaIndisponivel;
 
         const string title = "LinkFlow";
         var text = new StringBuilder(title);
@@ -94,7 +95,7 @@ internal sealed class WidgetGameOverlay : IDisposable
             AppendPlainText(text, reading.Text);
         }
 
-        return text.Length > title.Length ? text.ToString() : "LinkFlow\nAguardando leituras";
+        return text.Length > title.Length ? text.ToString() : Strings.Drv_LinkFlowAguardandoLeituras;
     }
 
     private static void AppendPlainText(StringBuilder text, string value)

@@ -101,7 +101,7 @@ internal static class HardwareInventory
             }
         }
 
-        var graphics = Read(GraphicsQuery, item => new GraphicsAdapter(Text(item, "Name") ?? "Placa de vídeo",
+        var graphics = Read(GraphicsQuery, item => new GraphicsAdapter(Text(item, "Name") ?? Strings.Dash_Gpu,
             Text(item, "DriverVersion"), PciVendor(item))).Where(adapter => adapter.PciVendor != null).Distinct().ToArray();
         var board = Read("SELECT Manufacturer, Product FROM Win32_BaseBoard",
             item => (Manufacturer: Text(item, "Manufacturer"), Model: Text(item, "Product"))).FirstOrDefault();

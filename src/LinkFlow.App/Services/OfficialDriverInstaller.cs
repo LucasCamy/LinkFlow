@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using LinkFlow.Core;
 using Microsoft.Win32.SafeHandles;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -41,7 +42,7 @@ internal static class OfficialDriverInstaller
     {
         Uri url = package.DownloadUrl ?? (package.Publisher == DriverPublisher.Amd
             ? await ReadAmdAutoDetectAsync(cancellationToken).ConfigureAwait(false)
-            : throw new InvalidOperationException("O fabricante não forneceu o link do instalador."));
+            : throw new InvalidOperationException(Strings.Drv_FabricanteNaoForneceuLink));
         string directory = Directory.CreateTempSubdirectory("LinkFlow-driver-").FullName;
         string path = Path.Combine(directory, package.Publisher == DriverPublisher.Nvidia ? "NVIDIA-driver.exe" : "AMD-driver.exe");
         try
@@ -57,7 +58,7 @@ internal static class OfficialDriverInstaller
                 await Task.Run(() => VerifySignature(path, package.Publisher, readLock.SafeFileHandle), cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 process = Process.Start(new ProcessStartInfo(path) { UseShellExecute = true, WorkingDirectory = directory })
-                    ?? throw new InvalidOperationException("O Windows não conseguiu abrir o instalador do fabricante.");
+                    ?? throw new InvalidOperationException(Strings.Drv_WindowsNaoConseguiuAbrir);
             }
             _ = CleanAfterExitAsync(process, directory, path);
         }
@@ -74,7 +75,7 @@ internal static class OfficialDriverInstaller
         var links = AmdDownloadLink.Matches(html).Select(match => WebUtility.HtmlDecode(match.Groups[1].Value)).Distinct().ToArray();
         if (links.Length == 1 && Uri.TryCreate(links[0], UriKind.Absolute, out var url) && IsOfficialDownload(DriverPublisher.Amd, url))
             return url;
-        throw new InvalidOperationException("O link do AMD Auto-Detect mudou. Abra o site oficial para baixar a ferramenta.");
+        throw new InvalidOperationException(Strings.Drv_LinkAMDAutoDetect);
     }
 
     private static async Task DownloadAsync(DriverPublisher publisher, Uri url, string path, IProgress<DriverDownloadProgress> progress,
@@ -104,18 +105,18 @@ internal static class OfficialDriverInstaller
         }
         catch (OperationCanceledException ex) when (idle.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
-            throw new TimeoutException("O fabricante parou de enviar dados. Tente o download novamente.", ex);
+            throw new TimeoutException(Strings.Drv_FabricanteParouEnviarDados, ex);
         }
 
         if (downloaded == 0 || total is { } length && downloaded != length)
-            throw new IOException("O download do instalador ficou incompleto.");
+            throw new IOException(Strings.Drv_DownloadInstaladorFicouIncompleto);
     }
 
     private static async Task<HttpResponseMessage> OpenDownloadAsync(DriverPublisher publisher, Uri url, CancellationToken cancellationToken)
     {
         for (int redirects = 0; redirects <= 4; redirects++)
         {
-            if (!IsOfficialDownload(publisher, url)) throw new InvalidOperationException("O link do instalador saiu do domínio do fabricante.");
+            if (!IsOfficialDownload(publisher, url)) throw new InvalidOperationException(Strings.Drv_LinkInstaladorSaiuDominio);
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             if (publisher == DriverPublisher.Amd) request.Headers.Referrer = ManufacturerDrivers.AmdSupport;
             var response = await Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
@@ -129,7 +130,7 @@ internal static class OfficialDriverInstaller
                     url = new Uri(url, location);
             }
         }
-        throw new InvalidOperationException("O fabricante retornou redirecionamentos demais para o instalador.");
+        throw new InvalidOperationException(Strings.Drv_FabricanteRetornouRedirecionamentosDemais);
     }
 
     private static void VerifySignature(string path, DriverPublisher publisher, SafeFileHandle file)
@@ -145,7 +146,7 @@ internal static class OfficialDriverInstaller
         if (trustedPublisher) return;
 
         Log.Warn($"Assinatura do instalador de {publisher}: editor '{subject}'.");
-        throw new InvalidOperationException("O Windows não confirmou a assinatura do fabricante. Abra a página oficial para conferir o pacote.");
+        throw new InvalidOperationException(Strings.Drv_WindowsNaoConfirmouAssinatura);
     }
 
     private static void MarkInternetOrigin(string path, Uri url)
