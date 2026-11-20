@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using LinkFlow.App.Services;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -16,8 +17,8 @@ public partial class WindowsNetworkPage : UserControl
     public WindowsNetworkPage()
     {
         InitializeComponent();
-        NetworkMethod.Text = $"Download e upload via Cloudflare · {NetworkSpeedTest.Connections} conexões em paralelo · " +
-            $"Até {NetworkSpeedTest.SecondsPerDirection} s ou {NetworkSpeedTest.LimitMiBPerDirection} MiB por direção.";
+        NetworkMethod.Text = string.Format(Strings.Win_DownloadUploadViaCloudflare, NetworkSpeedTest.Connections) +
+            string.Format(Strings.Win_AteOuMiBDirecao, NetworkSpeedTest.SecondsPerDirection, NetworkSpeedTest.LimitMiBPerDirection);
         GaugeTrack.Data = GaugeArc(1);
         ResetGauge();
     }
@@ -30,12 +31,12 @@ public partial class WindowsNetworkPage : UserControl
         ResetGauge();
         if (App.Current.Options.Simulate)
         {
-            var demo = new NetworkTestResult(new(24.5, "Dados simulados"), new(436.7, "Dados simulados"), new(198.3, "Dados simulados"));
+            var demo = new NetworkTestResult(new(24.5, Strings.Win_DadosSimulados), new(436.7, Strings.Win_DadosSimulados), new(198.3, Strings.Win_DadosSimulados));
             ShowMeasurement(NetworkTestStage.Latency, demo.Latency);
             ShowMeasurement(NetworkTestStage.Download, demo.Download);
             ShowMeasurement(NetworkTestStage.Upload, demo.Upload);
             ShowFinalGauge(demo);
-            NetworkStatus.Text = "Resultado de demonstração.";
+            NetworkStatus.Text = Strings.Win_ResultadoDemonstracao;
             return;
         }
 
@@ -44,7 +45,7 @@ public partial class WindowsNetworkPage : UserControl
         StartNetworkButton.Visibility = Visibility.Collapsed;
         CancelNetworkButton.Visibility = NetworkProgress.Visibility = Visibility.Visible;
         CancelNetworkButton.Focus();
-        NetworkStatus.Text = "Iniciando teste…";
+        NetworkStatus.Text = Strings.Win_IniciandoTeste;
         NetworkProgress.IsIndeterminate = true;
         try
         {
@@ -67,21 +68,21 @@ public partial class WindowsNetworkPage : UserControl
             ClearLiveDetail();
             ShowFinalGauge(result);
             var measures = new[] { result.Latency, result.Download, result.Upload };
-            NetworkStatus.Text = measures.All(measure => measure.Value == null) ? "Nenhuma medição concluída." :
-                measures.Any(measure => measure.Incomplete) ? "Teste concluído com resultados parciais." :
-                "Teste concluído.";
+            NetworkStatus.Text = measures.All(measure => measure.Value == null) ? Strings.Win_NenhumaMedicaoConcluida :
+                measures.Any(measure => measure.Incomplete) ? Strings.Win_TesteConcluidoResultadosParciais :
+                Strings.Win_TesteConcluido;
         }
         catch (OperationCanceledException) when (test.IsCancellationRequested)
         {
             ResetGauge();
-            NetworkStatus.Text = "Teste cancelado.";
+            NetworkStatus.Text = Strings.Win_TesteCancelado;
         }
         catch (Exception ex)
         {
             Log.Error("Falha no teste de rede", ex);
             ResetGauge();
             ClearStageInProgress();
-            NetworkStatus.Text = "Não foi possível concluir o teste de rede.";
+            NetworkStatus.Text = Strings.Win_NaoFoiPossivelConcluir2;
         }
         finally
         {
@@ -100,7 +101,7 @@ public partial class WindowsNetworkPage : UserControl
         if (_activeTest is null || _activeTest.IsCancellationRequested) return;
         ResetGauge();
         ClearStageInProgress();
-        NetworkStatus.Text = "Cancelando o teste…";
+        NetworkStatus.Text = Strings.Win_CancelandoTeste;
         _activeTest.Cancel();
     }
 
@@ -114,18 +115,18 @@ public partial class WindowsNetworkPage : UserControl
     {
         var (status, detail) = sample.Stage switch
         {
-            NetworkTestStage.Latency => ("Medindo ping para o Google…", LatencyDetail),
-            NetworkTestStage.Download => ("Medindo download…", DownloadDetail),
-            _ => ("Medindo upload…", UploadDetail)
+            NetworkTestStage.Latency => (Strings.Win_MedindoPingGoogle, LatencyDetail),
+            NetworkTestStage.Download => (Strings.Win_MedindoDownload, DownloadDetail),
+            _ => (Strings.Win_MedindoUpload, UploadDetail)
         };
         NetworkStatus.Text = status;
         detail.Text = Measuring;
         NetworkProgress.IsIndeterminate = sample.Stage == NetworkTestStage.Latency;
         NetworkProgress.Value = sample.Fraction;
-        ShowGauge(sample.Mbps, sample.Mbps.HasValue ? "Mbps · taxa provisória" : "Mbps");
+        ShowGauge(sample.Mbps, sample.Mbps.HasValue ? Strings.Win_MbpsTaxaProvisoria : "Mbps");
         if (sample.Stage == NetworkTestStage.Latency) return;
 
-        string dataLabel = sample.Stage == NetworkTestStage.Download ? "recebidos" : "confirmados";
+        string dataLabel = sample.Stage == NetworkTestStage.Download ? Strings.Win_Recebidos : Strings.Win_Confirmados;
         LiveTransferDetail.Text = $"{sample.Seconds:N1} s · {sample.Bytes / (double)NetworkSpeedTest.BytesPerMiB:N1} MiB {dataLabel}";
         LiveTransferDetail.Visibility = Visibility.Visible;
     }

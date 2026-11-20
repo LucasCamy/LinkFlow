@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using LinkFlow.Core;
 using Microsoft.CSharp.RuntimeBinder;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -22,7 +23,7 @@ internal static class WindowsDiagnostics
         var uptime = $"{(elapsed.Days > 0 ? $"{elapsed.Days} d " : string.Empty)}{elapsed.Hours} h {elapsed.Minutes} min";
         var rows = new List<WindowsDiagnosticEntry>
         {
-            new("Tempo desde a inicialização", uptime, $"Início estimado · {(now - elapsed).ToLocalTime():g}")
+            new(Strings.Win_TempoDesdeInicializacao, uptime, string.Format(Strings.Win_InicioEstimado, (now - elapsed).ToLocalTime()))
         };
         var warnings = new List<string>();
 
@@ -30,13 +31,13 @@ internal static class WindowsDiagnostics
         {
             using var com = new WindowsUpdateComScope();
             dynamic system = com.Create("Microsoft.Update.SystemInfo");
-            rows.Add(new("Reinício pelo Windows Update", (bool)system.RebootRequired ? "Necessário" : "Sem pendência"));
+            rows.Add(new(Strings.Win_ReinicioPeloWindowsUpdate, (bool)system.RebootRequired ? Strings.Win_Necessario : Strings.Win_SemPendencia));
         }
         catch (Exception ex) when (IsUpdateReadError(ex))
         {
             Log.Warn($"Falha ao consultar o reinício pendente: {ex.Message}");
-            rows.Add(new("Reinício pelo Windows Update", "Indisponível"));
-            warnings.Add("O estado de reinício do Windows Update ficou indisponível.");
+            rows.Add(new(Strings.Win_ReinicioPeloWindowsUpdate, Strings.Win_Indisponivel));
+            warnings.Add(Strings.Win_EstadoReinicioWindowsUpdate);
         }
 
         var systemRoot = Path.GetPathRoot(Environment.SystemDirectory);
@@ -57,8 +58,8 @@ internal static class WindowsDiagnostics
             {
                 if (drive.DriveType != DriveType.Fixed) continue;
 
-                string volume = $"Volume {drive.Name.TrimEnd('\\')}";
-                if (string.Equals(drive.Name, systemRoot, StringComparison.OrdinalIgnoreCase)) volume += " · Sistema";
+                string volume = string.Format(Strings.Win_Volume, drive.Name.TrimEnd('\\'));
+                if (string.Equals(drive.Name, systemRoot, StringComparison.OrdinalIgnoreCase)) volume += Strings.Win_Sistema;
                 long total = drive.TotalSize;
                 long free = drive.TotalFreeSpace;
                 if (total <= 0)
@@ -68,7 +69,7 @@ internal static class WindowsDiagnostics
                 }
                 double used = Math.Clamp((total - free) * 100d / total, 0, 100);
                 const double gib = 1L << 30;
-                rows.Add(new(volume, $"{free / gib:N1} GiB livres de {total / gib:N1} GiB", $"{used:0}% ocupado · {drive.DriveFormat}"));
+                rows.Add(new(volume, string.Format(Strings.Win_GiBLivresGiB, free / gib, total / gib), string.Format(Strings.Win_Ocupado, used, drive.DriveFormat)));
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
@@ -76,10 +77,10 @@ internal static class WindowsDiagnostics
                 volumesIncomplete = true;
             }
         }
-        if (volumesIncomplete) warnings.Add("Parte da leitura de espaço em disco ficou indisponível.");
-        else if (rows.Count == systemRows) rows.Add(new("Volumes fixos", "Nenhum volume fixo encontrado."));
+        if (volumesIncomplete) warnings.Add(Strings.Win_ParteLeituraEspacoDisco);
+        else if (rows.Count == systemRows) rows.Add(new(Strings.Win_VolumesFixos, Strings.Win_NenhumVolumeFixoEncontrado));
 
-        return new($"Consultado às {now:t}.", rows, warnings.Count == 0 ? null : string.Join(" ", warnings));
+        return new(string.Format(Strings.Win_Consultado, now), rows, warnings.Count == 0 ? null : string.Join(" ", warnings));
     }
 
     public static WindowsDiagnosticResult ReadUpdateHistory()
@@ -88,7 +89,7 @@ internal static class WindowsDiagnostics
         dynamic session = com.CreateSession();
         dynamic searcher = com.Keep((object)session.CreateUpdateSearcher());
         int count = Math.Min((int)searcher.GetTotalHistoryCount(), MaxEntries);
-        if (count <= 0) return new("Nenhum registro no histórico local do Windows Update.", []);
+        if (count <= 0) return new(Strings.Win_NenhumRegistroHistoricoLocal, []);
 
         dynamic history = com.Keep((object)searcher.QueryHistory(0, count));
         var rows = new List<WindowsDiagnosticEntry>(count);
@@ -101,25 +102,25 @@ internal static class WindowsDiagnostics
                 string? title = item.Title;
                 string operation = (int)item.Operation switch
                 {
-                    1 => "Instalação",
-                    2 => "Desinstalação",
-                    _ => "Operação"
+                    1 => Strings.Win_Instalacao,
+                    2 => Strings.Win_Desinstalacao,
+                    _ => Strings.Win_Operacao
                 };
                 string result = (int)item.ResultCode switch
                 {
-                    0 => "Não iniciada",
-                    1 => "Em andamento",
-                    2 => "Concluída",
-                    3 => "Concluída com erros",
-                    4 => "Falha",
-                    5 => "Cancelada",
-                    _ => "Resultado desconhecido"
+                    0 => Strings.Win_NaoIniciada,
+                    1 => Strings.Win_Andamento,
+                    2 => Strings.Win_Concluida,
+                    3 => Strings.Win_ConcluidaErros,
+                    4 => Strings.Win_Falha,
+                    5 => Strings.Win_Cancelada,
+                    _ => Strings.Win_ResultadoDesconhecido
                 };
                 // O WUA retorna a data em UTC, sem fuso na representação COM.
                 var localDate = DateTime.SpecifyKind((DateTime)item.Date, DateTimeKind.Utc).ToLocalTime();
                 int hresult = item.HResult;
                 string details = hresult == 0 ? $"{localDate:g}" : $"{localDate:g} · 0x{hresult:X8}";
-                rows.Add(new(string.IsNullOrWhiteSpace(title) ? "Atualização sem título" : title, $"{operation} · {result}", details));
+                rows.Add(new(string.IsNullOrWhiteSpace(title) ? Strings.Win_AtualizacaoSemTitulo : title, $"{operation} · {result}", details));
             }
             catch (Exception ex) when (IsUpdateReadError(ex))
             {
@@ -129,11 +130,11 @@ internal static class WindowsDiagnostics
 
         string summary = rows.Count switch
         {
-            0 => "Nenhum registro pôde ser exibido.",
-            1 => "1 registro recente do histórico local.",
-            _ => $"{rows.Count} registros recentes do histórico local."
+            0 => Strings.Win_NenhumRegistroPodeSer,
+            1 => Strings.Win_1RegistroRecenteHistorico,
+            _ => string.Format(Strings.Win_RegistrosRecentesHistoricoLocal, rows.Count)
         };
-        string? warning = rows.Count < returned ? "Alguns registros do Windows Update ficaram indisponíveis." : null;
+        string? warning = rows.Count < returned ? Strings.Win_AlgunsRegistrosWindowsUpdate : null;
         return new(summary, rows, warning);
     }
 
@@ -157,22 +158,22 @@ internal static class WindowsDiagnostics
             {
                 using var item = reader.ReadEvent();
                 if (item == null) break;
-                string level = item.Level switch { 1 => "Crítico", 2 => "Erro", _ => "Aviso" };
+                string level = item.Level switch { 1 => Strings.Set_Critico, 2 => Strings.Win_Erro, _ => Strings.Win_Aviso };
                 string value = item.TimeCreated is { } time ? $"{level} · {time:g}" : level;
-                rows.Add(new($"{item.ProviderName ?? "Sistema"} · Evento {item.Id}", value, EventDescription(item)));
+                rows.Add(new(string.Format(Strings.Win_EventSource, item.ProviderName ?? Strings.Win_SystemName, item.Id), value, EventDescription(item)));
             }
         }
         catch (EventLogException ex) when (rows.Count > 0)
         {
             Log.Warn($"Leitura parcial de eventos do sistema: {ex.Message}");
-            warning = "A leitura dos eventos foi interrompida. Os registros já lidos estão disponíveis.";
+            warning = Strings.Win_LeituraEventosFoiInterrompida;
         }
 
         string summary = rows.Count switch
         {
-            0 => $"Nenhum evento correspondente nos últimos {EventDays} dias.",
-            1 => $"1 evento nos últimos {EventDays} dias.",
-            _ => $"{rows.Count} eventos mais recentes dos últimos {EventDays} dias."
+            0 => string.Format(Strings.Win_NenhumEventoCorrespondenteUltimos, EventDays),
+            1 => string.Format(Strings.Win_1EventoUltimosDias, EventDays),
+            _ => string.Format(Strings.Win_EventosMaisRecentesUltimos, rows.Count, EventDays)
         };
         return new(summary, rows, warning);
     }

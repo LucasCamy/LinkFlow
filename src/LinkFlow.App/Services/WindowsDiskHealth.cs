@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -21,12 +22,12 @@ internal static class WindowsDiskHealth
     private const uint OpenExisting = 3;
     private static readonly (byte Mask, string Label)[] NvmeWarnings =
     [
-        (1 << 0, "reserva abaixo do limite"),
-        (1 << 1, "temperatura fora da faixa"),
-        (1 << 2, "confiabilidade degradada"),
-        (1 << 3, "mídia em modo somente leitura"),
-        (1 << 4, "proteção da memória volátil com falha"),
-        (1 << 5, "região de memória persistente com problema")
+        (1 << 0, Strings.Win_ReservaAbaixoLimite),
+        (1 << 1, Strings.Win_TemperaturaForaFaixa),
+        (1 << 2, Strings.Win_ConfiabilidadeDegradada),
+        (1 << 3, Strings.Win_MidiaModoSomenteLeitura),
+        (1 << 4, Strings.Win_ProtecaoMemoriaVolatilFalha),
+        (1 << 5, Strings.Win_RegiaoMemoriaPersistenteProblema)
     ];
 
     private sealed record Disk(uint Number, string Name, ushort? Bus, ushort? Health);
@@ -35,7 +36,7 @@ internal static class WindowsDiskHealth
     public static WindowsDiagnosticResult Read()
     {
         var disks = HardwareInventory.Query("SELECT Number, FriendlyName, BusType, HealthStatus FROM MSFT_Disk", item =>
-            new Disk((uint)item["Number"], item["FriendlyName"]?.ToString() ?? "Disco", item["BusType"] as ushort?,
+            new Disk((uint)item["Number"], item["FriendlyName"]?.ToString() ?? Strings.Win_Disco, item["BusType"] as ushort?,
                 item["HealthStatus"] as ushort?), HardwareInventory.StorageScope).OrderBy(disk => disk.Number);
         var rows = new List<WindowsDiagnosticEntry>();
         int smartCount = 0;
@@ -43,23 +44,23 @@ internal static class WindowsDiskHealth
         {
             var smart = ReadSmart(disk);
             if (smart != null) smartCount++;
-            string bus = HardwareInventory.StorageBus(disk.Bus) ?? "Barramento indisponível";
+            string bus = HardwareInventory.StorageBus(disk.Bus) ?? Strings.Win_BarramentoIndisponivel;
             string health = disk.Health switch
             {
-                0 => "Saudável",
-                1 => "Atenção",
-                2 => "Com falha",
-                _ => "Indisponível"
+                0 => Strings.Win_Saudavel,
+                1 => Strings.Win_Atencao,
+                2 => Strings.Win_Falha2,
+                _ => Strings.Win_Indisponivel
             };
-            rows.Add(new($"Disco {disk.Number} · {disk.Name}",
-                smart?.Status ?? "S.M.A.R.T. indisponível",
-                $"{bus} · Saúde no Windows · {health}" +
+            rows.Add(new(string.Format(Strings.Win_Disco2, disk.Number, disk.Name),
+                smart?.Status ?? Strings.Win_Indisponivel2,
+                string.Format(Strings.Win_SaudeWindows, bus, health) +
                 (smart == null ? string.Empty : $"\n{smart.Details}")));
         }
 
-        if (rows.Count == 0) return new("Nenhum disco foi encontrado pelo Windows.", rows);
-        return new($"Leitura S.M.A.R.T. disponível em {smartCount} de {rows.Count} discos.", rows,
-            smartCount < rows.Count ? "Os dados disponíveis variam conforme o controlador, o driver e as permissões da conta." : null);
+        if (rows.Count == 0) return new(Strings.Win_NenhumDiscoFoiEncontrado, rows);
+        return new(string.Format(Strings.Win_LeituraDisponivelDiscos, smartCount, rows.Count), rows,
+            smartCount < rows.Count ? Strings.Win_DadosDisponiveisVariamConforme : null);
     }
 
     private static SmartReading? ReadSmart(Disk disk)
@@ -98,18 +99,18 @@ internal static class WindowsDiskHealth
         var details = new List<string>();
         int kelvin = BinaryPrimitives.ReadUInt16LittleEndian(log[1..]);
         if (kelvin is > 0 and < ushort.MaxValue) details.Add($"{kelvin - 273.15:0} °C");
-        details.Add($"{log[5]}% de vida útil estimada usada");
-        if (log[3] <= 100) details.Add($"Reserva disponível {log[3]}%");
-        details.Add($"{BinaryPrimitives.ReadUInt128LittleEndian(log[128..]):N0} h de operação");
-        details.Add($"{BinaryPrimitives.ReadUInt128LittleEndian(log[160..]):N0} erros de mídia");
+        details.Add(string.Format(Strings.Win_VidaUtilEstimadaUsada, log[5]));
+        if (log[3] <= 100) details.Add(string.Format(Strings.Win_ReservaDisponivel, log[3]));
+        details.Add(string.Format(Strings.Win_Operacao2, BinaryPrimitives.ReadUInt128LittleEndian(log[128..])));
+        details.Add(string.Format(Strings.Win_ErrosMidia, BinaryPrimitives.ReadUInt128LittleEndian(log[160..])));
         byte warning = log[0];
         if (warning != 0)
         {
             var warnings = NvmeWarnings.Where(flag => (warning & flag.Mask) != 0).Select(flag => flag.Label);
-            details.Add(string.Join(", ", warnings.Prepend($"Aviso 0x{warning:X2}")));
+            details.Add(string.Join(", ", warnings.Prepend(string.Format(Strings.Win_Aviso0x, warning))));
         }
 
-        return new(warning == 0 ? "S.M.A.R.T. NVMe · Sem aviso crítico" : "S.M.A.R.T. NVMe · Alerta do controlador",
+        return new(warning == 0 ? Strings.Win_NVMeSemAvisoCritico : Strings.Win_NVMeAlertaControlador,
             string.Join(" · ", details));
     }
 
@@ -120,8 +121,8 @@ internal static class WindowsDiskHealth
             bytes < sizeof(uint)) return null;
 
         bool predicted = BinaryPrimitives.ReadUInt32LittleEndian(response) != 0;
-        return new(predicted ? "S.M.A.R.T. · Falha prevista" : "S.M.A.R.T. · Sem previsão de falha",
-            "Previsão reportada pelo dispositivo.");
+        return new(predicted ? Strings.Win_FalhaPrevista : Strings.Win_SemPrevisaoFalha,
+            Strings.Win_PrevisaoReportadaPeloDispositivo);
     }
 
     [DllImport("kernel32.dll", EntryPoint = "CreateFileW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]

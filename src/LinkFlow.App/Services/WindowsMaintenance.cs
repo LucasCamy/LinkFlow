@@ -1,11 +1,12 @@
 using System.Diagnostics;
 using System.IO;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
 internal sealed record WindowsMaintenanceVolume(string Letter, bool IsSystem)
 {
-    public override string ToString() => IsSystem ? $"{Letter} · Sistema" : Letter;
+    public override string ToString() => IsSystem ? string.Format(Strings.Win_Sistema2, Letter) : Letter;
 }
 
 internal sealed record WindowsMaintenanceTool(string Title, IReadOnlyList<WindowsMaintenanceOperation> Operations)
@@ -15,21 +16,21 @@ internal sealed record WindowsMaintenanceTool(string Title, IReadOnlyList<Window
 
 internal sealed class WindowsMaintenanceOperation
 {
-    public static readonly WindowsMaintenanceOperation VerifyFiles = new("Verificar arquivos", "Consulta a integridade dos arquivos protegidos do Windows.", "sfc.exe", ["/verifyonly"]);
-    public static readonly WindowsMaintenanceOperation RepairFiles = new("Reparar arquivos", "Verifica e tenta restaurar os arquivos protegidos do Windows.", "sfc.exe", ["/scannow"], isRepair: true);
-    public static readonly WindowsMaintenanceOperation CheckImage = ImageOperation("Consultar estado da imagem", "Lê o estado de corrupção já registrado na imagem do Windows.", "/CheckHealth");
-    public static readonly WindowsMaintenanceOperation ScanImage = ImageOperation("Examinar imagem", "Examina o armazenamento de componentes do Windows. A verificação pode demorar.", "/ScanHealth");
-    public static readonly WindowsMaintenanceOperation RestoreImage = ImageOperation("Reparar imagem", "Tenta restaurar a imagem do Windows. O DISM pode buscar arquivos de reparo pelo Windows Update.", "/RestoreHealth", isRepair: true);
-    public static readonly WindowsMaintenanceOperation CheckDisk = new("Verificar volume", "Verifica a estrutura do sistema de arquivos do volume selecionado.", "chkdsk.exe", [], usesVolume: true);
-    public static readonly WindowsMaintenanceOperation RepairDisk = new("Corrigir erros no volume", "Tenta corrigir erros no sistema de arquivos. Se o volume estiver em uso, o Windows pode pedir para desmontá-lo ou agendar a correção.", "chkdsk.exe", ["/f"], usesVolume: true, isRepair: true);
-    public static readonly WindowsMaintenanceOperation DiskCleanup = new("Abrir Limpeza de Disco", "Escolha os itens e confirme a remoção na janela da Limpeza de Disco do Windows.", "cleanmgr.exe", [], requiresElevation: false);
+    public static readonly WindowsMaintenanceOperation VerifyFiles = new(Strings.Win_VerificarArquivos, Strings.Win_ConsultaIntegridadeArquivosProtegidos, "sfc.exe", ["/verifyonly"]);
+    public static readonly WindowsMaintenanceOperation RepairFiles = new(Strings.Win_RepararArquivos, Strings.Win_VerificaTentaRestaurarArquivos, "sfc.exe", ["/scannow"], isRepair: true);
+    public static readonly WindowsMaintenanceOperation CheckImage = ImageOperation(Strings.Win_ConsultarEstadoImagem, Strings.Win_LeEstadoCorrupcaoJa, "/CheckHealth");
+    public static readonly WindowsMaintenanceOperation ScanImage = ImageOperation(Strings.Win_ExaminarImagem, Strings.Win_ExaminaArmazenamentoComponentesWindows, "/ScanHealth");
+    public static readonly WindowsMaintenanceOperation RestoreImage = ImageOperation(Strings.Win_RepararImagem, Strings.Win_TentaRestaurarImagemWindows, "/RestoreHealth", isRepair: true);
+    public static readonly WindowsMaintenanceOperation CheckDisk = new(Strings.Win_VerificarVolume, Strings.Win_VerificaEstruturaSistemaArquivos, "chkdsk.exe", [], usesVolume: true);
+    public static readonly WindowsMaintenanceOperation RepairDisk = new(Strings.Win_CorrigirErrosVolume, Strings.Win_TentaCorrigirErrosSistema, "chkdsk.exe", ["/f"], usesVolume: true, isRepair: true);
+    public static readonly WindowsMaintenanceOperation DiskCleanup = new(Strings.Win_AbrirLimpezaDisco, Strings.Win_EscolhaItensConfirmeRemocao, "cleanmgr.exe", [], requiresElevation: false);
 
     public static IReadOnlyList<WindowsMaintenanceTool> Tools { get; } =
     [
-        new("Arquivos do Windows (SFC)", [VerifyFiles, RepairFiles]),
-        new("Imagem do Windows (DISM)", [CheckImage, ScanImage, RestoreImage]),
-        new("Verificação de disco (CHKDSK)", [CheckDisk, RepairDisk]),
-        new("Limpeza de Disco", [DiskCleanup])
+        new(Strings.Win_ArquivosWindowsSFC, [VerifyFiles, RepairFiles]),
+        new(Strings.Win_ImagemWindowsDISM, [CheckImage, ScanImage, RestoreImage]),
+        new(Strings.Win_VerificacaoDiscoCHKDSK, [CheckDisk, RepairDisk]),
+        new(Strings.Win_LimpezaDisco, [DiskCleanup])
     ];
 
     private readonly string _executable;
@@ -55,9 +56,9 @@ internal sealed class WindowsMaintenanceOperation
     public bool IsDiskCleanup => ReferenceEquals(this, DiskCleanup);
     public string? ResultsLocation => _executable switch
     {
-        "sfc.exe" => $"Log do SFC em {WindowsLog("CBS", "CBS.log")}",
-        "dism.exe" => $"Log do DISM em {WindowsLog("DISM", "dism.log")}",
-        "chkdsk.exe" => "Resultados no Visualizador de Eventos, em Logs do Windows → Aplicativo, nas fontes Chkdsk e Wininit.",
+        "sfc.exe" => string.Format(Strings.Win_SfcLog, WindowsLog("CBS", "CBS.log")),
+        "dism.exe" => string.Format(Strings.Win_DismLog, WindowsLog("DISM", "dism.log")),
+        "chkdsk.exe" => Strings.Win_ResultadosVisualizadorEventosLogs,
         _ => null
     };
     public override string ToString() => Title;
@@ -76,11 +77,11 @@ internal sealed class WindowsMaintenanceOperation
     {
         var arguments = Arguments(volume);
         if (UsesVolume && !IsReadyFixedVolume(new DriveInfo(arguments[0] + "\\")))
-            throw new InvalidOperationException("O volume selecionado não está mais disponível. Atualize a lista de volumes.");
+            throw new InvalidOperationException(Strings.Win_VolumeSelecionadoNaoEsta);
 
         string path = ExecutablePath;
         if (!File.Exists(path))
-            throw new FileNotFoundException("Esta ferramenta não está disponível nesta instalação do Windows.", path);
+            throw new FileNotFoundException(Strings.Win_EstaFerramentaNaoEsta, path);
 
         var startInfo = new ProcessStartInfo(path)
         {

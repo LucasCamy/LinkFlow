@@ -1,6 +1,7 @@
 <UserControl x:Class="LinkFlow.App.Views.WindowsPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:LinkFlow.App.Resources"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:views="clr-namespace:LinkFlow.App.Views">
     <UserControl.Resources>
@@ -37,31 +38,31 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,18">
-            <TextBlock Text="Desempenho do Windows" Style="{StaticResource SystemPageTitle}"/>
-            <TextBlock Text="Energia, aplicativos e ferramentas do sistema." Style="{StaticResource SystemDetail}"/>
+            <TextBlock Text="{x:Static r:Strings.Win_DesempenhoWindows}" Style="{StaticResource SystemPageTitle}"/>
+            <TextBlock Text="{x:Static r:Strings.Win_EnergiaAplicativosFerramentasSistema}" Style="{StaticResource SystemDetail}"/>
         </StackPanel>
 
         <TabControl x:Name="WindowsTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
-            <TabItem Header="Energia e tela" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Win_EnergiaTela}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <Border Style="{StaticResource SystemPanel}">
                             <StackPanel x:Name="PowerForm">
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <Button x:Name="UndoPowerButton" Content="Desfazer" Click="UndoPower_Click"
+                                        <Button x:Name="UndoPowerButton" Content="{x:Static r:Strings.Win_Desfazer}" Click="UndoPower_Click"
                                                 Style="{StaticResource SystemLinkButton}" Visibility="Collapsed" Margin="0,0,8,0"
-                                                ToolTip="Desfazer o último ajuste desta sessão"
-                                                AutomationProperties.Name="Desfazer o último ajuste"/>
-                                        <Button x:Name="ReadPowerButton" Content="Ler ajustes" Click="ReadPower_Click"
+                                                ToolTip="{x:Static r:Strings.Win_DesfazerUltimoAjusteDesta}"
+                                                AutomationProperties.Name="{x:Static r:Strings.Win_DesfazerUltimoAjuste}"/>
+                                        <Button x:Name="ReadPowerButton" Content="{x:Static r:Strings.Win_LerAjustes}" Click="ReadPower_Click"
                                                 Style="{StaticResource PrimaryButton}"/>
                                     </StackPanel>
                                     <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                         <TextBlock Text="&#xE945;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Ajustes do PC" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock x:Name="PowerStatus" Text="Leia o plano, os tempos de inatividade e as animações."
+                                        <TextBlock Text="{x:Static r:Strings.Win_AjustesPC}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock x:Name="PowerStatus" Text="{x:Static r:Strings.Win_LeiaPlanoTemposInatividade}"
                                                    Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
                                     </StackPanel>
                                 </DockPanel>
@@ -70,12 +71,12 @@
                                     <Border Style="{StaticResource SystemRow}">
                                         <DockPanel>
                                             <Button x:Name="ActivatePlanButton" DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}"
-                                                    Content="Ativar" Click="ActivatePlan_Click"/>
+                                                    Content="{x:Static r:Strings.Win_Ativar}" Click="ActivatePlan_Click"/>
                                             <ComboBox x:Name="Plans" DockPanel.Dock="Right" Style="{StaticResource PowerSelector}"
                                                       DisplayMemberPath="Name" SelectionChanged="PlanSelection_Changed"
-                                                      AutomationProperties.Name="Plano de energia"/>
+                                                      AutomationProperties.Name="{x:Static r:Strings.Win_PlanoEnergia}"/>
                                             <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                                                <TextBlock Text="Plano de energia" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Win_PlanoEnergia}" Style="{StaticResource SystemItemTitle}"/>
                                                 <TextBlock x:Name="ActivePlanLabel" Style="{StaticResource SystemDetail}"/>
                                             </StackPanel>
                                         </DockPanel>
@@ -85,9 +86,9 @@
                                             <DataTemplate>
                                                 <Border Style="{StaticResource SystemRow}">
                                                     <DockPanel>
-                                                        <Button DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}" Content="Salvar"
+                                                        <Button DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}" Content="{x:Static r:Strings.Fan_Salvar}"
                                                                 Tag="{Binding}" Click="SaveTimeout_Click"
-                                                                AutomationProperties.Name="{Binding Label, StringFormat='Salvar tempo para {0}'}"/>
+                                                                AutomationProperties.Name="{Binding Label, StringFormat={x:Static r:Strings.Win_SalvarTempo}}"/>
                                                         <ComboBox DockPanel.Dock="Right" Style="{StaticResource PowerSelector}"
                                                                   ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}" DisplayMemberPath="Label"
                                                                   AutomationProperties.Name="{Binding Label}"/>
@@ -100,11 +101,11 @@
                                     </ItemsControl>
                                     <Border Style="{StaticResource SystemRow}">
                                         <DockPanel>
-                                            <Button DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}" Content="Salvar"
-                                                    Click="SaveAnimations_Click" AutomationProperties.Name="Salvar animações da interface"/>
+                                            <Button DockPanel.Dock="Right" Style="{StaticResource PowerSaveButton}" Content="{x:Static r:Strings.Fan_Salvar}"
+                                                    Click="SaveAnimations_Click" AutomationProperties.Name="{x:Static r:Strings.Win_SalvarAnimacoesInterface}"/>
                                             <CheckBox x:Name="Animations" DockPanel.Dock="Right" Style="{StaticResource ToggleSwitch}"
-                                                      VerticalAlignment="Center" AutomationProperties.Name="Animações da interface"/>
-                                            <TextBlock Text="Animações da interface" Style="{StaticResource SystemItemTitle}"
+                                                      VerticalAlignment="Center" AutomationProperties.Name="{x:Static r:Strings.Win_AnimacoesInterface}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Win_AnimacoesInterface}" Style="{StaticResource SystemItemTitle}"
                                                        VerticalAlignment="Center" Margin="0,0,12,0"/>
                                         </DockPanel>
                                     </Border>
@@ -112,26 +113,26 @@
                             </StackPanel>
                         </Border>
 
-                        <TextBlock Text="Atalhos do Windows" Style="{StaticResource SystemSectionTitle}" Margin="0,22,0,12"/>
+                        <TextBlock Text="{x:Static r:Strings.Win_AtalhosWindows}" Style="{StaticResource SystemSectionTitle}" Margin="0,22,0,12"/>
                         <ItemsControl x:Name="SettingsShortcuts" ItemsPanel="{StaticResource ShortcutGrid}"
                                       ItemTemplate="{StaticResource SettingsShortcutTile}" Margin="0,0,-12,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Aplicativos" Style="{StaticResource SystemTab}" Visibility="{Binding DataContext.AdvancedToolsEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}">
+            <TabItem Header="{x:Static r:Strings.Win_Aplicativos}" Style="{StaticResource SystemTab}" Visibility="{Binding DataContext.AdvancedToolsEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,24" VerticalAlignment="Top">
                         <StackPanel x:Name="AppsForm">
                             <DockPanel>
-                                <Button x:Name="ListAppsButton" DockPanel.Dock="Right" Content="Listar apps" Click="ListApps_Click"
+                                <Button x:Name="ListAppsButton" DockPanel.Dock="Right" Content="{x:Static r:Strings.Win_ListarApps}" Click="ListApps_Click"
                                         Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                                 <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                     <TextBlock Text="&#xE71D;" Style="{StaticResource SystemIcon}"/>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Aplicativos opcionais" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock x:Name="AppsStatus" Text="Veja quais apps pré-instalados podem ser removidos desta conta."
+                                    <TextBlock Text="{x:Static r:Strings.Win_AplicativosOpcionais}" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock x:Name="AppsStatus" Text="{x:Static r:Strings.Win_VejaQuaisAppsPre}"
                                                Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
                                 </StackPanel>
                             </DockPanel>
@@ -141,23 +142,23 @@
                                     <DataTemplate>
                                         <Border Style="{StaticResource SystemRow}">
                                             <DockPanel>
-                                                <Button DockPanel.Dock="Right" Content="Remover" Tag="{Binding}" Click="RemoveApp_Click"
+                                                <Button DockPanel.Dock="Right" Content="{x:Static r:Strings.Lcd_Remover}" Tag="{Binding}" Click="RemoveApp_Click"
                                                         Style="{StaticResource DangerButton}" Margin="12,0,0,0"
-                                                        AutomationProperties.Name="{Binding Name, StringFormat='Remover {0}'}"/>
+                                                        AutomationProperties.Name="{Binding Name, StringFormat={x:Static r:Strings.Wid_Remover}}"/>
                                                 <TextBlock Text="{Binding Name}" Style="{StaticResource SystemItemTitle}" VerticalAlignment="Center"/>
                                             </DockPanel>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Button Content="Abrir aplicativos instalados ↗" Tag="ms-settings:appsfeatures" Click="OpenSettings_Click"
+                            <Button Content="{x:Static r:Strings.Win_AbrirAplicativosInstalados}" Tag="ms-settings:appsfeatures" Click="OpenSettings_Click"
                                     Style="{StaticResource SystemLinkButton}" HorizontalAlignment="Left" Margin="-8,10,0,-6"/>
                         </StackPanel>
                     </Border>
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Diagnóstico" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Win_Diagnostico}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <ItemsControl x:Name="DiagnosticActions" Margin="0,0,-12,0">
@@ -186,7 +187,7 @@
                         <Border x:Name="DiagnosticReport" Style="{StaticResource SystemPanel}" Margin="0,4,0,0" Visibility="Collapsed">
                             <StackPanel>
                                 <DockPanel>
-                                    <Button x:Name="CopyDiagnosticButton" DockPanel.Dock="Right" Content="Copiar relatório"
+                                    <Button x:Name="CopyDiagnosticButton" DockPanel.Dock="Right" Content="{x:Static r:Strings.Win_CopiarRelatorio}"
                                             Click="CopyDiagnostic_Click" Style="{StaticResource SecondaryButton}"
                                             VerticalAlignment="Top" Margin="12,0,0,0" Visibility="Collapsed"/>
                                     <StackPanel>
@@ -221,46 +222,46 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Rede" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Dash_Network}" Style="{StaticResource SystemTab}">
                 <views:WindowsNetworkPage x:Name="NetworkPage"/>
             </TabItem>
 
-            <TabItem Header="Manutenção" Style="{StaticResource SystemTab}" Visibility="{Binding DataContext.AdvancedToolsEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}">
+            <TabItem Header="{x:Static r:Strings.Win_Manutencao}" Style="{StaticResource SystemTab}" Visibility="{Binding DataContext.AdvancedToolsEnabled, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}">
                 <views:WindowsMaintenancePage/>
             </TabItem>
 
-            <TabItem Header="Jogos" Style="{StaticResource SystemTab}">
+            <TabItem Header="{x:Static r:Strings.Win_Jogos}" Style="{StaticResource SystemTab}">
                 <ScrollViewer Style="{StaticResource SystemScroll}">
                     <StackPanel Margin="0,0,0,24">
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,18">
                             <StackPanel x:Name="GamePowerForm">
                                 <DockPanel>
                                     <WrapPanel DockPanel.Dock="Right" Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <Button x:Name="UndoGamePowerButton" Content="Desfazer" Click="UndoPower_Click"
+                                        <Button x:Name="UndoGamePowerButton" Content="{x:Static r:Strings.Win_Desfazer}" Click="UndoPower_Click"
                                                 Style="{StaticResource SystemLinkButton}" Visibility="Collapsed" Margin="0,0,8,0"
-                                                AutomationProperties.Name="Desfazer o último ajuste de energia ou tela"/>
-                                        <Button x:Name="ReadGamePowerButton" Content="Ler planos" Click="ReadPower_Click"
+                                                AutomationProperties.Name="{x:Static r:Strings.Win_DesfazerUltimoAjusteEnergia}"/>
+                                        <Button x:Name="ReadGamePowerButton" Content="{x:Static r:Strings.Win_LerPlanos}" Click="ReadPower_Click"
                                                 Style="{StaticResource PrimaryButton}"/>
                                     </WrapPanel>
                                     <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                         <TextBlock Text="&#xE7FC;" Style="{StaticResource SystemIcon}"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Energia para jogar" Style="{StaticResource SystemSectionTitle}"/>
-                                        <TextBlock x:Name="GamePowerStatus" Text="Veja os planos disponíveis no Windows."
+                                        <TextBlock Text="{x:Static r:Strings.Win_EnergiaJogar}" Style="{StaticResource SystemSectionTitle}"/>
+                                        <TextBlock x:Name="GamePowerStatus" Text="{x:Static r:Strings.Win_VejaPlanosDisponiveisWindows}"
                                                    Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
                                     </StackPanel>
                                 </DockPanel>
                                 <Border x:Name="GamePlanControls" Style="{StaticResource SystemRow}" Margin="0,14,0,-8" Visibility="Collapsed">
                                     <DockPanel>
-                                        <Button x:Name="ActivateGamePlanButton" DockPanel.Dock="Right" Content="Ativar"
+                                        <Button x:Name="ActivateGamePlanButton" DockPanel.Dock="Right" Content="{x:Static r:Strings.Win_Ativar}"
                                                 Click="ActivatePlan_Click" Style="{StaticResource PowerSaveButton}"
-                                                AutomationProperties.Name="Ativar plano de energia para jogos"/>
+                                                AutomationProperties.Name="{x:Static r:Strings.Win_AtivarPlanoEnergiaJogos}"/>
                                         <ComboBox x:Name="GamePlans" DockPanel.Dock="Right" Style="{StaticResource PowerSelector}"
                                                   DisplayMemberPath="Name" SelectionChanged="PlanSelection_Changed"
-                                                  AutomationProperties.Name="Plano de energia para jogos"/>
+                                                  AutomationProperties.Name="{x:Static r:Strings.Win_PlanoEnergiaJogos}"/>
                                         <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                                            <TextBlock Text="Plano de energia" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Win_PlanoEnergia}" Style="{StaticResource SystemItemTitle}"/>
                                             <TextBlock x:Name="GameActivePlanLabel" Style="{StaticResource SystemDetail}"/>
                                         </StackPanel>
                                     </DockPanel>
@@ -268,20 +269,20 @@
                             </StackPanel>
                         </Border>
 
-                        <TextBlock Text="Ajustes do Windows para jogos" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
+                        <TextBlock Text="{x:Static r:Strings.Win_AjustesWindowsJogos}" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
                         <ItemsControl x:Name="GameShortcuts" ItemsPanel="{StaticResource ShortcutGrid}"
                                       ItemTemplate="{StaticResource SettingsShortcutTile}" Margin="0,0,-12,0"/>
 
                         <Border Style="{StaticResource SystemPanel}">
                             <DockPanel>
-                                <Button DockPanel.Dock="Right" Content="Abrir automação" Click="OpenGameAutomation_Click"
+                                <Button DockPanel.Dock="Right" Content="{x:Static r:Strings.Win_AbrirAutomacao}" Click="OpenGameAutomation_Click"
                                         Style="{StaticResource SecondaryButton}" Margin="12,0,0,0" VerticalAlignment="Center"/>
                                 <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                     <TextBlock Text="&#xEC4A;" Style="{StaticResource SystemIcon}"/>
                                 </Border>
                                 <StackPanel>
-                                    <TextBlock Text="Refrigeração por jogo" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock Text="Associe um perfil de ventoinhas ao processo do jogo."
+                                    <TextBlock Text="{x:Static r:Strings.Win_RefrigeracaoJogo}" Style="{StaticResource SystemSectionTitle}"/>
+                                    <TextBlock Text="{x:Static r:Strings.Win_AssociePerfilVentoinhasProcesso}"
                                                Style="{StaticResource SystemDetail}"/>
                                 </StackPanel>
                             </DockPanel>

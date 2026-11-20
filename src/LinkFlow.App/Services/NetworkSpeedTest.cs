@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -82,11 +83,11 @@ internal static class NetworkSpeedTest
         }
 
         cancellation.ThrowIfCancellationRequested();
-        if (samples.Count == 0) return new(null, $"{PingTarget} · Sem resposta ao ping.", true);
+        if (samples.Count == 0) return new(null, string.Format(Strings.Win_SemRespostaPing, PingTarget), true);
 
         samples.Sort();
         double median = (samples[(samples.Count - 1) / 2] + samples[samples.Count / 2]) / 2.0;
-        return new(median, $"{PingTarget} · {samples.Count} de {PingSamples} respostas", samples.Count < PingSamples);
+        return new(median, string.Format(Strings.Win_Respostas, PingTarget, samples.Count, PingSamples), samples.Count < PingSamples);
     }
 
     private static async Task<NetworkMeasurement> MeasureRateAsync(HttpClient client, NetworkTestStage stage,
@@ -139,7 +140,7 @@ internal static class NetworkSpeedTest
                     {
                         if (response.Headers.TryGetValues("cf-meta-upload-bytes", out var counts) &&
                             (!int.TryParse(counts.FirstOrDefault(), out int confirmed) || confirmed != size))
-                            throw new InvalidDataException("O servidor confirmou um volume de upload diferente do enviado.");
+                            throw new InvalidDataException(Strings.Win_ServidorConfirmouVolumeUpload);
 
                         Interlocked.Add(ref validBytes, size);
                         double elapsed = Stopwatch.GetElapsedTime(start).TotalSeconds;
@@ -149,13 +150,13 @@ internal static class NetworkSpeedTest
                     else
                     {
                         if (response.Content.Headers.ContentLength is { } length && length != size)
-                            throw new InvalidDataException("O servidor retornou um tamanho de download diferente do solicitado.");
+                            throw new InvalidDataException(Strings.Win_ServidorRetornouTamanhoDownload);
 
                         await using var stream = await response.Content.ReadAsStreamAsync(deadline.Token).ConfigureAwait(false);
                         for (int remaining = size; remaining > 0;)
                         {
                             int read = await stream.ReadAsync(buffer.AsMemory(0, Math.Min(remaining, buffer.Length)), deadline.Token).ConfigureAwait(false);
-                            if (read == 0) throw new InvalidDataException("O servidor encerrou o bloco de download antes do fim.");
+                            if (read == 0) throw new InvalidDataException(Strings.Win_ServidorEncerrouBlocoDownload);
                             remaining -= read;
                             Interlocked.Add(ref validBytes, read);
                         }
@@ -186,13 +187,13 @@ internal static class NetworkSpeedTest
         timer.Stop();
         cancellation.ThrowIfCancellationRequested();
         if (validBytes == 0)
-            return new(null, failure ?? (upload ? "Nenhum bloco de upload foi confirmado a tempo." : "Nenhum dado de download recebido a tempo."), true);
+            return new(null, failure ?? (upload ? Strings.Win_NenhumBlocoUploadFoi : Strings.Win_NenhumDadoDownloadRecebido), true);
 
         double seconds = timer.Elapsed.TotalSeconds;
         string detail = $"{validBytes / (double)BytesPerMiB:N1} MiB · {seconds:N1} s";
         if (failure is not null) detail += $" · {failure}";
         if (validBytes == limit)
-            detail += seconds < 1 ? " · Limite de dados atingido em menos de 1 s." : " · Limite de dados atingido.";
+            detail += seconds < 1 ? Strings.Win_LimiteDadosAtingidoMenos : Strings.Win_LimiteDadosAtingido;
         return new(ToMbps(validBytes, seconds), detail, failure is not null);
     }
 
@@ -215,10 +216,10 @@ internal static class NetworkSpeedTest
         Log.Debug($"Teste de rede: {ex.Message}");
         return ex switch
         {
-            HttpRequestException { StatusCode: { } status } => $"Servidor respondeu HTTP {(int)status}.",
-            OperationCanceledException => "Tempo limite atingido.",
+            HttpRequestException { StatusCode: { } status } => string.Format(Strings.Win_ServidorRespondeuHTTP, (int)status),
+            OperationCanceledException => Strings.Win_TempoLimiteAtingido,
             InvalidDataException => ex.Message,
-            _ => "A comunicação com o servidor falhou."
+            _ => Strings.Win_ComunicacaoServidorFalhou
         };
     }
 }

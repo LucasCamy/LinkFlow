@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using LinkFlow.App.Services;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -53,7 +54,7 @@ public partial class WindowsMaintenancePage : UserControl
         string? previous = SelectedVolume?.Letter;
         _readingVolumes = true;
         RefreshVolumesButton.IsEnabled = Volumes.IsEnabled = false;
-        VolumeStatus.Text = "Consultando volumes locais…";
+        VolumeStatus.Text = Strings.Win_ConsultandoVolumesLocais;
         UpdatePreview();
         try
         {
@@ -62,13 +63,13 @@ public partial class WindowsMaintenancePage : UserControl
                 : await Task.Run(WindowsMaintenanceOperation.ReadVolumes);
             Volumes.ItemsSource = volumes;
             Volumes.SelectedItem = volumes.FirstOrDefault(volume => volume.Letter == previous);
-            VolumeStatus.Text = volumes.Count == 0 ? "Nenhum volume local fixo está disponível." : string.Empty;
+            VolumeStatus.Text = volumes.Count == 0 ? Strings.Win_NenhumVolumeLocalFixo : string.Empty;
         }
         catch (Exception ex)
         {
             Log.Error("Falha ao consultar volumes para o CHKDSK", ex);
             Volumes.ItemsSource = null;
-            VolumeStatus.Text = "Não foi possível listar os volumes. Atualize a lista para tentar novamente.";
+            VolumeStatus.Text = Strings.Win_NaoFoiPossivelListar;
         }
         finally
         {
@@ -88,13 +89,13 @@ public partial class WindowsMaintenancePage : UserControl
 
         VolumeControls.Visibility = operation.UsesVolume ? Visibility.Visible : Visibility.Collapsed;
         bool hasTarget = !operation.UsesVolume || SelectedVolume != null;
-        CommandPreview.Text = hasTarget ? operation.Preview(SelectedVolume?.Letter) : "Selecione um volume para conferir o comando.";
+        CommandPreview.Text = hasTarget ? operation.Preview(SelectedVolume?.Letter) : Strings.Win_SelecioneVolumeConferirComando;
         ImpactPreview.Text = operation.Impact;
-        ExecutionHint.Text = IsSimulation ? "Prévia em modo simulado." :
-            operation.RequiresElevation ? "Requer privilégios administrativos. O andamento aparece no console do Windows." :
-            "A ferramenta abre em uma janela do Windows.";
-        RunButton.Content = operation.IsDiskCleanup ? "Abrir Limpeza de Disco" :
-            operation.IsRepair ? "Revisar e executar reparo" : "Abrir verificação";
+        ExecutionHint.Text = IsSimulation ? Strings.Win_PreviaModoSimulado :
+            operation.RequiresElevation ? Strings.Win_RequerPrivilegiosAdministrativosAndamento :
+            Strings.Win_FerramentaAbreJanelaWindows;
+        RunButton.Content = operation.IsDiskCleanup ? Strings.Win_AbrirLimpezaDisco :
+            operation.IsRepair ? Strings.Win_RevisarExecutarReparo : Strings.Win_AbrirVerificacao;
         RunButton.IsEnabled = !_running && !IsSimulation && hasTarget && (!operation.UsesVolume || !_readingVolumes);
     }
 
@@ -104,22 +105,22 @@ public partial class WindowsMaintenancePage : UserControl
 
         string? volume = SelectedVolume?.Letter;
         if (operation.IsRepair && MessageBox.Show(Window.GetWindow(this),
-                $"{operation.Preview(volume)}\n\n{operation.Impact}\n\nExecutar este reparo?",
-                "Revisar reparo", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+                string.Format(Strings.Win_ExecutarEsteReparo, operation.Preview(volume), operation.Impact),
+                Strings.Win_RevisarReparo, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
             return;
 
         _running = true;
         MaintenanceForm.IsEnabled = false;
         RunStatus.Visibility = Visibility.Visible;
         ResultsLocation.Visibility = Visibility.Collapsed;
-        RunStatus.Text = "Aguardando abertura da ferramenta pelo Windows…";
+        RunStatus.Text = Strings.Win_AguardandoAberturaFerramentaPelo;
         bool started = false;
         try
         {
             using var process = await Task.Run(() => operation.Start(volume));
             if (process == null)
             {
-                RunStatus.Text = "Solicitação encaminhada ao Windows. Confira a janela da ferramenta.";
+                RunStatus.Text = Strings.Win_SolicitacaoEncaminhadaWindowsConfira;
                 return;
             }
 
@@ -127,25 +128,25 @@ public partial class WindowsMaintenancePage : UserControl
             string? resultsLocation = operation.ResultsLocation;
             ResultsLocation.Text = resultsLocation ?? string.Empty;
             ResultsLocation.Visibility = resultsLocation == null ? Visibility.Collapsed : Visibility.Visible;
-            RunStatus.Text = operation.IsDiskCleanup ? "Acompanhe a Limpeza de Disco na janela do Windows." :
-                "Em andamento. Acompanhe o progresso e responda às perguntas no console da ferramenta.";
+            RunStatus.Text = operation.IsDiskCleanup ? Strings.Win_AcompanheLimpezaDiscoJanela :
+                Strings.Win_AndamentoAcompanheProgressoResponda;
             await process.WaitForExitAsync();
             int code = process.ExitCode;
             string displayCode = code < 0 ? $"0x{unchecked((uint)code):X8}" : code.ToString();
-            RunStatus.Text = $"Processo encerrado · código {displayCode}.";
-            if (code == 3010) RunStatus.Text += " O Windows informou que é necessário reiniciar.";
+            RunStatus.Text = string.Format(Strings.Win_ProcessoEncerradoCodigo, displayCode);
+            if (code == 3010) RunStatus.Text += Strings.Win_WindowsInformouNecessarioReiniciar;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
-            RunStatus.Text = "A solicitação do Windows foi cancelada.";
+            RunStatus.Text = Strings.Win_SolicitacaoWindowsFoiCancelada;
         }
         catch (Exception ex)
         {
             Log.Error($"Falha na manutenção do Windows ({operation.Title})", ex);
-            RunStatus.Text = started ? "A ferramenta foi iniciada. Não foi possível ler o código de saída." :
+            RunStatus.Text = started ? Strings.Win_FerramentaFoiIniciadaNao :
                 ex is FileNotFoundException or InvalidOperationException ? ex.Message :
-                ex is Win32Exception win32 ? $"O Windows não abriu a ferramenta. Código {win32.NativeErrorCode}." :
-                "Não foi possível abrir a ferramenta. Tente novamente.";
+                ex is Win32Exception win32 ? string.Format(Strings.Win_WindowsNaoAbriuFerramenta, win32.NativeErrorCode) :
+                Strings.Win_NaoFoiPossivelAbrir2;
         }
         finally
         {

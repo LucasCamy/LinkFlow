@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -11,15 +12,15 @@ internal static class OptionalWindowsApps
     private static readonly OptionalWindowsApp[] Catalog =
     [
         new("Clipchamp.Clipchamp", "Clipchamp"),
-        new("Microsoft.Getstarted", "Dicas do Windows"),
-        new("Microsoft.WindowsFeedbackHub", "Hub de Comentários"),
+        new("Microsoft.Getstarted", Strings.Win_DicasWindows),
+        new("Microsoft.WindowsFeedbackHub", Strings.Win_HubComentarios),
         new("Microsoft.MicrosoftSolitaireCollection", "Microsoft Solitaire Collection"),
-        new("Microsoft.BingNews", "Notícias"),
-        new("Microsoft.GetHelp", "Obter Ajuda"),
-        new("Microsoft.People", "Pessoas"),
-        new("Microsoft.BingWeather", "Clima"),
-        new("Microsoft.YourPhone", "Vincular ao Celular"),
-        new("Microsoft.WindowsMaps", "Mapas do Windows")
+        new("Microsoft.BingNews", Strings.Win_Noticias),
+        new("Microsoft.GetHelp", Strings.Win_ObterAjuda),
+        new("Microsoft.People", Strings.Win_Pessoas),
+        new("Microsoft.BingWeather", Strings.Win_Clima),
+        new("Microsoft.YourPhone", Strings.Win_VincularCelular),
+        new("Microsoft.WindowsMaps", Strings.Win_MapasWindows)
     ];
 
     private const string ScriptHeader = """
@@ -38,7 +39,7 @@ internal static class OptionalWindowsApps
             Get-AppxPackage -PackageTypeFilter Main | {RemovablePackages} | Select-Object -ExpandProperty Name
             """;
         var (code, output) = await RunAsync(script).ConfigureAwait(false);
-        if (code != 0) throw new InvalidOperationException("O Windows não conseguiu listar os aplicativos desta conta.");
+        if (code != 0) throw new InvalidOperationException(Strings.Win_WindowsNaoConseguiuListar);
         var installed = output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         return Catalog.Where(app => installed.Contains(app.PackageName)).OrderBy(app => app.Name).ToArray();
@@ -61,7 +62,7 @@ internal static class OptionalWindowsApps
         {
             0 => true,
             10 => false,
-            _ => throw new InvalidOperationException($"O Windows não concluiu a remoção de {app.Name}. Consulte o log do LinkFlow."),
+            _ => throw new InvalidOperationException(string.Format(Strings.Win_WindowsNaoConcluiuRemocao, app.Name)),
         };
     }
 
@@ -78,7 +79,7 @@ internal static class OptionalWindowsApps
             ArgumentList = { "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script }
         };
         if (packageName != null) info.Environment["LINKFLOW_APPX_NAME"] = packageName;
-        using var process = Process.Start(info) ?? throw new InvalidOperationException("Não foi possível iniciar o Windows PowerShell.");
+        using var process = Process.Start(info) ?? throw new InvalidOperationException(Strings.Win_NaoFoiPossivelIniciar);
         var output = process.StandardOutput.ReadToEndAsync();
         var errors = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync().ConfigureAwait(false);

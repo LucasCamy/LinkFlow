@@ -1,6 +1,7 @@
 <UserControl x:Class="LinkFlow.App.Views.WindowsNetworkPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:r="clr-namespace:LinkFlow.App.Resources"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              Language="pt-BR">
     <UserControl.Resources>
@@ -28,11 +29,11 @@
                             <TextBlock Text="&#xE701;" Style="{StaticResource SystemIcon}"/>
                         </Border>
                         <StackPanel>
-                            <TextBlock Text="Teste de velocidade" Style="{StaticResource SystemSectionTitle}"/>
+                            <TextBlock Text="{x:Static r:Strings.Win_TesteVelocidade}" Style="{StaticResource SystemSectionTitle}"/>
                             <TextBlock x:Name="NetworkMethod" Style="{StaticResource SystemDetail}"/>
                         </StackPanel>
                     </DockPanel>
-                    <TextBlock x:Name="NetworkStatus" Text="Pronto para testar" Style="{StaticResource SystemItemTitle}"
+                    <TextBlock x:Name="NetworkStatus" Text="{x:Static r:Strings.Win_ProntoTestar}" Style="{StaticResource SystemItemTitle}"
                                TextAlignment="Center" Margin="0,20,0,0" AutomationProperties.LiveSetting="Polite"/>
                     <Viewbox MaxWidth="320" StretchDirection="DownOnly" Margin="0,8,0,0">
                         <Grid Width="320" Height="176">
@@ -51,33 +52,33 @@
                     <TextBlock x:Name="LiveTransferDetail" Style="{StaticResource SystemDetail}" TextAlignment="Center" MinHeight="18"
                                Margin="0,8,0,0" Visibility="Hidden"/>
                     <Grid HorizontalAlignment="Center" MinWidth="110" Margin="0,14,0,0">
-                        <Button x:Name="StartNetworkButton" Content="Iniciar teste" Click="StartNetwork_Click" Style="{StaticResource PrimaryButton}"/>
-                        <Button x:Name="CancelNetworkButton" Content="Cancelar" Click="CancelNetwork_Click" Style="{StaticResource SecondaryButton}"
+                        <Button x:Name="StartNetworkButton" Content="{x:Static r:Strings.Win_IniciarTeste}" Click="StartNetwork_Click" Style="{StaticResource PrimaryButton}"/>
+                        <Button x:Name="CancelNetworkButton" Content="{x:Static r:Strings.Common_Cancel}" Click="CancelNetwork_Click" Style="{StaticResource SecondaryButton}"
                                 Visibility="Collapsed"/>
                     </Grid>
                     <ProgressBar x:Name="NetworkProgress" Height="4" Maximum="1" Margin="0,12,0,0" Visibility="Hidden"
                                  Background="{StaticResource BorderBrush}" Foreground="{StaticResource AccentBrush}"
-                                 AutomationProperties.Name="Progresso do teste de velocidade"/>
+                                 AutomationProperties.Name="{x:Static r:Strings.Win_ProgressoTesteVelocidade}"/>
                 </StackPanel>
             </Border>
             <c:AdaptiveUniformGrid MinItemWidth="178" MaxColumns="3" Margin="0,0,-12,0">
                 <Border Style="{StaticResource NetworkCard}">
                     <StackPanel>
-                        <TextBlock Text="Ping · Google" Style="{StaticResource SystemItemTitle}"/>
+                        <TextBlock Text="{x:Static r:Strings.Win_PingGoogle}" Style="{StaticResource SystemItemTitle}"/>
                         <TextBlock x:Name="LatencyValue" Text="—" Style="{StaticResource MeasurementValue}" Foreground="{StaticResource CpuBrush}"/>
                         <TextBlock x:Name="LatencyDetail" Style="{StaticResource SystemDetail}"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource NetworkCard}">
                     <StackPanel>
-                        <TextBlock Text="Download" Style="{StaticResource SystemItemTitle}"/>
+                        <TextBlock Text="{x:Static r:Strings.Dash_Download}" Style="{StaticResource SystemItemTitle}"/>
                         <TextBlock x:Name="DownloadValue" Text="—" Style="{StaticResource MeasurementValue}" Foreground="{StaticResource GpuBrush}"/>
                         <TextBlock x:Name="DownloadDetail" Style="{StaticResource SystemDetail}"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource NetworkCard}">
                     <StackPanel>
-                        <TextBlock Text="Upload" Style="{StaticResource SystemItemTitle}"/>
+                        <TextBlock Text="{x:Static r:Strings.Det_Upload}" Style="{StaticResource SystemItemTitle}"/>
                         <TextBlock x:Name="UploadValue" Text="—" Style="{StaticResource MeasurementValue}" Foreground="{StaticResource RamBrush}"/>
                         <TextBlock x:Name="UploadDetail" Style="{StaticResource SystemDetail}"/>
                     </StackPanel>
@@ -85,9 +86,9 @@
             </c:AdaptiveUniformGrid>
             <Border Style="{StaticResource SystemPanel}">
                 <StackPanel>
-                    <TextBlock Text="Adaptador em uso" Style="{StaticResource SystemSectionTitle}"/>
+                    <TextBlock Text="{x:Static r:Strings.Win_AdaptadorUso}" Style="{StaticResource SystemSectionTitle}"/>
                     <TextBlock Text="{Binding NetAdapter}" Style="{StaticResource SystemItemTitle}" Margin="0,7,0,0"/>
-                    <TextBlock Text="{Binding NetLinkFormatted, StringFormat='Velocidade do link · {0}'}" Style="{StaticResource SystemDetail}"/>
+                    <TextBlock Text="{Binding NetLinkFormatted, StringFormat={x:Static r:Strings.Dash_LinkSpeed}}" Style="{StaticResource SystemDetail}"/>
                 </StackPanel>
             </Border>
         </StackPanel>
