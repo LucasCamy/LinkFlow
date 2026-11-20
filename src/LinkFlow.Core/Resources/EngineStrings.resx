@@ -217,6 +217,12 @@
   <data name="RgbSyncedAndFailed" xml:space="preserve">
     <value>Sincronizado: {0} • Falhou: {1}</value>
   </data>
+  <data name="RgbRecovering" xml:space="preserve">
+    <value>Recuperando automaticamente: {0}</value>
+  </data>
+  <data name="RgbWithRecovering" xml:space="preserve">
+    <value>{0} • Recuperando automaticamente: {1}</value>
+  </data>
   <data name="RgbListPair" xml:space="preserve">
     <value>{0}, {1}</value>
   </data>

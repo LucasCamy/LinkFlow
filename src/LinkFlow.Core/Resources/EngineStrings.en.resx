@@ -217,6 +217,12 @@
   <data name="RgbSyncedAndFailed" xml:space="preserve">
     <value>Synced: {0} • Failed: {1}</value>
   </data>
+  <data name="RgbRecovering" xml:space="preserve">
+    <value>Recovering automatically: {0}</value>
+  </data>
+  <data name="RgbWithRecovering" xml:space="preserve">
+    <value>{0} • Recovering automatically: {1}</value>
+  </data>
   <data name="RgbListPair" xml:space="preserve">
     <value>{0}, {1}</value>
   </data>

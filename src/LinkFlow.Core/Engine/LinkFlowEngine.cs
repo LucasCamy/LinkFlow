@@ -66,6 +66,9 @@ public sealed class EngineOptions
     public Func<IReadOnlyList<string>>? ConflictProbe { get; set; }
     public TimeSpan ConflictCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
 
+    /// <summary>Supervisor de sincronismo do RGB: novas tentativas, reinicialização por dispositivo e ressincronização.</summary>
+    public RgbSyncPolicy RgbSync { get; set; } = new();
+
     /// <summary>Arquivo onde a configuração é persistida. Null = não persiste (testes).</summary>
     public string? ConfigPath { get; set; } = AppPaths.ControlConfigFile;
 }
@@ -132,6 +135,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     private bool _lcdConnected;
     private bool _rgbReady;
     private bool? _rgbHubOk, _rgbGpuOk, _rgbMbOk, _rgbRamOk, _rgbPeripheralsOk, _rgbLcdOk;
+    private bool _rgbGpuRecovering, _rgbMbRecovering, _rgbRamRecovering, _rgbPeripheralsRecovering;
     private readonly Dictionary<string, EngineAlert> _alerts = new();
 
     // Controle (escritos pela fila de sensores, lidos pela fila do hub)
@@ -148,6 +152,8 @@ public sealed partial class LinkFlowEngine : IDisposable
     private int _forceReconnectHub;
     private int _forceReconnectAux;
     private int _rescanRgb;
+    private long _rgbResyncGeneration;
+    private long _lastRgbResyncRequest;
     private EngineText? _lcdStatus;
 
     // Rede/discos (fila de sensores) e quem está pedindo leitura dos discos
@@ -335,8 +341,24 @@ public sealed partial class LinkFlowEngine : IDisposable
         Interlocked.Exchange(ref _forceReconnectAux, 1);
         Interlocked.Increment(ref _rgbVersion);
         Interlocked.Increment(ref _gpuFanVersion);
+        RequestRgbResync("retorno da suspensão");
         Signal(_hubSignal);
         Signal(_sensorSignal);
+        Signal(_auxSignal);
+        Signal(_ramSignal);
+    }
+
+    /// <summary>
+    /// Pede ao supervisor uma ressincronização de todos os dispositivos RGB (além do reenvio imediato): um envio da cor
+    /// atual alguns segundos depois, quando os controladores já acordaram. Pedidos próximos viram uma linha só no log.
+    /// </summary>
+    private void RequestRgbResync(string reason)
+    {
+        long now = Stopwatch.GetTimestamp();
+        long last = Interlocked.Exchange(ref _lastRgbResyncRequest, now);
+        if (last == 0 || Stopwatch.GetElapsedTime(last, now) > TimeSpan.FromSeconds(10))
+            Log.Info($"RGB: ressincronizando todos os dispositivos ({reason}).");
+        Interlocked.Increment(ref _rgbResyncGeneration);
         Signal(_auxSignal);
         Signal(_ramSignal);
     }
@@ -590,13 +612,9 @@ public sealed partial class LinkFlowEngine : IDisposable
         _cts.Dispose();
     }
 
-    private static bool Apply(IRgbDevice device, RgbConfig rgb, string target, long frame)
-    {
-        var o = rgb.OutputFor(target, frame, 0);
-        return rgb.IsAnimated
-            ? device.SetAnimationColor(o.R, o.G, o.B, o.Brightness)
-            : device.SetColor(o.R, o.G, o.B, o.Brightness);
-    }
+    private static bool Write(IRgbDevice device, (byte R, byte G, byte B, byte Brightness) o, bool animated) => animated
+        ? device.SetAnimationColor(o.R, o.G, o.B, o.Brightness)
+        : device.SetColor(o.R, o.G, o.B, o.Brightness);
 
     private static bool SafeCall(Func<bool> f)
     {

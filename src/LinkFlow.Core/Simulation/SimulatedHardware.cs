@@ -332,21 +332,37 @@ public sealed class SimulatedRgb : IRgbDevice
     /// <summary>Recusa os próximos N envios e depois volta a aceitar (barramento I²C ocupado por instantes).</summary>
     public int FailNextColorWrites { get; set; }
     public bool NeedsInitializationRetry { get; private set; }
+
+    /// <summary>Teste: responde num modo lento (como a RAM sem quadros diretos) até ser reinicializado.</summary>
+    public bool Degraded { get; set; }
+    public bool IsDegraded => IsAvailable && Degraded;
     public int InitializationCalls { get; private set; }
     public int Calls { get; private set; }
     public (byte R, byte G, byte B, byte Brightness)? Last { get; private set; }
+
+    /// <summary>Teste: cores aceitas, na ordem (para conferir o realinhamento suave dos efeitos).</summary>
+    public List<(byte R, byte G, byte B, byte Brightness)> History { get; } = new();
     public void Initialize()
     {
         InitializationCalls++;
         IsAvailable = !FailInitialization;
         NeedsInitializationRetry = !IsAvailable;
+        Degraded = false;
     }
     public bool SetColor(byte r, byte g, byte b, byte brightnessPercent)
     {
         bool accepted = !FailColorWrites && FailNextColorWrites == 0;
         if (FailNextColorWrites > 0) FailNextColorWrites--;
         Calls++;
-        if (accepted) Last = (r, g, b, brightnessPercent);
+        if (accepted)
+        {
+            Last = (r, g, b, brightnessPercent);
+            lock (History)
+            {
+                History.Add(Last.Value);
+                if (History.Count > 2000) History.RemoveRange(0, 1000);
+            }
+        }
         return accepted;
     }
     public void Dispose() { }
