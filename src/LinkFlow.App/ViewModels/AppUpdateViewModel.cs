@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using LinkFlow.App.Services;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -21,20 +22,20 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     private bool _busy;
     private string _status = "";
     private int _progress;
-    private string ReadyStatus => $"LinkFlow {_release!.Version} baixado e verificado. O aplicativo será reaberto ao fim da instalação.";
+    private string ReadyStatus => string.Format(Strings.Set_LinkFlowBaixadoVerificadoAplicativo, _release!.Version);
 
     public AppUpdateViewModel(UiSettingsService settings, bool allowInstall)
     {
         _settings = settings;
         _installedDirectory = allowInstall ? LinkFlowInstallation.FindRegisteredDirectory(AutoStartManager.ExePath) : null;
         Status = _installedDirectory == null
-            ? "Versão portátil. As atualizações são baixadas pelo navegador."
-            : "Consulte as atualizações do LinkFlow no GitHub.";
+            ? Strings.Set_VersaoPortatilAtualizacoesSao
+            : Strings.Set_ConsulteAtualizacoesLinkFlowGitHub;
     }
 
     public event Action<Version>? UpdateFound;
 
-    public string VersionText => $"Versão atual {CurrentVersion.ToString(3)}";
+    public string VersionText => string.Format(Strings.Set_VersaoAtual, CurrentVersion.ToString(3));
 
     public bool AutomaticCheck
     {
@@ -55,8 +56,8 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     public bool IsDownloading => _download != null;
     private bool CanDownloadInstaller => _installedDirectory != null && _release?.Installer != null;
     public bool ShowDownloadsLink => !HasUpdate || CanDownloadInstaller;
-    public string ActionText => _installer != null ? "Instalar e reiniciar" :
-        CanDownloadInstaller ? "Baixar atualização" : "Baixar no navegador";
+    public string ActionText => _installer != null ? Strings.Set_InstalarReiniciar :
+        CanDownloadInstaller ? Strings.Set_BaixarAtualizacao : Strings.Set_BaixarNavegador;
 
     public async Task WatchAsync()
     {
@@ -79,7 +80,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     {
         if (_busy) return;
         var cancellationToken = _lifetime.Token;
-        if (!automatic) Status = "Consultando a versão mais recente…";
+        if (!automatic) Status = Strings.Set_ConsultandoVersaoMaisRecente;
         SetBusy(true);
         try
         {
@@ -93,8 +94,8 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
             }
             _release = release;
             if (_installer != null) Status = ReadyStatus;
-            else if (release != null) Status = $"LinkFlow {release.Version} disponível.";
-            else Status = "Você está usando a versão mais recente do LinkFlow.";
+            else if (release != null) Status = string.Format(Strings.Set_LinkFlowDisponivel, release.Version);
+            else Status = Strings.Set_VoceEstaUsandoVersao;
 
             if (release != null && release.Version != _lastNotified && (!automatic || AutomaticCheck))
             {
@@ -106,7 +107,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             Log.Warn($"Falha na consulta de atualização do LinkFlow: {ex.Message}");
-            if (!automatic) Status = "Não foi possível consultar as atualizações. Tente novamente ou abra a página de downloads.";
+            if (!automatic) Status = Strings.Set_NaoFoiPossivelConsultar;
         }
         finally { SetBusy(false); }
     }
@@ -130,7 +131,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             Log.Warn($"Falha ao abrir a página de releases: {ex.Message}");
-            Status = "Não foi possível abrir a página de downloads.";
+            Status = Strings.Set_NaoFoiPossivelAbrir;
         }
     }
 
@@ -141,7 +142,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
         using var download = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _download = download;
         Progress = 0;
-        Status = $"Baixando o instalador do LinkFlow {release.Version}…";
+        Status = string.Format(Strings.Set_BaixandoInstaladorLinkFlow, release.Version);
         SetBusy(true);
         try
         {
@@ -157,17 +158,17 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
         }
         catch (OperationCanceledException) when (download.IsCancellationRequested)
         {
-            Status = "Download cancelado.";
+            Status = Strings.Set_DownloadCancelado;
         }
         catch (InvalidDataException ex)
         {
             Log.Warn($"Instalador do LinkFlow rejeitado: {ex.Message}");
-            Status = $"{ex.Message} Tente baixar novamente.";
+            Status = string.Format(Strings.Set_TenteBaixarNovamente, ex.Message);
         }
         catch (Exception ex)
         {
             Log.Warn($"Falha ao baixar a atualização do LinkFlow: {ex.Message}");
-            Status = "Não foi possível baixar a atualização. Tente novamente ou abra a página de downloads.";
+            Status = Strings.Set_NaoFoiPossivelBaixar;
         }
         finally
         {
@@ -180,7 +181,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     {
         var cancellationToken = _lifetime.Token;
         SetBusy(true);
-        Status = "Abrindo o instalador. Confirme no Windows se ele pedir permissão.";
+        Status = Strings.Set_AbrindoInstaladorConfirmeWindows;
         try
         {
             var directory = LinkFlowInstallation.FindRegisteredDirectory(AutoStartManager.ExePath);
@@ -188,7 +189,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
             {
                 _installer?.Dispose();
                 _installer = null;
-                Status = "A instalação do LinkFlow mudou. Reabra o aplicativo antes de tentar atualizar.";
+                Status = Strings.Set_InstalacaoLinkFlowMudouReabra;
                 return;
             }
 
@@ -196,19 +197,19 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
             var start = new ProcessStartInfo(installer.Path) { UseShellExecute = false, WorkingDirectory = Environment.SystemDirectory };
             foreach (var argument in new[] { "/SP-", "/SILENT", "/NORESTART", "/NORESTARTAPPLICATIONS", "/LOG", "/LINKFLOWUPDATE=1", $"/DIR={directory}" })
                 start.ArgumentList.Add(argument);
-            using var process = Process.Start(start) ?? throw new IOException("O instalador não iniciou.");
+            using var process = Process.Start(start) ?? throw new IOException(Strings.Set_InstaladorNaoIniciou);
             await process.WaitForExitAsync(cancellationToken);
             if (!cancellationToken.IsCancellationRequested)
             {
                 Log.Info($"Instalador do LinkFlow encerrado com código {process.ExitCode}.");
-                Status = "A atualização não foi concluída. Tente novamente ou abra a página de downloads.";
+                Status = Strings.Set_AtualizacaoNaoFoiConcluida;
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
         catch (Exception ex)
         {
             Log.Warn($"Falha ao iniciar o instalador do LinkFlow: {ex.Message}");
-            Status = "Não foi possível abrir o instalador. Tente novamente ou abra a página de downloads.";
+            Status = Strings.Set_NaoFoiPossivelAbrir2;
         }
         finally { SetBusy(false); }
     }

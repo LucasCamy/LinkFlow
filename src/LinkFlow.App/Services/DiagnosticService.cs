@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -24,8 +25,8 @@ public static class DiagnosticService
         if (_busy) return;
         var dlg = new Microsoft.Win32.SaveFileDialog
         {
-            Title = "Salvar pacote de diagnóstico do LinkFlow",
-            Filter = "Arquivo ZIP (*.zip)|*.zip",
+            Title = Strings.Set_SalvarPacoteDiagnosticoLinkFlow,
+            Filter = Strings.Set_ArquivoZIPZipZip,
             FileName = DiagnosticBundle.SuggestedFileName(DateTime.Now),
             InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             AddExtension = true
@@ -33,7 +34,7 @@ public static class DiagnosticService
         if (dlg.ShowDialog(owner) != true) return;
 
         _busy = true;
-        vm.ShowToast("Gerando o pacote de diagnóstico...", canUndo: false);
+        vm.ShowToast(Strings.Set_GerandoPacoteDiagnostico, canUndo: false);
         try
         {
             var snapshot = vm.Snapshot;
@@ -51,9 +52,9 @@ public static class DiagnosticService
             vm.ToastVisible = false;
 
             var answer = MessageBox.Show(owner,
-                $"Pacote de diagnóstico salvo em:\n{result.Path}\n\n{result.LogFiles} arquivo(s) de log, config.json e hardware-summary.txt " +
-                "(nome de usuário e do computador substituídos).\n\nAbrir a pasta do arquivo?",
-                "Pacote de diagnóstico", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.Yes);
+                string.Format(Strings.Set_PacoteDiagnosticoSalvoArquivo, result.Path, result.LogFiles) +
+                Strings.Set_NomeUsuarioComputadorSubstituidos,
+                Strings.Set_PacoteDiagnostico, MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.Yes);
             if (answer == MessageBoxResult.Yes)
                 Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{result.Path}\"") { UseShellExecute = true });
         }
@@ -61,7 +62,7 @@ public static class DiagnosticService
         {
             Log.Error("Falha ao gerar o pacote de diagnóstico", ex);
             vm.ToastVisible = false;
-            MessageBox.Show(owner, $"Não foi possível gerar o pacote de diagnóstico:\n{ex.Message}", "Pacote de diagnóstico",
+            MessageBox.Show(owner, string.Format(Strings.Set_NaoFoiPossivelGerar, ex.Message), Strings.Set_PacoteDiagnostico,
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally

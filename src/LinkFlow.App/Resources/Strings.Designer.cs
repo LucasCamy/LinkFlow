@@ -3505,6 +3505,24 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to LinkFlow {0} • {1} perfil(is) salvo(s) • {2} imagem(ns) do LCD.
+        /// </summary>
+        public static string Imp_BackupSummary {
+            get {
+                return ResourceManager.GetString("Imp_BackupSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automático (idioma do Windows).
+        /// </summary>
+        public static string Language_Automatic {
+            get {
+                return ResourceManager.GetString("Language_Automatic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to English.
         /// </summary>
         public static string Language_English {
@@ -3528,6 +3546,24 @@ namespace LinkFlow.App.Resources {
         public static string Language_RestartNotice {
             get {
                 return ResourceManager.GetString("Language_RestartNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reiniciar agora.
+        /// </summary>
+        public static string Language_RestartNow {
+            get {
+                return ResourceManager.GetString("Language_RestartNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Idioma.
+        /// </summary>
+        public static string Language_Title {
+            get {
+                return ResourceManager.GetString("Language_Title", resourceCulture);
             }
         }
         
@@ -5863,6 +5899,1380 @@ namespace LinkFlow.App.Resources {
         public static string Nav_WindowsTip {
             get {
                 return ResourceManager.GetString("Nav_WindowsTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abre na bandeja ao entrar no Windows..
+        /// </summary>
+        public static string Set_AbreBandejaEntrarWindows {
+            get {
+                return ResourceManager.GetString("Set_AbreBandejaEntrarWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrindo o instalador. Confirme no Windows se ele pedir permissão..
+        /// </summary>
+        public static string Set_AbrindoInstaladorConfirmeWindows {
+            get {
+                return ResourceManager.GetString("Set_AbrindoInstaladorConfirmeWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir página de downloads.
+        /// </summary>
+        public static string Set_AbrirPaginaDownloads {
+            get {
+                return ResourceManager.GetString("Set_AbrirPaginaDownloads", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir pasta de configuração.
+        /// </summary>
+        public static string Set_AbrirPastaConfiguracao {
+            get {
+                return ResourceManager.GetString("Set_AbrirPastaConfiguracao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir pasta de logs.
+        /// </summary>
+        public static string Set_AbrirPastaLogs {
+            get {
+                return ResourceManager.GetString("Set_AbrirPastaLogs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aciona as ventoinhas a 100% em condição crítica e retoma o perfil após 15 segundos de leituras seguras..
+        /// </summary>
+        public static string Set_AcionaVentoinhas100Condicao {
+            get {
+                return ResourceManager.GetString("Set_AcionaVentoinhas100Condicao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alerta.
+        /// </summary>
+        public static string Set_Alerta {
+            get {
+                return ResourceManager.GetString("Set_Alerta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animações e transições.
+        /// </summary>
+        public static string Set_AnimacoesTransicoes {
+            get {
+                return ResourceManager.GetString("Set_AnimacoesTransicoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplicar perfil (Silencioso … Curva).
+        /// </summary>
+        public static string Set_AplicarPerfilSilenciosoCurva {
+            get {
+                return ResourceManager.GetString("Set_AplicarPerfilSilenciosoCurva", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arquivos e aplicativo.
+        /// </summary>
+        public static string Set_ArquivosAplicativo {
+            get {
+                return ResourceManager.GetString("Set_ArquivosAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arquivo ZIP (*.zip)|*.zip.
+        /// </summary>
+        public static string Set_ArquivoZIPZipZip {
+            get {
+                return ResourceManager.GetString("Set_ArquivoZIPZipZip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atalhos.
+        /// </summary>
+        public static string Set_Atalhos {
+            get {
+                return ResourceManager.GetString("Set_Atalhos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atalhos globais.
+        /// </summary>
+        public static string Set_AtalhosGlobais {
+            get {
+                return ResourceManager.GetString("Set_AtalhosGlobais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atalhos de teclado.
+        /// </summary>
+        public static string Set_AtalhosTeclado {
+            get {
+                return ResourceManager.GetString("Set_AtalhosTeclado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativo • inicia na bandeja ao fazer logon.
+        /// </summary>
+        public static string Set_AtivoIniciaBandejaFazer {
+            get {
+                return ResourceManager.GetString("Set_AtivoIniciaBandejaFazer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativo • tarefa agendada com privilégios elevados, inicia na bandeja.
+        /// </summary>
+        public static string Set_AtivoTarefaAgendadaPrivilegios {
+            get {
+                return ResourceManager.GetString("Set_AtivoTarefaAgendadaPrivilegios", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A atualização não foi concluída. Tente novamente ou abra a página de downloads..
+        /// </summary>
+        public static string Set_AtualizacaoNaoFoiConcluida {
+            get {
+                return ResourceManager.GetString("Set_AtualizacaoNaoFoiConcluida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizações.
+        /// </summary>
+        public static string Set_Atualizacoes {
+            get {
+                return ResourceManager.GetString("Set_Atualizacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avisar se uma ventoinha ou a bomba parar.
+        /// </summary>
+        public static string Set_AvisarVentoinhaOuBomba {
+            get {
+                return ResourceManager.GetString("Set_AvisarVentoinhaOuBomba", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup de {0:dd/MM/yyyy HH:mm}.
+        /// </summary>
+        public static string Set_Backup {
+            get {
+                return ResourceManager.GetString("Set_Backup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup de configurações.
+        /// </summary>
+        public static string Set_BackupConfiguracoes {
+            get {
+                return ResourceManager.GetString("Set_BackupConfiguracoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup do LinkFlow (*{0};*.json)|*{1};*.json|Todos os arquivos|*.*.
+        /// </summary>
+        public static string Set_BackupFilterImport {
+            get {
+                return ResourceManager.GetString("Set_BackupFilterImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Backup do LinkFlow (*{0})|*{1}|JSON (*.json)|*.json.
+        /// </summary>
+        public static string Set_BackupLinkFlowJSONJson {
+            get {
+                return ResourceManager.GetString("Set_BackupLinkFlowJSONJson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixando o instalador do LinkFlow {0}….
+        /// </summary>
+        public static string Set_BaixandoInstaladorLinkFlow {
+            get {
+                return ResourceManager.GetString("Set_BaixandoInstaladorLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar atualização.
+        /// </summary>
+        public static string Set_BaixarAtualizacao {
+            get {
+                return ResourceManager.GetString("Set_BaixarAtualizacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Baixar no navegador.
+        /// </summary>
+        public static string Set_BaixarNavegador {
+            get {
+                return ResourceManager.GetString("Set_BaixarNavegador", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Buscar atualizações automaticamente.
+        /// </summary>
+        public static string Set_BuscarAtualizacoesAutomaticamente {
+            get {
+                return ResourceManager.GetString("Set_BuscarAtualizacoesAutomaticamente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelar download.
+        /// </summary>
+        public static string Set_CancelarDownload {
+            get {
+                return ResourceManager.GetString("Set_CancelarDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conectado ao serviço.
+        /// </summary>
+        public static string Set_ConectadoServico {
+            get {
+                return ResourceManager.GetString("Set_ConectadoServico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configurações importadas de &quot;{0}&quot;.
+        /// </summary>
+        public static string Set_ConfiguracoesImportadas {
+            get {
+                return ResourceManager.GetString("Set_ConfiguracoesImportadas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configure os limites de alerta e de proteção em graus Celsius..
+        /// </summary>
+        public static string Set_ConfigureLimitesAlertaProtecao {
+            get {
+                return ResourceManager.GetString("Set_ConfigureLimitesAlertaProtecao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consultando a versão mais recente….
+        /// </summary>
+        public static string Set_ConsultandoVersaoMaisRecente {
+            get {
+                return ResourceManager.GetString("Set_ConsultandoVersaoMaisRecente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consulte as atualizações do LinkFlow no GitHub..
+        /// </summary>
+        public static string Set_ConsulteAtualizacoesLinkFlowGitHub {
+            get {
+                return ResourceManager.GetString("Set_ConsulteAtualizacoesLinkFlowGitHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O controle roda dentro deste aplicativo, como administrador..
+        /// </summary>
+        public static string Set_ControleRodaDentroDeste {
+            get {
+                return ResourceManager.GetString("Set_ControleRodaDentroDeste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O controle roda dentro deste aplicativo, sem administrador (temperatura da CPU indisponível)..
+        /// </summary>
+        public static string Set_ControleRodaDentroDeste2 {
+            get {
+                return ResourceManager.GetString("Set_ControleRodaDentroDeste2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • O controle das ventoinhas, RGB e LCD passa a rodar em segundo plano, mesmo sem janela aberta.
+        ///.
+        /// </summary>
+        public static string Set_ControleVentoinhasRGBLCD {
+            get {
+                return ResourceManager.GetString("Set_ControleVentoinhasRGBLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Crítico.
+        /// </summary>
+        public static string Set_Critico {
+            get {
+                return ResourceManager.GetString("Set_Critico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Z.
+        /// </summary>
+        public static string Set_Ctrl {
+            get {
+                return ResourceManager.GetString("Set_Ctrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+1 … 9.
+        /// </summary>
+        public static string Set_Ctrl19 {
+            get {
+                return ResourceManager.GetString("Set_Ctrl19", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+M.
+        /// </summary>
+        public static string Set_Ctrl2 {
+            get {
+                return ResourceManager.GetString("Set_Ctrl2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+R.
+        /// </summary>
+        public static string Set_Ctrl3 {
+            get {
+                return ResourceManager.GetString("Set_Ctrl3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+Alt+1–5 aplica perfis, Ctrl+Alt+L mostra a janela e Ctrl+Alt+M alterna o mini widget..
+        /// </summary>
+        public static string Set_CtrlAlt15 {
+            get {
+                return ResourceManager.GetString("Set_CtrlAlt15", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+↑ / Ctrl+↓.
+        /// </summary>
+        public static string Set_CtrlCtrl {
+            get {
+                return ResourceManager.GetString("Set_CtrlCtrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+A / Esc.
+        /// </summary>
+        public static string Set_CtrlEsc {
+            get {
+                return ResourceManager.GetString("Set_CtrlEsc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desfazer a última alteração.
+        /// </summary>
+        public static string Set_DesfazerUltimaAlteracao {
+            get {
+                return ResourceManager.GetString("Set_DesfazerUltimaAlteracao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download cancelado..
+        /// </summary>
+        public static string Set_DownloadCancelado {
+            get {
+                return ResourceManager.GetString("Set_DownloadCancelado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Elevação cancelada..
+        /// </summary>
+        public static string Set_ElevacaoCancelada {
+            get {
+                return ResourceManager.GetString("Set_ElevacaoCancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enviar quadro ao LCD.
+        /// </summary>
+        public static string Set_EnviarQuadroLCD {
+            get {
+                return ResourceManager.GetString("Set_EnviarQuadroLCD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Esc / Ctrl+W.
+        /// </summary>
+        public static string Set_EscCtrl {
+            get {
+                return ResourceManager.GetString("Set_EscCtrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exibir notificações de alerta.
+        /// </summary>
+        public static string Set_ExibirNotificacoesAlerta {
+            get {
+                return ResourceManager.GetString("Set_ExibirNotificacoesAlerta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exibir a temperatura da CPU no ícone da bandeja.
+        /// </summary>
+        public static string Set_ExibirTemperaturaCPUIcone {
+            get {
+                return ResourceManager.GetString("Set_ExibirTemperaturaCPUIcone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exportado: {0} • {1} perfil(is), {2} imagem(ns).
+        /// </summary>
+        public static string Set_ExportadoPerfilIsImagem {
+            get {
+                return ResourceManager.GetString("Set_ExportadoPerfilIsImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exportar.
+        /// </summary>
+        public static string Set_Exportar {
+            get {
+                return ResourceManager.GetString("Set_Exportar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exportar configurações.
+        /// </summary>
+        public static string Set_ExportarConfiguracoes {
+            get {
+                return ResourceManager.GetString("Set_ExportarConfiguracoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exportar configurações do LinkFlow.
+        /// </summary>
+        public static string Set_ExportarConfiguracoesLinkFlow {
+            get {
+                return ResourceManager.GetString("Set_ExportarConfiguracoesLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Falha ao reiniciar o serviço (código {0})..
+        /// </summary>
+        public static string Set_FalhaReiniciarServicoCodigo {
+            get {
+                return ResourceManager.GetString("Set_FalhaReiniciarServicoCodigo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar interface.
+        /// </summary>
+        public static string Set_FecharInterface {
+            get {
+                return ResourceManager.GetString("Set_FecharInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fechar a janela. Ctrl+Q encerra o aplicativo..
+        /// </summary>
+        public static string Set_FecharJanelaCtrlEncerra {
+            get {
+                return ResourceManager.GetString("Set_FecharJanelaCtrlEncerra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Geral.
+        /// </summary>
+        public static string Set_Geral {
+            get {
+                return ResourceManager.GetString("Set_Geral", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gerando o pacote de diagnóstico....
+        /// </summary>
+        public static string Set_GerandoPacoteDiagnostico {
+            get {
+                return ResourceManager.GetString("Set_GerandoPacoteDiagnostico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gerar pacote de diagnóstico.
+        /// </summary>
+        public static string Set_GerarPacoteDiagnostico {
+            get {
+                return ResourceManager.GetString("Set_GerarPacoteDiagnostico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gerar pacote de diagnóstico (.zip).
+        /// </summary>
+        public static string Set_GerarPacoteDiagnosticoZip {
+            get {
+                return ResourceManager.GetString("Set_GerarPacoteDiagnosticoZip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Habilitar ferramentas avançadas do sistema.
+        /// </summary>
+        public static string Set_HabilitarFerramentasAvancadasSistema {
+            get {
+                return ResourceManager.GetString("Set_HabilitarFerramentasAvancadasSistema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O hardware é controlado pelo serviço LinkFlowService (inicia com o Windows, reinicia sozinho se falhar)..
+        /// </summary>
+        public static string Set_HardwareControladoPeloServico {
+            get {
+                return ResourceManager.GetString("Set_HardwareControladoPeloServico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Importar.
+        /// </summary>
+        public static string Set_Importar {
+            get {
+                return ResourceManager.GetString("Set_Importar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O que importar.
+        /// </summary>
+        public static string Set_Importar2 {
+            get {
+                return ResourceManager.GetString("Set_Importar2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Importar configurações.
+        /// </summary>
+        public static string Set_ImportarConfiguracoes {
+            get {
+                return ResourceManager.GetString("Set_ImportarConfiguracoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Importar configurações do LinkFlow.
+        /// </summary>
+        public static string Set_ImportarConfiguracoesLinkFlow {
+            get {
+                return ResourceManager.GetString("Set_ImportarConfiguracoesLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • Inicia automaticamente com o Windows e reinicia sozinho se falhar.
+        ///.
+        /// </summary>
+        public static string Set_IniciaAutomaticamenteWindowsReinicia {
+            get {
+                return ResourceManager.GetString("Set_IniciaAutomaticamenteWindowsReinicia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inicialização e interface.
+        /// </summary>
+        public static string Set_InicializacaoInterface {
+            get {
+                return ResourceManager.GetString("Set_InicializacaoInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalação cancelada..
+        /// </summary>
+        public static string Set_InstalacaoCancelada {
+            get {
+                return ResourceManager.GetString("Set_InstalacaoCancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A instalação do LinkFlow mudou. Reabra o aplicativo antes de tentar atualizar..
+        /// </summary>
+        public static string Set_InstalacaoLinkFlowMudouReabra {
+            get {
+                return ResourceManager.GetString("Set_InstalacaoLinkFlowMudouReabra", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O instalador não iniciou..
+        /// </summary>
+        public static string Set_InstaladorNaoIniciou {
+            get {
+                return ResourceManager.GetString("Set_InstaladorNaoIniciou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalar e reiniciar.
+        /// </summary>
+        public static string Set_InstalarReiniciar {
+            get {
+                return ResourceManager.GetString("Set_InstalarReiniciar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalar serviço LinkFlow.
+        /// </summary>
+        public static string Set_InstalarServicoLinkFlow {
+            get {
+                return ResourceManager.GetString("Set_InstalarServicoLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • A interface deixa de pedir permissão de administrador.
+        ///
+        ///.
+        /// </summary>
+        public static string Set_InterfaceDeixaPedirPermissao {
+            get {
+                return ResourceManager.GetString("Set_InterfaceDeixaPedirPermissao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limites de alerta e modo de segurança.
+        /// </summary>
+        public static string Set_LimitesAlertaModoSeguranca {
+            get {
+                return ResourceManager.GetString("Set_LimitesAlertaModoSeguranca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limites de temperatura.
+        /// </summary>
+        public static string Set_LimitesTemperatura {
+            get {
+                return ResourceManager.GetString("Set_LimitesTemperatura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow avisa quando uma nova versão está disponível..
+        /// </summary>
+        public static string Set_LinkFlowAvisaQuandoNova {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowAvisaQuandoNova", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow {0} baixado e verificado. O aplicativo será reaberto ao fim da instalação..
+        /// </summary>
+        public static string Set_LinkFlowBaixadoVerificadoAplicativo {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowBaixadoVerificadoAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow continua em segundo plano..
+        /// </summary>
+        public static string Set_LinkFlowContinuaSegundoPlano {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowContinuaSegundoPlano", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow {0} disponível..
+        /// </summary>
+        public static string Set_LinkFlowDisponivel {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowDisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow.Service.exe não está na pasta do aplicativo. Use o script de publicação para gerar..
+        /// </summary>
+        public static string Set_LinkFlowServiceExeNao {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowServiceExeNao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LinkFlow.Service.exe não encontrado na pasta do aplicativo..
+        /// </summary>
+        public static string Set_LinkFlowServiceExeNao2 {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowServiceExeNao2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O LinkFlow vai instalar o serviço do Windows &quot;LinkFlowService&quot; e reabrir a interface conectada a ele.
+        ///
+        ///.
+        /// </summary>
+        public static string Set_LinkFlowVaiInstalarServico {
+            get {
+                return ResourceManager.GetString("Set_LinkFlowVaiInstalarServico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logs recentes, config.json e resumo do hardware, para suporte ou issues no GitHub.
+        /// </summary>
+        public static string Set_LogsRecentesConfigJson {
+            get {
+                return ResourceManager.GetString("Set_LogsRecentesConfigJson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mantém o controle de ventoinhas, RGB e LCD ativo sem a janela aberta..
+        /// </summary>
+        public static string Set_MantemControleVentoinhasRGB {
+            get {
+                return ResourceManager.GetString("Set_MantemControleVentoinhasRGB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manter na bandeja ao fechar a janela.
+        /// </summary>
+        public static string Set_ManterBandejaFecharJanela {
+            get {
+                return ResourceManager.GetString("Set_ManterBandejaFecharJanela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Marcar tudo.
+        /// </summary>
+        public static string Set_MarcarTudo {
+            get {
+                return ResourceManager.GetString("Set_MarcarTudo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimizar para a bandeja.
+        /// </summary>
+        public static string Set_MinimizarBandeja {
+            get {
+                return ResourceManager.GetString("Set_MinimizarBandeja", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo e curva das ventoinhas.
+        /// </summary>
+        public static string Set_ModoCurvaVentoinhas {
+            get {
+                return ResourceManager.GetString("Set_ModoCurvaVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo local.
+        /// </summary>
+        public static string Set_ModoLocal {
+            get {
+                return ResourceManager.GetString("Set_ModoLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de segurança automático.
+        /// </summary>
+        public static string Set_ModoSegurancaAutomatico {
+            get {
+                return ResourceManager.GetString("Set_ModoSegurancaAutomatico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostra avisos do LinkFlow na área de notificações do Windows..
+        /// </summary>
+        public static string Set_MostraAvisosLinkFlowArea {
+            get {
+                return ResourceManager.GetString("Set_MostraAvisosLinkFlowArea", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mostra a página Drivers e as abas Aplicativos e Manutenção do Windows. Elas instalam drivers, removem apps e alteram o sistema..
+        /// </summary>
+        public static string Set_MostraPaginaDriversAbas {
+            get {
+                return ResourceManager.GetString("Set_MostraPaginaDriversAbas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir a página de downloads..
+        /// </summary>
+        public static string Set_NaoFoiPossivelAbrir {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelAbrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir o instalador. Tente novamente ou abra a página de downloads..
+        /// </summary>
+        public static string Set_NaoFoiPossivelAbrir2 {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelAbrir2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível alterar: {0}.
+        /// </summary>
+        public static string Set_NaoFoiPossivelAlterar {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelAlterar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível baixar a atualização. Tente novamente ou abra a página de downloads..
+        /// </summary>
+        public static string Set_NaoFoiPossivelBaixar {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelBaixar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível consultar as atualizações. Tente novamente ou abra a página de downloads..
+        /// </summary>
+        public static string Set_NaoFoiPossivelConsultar {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelConsultar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível exportar:
+        ///{0}.
+        /// </summary>
+        public static string Set_NaoFoiPossivelExportar {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelExportar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível gerar o pacote de diagnóstico:
+        ///{0}.
+        /// </summary>
+        public static string Set_NaoFoiPossivelGerar {
+            get {
+                return ResourceManager.GetString("Set_NaoFoiPossivelGerar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nomes, grupos e ajustes manuais.
+        /// </summary>
+        public static string Set_NomesGruposAjustesManuais {
+            get {
+                return ResourceManager.GetString("Set_NomesGruposAjustesManuais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (nome de usuário e do computador substituídos).
+        ///
+        ///Abrir a pasta do arquivo?.
+        /// </summary>
+        public static string Set_NomeUsuarioComputadorSubstituidos {
+            get {
+                return ResourceManager.GetString("Set_NomeUsuarioComputadorSubstituidos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operação cancelada..
+        /// </summary>
+        public static string Set_OperacaoCancelada {
+            get {
+                return ResourceManager.GetString("Set_OperacaoCancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pacote de diagnóstico.
+        /// </summary>
+        public static string Set_PacoteDiagnostico {
+            get {
+                return ResourceManager.GetString("Set_PacoteDiagnostico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pacote de diagnóstico salvo em:
+        ///{0}
+        ///
+        ///{1} arquivo(s) de log, config.json e hardware-summary.txt .
+        /// </summary>
+        public static string Set_PacoteDiagnosticoSalvoArquivo {
+            get {
+                return ResourceManager.GetString("Set_PacoteDiagnosticoSalvoArquivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis com o mesmo nome são substituídos; os outros são mantidos. Logo depois de importar dá para desfazer (Ctrl+Z)..
+        /// </summary>
+        public static string Set_PerfisMesmoNomeSao {
+            get {
+                return ResourceManager.GetString("Set_PerfisMesmoNomeSao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Perfis salvos.
+        /// </summary>
+        public static string Set_PerfisSalvos {
+            get {
+                return ResourceManager.GetString("Set_PerfisSalvos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Potência global ±5%.
+        /// </summary>
+        public static string Set_PotenciaGlobal5 {
+            get {
+                return ResourceManager.GetString("Set_PotenciaGlobal5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preferências da interface.
+        /// </summary>
+        public static string Set_PreferenciasInterface {
+            get {
+                return ResourceManager.GetString("Set_PreferenciasInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preferências do LinkFlow, proteção do hardware, atalhos e backup..
+        /// </summary>
+        public static string Set_PreferenciasLinkFlowProtecaoHardware {
+            get {
+                return ResourceManager.GetString("Set_PreferenciasLinkFlowProtecaoHardware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Progresso do download da atualização.
+        /// </summary>
+        public static string Set_ProgressoDownloadAtualizacao {
+            get {
+                return ResourceManager.GetString("Set_ProgressoDownloadAtualizacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Proteção e avisos.
+        /// </summary>
+        public static string Set_ProtecaoAvisos {
+            get {
+                return ResourceManager.GetString("Set_ProtecaoAvisos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reiniciando serviço....
+        /// </summary>
+        public static string Set_ReiniciandoServico {
+            get {
+                return ResourceManager.GetString("Set_ReiniciandoServico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reiniciar serviço.
+        /// </summary>
+        public static string Set_ReiniciarServico {
+            get {
+                return ResourceManager.GetString("Set_ReiniciarServico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remoção cancelada..
+        /// </summary>
+        public static string Set_RemocaoCancelada {
+            get {
+                return ResourceManager.GetString("Set_RemocaoCancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover serviço.
+        /// </summary>
+        public static string Set_RemoverServico {
+            get {
+                return ResourceManager.GetString("Set_RemoverServico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover o serviço LinkFlowService?
+        ///
+        ///O LinkFlow volta ao modo local: o controle do hardware só funciona com o aplicativo aberto (ou na bandeja)..
+        /// </summary>
+        public static string Set_RemoverServicoLinkFlowServiceLinkFlow {
+            get {
+                return ResourceManager.GetString("Set_RemoverServicoLinkFlowServiceLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renomear o cartão selecionado (Ventoinhas).
+        /// </summary>
+        public static string Set_RenomearCartaoSelecionadoVentoinhas {
+            get {
+                return ResourceManager.GetString("Set_RenomearCartaoSelecionadoVentoinhas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reúne perfis, curvas, iluminação, conteúdo do LCD e preferências. Na importação, você escolhe o que restaurar..
+        /// </summary>
+        public static string Set_ReunePerfisCurvasIluminacao {
+            get {
+                return ResourceManager.GetString("Set_ReunePerfisCurvasIluminacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sair fecha só a interface: o serviço continua controlando ventoinhas, RGB e LCD..
+        /// </summary>
+        public static string Set_SairFechaSoInterface {
+            get {
+                return ResourceManager.GetString("Set_SairFechaSoInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ao sair, o hub iCUE LINK volta ao modo hardware (curva interna) e a GPU volta à curva da vBIOS..
+        /// </summary>
+        public static string Set_SairHubICUELINK {
+            get {
+                return ResourceManager.GetString("Set_SairHubICUELINK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Salvar pacote de diagnóstico do LinkFlow.
+        /// </summary>
+        public static string Set_SalvarPacoteDiagnosticoLinkFlow {
+            get {
+                return ResourceManager.GetString("Set_SalvarPacoteDiagnosticoLinkFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Segurança.
+        /// </summary>
+        public static string Set_Seguranca {
+            get {
+                return ResourceManager.GetString("Set_Seguranca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecionar todas / limpar seleção (Ventoinhas).
+        /// </summary>
+        public static string Set_SelecionarTodasLimparSelecao {
+            get {
+                return ResourceManager.GetString("Set_SelecionarTodasLimparSelecao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço e backup.
+        /// </summary>
+        public static string Set_ServicoBackup {
+            get {
+                return ResourceManager.GetString("Set_ServicoBackup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço em execução, mas esta janela está em modo local.
+        /// </summary>
+        public static string Set_ServicoExecucaoMasEsta {
+            get {
+                return ResourceManager.GetString("Set_ServicoExecucaoMasEsta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço iniciando....
+        /// </summary>
+        public static string Set_ServicoIniciando {
+            get {
+                return ResourceManager.GetString("Set_ServicoIniciando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço instalado e parado • modo local.
+        /// </summary>
+        public static string Set_ServicoInstaladoParadoModo {
+            get {
+                return ResourceManager.GetString("Set_ServicoInstaladoParadoModo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço não instalado • modo local.
+        /// </summary>
+        public static string Set_ServicoNaoInstaladoModo {
+            get {
+                return ResourceManager.GetString("Set_ServicoNaoInstaladoModo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço parando....
+        /// </summary>
+        public static string Set_ServicoParando {
+            get {
+                return ResourceManager.GetString("Set_ServicoParando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço reiniciado..
+        /// </summary>
+        public static string Set_ServicoReiniciado {
+            get {
+                return ResourceManager.GetString("Set_ServicoReiniciado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serviço sem resposta • reconectando....
+        /// </summary>
+        public static string Set_ServicoSemRespostaReconectando {
+            get {
+                return ResourceManager.GetString("Set_ServicoSemRespostaReconectando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Só perfis.
+        /// </summary>
+        public static string Set_SoPerfis {
+            get {
+                return ResourceManager.GetString("Set_SoPerfis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tela LCD (quadro, imagens e GIFs).
+        /// </summary>
+        public static string Set_TelaLCDQuadroImagens {
+            get {
+                return ResourceManager.GetString("Set_TelaLCDQuadroImagens", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura de alerta da CPU.
+        /// </summary>
+        public static string Set_TemperaturaAlertaCPU {
+            get {
+                return ResourceManager.GetString("Set_TemperaturaAlertaCPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura de alerta da GPU.
+        /// </summary>
+        public static string Set_TemperaturaAlertaGPU {
+            get {
+                return ResourceManager.GetString("Set_TemperaturaAlertaGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura de alerta do líquido.
+        /// </summary>
+        public static string Set_TemperaturaAlertaLiquido {
+            get {
+                return ResourceManager.GetString("Set_TemperaturaAlertaLiquido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura crítica da CPU.
+        /// </summary>
+        public static string Set_TemperaturaCriticaCPU {
+            get {
+                return ResourceManager.GetString("Set_TemperaturaCriticaCPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura crítica da GPU.
+        /// </summary>
+        public static string Set_TemperaturaCriticaGPU {
+            get {
+                return ResourceManager.GetString("Set_TemperaturaCriticaGPU", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temperatura crítica do líquido.
+        /// </summary>
+        public static string Set_TemperaturaCriticaLiquido {
+            get {
+                return ResourceManager.GetString("Set_TemperaturaCriticaLiquido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Tente baixar novamente..
+        /// </summary>
+        public static string Set_TenteBaixarNovamente {
+            get {
+                return ResourceManager.GetString("Set_TenteBaixarNovamente", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to As transições também seguem a preferência de animação do Windows..
+        /// </summary>
+        public static string Set_TransicoesTambemSeguemPreferencia {
+            get {
+                return ResourceManager.GetString("Set_TransicoesTambemSeguemPreferencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trocar de página.
+        /// </summary>
+        public static string Set_TrocarPagina {
+            get {
+                return ResourceManager.GetString("Set_TrocarPagina", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificar atualização.
+        /// </summary>
+        public static string Set_VerificarAtualizacao {
+            get {
+                return ResourceManager.GetString("Set_VerificarAtualizacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão atual {0}.
+        /// </summary>
+        public static string Set_VersaoAtual {
+            get {
+                return ResourceManager.GetString("Set_VersaoAtual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão portátil. As atualizações são baixadas pelo navegador..
+        /// </summary>
+        public static string Set_VersaoPortatilAtualizacoesSao {
+            get {
+                return ResourceManager.GetString("Set_VersaoPortatilAtualizacoesSao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Você está usando a versão mais recente do LinkFlow..
+        /// </summary>
+        public static string Set_VoceEstaUsandoVersao {
+            get {
+                return ResourceManager.GetString("Set_VoceEstaUsandoVersao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Você também pode arrastar um arquivo .linkflow para cá..
+        /// </summary>
+        public static string Set_VoceTambemPodeArrastar {
+            get {
+                return ResourceManager.GetString("Set_VoceTambemPodeArrastar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows vai pedir confirmação (UAC). Continuar?.
+        /// </summary>
+        public static string Set_WindowsVaiPedirConfirmacao {
+            get {
+                return ResourceManager.GetString("Set_WindowsVaiPedirConfirmacao", resourceCulture);
             }
         }
         

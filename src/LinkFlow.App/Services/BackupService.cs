@@ -4,6 +4,7 @@ using System.Windows;
 using LinkFlow.App.ViewModels;
 using LinkFlow.App.Views;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -16,8 +17,8 @@ public static class BackupService
     {
         var dlg = new Microsoft.Win32.SaveFileDialog
         {
-            Title = "Exportar configurações do LinkFlow",
-            Filter = $"Backup do LinkFlow (*{ConfigBackup.Extension})|*{ConfigBackup.Extension}|JSON (*.json)|*.json",
+            Title = Strings.Set_ExportarConfiguracoesLinkFlow,
+            Filter = string.Format(Strings.Set_BackupLinkFlowJSONJson, ConfigBackup.Extension, ConfigBackup.Extension),
             FileName = $"LinkFlow-{Environment.MachineName}-{DateTime.Now:yyyy-MM-dd}{ConfigBackup.Extension}",
             InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             AddExtension = true
@@ -30,13 +31,13 @@ public static class BackupService
             var backup = ConfigBackup.Create(vm.Engine.Config, ui, AppVersion);
             backup.Save(dlg.FileName);
             Log.Info($"Configurações exportadas para {dlg.FileName} ({backup.Config.Profiles.Count} perfis, {backup.Media.Count} mídias).");
-            vm.ShowToast($"Exportado: {Path.GetFileName(dlg.FileName)} • {backup.Config.Profiles.Count} perfil(is), {backup.Media.Count} imagem(ns)", canUndo: false);
+            vm.ShowToast(string.Format(Strings.Set_ExportadoPerfilIsImagem, Path.GetFileName(dlg.FileName), backup.Config.Profiles.Count, backup.Media.Count), canUndo: false);
             return dlg.FileName;
         }
         catch (Exception ex)
         {
             Log.Error("Falha ao exportar configurações", ex);
-            MessageBox.Show(owner, $"Não foi possível exportar:\n{ex.Message}", "Exportar configurações", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(owner, string.Format(Strings.Set_NaoFoiPossivelExportar, ex.Message), Strings.Set_ExportarConfiguracoes, MessageBoxButton.OK, MessageBoxImage.Error);
             return null;
         }
     }
@@ -47,8 +48,8 @@ public static class BackupService
         {
             var dlg = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "Importar configurações do LinkFlow",
-                Filter = $"Backup do LinkFlow (*{ConfigBackup.Extension};*.json)|*{ConfigBackup.Extension};*.json|Todos os arquivos|*.*",
+                Title = Strings.Set_ImportarConfiguracoesLinkFlow,
+                Filter = string.Format(Strings.Set_BackupFilterImport, ConfigBackup.Extension, ConfigBackup.Extension),
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
             if (dlg.ShowDialog(owner) != true) return;
@@ -62,7 +63,7 @@ public static class BackupService
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
         {
-            MessageBox.Show(owner, ex.Message, "Importar configurações", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(owner, ex.Message, Strings.Set_ImportarConfiguracoes, MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -84,7 +85,7 @@ public static class BackupService
             }
         }
 
-        vm.WithUndo($"Configurações importadas de \"{sourceName}\"", () =>
+        vm.WithUndo(string.Format(Strings.Set_ConfiguracoesImportadas, sourceName), () =>
             vm.Engine.UpdateConfig(c => ConfigBackup.ApplyTo(c, backup.Config, sections, mediaMap)));
 
         if (sections.HasFlag(BackupSections.Ui) && backup.Ui is { } uiJson)

@@ -1,6 +1,7 @@
 using System.Windows;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -26,19 +27,19 @@ public partial class ImportDialog : Window
     public ImportDialog(ConfigBackup backup)
     {
         InitializeComponent();
-        FileInfo.Text = $"Backup de {backup.ExportedAt:dd/MM/yyyy HH:mm}" + (backup.Machine is { } m ? $" • {m}" : string.Empty);
-        FileDetail.Text = $"LinkFlow {backup.AppVersion ?? "?"} • {backup.Config.Profiles.Count} perfil(is) salvo(s) • {backup.Media.Count} imagem(ns) do LCD";
+        FileInfo.Text = string.Format(Strings.Set_Backup, backup.ExportedAt) + (backup.Machine is { } m ? $" • {m}" : string.Empty);
+        FileDetail.Text = string.Format(Strings.Imp_BackupSummary, backup.AppVersion ?? "?", backup.Config.Profiles.Count, backup.Media.Count);
 
         ImportSectionItem Item(BackupSections s, string title, bool available = true) => new(s, title, backup.Describe(s), available);
         _items = new List<ImportSectionItem>
         {
-            Item(BackupSections.Profiles, "Perfis salvos", backup.Config.Profiles.Count > 0),
-            Item(BackupSections.Control, "Modo e curva das ventoinhas"),
-            Item(BackupSections.Fans, "Nomes, grupos e ajustes manuais", backup.Config.Fans.Count > 0),
-            Item(BackupSections.Lighting, "Iluminação"),
-            Item(BackupSections.Lcd, "Tela LCD (quadro, imagens e GIFs)"),
-            Item(BackupSections.Safety, "Limites de alerta e modo de segurança"),
-            Item(BackupSections.Ui, "Preferências da interface", backup.Ui != null),
+            Item(BackupSections.Profiles, Strings.Set_PerfisSalvos, backup.Config.Profiles.Count > 0),
+            Item(BackupSections.Control, Strings.Set_ModoCurvaVentoinhas),
+            Item(BackupSections.Fans, Strings.Set_NomesGruposAjustesManuais, backup.Config.Fans.Count > 0),
+            Item(BackupSections.Lighting, Strings.Nav_Lighting),
+            Item(BackupSections.Lcd, Strings.Set_TelaLCDQuadroImagens),
+            Item(BackupSections.Safety, Strings.Set_LimitesAlertaModoSeguranca),
+            Item(BackupSections.Ui, Strings.Set_PreferenciasInterface, backup.Ui != null),
         };
         foreach (var i in _items) i.PropertyChanged += (_, _) => UpdateButton();
         SectionList.ItemsSource = _items;

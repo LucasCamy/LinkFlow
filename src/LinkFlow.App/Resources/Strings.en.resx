@@ -2218,4 +2218,484 @@ Alerts keep showing up, and the change is recorded in the log.</value>
   <data name="Wid_NaoFoiPossivelAbrir" xml:space="preserve">
     <value>Could not open the RTSS page.</value>
   </data>
+  <data name="Set_PreferenciasLinkFlowProtecaoHardware" xml:space="preserve">
+    <value>LinkFlow preferences, hardware protection, shortcuts and backup.</value>
+  </data>
+  <data name="Set_Geral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Set_InicializacaoInterface" xml:space="preserve">
+    <value>Startup and interface</value>
+  </data>
+  <data name="Set_ManterBandejaFecharJanela" xml:space="preserve">
+    <value>Keep in the tray when closing the window</value>
+  </data>
+  <data name="Set_LinkFlowContinuaSegundoPlano" xml:space="preserve">
+    <value>LinkFlow keeps running in the background.</value>
+  </data>
+  <data name="Set_MinimizarBandeja" xml:space="preserve">
+    <value>Minimize to the tray</value>
+  </data>
+  <data name="Set_ExibirTemperaturaCPUIcone" xml:space="preserve">
+    <value>Show the CPU temperature on the tray icon</value>
+  </data>
+  <data name="Set_AnimacoesTransicoes" xml:space="preserve">
+    <value>Animations and transitions</value>
+  </data>
+  <data name="Set_TransicoesTambemSeguemPreferencia" xml:space="preserve">
+    <value>Transitions also follow the Windows animation setting.</value>
+  </data>
+  <data name="Set_HabilitarFerramentasAvancadasSistema" xml:space="preserve">
+    <value>Enable advanced system tools</value>
+  </data>
+  <data name="Set_MostraPaginaDriversAbas" xml:space="preserve">
+    <value>Shows the Drivers page and the Windows Apps and Maintenance tabs. They install drivers, remove apps and change the system.</value>
+  </data>
+  <data name="Set_Seguranca" xml:space="preserve">
+    <value>Safety</value>
+  </data>
+  <data name="Set_ProtecaoAvisos" xml:space="preserve">
+    <value>Protection and warnings</value>
+  </data>
+  <data name="Set_ModoSegurancaAutomatico" xml:space="preserve">
+    <value>Automatic safe mode</value>
+  </data>
+  <data name="Set_AcionaVentoinhas100Condicao" xml:space="preserve">
+    <value>Runs the fans at 100% in a critical condition and returns to the profile after 15 seconds of safe readings.</value>
+  </data>
+  <data name="Set_AvisarVentoinhaOuBomba" xml:space="preserve">
+    <value>Warn if a fan or the pump stops</value>
+  </data>
+  <data name="Set_ExibirNotificacoesAlerta" xml:space="preserve">
+    <value>Show alert notifications</value>
+  </data>
+  <data name="Set_MostraAvisosLinkFlowArea" xml:space="preserve">
+    <value>Shows LinkFlow warnings in the Windows notification area.</value>
+  </data>
+  <data name="Set_LimitesTemperatura" xml:space="preserve">
+    <value>Temperature limits</value>
+  </data>
+  <data name="Set_ConfigureLimitesAlertaProtecao" xml:space="preserve">
+    <value>Set the alert and protection limits in degrees Celsius.</value>
+  </data>
+  <data name="Set_Alerta" xml:space="preserve">
+    <value>Alert</value>
+  </data>
+  <data name="Set_Critico" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Set_TemperaturaAlertaCPU" xml:space="preserve">
+    <value>CPU alert temperature</value>
+  </data>
+  <data name="Set_TemperaturaCriticaCPU" xml:space="preserve">
+    <value>CPU critical temperature</value>
+  </data>
+  <data name="Set_TemperaturaAlertaGPU" xml:space="preserve">
+    <value>GPU alert temperature</value>
+  </data>
+  <data name="Set_TemperaturaCriticaGPU" xml:space="preserve">
+    <value>GPU critical temperature</value>
+  </data>
+  <data name="Set_TemperaturaAlertaLiquido" xml:space="preserve">
+    <value>Coolant alert temperature</value>
+  </data>
+  <data name="Set_TemperaturaCriticaLiquido" xml:space="preserve">
+    <value>Coolant critical temperature</value>
+  </data>
+  <data name="Set_Atalhos" xml:space="preserve">
+    <value>Shortcuts</value>
+  </data>
+  <data name="Set_AtalhosTeclado" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
+  <data name="Set_AtalhosGlobais" xml:space="preserve">
+    <value>Global shortcuts</value>
+  </data>
+  <data name="Set_CtrlAlt15" xml:space="preserve">
+    <value>Ctrl+Alt+1–5 applies profiles, Ctrl+Alt+L shows the window and Ctrl+Alt+M toggles the mini widget.</value>
+  </data>
+  <data name="Set_AplicarPerfilSilenciosoCurva" xml:space="preserve">
+    <value>Apply profile (Silent … Curve)</value>
+  </data>
+  <data name="Set_Ctrl19" xml:space="preserve">
+    <value>Ctrl+1 … 9</value>
+  </data>
+  <data name="Set_TrocarPagina" xml:space="preserve">
+    <value>Switch page</value>
+  </data>
+  <data name="Set_CtrlCtrl" xml:space="preserve">
+    <value>Ctrl+↑ / Ctrl+↓</value>
+  </data>
+  <data name="Set_PotenciaGlobal5" xml:space="preserve">
+    <value>Global power ±5%</value>
+  </data>
+  <data name="Set_Ctrl" xml:space="preserve">
+    <value>Ctrl+Z</value>
+  </data>
+  <data name="Set_DesfazerUltimaAlteracao" xml:space="preserve">
+    <value>Undo the last change</value>
+  </data>
+  <data name="Set_CtrlEsc" xml:space="preserve">
+    <value>Ctrl+A / Esc</value>
+  </data>
+  <data name="Set_SelecionarTodasLimparSelecao" xml:space="preserve">
+    <value>Select all / clear selection (Fans)</value>
+  </data>
+  <data name="Set_Ctrl2" xml:space="preserve">
+    <value>Ctrl+M</value>
+  </data>
+  <data name="Set_EnviarQuadroLCD" xml:space="preserve">
+    <value>Send frame to the LCD</value>
+  </data>
+  <data name="Set_EscCtrl" xml:space="preserve">
+    <value>Esc / Ctrl+W</value>
+  </data>
+  <data name="Set_FecharJanelaCtrlEncerra" xml:space="preserve">
+    <value>Close the window. Ctrl+Q quits the app.</value>
+  </data>
+  <data name="Set_Ctrl3" xml:space="preserve">
+    <value>Ctrl+R</value>
+  </data>
+  <data name="Set_RenomearCartaoSelecionadoVentoinhas" xml:space="preserve">
+    <value>Rename the selected card (Fans)</value>
+  </data>
+  <data name="Set_ServicoBackup" xml:space="preserve">
+    <value>Service and backup</value>
+  </data>
+  <data name="Set_MantemControleVentoinhasRGB" xml:space="preserve">
+    <value>Keeps fan, RGB and LCD control running without the window open.</value>
+  </data>
+  <data name="Set_ReiniciarServico" xml:space="preserve">
+    <value>Restart service</value>
+  </data>
+  <data name="Set_RemoverServico" xml:space="preserve">
+    <value>Remove service</value>
+  </data>
+  <data name="Set_BackupConfiguracoes" xml:space="preserve">
+    <value>Settings backup</value>
+  </data>
+  <data name="Set_ReunePerfisCurvasIluminacao" xml:space="preserve">
+    <value>Gathers profiles, curves, lighting, LCD content and preferences. When importing, you choose what to restore.</value>
+  </data>
+  <data name="Set_Exportar" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Set_Importar" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Set_VoceTambemPodeArrastar" xml:space="preserve">
+    <value>You can also drag a .linkflow file here.</value>
+  </data>
+  <data name="Set_ArquivosAplicativo" xml:space="preserve">
+    <value>Files and app</value>
+  </data>
+  <data name="Set_AbrirPastaLogs" xml:space="preserve">
+    <value>Open logs folder</value>
+  </data>
+  <data name="Set_AbrirPastaConfiguracao" xml:space="preserve">
+    <value>Open settings folder</value>
+  </data>
+  <data name="Set_LogsRecentesConfigJson" xml:space="preserve">
+    <value>Recent logs, config.json and a hardware summary, for support or GitHub issues</value>
+  </data>
+  <data name="Set_GerarPacoteDiagnostico" xml:space="preserve">
+    <value>Create diagnostic package</value>
+  </data>
+  <data name="Set_GerarPacoteDiagnosticoZip" xml:space="preserve">
+    <value>Create diagnostic package (.zip)</value>
+  </data>
+  <data name="Set_Atualizacoes" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="Set_BuscarAtualizacoesAutomaticamente" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
+  <data name="Set_LinkFlowAvisaQuandoNova" xml:space="preserve">
+    <value>LinkFlow lets you know when a new version is available.</value>
+  </data>
+  <data name="Set_ProgressoDownloadAtualizacao" xml:space="preserve">
+    <value>Update download progress</value>
+  </data>
+  <data name="Set_VerificarAtualizacao" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="Set_CancelarDownload" xml:space="preserve">
+    <value>Cancel download</value>
+  </data>
+  <data name="Set_AbrirPaginaDownloads" xml:space="preserve">
+    <value>Open downloads page</value>
+  </data>
+  <data name="Set_AbreBandejaEntrarWindows" xml:space="preserve">
+    <value>Opens in the tray when you sign in to Windows.</value>
+  </data>
+  <data name="Set_AtivoTarefaAgendadaPrivilegios" xml:space="preserve">
+    <value>On • scheduled task with elevated privileges, starts in the tray</value>
+  </data>
+  <data name="Set_AtivoIniciaBandejaFazer" xml:space="preserve">
+    <value>On • starts in the tray at sign-in</value>
+  </data>
+  <data name="Set_NaoFoiPossivelAlterar" xml:space="preserve">
+    <value>Could not change it: {0}</value>
+  </data>
+  <data name="Set_FecharInterface" xml:space="preserve">
+    <value>Close interface</value>
+  </data>
+  <data name="Set_ConectadoServico" xml:space="preserve">
+    <value>Connected to the service</value>
+  </data>
+  <data name="Set_ServicoSemRespostaReconectando" xml:space="preserve">
+    <value>Service not responding • reconnecting...</value>
+  </data>
+  <data name="Set_ServicoNaoInstaladoModo" xml:space="preserve">
+    <value>Service not installed • local mode</value>
+  </data>
+  <data name="Set_ServicoExecucaoMasEsta" xml:space="preserve">
+    <value>Service running, but this window is in local mode</value>
+  </data>
+  <data name="Set_ServicoInstaladoParadoModo" xml:space="preserve">
+    <value>Service installed and stopped • local mode</value>
+  </data>
+  <data name="Set_ServicoIniciando" xml:space="preserve">
+    <value>Service starting...</value>
+  </data>
+  <data name="Set_ServicoParando" xml:space="preserve">
+    <value>Service stopping...</value>
+  </data>
+  <data name="Set_ModoLocal" xml:space="preserve">
+    <value>Local mode</value>
+  </data>
+  <data name="Set_HardwareControladoPeloServico" xml:space="preserve">
+    <value>The hardware is controlled by the LinkFlowService service (starts with Windows, restarts on its own if it fails).</value>
+  </data>
+  <data name="Set_LinkFlowServiceExeNao" xml:space="preserve">
+    <value>LinkFlow.Service.exe is not in the app folder. Use the publish script to generate it.</value>
+  </data>
+  <data name="Set_ControleRodaDentroDeste" xml:space="preserve">
+    <value>Control runs inside this app, as administrator.</value>
+  </data>
+  <data name="Set_ControleRodaDentroDeste2" xml:space="preserve">
+    <value>Control runs inside this app, without administrator rights (CPU temperature unavailable).</value>
+  </data>
+  <data name="Set_SairFechaSoInterface" xml:space="preserve">
+    <value>Exit closes only the interface: the service keeps controlling fans, RGB and LCD.</value>
+  </data>
+  <data name="Set_SairHubICUELINK" xml:space="preserve">
+    <value>On exit, the iCUE LINK hub goes back to hardware mode (internal curve) and the GPU goes back to the vBIOS curve.</value>
+  </data>
+  <data name="Set_LinkFlowServiceExeNao2" xml:space="preserve">
+    <value>LinkFlow.Service.exe not found in the app folder.</value>
+  </data>
+  <data name="Set_LinkFlowVaiInstalarServico" xml:space="preserve">
+    <value>LinkFlow will install the "LinkFlowService" Windows service and reopen the interface connected to it.
+
+</value>
+  </data>
+  <data name="Set_ControleVentoinhasRGBLCD" xml:space="preserve">
+    <value>• Fan, RGB and LCD control runs in the background, even with no window open.
+</value>
+  </data>
+  <data name="Set_IniciaAutomaticamenteWindowsReinicia" xml:space="preserve">
+    <value>• It starts automatically with Windows and restarts on its own if it fails.
+</value>
+  </data>
+  <data name="Set_InterfaceDeixaPedirPermissao" xml:space="preserve">
+    <value>• The interface no longer asks for administrator rights.
+
+</value>
+  </data>
+  <data name="Set_WindowsVaiPedirConfirmacao" xml:space="preserve">
+    <value>Windows will ask for confirmation (UAC). Continue?</value>
+  </data>
+  <data name="Set_InstalarServicoLinkFlow" xml:space="preserve">
+    <value>Install LinkFlow service</value>
+  </data>
+  <data name="Set_InstalacaoCancelada" xml:space="preserve">
+    <value>Installation canceled.</value>
+  </data>
+  <data name="Set_RemoverServicoLinkFlowServiceLinkFlow" xml:space="preserve">
+    <value>Remove the LinkFlowService service?
+
+LinkFlow goes back to local mode: hardware control only works with the app open (or in the tray).</value>
+  </data>
+  <data name="Set_RemocaoCancelada" xml:space="preserve">
+    <value>Removal canceled.</value>
+  </data>
+  <data name="Set_ReiniciandoServico" xml:space="preserve">
+    <value>Restarting service...</value>
+  </data>
+  <data name="Set_OperacaoCancelada" xml:space="preserve">
+    <value>Operation canceled.</value>
+  </data>
+  <data name="Set_ServicoReiniciado" xml:space="preserve">
+    <value>Service restarted.</value>
+  </data>
+  <data name="Set_FalhaReiniciarServicoCodigo" xml:space="preserve">
+    <value>Could not restart the service (code {0}).</value>
+  </data>
+  <data name="Set_ElevacaoCancelada" xml:space="preserve">
+    <value>Elevation canceled.</value>
+  </data>
+  <data name="Set_LinkFlowBaixadoVerificadoAplicativo" xml:space="preserve">
+    <value>LinkFlow {0} downloaded and verified. The app reopens when the installation finishes.</value>
+  </data>
+  <data name="Set_VersaoPortatilAtualizacoesSao" xml:space="preserve">
+    <value>Portable version. Updates are downloaded through the browser.</value>
+  </data>
+  <data name="Set_ConsulteAtualizacoesLinkFlowGitHub" xml:space="preserve">
+    <value>Check for LinkFlow updates on GitHub.</value>
+  </data>
+  <data name="Set_VersaoAtual" xml:space="preserve">
+    <value>Current version {0}</value>
+  </data>
+  <data name="Set_InstalarReiniciar" xml:space="preserve">
+    <value>Install and restart</value>
+  </data>
+  <data name="Set_BaixarAtualizacao" xml:space="preserve">
+    <value>Download update</value>
+  </data>
+  <data name="Set_BaixarNavegador" xml:space="preserve">
+    <value>Download in the browser</value>
+  </data>
+  <data name="Set_ConsultandoVersaoMaisRecente" xml:space="preserve">
+    <value>Checking for the latest version…</value>
+  </data>
+  <data name="Set_LinkFlowDisponivel" xml:space="preserve">
+    <value>LinkFlow {0} available.</value>
+  </data>
+  <data name="Set_VoceEstaUsandoVersao" xml:space="preserve">
+    <value>You are using the latest version of LinkFlow.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelConsultar" xml:space="preserve">
+    <value>Could not check for updates. Try again or open the downloads page.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Could not open the downloads page.</value>
+  </data>
+  <data name="Set_BaixandoInstaladorLinkFlow" xml:space="preserve">
+    <value>Downloading the LinkFlow {0} installer…</value>
+  </data>
+  <data name="Set_DownloadCancelado" xml:space="preserve">
+    <value>Download canceled.</value>
+  </data>
+  <data name="Set_TenteBaixarNovamente" xml:space="preserve">
+    <value>{0} Try downloading again.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelBaixar" xml:space="preserve">
+    <value>Could not download the update. Try again or open the downloads page.</value>
+  </data>
+  <data name="Set_AbrindoInstaladorConfirmeWindows" xml:space="preserve">
+    <value>Opening the installer. Confirm in Windows if it asks for permission.</value>
+  </data>
+  <data name="Set_InstalacaoLinkFlowMudouReabra" xml:space="preserve">
+    <value>The LinkFlow installation changed. Reopen the app before trying to update.</value>
+  </data>
+  <data name="Set_InstaladorNaoIniciou" xml:space="preserve">
+    <value>The installer did not start.</value>
+  </data>
+  <data name="Set_AtualizacaoNaoFoiConcluida" xml:space="preserve">
+    <value>The update did not finish. Try again or open the downloads page.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelAbrir2" xml:space="preserve">
+    <value>Could not open the installer. Try again or open the downloads page.</value>
+  </data>
+  <data name="Set_ExportarConfiguracoesLinkFlow" xml:space="preserve">
+    <value>Export LinkFlow settings</value>
+  </data>
+  <data name="Set_BackupLinkFlowJSONJson" xml:space="preserve">
+    <value>LinkFlow backup (*{0})|*{1}|JSON (*.json)|*.json</value>
+  </data>
+  <data name="Set_ExportadoPerfilIsImagem" xml:space="preserve">
+    <value>Exported: {0} • {1} profile(s), {2} image(s)</value>
+  </data>
+  <data name="Set_NaoFoiPossivelExportar" xml:space="preserve">
+    <value>Could not export:
+{0}</value>
+  </data>
+  <data name="Set_ExportarConfiguracoes" xml:space="preserve">
+    <value>Export settings</value>
+  </data>
+  <data name="Set_ImportarConfiguracoesLinkFlow" xml:space="preserve">
+    <value>Import LinkFlow settings</value>
+  </data>
+  <data name="Set_BackupFilterImport" xml:space="preserve">
+    <value>LinkFlow backup (*{0};*.json)|*{1};*.json|All files|*.*</value>
+  </data>
+  <data name="Set_ImportarConfiguracoes" xml:space="preserve">
+    <value>Import settings</value>
+  </data>
+  <data name="Set_ConfiguracoesImportadas" xml:space="preserve">
+    <value>Settings imported from "{0}"</value>
+  </data>
+  <data name="Set_SalvarPacoteDiagnosticoLinkFlow" xml:space="preserve">
+    <value>Save LinkFlow diagnostic package</value>
+  </data>
+  <data name="Set_ArquivoZIPZipZip" xml:space="preserve">
+    <value>ZIP file (*.zip)|*.zip</value>
+  </data>
+  <data name="Set_GerandoPacoteDiagnostico" xml:space="preserve">
+    <value>Creating the diagnostic package...</value>
+  </data>
+  <data name="Set_PacoteDiagnosticoSalvoArquivo" xml:space="preserve">
+    <value>Diagnostic package saved to:
+{0}
+
+{1} log file(s), config.json and hardware-summary.txt </value>
+  </data>
+  <data name="Set_NomeUsuarioComputadorSubstituidos" xml:space="preserve">
+    <value>(user and computer names replaced).
+
+Open the file's folder?</value>
+  </data>
+  <data name="Set_PacoteDiagnostico" xml:space="preserve">
+    <value>Diagnostic package</value>
+  </data>
+  <data name="Set_NaoFoiPossivelGerar" xml:space="preserve">
+    <value>Could not create the diagnostic package:
+{0}</value>
+  </data>
+  <data name="Set_Importar2" xml:space="preserve">
+    <value>What to import</value>
+  </data>
+  <data name="Set_MarcarTudo" xml:space="preserve">
+    <value>Check all</value>
+  </data>
+  <data name="Set_SoPerfis" xml:space="preserve">
+    <value>Profiles only</value>
+  </data>
+  <data name="Set_PerfisMesmoNomeSao" xml:space="preserve">
+    <value>Profiles with the same name are replaced; the others are kept. Right after importing you can undo it (Ctrl+Z).</value>
+  </data>
+  <data name="Set_Backup" xml:space="preserve">
+    <value>Backup from {0:g}</value>
+  </data>
+  <data name="Imp_BackupSummary" xml:space="preserve">
+    <value>LinkFlow {0} • {1} saved profile(s) • {2} LCD image(s)</value>
+  </data>
+  <data name="Set_PerfisSalvos" xml:space="preserve">
+    <value>Saved profiles</value>
+  </data>
+  <data name="Set_ModoCurvaVentoinhas" xml:space="preserve">
+    <value>Fan mode and curve</value>
+  </data>
+  <data name="Set_NomesGruposAjustesManuais" xml:space="preserve">
+    <value>Names, groups and manual settings</value>
+  </data>
+  <data name="Set_TelaLCDQuadroImagens" xml:space="preserve">
+    <value>LCD screen (layout, images and GIFs)</value>
+  </data>
+  <data name="Set_LimitesAlertaModoSeguranca" xml:space="preserve">
+    <value>Alert limits and safe mode</value>
+  </data>
+  <data name="Set_PreferenciasInterface" xml:space="preserve">
+    <value>Interface preferences</value>
+  </data>
+  <data name="Language_Title" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_Automatic" xml:space="preserve">
+    <value>Automatic (Windows language)</value>
+  </data>
+  <data name="Language_RestartNow" xml:space="preserve">
+    <value>Restart now</value>
+  </data>
 </root>

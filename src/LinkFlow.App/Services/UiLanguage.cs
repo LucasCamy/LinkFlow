@@ -22,10 +22,10 @@ public static class UiLanguage
     public static IReadOnlyList<string> Supported { get; } = [Portuguese, English];
 
     /// <summary>
-    /// Sem escolha salva, seguir o idioma do Windows. Fica desligado enquanto a tradução da v3.0 não termina, para
-    /// quem tem o Windows em inglês não ver telas metade em cada idioma; dá para testar com <c>--lang en</c>.
+    /// Sem escolha salva ("Automático" em Configurações), seguir o idioma do Windows: português para Windows em
+    /// português, inglês para os demais.
     /// </summary>
-    internal const bool FollowWindowsByDefault = false;
+    internal const bool FollowWindowsByDefault = true;
 
     private static bool _applied;
 

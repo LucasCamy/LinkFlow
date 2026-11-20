@@ -2255,4 +2255,484 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
   <data name="Wid_NaoFoiPossivelAbrir" xml:space="preserve">
     <value>Não foi possível abrir a página do RTSS.</value>
   </data>
+  <data name="Set_PreferenciasLinkFlowProtecaoHardware" xml:space="preserve">
+    <value>Preferências do LinkFlow, proteção do hardware, atalhos e backup.</value>
+  </data>
+  <data name="Set_Geral" xml:space="preserve">
+    <value>Geral</value>
+  </data>
+  <data name="Set_InicializacaoInterface" xml:space="preserve">
+    <value>Inicialização e interface</value>
+  </data>
+  <data name="Set_ManterBandejaFecharJanela" xml:space="preserve">
+    <value>Manter na bandeja ao fechar a janela</value>
+  </data>
+  <data name="Set_LinkFlowContinuaSegundoPlano" xml:space="preserve">
+    <value>O LinkFlow continua em segundo plano.</value>
+  </data>
+  <data name="Set_MinimizarBandeja" xml:space="preserve">
+    <value>Minimizar para a bandeja</value>
+  </data>
+  <data name="Set_ExibirTemperaturaCPUIcone" xml:space="preserve">
+    <value>Exibir a temperatura da CPU no ícone da bandeja</value>
+  </data>
+  <data name="Set_AnimacoesTransicoes" xml:space="preserve">
+    <value>Animações e transições</value>
+  </data>
+  <data name="Set_TransicoesTambemSeguemPreferencia" xml:space="preserve">
+    <value>As transições também seguem a preferência de animação do Windows.</value>
+  </data>
+  <data name="Set_HabilitarFerramentasAvancadasSistema" xml:space="preserve">
+    <value>Habilitar ferramentas avançadas do sistema</value>
+  </data>
+  <data name="Set_MostraPaginaDriversAbas" xml:space="preserve">
+    <value>Mostra a página Drivers e as abas Aplicativos e Manutenção do Windows. Elas instalam drivers, removem apps e alteram o sistema.</value>
+  </data>
+  <data name="Set_Seguranca" xml:space="preserve">
+    <value>Segurança</value>
+  </data>
+  <data name="Set_ProtecaoAvisos" xml:space="preserve">
+    <value>Proteção e avisos</value>
+  </data>
+  <data name="Set_ModoSegurancaAutomatico" xml:space="preserve">
+    <value>Modo de segurança automático</value>
+  </data>
+  <data name="Set_AcionaVentoinhas100Condicao" xml:space="preserve">
+    <value>Aciona as ventoinhas a 100% em condição crítica e retoma o perfil após 15 segundos de leituras seguras.</value>
+  </data>
+  <data name="Set_AvisarVentoinhaOuBomba" xml:space="preserve">
+    <value>Avisar se uma ventoinha ou a bomba parar</value>
+  </data>
+  <data name="Set_ExibirNotificacoesAlerta" xml:space="preserve">
+    <value>Exibir notificações de alerta</value>
+  </data>
+  <data name="Set_MostraAvisosLinkFlowArea" xml:space="preserve">
+    <value>Mostra avisos do LinkFlow na área de notificações do Windows.</value>
+  </data>
+  <data name="Set_LimitesTemperatura" xml:space="preserve">
+    <value>Limites de temperatura</value>
+  </data>
+  <data name="Set_ConfigureLimitesAlertaProtecao" xml:space="preserve">
+    <value>Configure os limites de alerta e de proteção em graus Celsius.</value>
+  </data>
+  <data name="Set_Alerta" xml:space="preserve">
+    <value>Alerta</value>
+  </data>
+  <data name="Set_Critico" xml:space="preserve">
+    <value>Crítico</value>
+  </data>
+  <data name="Set_TemperaturaAlertaCPU" xml:space="preserve">
+    <value>Temperatura de alerta da CPU</value>
+  </data>
+  <data name="Set_TemperaturaCriticaCPU" xml:space="preserve">
+    <value>Temperatura crítica da CPU</value>
+  </data>
+  <data name="Set_TemperaturaAlertaGPU" xml:space="preserve">
+    <value>Temperatura de alerta da GPU</value>
+  </data>
+  <data name="Set_TemperaturaCriticaGPU" xml:space="preserve">
+    <value>Temperatura crítica da GPU</value>
+  </data>
+  <data name="Set_TemperaturaAlertaLiquido" xml:space="preserve">
+    <value>Temperatura de alerta do líquido</value>
+  </data>
+  <data name="Set_TemperaturaCriticaLiquido" xml:space="preserve">
+    <value>Temperatura crítica do líquido</value>
+  </data>
+  <data name="Set_Atalhos" xml:space="preserve">
+    <value>Atalhos</value>
+  </data>
+  <data name="Set_AtalhosTeclado" xml:space="preserve">
+    <value>Atalhos de teclado</value>
+  </data>
+  <data name="Set_AtalhosGlobais" xml:space="preserve">
+    <value>Atalhos globais</value>
+  </data>
+  <data name="Set_CtrlAlt15" xml:space="preserve">
+    <value>Ctrl+Alt+1–5 aplica perfis, Ctrl+Alt+L mostra a janela e Ctrl+Alt+M alterna o mini widget.</value>
+  </data>
+  <data name="Set_AplicarPerfilSilenciosoCurva" xml:space="preserve">
+    <value>Aplicar perfil (Silencioso … Curva)</value>
+  </data>
+  <data name="Set_Ctrl19" xml:space="preserve">
+    <value>Ctrl+1 … 9</value>
+  </data>
+  <data name="Set_TrocarPagina" xml:space="preserve">
+    <value>Trocar de página</value>
+  </data>
+  <data name="Set_CtrlCtrl" xml:space="preserve">
+    <value>Ctrl+↑ / Ctrl+↓</value>
+  </data>
+  <data name="Set_PotenciaGlobal5" xml:space="preserve">
+    <value>Potência global ±5%</value>
+  </data>
+  <data name="Set_Ctrl" xml:space="preserve">
+    <value>Ctrl+Z</value>
+  </data>
+  <data name="Set_DesfazerUltimaAlteracao" xml:space="preserve">
+    <value>Desfazer a última alteração</value>
+  </data>
+  <data name="Set_CtrlEsc" xml:space="preserve">
+    <value>Ctrl+A / Esc</value>
+  </data>
+  <data name="Set_SelecionarTodasLimparSelecao" xml:space="preserve">
+    <value>Selecionar todas / limpar seleção (Ventoinhas)</value>
+  </data>
+  <data name="Set_Ctrl2" xml:space="preserve">
+    <value>Ctrl+M</value>
+  </data>
+  <data name="Set_EnviarQuadroLCD" xml:space="preserve">
+    <value>Enviar quadro ao LCD</value>
+  </data>
+  <data name="Set_EscCtrl" xml:space="preserve">
+    <value>Esc / Ctrl+W</value>
+  </data>
+  <data name="Set_FecharJanelaCtrlEncerra" xml:space="preserve">
+    <value>Fechar a janela. Ctrl+Q encerra o aplicativo.</value>
+  </data>
+  <data name="Set_Ctrl3" xml:space="preserve">
+    <value>Ctrl+R</value>
+  </data>
+  <data name="Set_RenomearCartaoSelecionadoVentoinhas" xml:space="preserve">
+    <value>Renomear o cartão selecionado (Ventoinhas)</value>
+  </data>
+  <data name="Set_ServicoBackup" xml:space="preserve">
+    <value>Serviço e backup</value>
+  </data>
+  <data name="Set_MantemControleVentoinhasRGB" xml:space="preserve">
+    <value>Mantém o controle de ventoinhas, RGB e LCD ativo sem a janela aberta.</value>
+  </data>
+  <data name="Set_ReiniciarServico" xml:space="preserve">
+    <value>Reiniciar serviço</value>
+  </data>
+  <data name="Set_RemoverServico" xml:space="preserve">
+    <value>Remover serviço</value>
+  </data>
+  <data name="Set_BackupConfiguracoes" xml:space="preserve">
+    <value>Backup de configurações</value>
+  </data>
+  <data name="Set_ReunePerfisCurvasIluminacao" xml:space="preserve">
+    <value>Reúne perfis, curvas, iluminação, conteúdo do LCD e preferências. Na importação, você escolhe o que restaurar.</value>
+  </data>
+  <data name="Set_Exportar" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="Set_Importar" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="Set_VoceTambemPodeArrastar" xml:space="preserve">
+    <value>Você também pode arrastar um arquivo .linkflow para cá.</value>
+  </data>
+  <data name="Set_ArquivosAplicativo" xml:space="preserve">
+    <value>Arquivos e aplicativo</value>
+  </data>
+  <data name="Set_AbrirPastaLogs" xml:space="preserve">
+    <value>Abrir pasta de logs</value>
+  </data>
+  <data name="Set_AbrirPastaConfiguracao" xml:space="preserve">
+    <value>Abrir pasta de configuração</value>
+  </data>
+  <data name="Set_LogsRecentesConfigJson" xml:space="preserve">
+    <value>Logs recentes, config.json e resumo do hardware, para suporte ou issues no GitHub</value>
+  </data>
+  <data name="Set_GerarPacoteDiagnostico" xml:space="preserve">
+    <value>Gerar pacote de diagnóstico</value>
+  </data>
+  <data name="Set_GerarPacoteDiagnosticoZip" xml:space="preserve">
+    <value>Gerar pacote de diagnóstico (.zip)</value>
+  </data>
+  <data name="Set_Atualizacoes" xml:space="preserve">
+    <value>Atualizações</value>
+  </data>
+  <data name="Set_BuscarAtualizacoesAutomaticamente" xml:space="preserve">
+    <value>Buscar atualizações automaticamente</value>
+  </data>
+  <data name="Set_LinkFlowAvisaQuandoNova" xml:space="preserve">
+    <value>O LinkFlow avisa quando uma nova versão está disponível.</value>
+  </data>
+  <data name="Set_ProgressoDownloadAtualizacao" xml:space="preserve">
+    <value>Progresso do download da atualização</value>
+  </data>
+  <data name="Set_VerificarAtualizacao" xml:space="preserve">
+    <value>Verificar atualização</value>
+  </data>
+  <data name="Set_CancelarDownload" xml:space="preserve">
+    <value>Cancelar download</value>
+  </data>
+  <data name="Set_AbrirPaginaDownloads" xml:space="preserve">
+    <value>Abrir página de downloads</value>
+  </data>
+  <data name="Set_AbreBandejaEntrarWindows" xml:space="preserve">
+    <value>Abre na bandeja ao entrar no Windows.</value>
+  </data>
+  <data name="Set_AtivoTarefaAgendadaPrivilegios" xml:space="preserve">
+    <value>Ativo • tarefa agendada com privilégios elevados, inicia na bandeja</value>
+  </data>
+  <data name="Set_AtivoIniciaBandejaFazer" xml:space="preserve">
+    <value>Ativo • inicia na bandeja ao fazer logon</value>
+  </data>
+  <data name="Set_NaoFoiPossivelAlterar" xml:space="preserve">
+    <value>Não foi possível alterar: {0}</value>
+  </data>
+  <data name="Set_FecharInterface" xml:space="preserve">
+    <value>Fechar interface</value>
+  </data>
+  <data name="Set_ConectadoServico" xml:space="preserve">
+    <value>Conectado ao serviço</value>
+  </data>
+  <data name="Set_ServicoSemRespostaReconectando" xml:space="preserve">
+    <value>Serviço sem resposta • reconectando...</value>
+  </data>
+  <data name="Set_ServicoNaoInstaladoModo" xml:space="preserve">
+    <value>Serviço não instalado • modo local</value>
+  </data>
+  <data name="Set_ServicoExecucaoMasEsta" xml:space="preserve">
+    <value>Serviço em execução, mas esta janela está em modo local</value>
+  </data>
+  <data name="Set_ServicoInstaladoParadoModo" xml:space="preserve">
+    <value>Serviço instalado e parado • modo local</value>
+  </data>
+  <data name="Set_ServicoIniciando" xml:space="preserve">
+    <value>Serviço iniciando...</value>
+  </data>
+  <data name="Set_ServicoParando" xml:space="preserve">
+    <value>Serviço parando...</value>
+  </data>
+  <data name="Set_ModoLocal" xml:space="preserve">
+    <value>Modo local</value>
+  </data>
+  <data name="Set_HardwareControladoPeloServico" xml:space="preserve">
+    <value>O hardware é controlado pelo serviço LinkFlowService (inicia com o Windows, reinicia sozinho se falhar).</value>
+  </data>
+  <data name="Set_LinkFlowServiceExeNao" xml:space="preserve">
+    <value>LinkFlow.Service.exe não está na pasta do aplicativo. Use o script de publicação para gerar.</value>
+  </data>
+  <data name="Set_ControleRodaDentroDeste" xml:space="preserve">
+    <value>O controle roda dentro deste aplicativo, como administrador.</value>
+  </data>
+  <data name="Set_ControleRodaDentroDeste2" xml:space="preserve">
+    <value>O controle roda dentro deste aplicativo, sem administrador (temperatura da CPU indisponível).</value>
+  </data>
+  <data name="Set_SairFechaSoInterface" xml:space="preserve">
+    <value>Sair fecha só a interface: o serviço continua controlando ventoinhas, RGB e LCD.</value>
+  </data>
+  <data name="Set_SairHubICUELINK" xml:space="preserve">
+    <value>Ao sair, o hub iCUE LINK volta ao modo hardware (curva interna) e a GPU volta à curva da vBIOS.</value>
+  </data>
+  <data name="Set_LinkFlowServiceExeNao2" xml:space="preserve">
+    <value>LinkFlow.Service.exe não encontrado na pasta do aplicativo.</value>
+  </data>
+  <data name="Set_LinkFlowVaiInstalarServico" xml:space="preserve">
+    <value>O LinkFlow vai instalar o serviço do Windows "LinkFlowService" e reabrir a interface conectada a ele.
+
+</value>
+  </data>
+  <data name="Set_ControleVentoinhasRGBLCD" xml:space="preserve">
+    <value>• O controle das ventoinhas, RGB e LCD passa a rodar em segundo plano, mesmo sem janela aberta.
+</value>
+  </data>
+  <data name="Set_IniciaAutomaticamenteWindowsReinicia" xml:space="preserve">
+    <value>• Inicia automaticamente com o Windows e reinicia sozinho se falhar.
+</value>
+  </data>
+  <data name="Set_InterfaceDeixaPedirPermissao" xml:space="preserve">
+    <value>• A interface deixa de pedir permissão de administrador.
+
+</value>
+  </data>
+  <data name="Set_WindowsVaiPedirConfirmacao" xml:space="preserve">
+    <value>O Windows vai pedir confirmação (UAC). Continuar?</value>
+  </data>
+  <data name="Set_InstalarServicoLinkFlow" xml:space="preserve">
+    <value>Instalar serviço LinkFlow</value>
+  </data>
+  <data name="Set_InstalacaoCancelada" xml:space="preserve">
+    <value>Instalação cancelada.</value>
+  </data>
+  <data name="Set_RemoverServicoLinkFlowServiceLinkFlow" xml:space="preserve">
+    <value>Remover o serviço LinkFlowService?
+
+O LinkFlow volta ao modo local: o controle do hardware só funciona com o aplicativo aberto (ou na bandeja).</value>
+  </data>
+  <data name="Set_RemocaoCancelada" xml:space="preserve">
+    <value>Remoção cancelada.</value>
+  </data>
+  <data name="Set_ReiniciandoServico" xml:space="preserve">
+    <value>Reiniciando serviço...</value>
+  </data>
+  <data name="Set_OperacaoCancelada" xml:space="preserve">
+    <value>Operação cancelada.</value>
+  </data>
+  <data name="Set_ServicoReiniciado" xml:space="preserve">
+    <value>Serviço reiniciado.</value>
+  </data>
+  <data name="Set_FalhaReiniciarServicoCodigo" xml:space="preserve">
+    <value>Falha ao reiniciar o serviço (código {0}).</value>
+  </data>
+  <data name="Set_ElevacaoCancelada" xml:space="preserve">
+    <value>Elevação cancelada.</value>
+  </data>
+  <data name="Set_LinkFlowBaixadoVerificadoAplicativo" xml:space="preserve">
+    <value>LinkFlow {0} baixado e verificado. O aplicativo será reaberto ao fim da instalação.</value>
+  </data>
+  <data name="Set_VersaoPortatilAtualizacoesSao" xml:space="preserve">
+    <value>Versão portátil. As atualizações são baixadas pelo navegador.</value>
+  </data>
+  <data name="Set_ConsulteAtualizacoesLinkFlowGitHub" xml:space="preserve">
+    <value>Consulte as atualizações do LinkFlow no GitHub.</value>
+  </data>
+  <data name="Set_VersaoAtual" xml:space="preserve">
+    <value>Versão atual {0}</value>
+  </data>
+  <data name="Set_InstalarReiniciar" xml:space="preserve">
+    <value>Instalar e reiniciar</value>
+  </data>
+  <data name="Set_BaixarAtualizacao" xml:space="preserve">
+    <value>Baixar atualização</value>
+  </data>
+  <data name="Set_BaixarNavegador" xml:space="preserve">
+    <value>Baixar no navegador</value>
+  </data>
+  <data name="Set_ConsultandoVersaoMaisRecente" xml:space="preserve">
+    <value>Consultando a versão mais recente…</value>
+  </data>
+  <data name="Set_LinkFlowDisponivel" xml:space="preserve">
+    <value>LinkFlow {0} disponível.</value>
+  </data>
+  <data name="Set_VoceEstaUsandoVersao" xml:space="preserve">
+    <value>Você está usando a versão mais recente do LinkFlow.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelConsultar" xml:space="preserve">
+    <value>Não foi possível consultar as atualizações. Tente novamente ou abra a página de downloads.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Não foi possível abrir a página de downloads.</value>
+  </data>
+  <data name="Set_BaixandoInstaladorLinkFlow" xml:space="preserve">
+    <value>Baixando o instalador do LinkFlow {0}…</value>
+  </data>
+  <data name="Set_DownloadCancelado" xml:space="preserve">
+    <value>Download cancelado.</value>
+  </data>
+  <data name="Set_TenteBaixarNovamente" xml:space="preserve">
+    <value>{0} Tente baixar novamente.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelBaixar" xml:space="preserve">
+    <value>Não foi possível baixar a atualização. Tente novamente ou abra a página de downloads.</value>
+  </data>
+  <data name="Set_AbrindoInstaladorConfirmeWindows" xml:space="preserve">
+    <value>Abrindo o instalador. Confirme no Windows se ele pedir permissão.</value>
+  </data>
+  <data name="Set_InstalacaoLinkFlowMudouReabra" xml:space="preserve">
+    <value>A instalação do LinkFlow mudou. Reabra o aplicativo antes de tentar atualizar.</value>
+  </data>
+  <data name="Set_InstaladorNaoIniciou" xml:space="preserve">
+    <value>O instalador não iniciou.</value>
+  </data>
+  <data name="Set_AtualizacaoNaoFoiConcluida" xml:space="preserve">
+    <value>A atualização não foi concluída. Tente novamente ou abra a página de downloads.</value>
+  </data>
+  <data name="Set_NaoFoiPossivelAbrir2" xml:space="preserve">
+    <value>Não foi possível abrir o instalador. Tente novamente ou abra a página de downloads.</value>
+  </data>
+  <data name="Set_ExportarConfiguracoesLinkFlow" xml:space="preserve">
+    <value>Exportar configurações do LinkFlow</value>
+  </data>
+  <data name="Set_BackupLinkFlowJSONJson" xml:space="preserve">
+    <value>Backup do LinkFlow (*{0})|*{1}|JSON (*.json)|*.json</value>
+  </data>
+  <data name="Set_ExportadoPerfilIsImagem" xml:space="preserve">
+    <value>Exportado: {0} • {1} perfil(is), {2} imagem(ns)</value>
+  </data>
+  <data name="Set_NaoFoiPossivelExportar" xml:space="preserve">
+    <value>Não foi possível exportar:
+{0}</value>
+  </data>
+  <data name="Set_ExportarConfiguracoes" xml:space="preserve">
+    <value>Exportar configurações</value>
+  </data>
+  <data name="Set_ImportarConfiguracoesLinkFlow" xml:space="preserve">
+    <value>Importar configurações do LinkFlow</value>
+  </data>
+  <data name="Set_BackupFilterImport" xml:space="preserve">
+    <value>Backup do LinkFlow (*{0};*.json)|*{1};*.json|Todos os arquivos|*.*</value>
+  </data>
+  <data name="Set_ImportarConfiguracoes" xml:space="preserve">
+    <value>Importar configurações</value>
+  </data>
+  <data name="Set_ConfiguracoesImportadas" xml:space="preserve">
+    <value>Configurações importadas de "{0}"</value>
+  </data>
+  <data name="Set_SalvarPacoteDiagnosticoLinkFlow" xml:space="preserve">
+    <value>Salvar pacote de diagnóstico do LinkFlow</value>
+  </data>
+  <data name="Set_ArquivoZIPZipZip" xml:space="preserve">
+    <value>Arquivo ZIP (*.zip)|*.zip</value>
+  </data>
+  <data name="Set_GerandoPacoteDiagnostico" xml:space="preserve">
+    <value>Gerando o pacote de diagnóstico...</value>
+  </data>
+  <data name="Set_PacoteDiagnosticoSalvoArquivo" xml:space="preserve">
+    <value>Pacote de diagnóstico salvo em:
+{0}
+
+{1} arquivo(s) de log, config.json e hardware-summary.txt </value>
+  </data>
+  <data name="Set_NomeUsuarioComputadorSubstituidos" xml:space="preserve">
+    <value>(nome de usuário e do computador substituídos).
+
+Abrir a pasta do arquivo?</value>
+  </data>
+  <data name="Set_PacoteDiagnostico" xml:space="preserve">
+    <value>Pacote de diagnóstico</value>
+  </data>
+  <data name="Set_NaoFoiPossivelGerar" xml:space="preserve">
+    <value>Não foi possível gerar o pacote de diagnóstico:
+{0}</value>
+  </data>
+  <data name="Set_Importar2" xml:space="preserve">
+    <value>O que importar</value>
+  </data>
+  <data name="Set_MarcarTudo" xml:space="preserve">
+    <value>Marcar tudo</value>
+  </data>
+  <data name="Set_SoPerfis" xml:space="preserve">
+    <value>Só perfis</value>
+  </data>
+  <data name="Set_PerfisMesmoNomeSao" xml:space="preserve">
+    <value>Perfis com o mesmo nome são substituídos; os outros são mantidos. Logo depois de importar dá para desfazer (Ctrl+Z).</value>
+  </data>
+  <data name="Set_Backup" xml:space="preserve">
+    <value>Backup de {0:dd/MM/yyyy HH:mm}</value>
+  </data>
+  <data name="Imp_BackupSummary" xml:space="preserve">
+    <value>LinkFlow {0} • {1} perfil(is) salvo(s) • {2} imagem(ns) do LCD</value>
+  </data>
+  <data name="Set_PerfisSalvos" xml:space="preserve">
+    <value>Perfis salvos</value>
+  </data>
+  <data name="Set_ModoCurvaVentoinhas" xml:space="preserve">
+    <value>Modo e curva das ventoinhas</value>
+  </data>
+  <data name="Set_NomesGruposAjustesManuais" xml:space="preserve">
+    <value>Nomes, grupos e ajustes manuais</value>
+  </data>
+  <data name="Set_TelaLCDQuadroImagens" xml:space="preserve">
+    <value>Tela LCD (quadro, imagens e GIFs)</value>
+  </data>
+  <data name="Set_LimitesAlertaModoSeguranca" xml:space="preserve">
+    <value>Limites de alerta e modo de segurança</value>
+  </data>
+  <data name="Set_PreferenciasInterface" xml:space="preserve">
+    <value>Preferências da interface</value>
+  </data>
+  <data name="Language_Title" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Language_Automatic" xml:space="preserve">
+    <value>Automático (idioma do Windows)</value>
+  </data>
+  <data name="Language_RestartNow" xml:space="preserve">
+    <value>Reiniciar agora</value>
+  </data>
 </root>
