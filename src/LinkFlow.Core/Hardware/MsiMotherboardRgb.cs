@@ -40,6 +40,14 @@ public sealed class MsiMotherboardRgb : IRgbDevice
 
     public void Initialize()
     {
+        lock (_syncLock) InitializeLocked();
+    }
+
+    private void InitializeLocked()
+    {
+        // Reinicialização pelo supervisor de sincronismo: fecha o handle antigo antes de abrir outro
+        try { _stream?.Dispose(); } catch { }
+        _stream = null;
         try
         {
             _device = DeviceList.Local.GetHidDevices()

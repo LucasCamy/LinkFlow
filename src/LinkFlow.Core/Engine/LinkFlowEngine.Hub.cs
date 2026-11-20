@@ -59,8 +59,13 @@ public sealed partial class LinkFlowEngine
                         lastSent = null;
                         appliedRgbVersion = -1;
                         nextRead = 0;
+                        bool reconnected;
+                        lock (_stateLock) reconnected = _hubEverConnected;
                         resumeGraceUntil = 0;
                         OnHubConnected();
+                        // O hub já recebe a cor de novo (acima); os outros dispositivos costumam ter passado pelo mesmo
+                        // evento (USB reiniciado, suspensão): o supervisor ressincroniza todos
+                        if (reconnected) RequestRgbResync("hub reconectado");
                     }
                     else
                     {
