@@ -9,6 +9,7 @@ using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
 using Microsoft.Win32;
 using LinkFlow.App.Resources;
+using System.Diagnostics;
 
 namespace LinkFlow.App;
 
@@ -497,6 +498,27 @@ public partial class App : Application
     }
 
     // ------------------------------------------------------------------ Encerramento
+
+    /// <summary>
+    /// Reabre a interface (troca de idioma). No modo serviço o controle do hardware não para; no modo local o engine
+    /// reinicia junto com o aplicativo.
+    /// </summary>
+    public void RestartInterface()
+    {
+        Settings.Flush();
+        string args = $"--wait-pid {Environment.ProcessId}" + (Options.Simulate ? " --simulate" : string.Empty);
+        try
+        {
+            Process.Start(new ProcessStartInfo(Environment.ProcessPath!, args) { UseShellExecute = false });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            Log.Warn($"Não foi possível reabrir o LinkFlow para trocar o idioma: {ex.Message}");
+            return;
+        }
+        Log.Info("Reiniciando a interface para trocar o idioma.");
+        ExitApplication();
+    }
 
     /// <summary>Encerra o aplicativo de verdade (no modo local o hub volta ao modo hardware).</summary>
     public void ExitApplication()

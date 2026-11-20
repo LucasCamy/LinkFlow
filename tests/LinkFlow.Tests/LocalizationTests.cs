@@ -32,14 +32,15 @@ public sealed class UiLanguageTests : IDisposable
     public void Saved_language_is_used_and_unknown_values_are_ignored()
     {
         Assert.Equal(UiLanguage.English, UiLanguage.Resolve(null, "en", PortugueseWindows));
-        Assert.Equal(UiLanguage.Portuguese, UiLanguage.Resolve("klingon", "fr-FR", EnglishWindows));
+        Assert.Equal(UiLanguage.Portuguese, UiLanguage.Resolve("klingon", "fr-FR", PortugueseWindows));
     }
 
     [Fact]
-    public void Without_a_choice_stays_in_portuguese_until_the_translation_is_finished()
+    public void Without_a_choice_follows_the_windows_language()
     {
-        Assert.False(UiLanguage.FollowWindowsByDefault);
-        Assert.Equal(UiLanguage.Portuguese, UiLanguage.Resolve(null, null, EnglishWindows));
+        Assert.True(UiLanguage.FollowWindowsByDefault);
+        Assert.Equal(UiLanguage.English, UiLanguage.Resolve(null, null, EnglishWindows));
+        Assert.Equal(UiLanguage.Portuguese, UiLanguage.Resolve(null, null, PortugueseWindows));
     }
 
     [Theory]
@@ -151,6 +152,14 @@ public sealed class StringResourceTests
     private static HashSet<string> Placeholders(string text) => Placeholder.Matches(text).Select(m => m.Groups[1].Value).ToHashSet();
 
     [Fact]
+    public void Keys_are_unique_ignoring_case()
+    {
+        // O gerador da classe Strings ignora maiúsculas: duas chaves iguais a menos disso somem uma delas
+        var keys = Read("Strings.resx").Keys;
+        Assert.Equal(keys.Count, keys.Select(k => k.ToLowerInvariant()).Distinct().Count());
+    }
+
+    [Fact]
     public void Generated_strings_class_matches_the_portuguese_file()
     {
         var properties = typeof(Strings).GetProperties(BindingFlags.Public | BindingFlags.Static)
@@ -201,8 +210,8 @@ public sealed class XamlHardcodedTextTests
     /// <summary>Telas que ainda não foram traduzidas (v3.0, fases 1 a 4).</summary>
     private static readonly HashSet<string> NotYetTranslated =
     [
-        "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/ImportDialog.xaml", "Views/SettingsPage.xaml",
-        "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml", "Views/WindowsPage.xaml",
+        "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml",
+        "Views/WindowsPage.xaml",
     ];
 
     private static IEnumerable<string> XamlFiles(string root) =>

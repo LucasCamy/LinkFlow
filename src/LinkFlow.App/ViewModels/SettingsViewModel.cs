@@ -1,5 +1,7 @@
 using LinkFlow.App.Services;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
+using System.Globalization;
 
 namespace LinkFlow.App.ViewModels;
 
@@ -24,12 +26,43 @@ public sealed class SettingsViewModel : ObservableObject
         System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
         {
             _startWithWindows = enabled;
-            _autoStartMessage = enabled ? (task ? "Ativo • tarefa agendada com privilégios elevados, inicia na bandeja" : "Ativo • inicia na bandeja ao fazer logon") : null;
+            _autoStartMessage = enabled ? (task ? Strings.Set_AtivoTarefaAgendadaPrivilegios : Strings.Set_AtivoIniciaBandejaFazer) : null;
             OnPropertiesChanged(nameof(StartWithWindows), nameof(AutoStartMessage));
         });
     });
 
     public UiSettings Current => _settings.Current;
+
+    // ------------------------------------------------------------------ Idioma
+
+    public sealed record LanguageOption(string Code, string Label)
+    {
+        public override string ToString() => Label;   // o modelo do ComboBox mostra o ToString do item escolhido
+    }
+
+    /// <summary>"" = automático (segue o Windows).</summary>
+    public IReadOnlyList<LanguageOption> LanguageOptions { get; } =
+    [
+        new(string.Empty, Strings.Language_Automatic),
+        new(UiLanguage.Portuguese, Strings.Language_Portuguese),
+        new(UiLanguage.English, Strings.Language_English),
+    ];
+
+    public string LanguageChoice
+    {
+        get => _settings.Current.Language ?? string.Empty;
+        set
+        {
+            string? language = string.IsNullOrEmpty(value) ? null : value;
+            if (language == _settings.Current.Language) return;
+            _settings.Update(s => s.Language = language);
+            OnPropertiesChanged(nameof(LanguageChoice), nameof(LanguageChangePending));
+        }
+    }
+
+    /// <summary>O idioma escolhido é diferente do que está em uso: falta reiniciar a interface.</summary>
+    public bool LanguageChangePending =>
+        UiLanguage.Resolve(null, _settings.Current.Language, CultureInfo.InstalledUICulture) != UiLanguage.Culture.Name;
 
     /// <summary>Após importar preferências: atualiza todos os interruptores da tela.</summary>
     public void NotifyAllChanged() => OnPropertiesChanged(nameof(CloseToTray), nameof(MinimizeToTray),
@@ -103,12 +136,12 @@ public sealed class SettingsViewModel : ObservableObject
         {
             _startWithWindows = enable;
             AutoStartMessage = enable
-                ? (AutoStartManager.IsTaskMode ? "Ativo • tarefa agendada com privilégios elevados, inicia na bandeja" : "Ativo • inicia na bandeja ao fazer logon")
+                ? (AutoStartManager.IsTaskMode ? Strings.Set_AtivoTarefaAgendadaPrivilegios : Strings.Set_AtivoIniciaBandejaFazer)
                 : null;
         }
         else
         {
-            AutoStartMessage = $"Não foi possível alterar: {error}";
+            AutoStartMessage = string.Format(Strings.Set_NaoFoiPossivelAlterar, error);
         }
         OnPropertyChanged(nameof(StartWithWindows));
         AutoStartChanged?.Invoke();
@@ -166,22 +199,22 @@ public sealed class SettingsViewModel : ObservableObject
 
     public bool ServiceInstalled => _serviceState is not (ServiceState.NotInstalled or ServiceState.Unknown);
     public bool ServiceCanInstall => !IsServiceMode && _serviceState == ServiceState.NotInstalled && !_busy;
-    public string ExitButtonText => IsServiceMode ? "Fechar interface" : "Sair do LinkFlow";
+    public string ExitButtonText => IsServiceMode ? Strings.Set_FecharInterface : Strings.Tray_Exit;
 
     public string ServiceStatusText
     {
         get
         {
             if (_serviceMessage != null) return _serviceMessage;
-            if (IsServiceMode) return _engine!.IsConnected ? "Conectado ao serviço" : "Serviço sem resposta • reconectando...";
+            if (IsServiceMode) return _engine!.IsConnected ? Strings.Set_ConectadoServico : Strings.Set_ServicoSemRespostaReconectando;
             return _serviceState switch
             {
-                ServiceState.NotInstalled => "Serviço não instalado • modo local",
-                ServiceState.Running => "Serviço em execução, mas esta janela está em modo local",
-                ServiceState.Stopped => "Serviço instalado e parado • modo local",
-                ServiceState.Starting => "Serviço iniciando...",
-                ServiceState.Stopping => "Serviço parando...",
-                _ => "Modo local"
+                ServiceState.NotInstalled => Strings.Set_ServicoNaoInstaladoModo,
+                ServiceState.Running => Strings.Set_ServicoExecucaoMasEsta,
+                ServiceState.Stopped => Strings.Set_ServicoInstaladoParadoModo,
+                ServiceState.Starting => Strings.Set_ServicoIniciando,
+                ServiceState.Stopping => Strings.Set_ServicoParando,
+                _ => Strings.Set_ModoLocal
             };
         }
     }
@@ -190,63 +223,63 @@ public sealed class SettingsViewModel : ObservableObject
     {
         get
         {
-            if (IsServiceMode) return "O hardware é controlado pelo serviço LinkFlowService (inicia com o Windows, reinicia sozinho se falhar).";
-            if (!ServiceManager.ServiceExeExists) return "LinkFlow.Service.exe não está na pasta do aplicativo. Use o script de publicação para gerar.";
+            if (IsServiceMode) return Strings.Set_HardwareControladoPeloServico;
+            if (!ServiceManager.ServiceExeExists) return Strings.Set_LinkFlowServiceExeNao;
             return AutoStartManager.IsElevated
-                ? "O controle roda dentro deste aplicativo, como administrador."
-                : "O controle roda dentro deste aplicativo, sem administrador (temperatura da CPU indisponível).";
+                ? Strings.Set_ControleRodaDentroDeste
+                : Strings.Set_ControleRodaDentroDeste2;
         }
     }
 
     public string ExitHintText => IsServiceMode
-        ? "Sair fecha só a interface: o serviço continua controlando ventoinhas, RGB e LCD."
-        : "Ao sair, o hub iCUE LINK volta ao modo hardware (curva interna) e a GPU volta à curva da vBIOS.";
+        ? Strings.Set_SairFechaSoInterface
+        : Strings.Set_SairHubICUELINK;
 
     public void InstallService()
     {
         if (!ServiceManager.ServiceExeExists)
         {
-            ShowServiceMessage("LinkFlow.Service.exe não encontrado na pasta do aplicativo.");
+            ShowServiceMessage(Strings.Set_LinkFlowServiceExeNao2);
             return;
         }
         var answer = System.Windows.MessageBox.Show(
-            "O LinkFlow vai instalar o serviço do Windows \"LinkFlowService\" e reabrir a interface conectada a ele.\n\n" +
-            "• O controle das ventoinhas, RGB e LCD passa a rodar em segundo plano, mesmo sem janela aberta.\n" +
-            "• Inicia automaticamente com o Windows e reinicia sozinho se falhar.\n" +
-            "• A interface deixa de pedir permissão de administrador.\n\n" +
-            "O Windows vai pedir confirmação (UAC). Continuar?",
-            "Instalar serviço LinkFlow", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question);
+            Strings.Set_LinkFlowVaiInstalarServico +
+            Strings.Set_ControleVentoinhasRGBLCD +
+            Strings.Set_IniciaAutomaticamenteWindowsReinicia +
+            Strings.Set_InterfaceDeixaPedirPermissao +
+            Strings.Set_WindowsVaiPedirConfirmacao,
+            Strings.Set_InstalarServicoLinkFlow, System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question);
         if (answer != System.Windows.MessageBoxResult.OK) return;
-        if (!App.Current.SwitchMode("install-service")) ShowServiceMessage("Instalação cancelada.");
+        if (!App.Current.SwitchMode("install-service")) ShowServiceMessage(Strings.Set_InstalacaoCancelada);
     }
 
     public void UninstallService()
     {
         var answer = System.Windows.MessageBox.Show(
-            "Remover o serviço LinkFlowService?\n\nO LinkFlow volta ao modo local: o controle do hardware só funciona com o aplicativo aberto (ou na bandeja).",
-            "Remover serviço", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Warning);
+            Strings.Set_RemoverServicoLinkFlowServiceLinkFlow,
+            Strings.Set_RemoverServico, System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Warning);
         if (answer != System.Windows.MessageBoxResult.OK) return;
-        if (!App.Current.SwitchMode("uninstall-service")) ShowServiceMessage("Remoção cancelada.");
+        if (!App.Current.SwitchMode("uninstall-service")) ShowServiceMessage(Strings.Set_RemocaoCancelada);
     }
 
     public async void RestartService()
     {
         _busy = true;
-        ShowServiceMessage("Reiniciando serviço...");
+        ShowServiceMessage(Strings.Set_ReiniciandoServico);
         var code = await App.Current.RunElevatedCommandAsync("restart-service");
         _busy = false;
         ShowServiceMessage(code switch
         {
-            null => "Operação cancelada.",
-            0 => "Serviço reiniciado.",
-            var c => $"Falha ao reiniciar o serviço (código {c})."
+            null => Strings.Set_OperacaoCancelada,
+            0 => Strings.Set_ServicoReiniciado,
+            var c => string.Format(Strings.Set_FalhaReiniciarServicoCodigo, c)
         });
         RefreshServiceState();
     }
 
     public void RestartAsAdmin()
     {
-        if (!App.Current.RestartElevated()) ShowServiceMessage("Elevação cancelada.");
+        if (!App.Current.RestartElevated()) ShowServiceMessage(Strings.Set_ElevacaoCancelada);
     }
 
     private void ShowServiceMessage(string message)
