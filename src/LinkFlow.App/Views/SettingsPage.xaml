@@ -74,6 +74,16 @@
                                         </CheckBox>
                                     </Border>
                                     <Border Style="{StaticResource SystemRow}">
+                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AdvancedSystemTools}" Margin="0"
+                                                  AutomationProperties.Name="{x:Static r:Strings.Set_HabilitarFerramentasAvancadasSistema}">
+                                            <StackPanel>
+                                                <TextBlock Text="{x:Static r:Strings.Set_HabilitarFerramentasAvancadasSistema}" Style="{StaticResource SystemItemTitle}"/>
+                                                <TextBlock Text="{x:Static r:Strings.Set_MostraPaginaDriversAbas}"
+                                                           Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </CheckBox>
+                                    </Border>
+                                    <Border Style="{StaticResource SystemRow}">
                                         <DockPanel>
                                             <ComboBox DockPanel.Dock="Right" Width="270" VerticalAlignment="Center" Margin="12,0,0,0"
                                                       ItemsSource="{Binding LanguageOptions}" SelectedValuePath="Code" DisplayMemberPath="Label"
@@ -86,16 +96,6 @@
                                                         Visibility="{Binding LanguageChangePending, Converter={StaticResource BoolToVis}}"/>
                                             </StackPanel>
                                         </DockPanel>
-                                    </Border>
-                                    <Border Style="{StaticResource SystemRow}">
-                                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding AdvancedSystemTools}" Margin="0"
-                                                  AutomationProperties.Name="{x:Static r:Strings.Set_HabilitarFerramentasAvancadasSistema}">
-                                            <StackPanel>
-                                                <TextBlock Text="{x:Static r:Strings.Set_HabilitarFerramentasAvancadasSistema}" Style="{StaticResource SystemItemTitle}"/>
-                                                <TextBlock Text="{x:Static r:Strings.Set_MostraPaginaDriversAbas}"
-                                                           Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
-                                            </StackPanel>
-                                        </CheckBox>
                                     </Border>
                                 </StackPanel>
                             </StackPanel>

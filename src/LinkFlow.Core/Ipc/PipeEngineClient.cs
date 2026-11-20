@@ -135,9 +135,10 @@ public sealed class PipeEngineClient : IEngineClient
                     await Task.Delay(1500, ct).ConfigureAwait(false);
                     continue;
                 }
+                // ConnectionChanged(true) só sai quando a configuração do serviço chegar (ver Handle): avisado aqui,
+                // a interface recarregava a cópia local antiga e podia devolvê-la ao serviço.
                 Log.Info("Reconectado ao serviço LinkFlow.");
                 if (_demand != SensorDemand.None) QueueMessage(PipeProtocol.Demand, (int)_demand);
-                ConnectionChanged?.Invoke(true);
             }
 
             var pipe = _pipe!;
@@ -170,9 +171,14 @@ public sealed class PipeEngineClient : IEngineClient
             }
 
             if (ct.IsCancellationRequested) break;
+            lock (_lock) _resyncPending = true;
             _connected = false;
-            Log.Warn("Serviço LinkFlow desconectado; tentando reconectar...");
-            ConnectionChanged?.Invoke(false);
+            if (_reportedConnected)
+            {
+                _reportedConnected = false;
+                Log.Warn("Serviço LinkFlow desconectado; tentando reconectar...");
+                ConnectionChanged?.Invoke(false);
+            }
             await Task.Delay(1000, ct).ConfigureAwait(false);
         }
     }
@@ -197,13 +203,23 @@ public sealed class PipeEngineClient : IEngineClient
         catch { /* desconectado: o laço principal reconecta */ }
     }
 
+    // Entre a queda da conexão e a primeira configuração do serviço na conexão nova (protegidos por _lock)
+    private bool _resyncPending;
+    private bool _changedDuringResync;
+    private bool _reportedConnected = true;
+
     private void Handle(string line, bool initial)
     {
-        if (!PipeProtocol.TryDecode(line, out var type, out var payload)) return;
+        // Linha ou conteúdo inválido é descartado sozinho: antes derrubava a conexão (e a interface reconectava em ciclo)
+        if (!PipeProtocol.TryDecode(line, out var type, out var payload))
+        {
+            Log.Debug("Pipe: linha inválida do serviço ignorada.");
+            return;
+        }
         switch (type)
         {
             case PipeProtocol.Hello:
-                var hello = PipeProtocol.Read<PipeProtocol.HelloInfo>(payload);
+                if (!PipeProtocol.TryRead<PipeProtocol.HelloInfo>(payload, out var hello)) break;
                 if (hello != null)
                 {
                     IsSimulated = hello.Simulated;
@@ -213,23 +229,60 @@ public sealed class PipeEngineClient : IEngineClient
                 }
                 break;
             case PipeProtocol.Config:
-                if (PipeProtocol.Read<ControlConfig>(payload) is { } cfg)
-                {
-                    lock (_lock) _config = cfg;
-                    _gotConfig = true;
-                    if (!initial) { ConfigChanged?.Invoke(cfg); AnyConfigChanged?.Invoke(cfg); }
-                }
+                if (PipeProtocol.TryRead<ControlConfig>(payload, out var cfg) && cfg != null) ApplyServiceConfig(cfg, initial);
+                else Log.Debug("Pipe: configuração ilegível do serviço ignorada.");
                 break;
             case PipeProtocol.Snapshot:
-                if (PipeProtocol.Read<EngineSnapshot>(payload) is { } snap)
+                if (PipeProtocol.TryRead<EngineSnapshot>(payload, out var snap) && snap != null)
                 {
                     Snapshot = snap;
                     if (!initial) SnapshotUpdated?.Invoke(snap);
                 }
                 break;
             case PipeProtocol.Alert:
-                if (!initial && PipeProtocol.Read<EngineAlert>(payload) is { } alert) AlertRaised?.Invoke(alert);
+                if (!initial && PipeProtocol.TryRead<EngineAlert>(payload, out var alert) && alert != null) AlertRaised?.Invoke(alert);
                 break;
+            default:
+                Log.Debug($"Pipe: mensagem de tipo desconhecido '{type}' do serviço ignorada.");
+                break;
+        }
+    }
+
+    private void ApplyServiceConfig(ControlConfig cfg, bool initial)
+    {
+        bool keepLocal = false, resynced = false;
+        lock (_lock)
+        {
+            if (_resyncPending)
+            {
+                // Primeira configuração depois de reconectar. Se a interface mudou algo com o serviço fora do ar, a
+                // versão local vale: o serviço montou esta mensagem antes de ler a alteração que estava na fila, e
+                // aceitá-la deixaria a tela com a configuração antiga enquanto o serviço aplica a nova.
+                _resyncPending = false;
+                resynced = true;
+                if (_changedDuringResync)
+                {
+                    _changedDuringResync = false;
+                    keepLocal = true;
+                    // Reenvia: a mensagem da fila pode ter se perdido na escrita que falhou quando o serviço caiu
+                    QueueMessage(PipeProtocol.SetConfig, _config, coalesce: true);
+                }
+            }
+            if (!keepLocal) _config = cfg;
+            _gotConfig = true;
+        }
+
+        if (keepLocal) Log.Info("Reconectado: mantidas as alterações feitas com o serviço desconectado.");
+        else if (!initial)
+        {
+            ConfigChanged?.Invoke(cfg);
+            AnyConfigChanged?.Invoke(cfg);
+        }
+
+        if (resynced && !_reportedConnected)
+        {
+            _reportedConnected = true;
+            ConnectionChanged?.Invoke(true);
         }
     }
 
@@ -259,6 +312,7 @@ public sealed class PipeEngineClient : IEngineClient
     {
         bool gpuSyncChanged = next.Rgb.SyncGpu != _config.Rgb.SyncGpu;
         _config = next;
+        if (_resyncPending) _changedDuringResync = true;
         QueueMessage(PipeProtocol.SetConfig, next, coalesce: !gpuSyncChanged);
     }
 

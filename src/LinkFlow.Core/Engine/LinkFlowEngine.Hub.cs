@@ -20,6 +20,7 @@ public sealed partial class LinkFlowEngine
         var zeroReads = new Dictionary<string, int>();
         var wearReads = new Dictionary<string, int>();
         long nextConflictCheck = 0;
+        long resumeGraceUntil = 0;
         var conflictProbe = _opt.ConflictProbe ?? (IsSimulated ? null : ConflictDetector.FindRunning);
 
         while (!ct.IsCancellationRequested)
@@ -34,9 +35,15 @@ public sealed partial class LinkFlowEngine
                     UpdateConflictAlert(conflictProbe());
                 }
 
+                // Retorno da suspensão: o USB do hub pode demorar a reaparecer. Tenta de novo a cada segundo por um
+                // tempo, sem acusar hub perdido (antes: alerta a cada retorno e nova tentativa só 10 s depois).
+                if (Interlocked.Exchange(ref _resumeHub, 0) == 1) resumeGraceUntil = now + Ticks(_opt.ResumeGracePeriod);
+                bool inResumeGrace = now < resumeGraceUntil;
+
                 if (Interlocked.Exchange(ref _forceReconnectHub, 0) == 1)
                 {
-                    if (_hub.IsConnected) _hub.Disconnect(restoreHardwareMode: false);
+                    // Handle inválido depois da suspensão: uma falha aqui não pode impedir a reconexão
+                    if (_hub.IsConnected) SafeCall(() => { _hub.Disconnect(restoreHardwareMode: false); return true; });
                     nextReconnect = 0;
                 }
 
@@ -44,7 +51,7 @@ public sealed partial class LinkFlowEngine
                 if (!_hub.IsConnected && now >= nextReconnect)
                 {
                     bool ok = SafeCall(() => _hub.Connect());
-                    nextReconnect = now + Ticks(_opt.ReconnectInterval);
+                    nextReconnect = now + Ticks(inResumeGrace ? _opt.ResumeReconnectInterval : _opt.ReconnectInterval);
                     if (ok)
                     {
                         failures = 0;
@@ -54,6 +61,7 @@ public sealed partial class LinkFlowEngine
                         nextRead = 0;
                         bool reconnected;
                         lock (_stateLock) reconnected = _hubEverConnected;
+                        resumeGraceUntil = 0;
                         OnHubConnected();
                         // O hub já recebe a cor de novo (acima); os outros dispositivos costumam ter passado pelo mesmo
                         // evento (USB reiniciado, suspensão): o supervisor ressincroniza todos
@@ -61,7 +69,7 @@ public sealed partial class LinkFlowEngine
                     }
                     else
                     {
-                        OnHubDisconnected();
+                        OnHubDisconnected(raiseAlert: !inResumeGrace);
                     }
                 }
 
@@ -91,7 +99,7 @@ public sealed partial class LinkFlowEngine
                         {
                             Log.Warn("Hub sem resposta: reconectando.");
                             _hub.Disconnect(restoreHardwareMode: false);
-                            OnHubDisconnected();
+                            OnHubDisconnected(raiseAlert: !inResumeGrace);
                             nextReconnect = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(1));
                             continue;
                         }
@@ -228,7 +236,8 @@ public sealed partial class LinkFlowEngine
         Log.Info($"Hub conectado: FW {_hub.FirmwareVersion}, {devices.Count} dispositivos.");
     }
 
-    private void OnHubDisconnected()
+    /// <param name="raiseAlert">False logo depois da suspensão: o hub ainda está voltando, não foi perdido.</param>
+    private void OnHubDisconnected(bool raiseAlert = true)
     {
         lock (_stateLock)
         {
@@ -249,7 +258,7 @@ public sealed partial class LinkFlowEngine
                 : _conflict != null
                     ? EngineText.Of(EngineTexts.HubNotFoundConflict, _conflict)
                     : EngineText.Of(EngineTexts.HubNotFound);
-            if (wasConnected || _hubEverConnected)
+            if (raiseAlert && (wasConnected || _hubEverConnected))
             {
                 RaiseAlert("hub-lost", AlertSeverity.Warning, EngineText.Of(EngineTexts.HubLostTitle), EngineText.Of(EngineTexts.HubLost));
             }

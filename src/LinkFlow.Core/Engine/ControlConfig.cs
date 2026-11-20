@@ -53,6 +53,8 @@ public sealed partial class ControlConfig
         Curve ??= new FanCurveConfig();
         Curve.Normalize();
         Fans ??= new();
+        // Itens nulos (JSON editado à mão ou mensagem do pipe malformada) quebrariam quem percorre as coleções
+        foreach (var key in Fans.Where(kv => kv.Value == null).Select(kv => kv.Key).ToList()) Fans.Remove(key);
         foreach (var f in Fans.Values)
         {
             f.Percent = Math.Clamp(f.Percent, (byte)FanLimits.MinPercent, (byte)100);
@@ -65,7 +67,9 @@ public sealed partial class ControlConfig
         Safety ??= new SafetyConfig();
         Safety.Normalize();
         Profiles ??= new();
+        Profiles.RemoveAll(p => p == null);
         GroupCurves ??= new();
+        foreach (var key in GroupCurves.Where(kv => kv.Value == null).Select(kv => kv.Key).ToList()) GroupCurves.Remove(key);
         foreach (var gc in GroupCurves.Values) gc.Normalize();
         Automation ??= new();
         Automation.Normalize();
@@ -132,6 +136,7 @@ public sealed partial class FanCurveConfig
     public void Normalize()
     {
         Points ??= DefaultPoints();
+        Points.RemoveAll(p => p == null);
         if (Points.Count < 2) Points = DefaultPoints();
         foreach (var p in Points)
         {
