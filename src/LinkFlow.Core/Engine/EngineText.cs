@@ -138,6 +138,8 @@ public static class EngineTexts
     public const string RgbSynced = nameof(RgbSynced);
     public const string RgbFailed = nameof(RgbFailed);
     public const string RgbSyncedAndFailed = nameof(RgbSyncedAndFailed);
+    public const string RgbRecovering = nameof(RgbRecovering);
+    public const string RgbWithRecovering = nameof(RgbWithRecovering);
     public const string RgbListPair = nameof(RgbListPair);
     public const string RgbDevHub = nameof(RgbDevHub);
     public const string RgbDevGpu = nameof(RgbDevGpu);

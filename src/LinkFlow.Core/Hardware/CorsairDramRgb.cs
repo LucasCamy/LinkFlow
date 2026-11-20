@@ -43,6 +43,7 @@ public sealed class CorsairDramRgb : IRgbDevice
     private Mutex? _mutex;
     private bool _disposed;
     private volatile bool _useDirectFrames;
+    private volatile bool _directCapable;
     private bool _directFrameLogged;
 
     public bool IsAvailable { get; private set; }
@@ -59,12 +60,25 @@ public sealed class CorsairDramRgb : IRgbDevice
     {
     }
 
+    /// <summary>Os módulos aceitavam quadros diretos, mas um envio falhou e a RAM ficou no envio por configuração (lento).</summary>
+    public bool IsDegraded => IsAvailable && _directCapable && !_useDirectFrames;
+
     public void Initialize()
     {
         lock (_syncLock)
         {
+            if (_disposed) return;
             _useDirectFrames = false;
+            _directCapable = false;
             _directFrameLogged = false;
+            // Reinicialização pelo supervisor de sincronismo: fecha o handle e o mutex antigos antes de abrir outros
+            if (_pawnHandle != IntPtr.Zero)
+            {
+                try { Native.Close(_pawnHandle); } catch { }
+                _pawnHandle = IntPtr.Zero;
+            }
+            _mutex?.Dispose();
+            _mutex = null;
             try
             {
                 if (!File.Exists(Native.LibraryPath))
@@ -124,6 +138,7 @@ public sealed class CorsairDramRgb : IRgbDevice
                 if (ModuleAddresses.Count > 0)
                 {
                     _useDirectFrames = ModuleAddresses.All(SupportsDirectFrames);
+                    _directCapable = _useDirectFrames;
                     IsAvailable = true;
                     StatusMessage = $"● Corsair Vengeance DDR5 ({ModuleAddresses.Count} módulos)";
                 }

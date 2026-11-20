@@ -64,6 +64,9 @@ public interface IRgbDevice : IDisposable
     bool NeedsInitializationRetry => false;
     TimeSpan? MinAnimationInterval => null;
 
+    /// <summary>Responde, mas num modo mais lento que o detectado (ex.: RAM que perdeu os quadros diretos): o efeito atrasa.</summary>
+    bool IsDegraded => false;
+
     /// <summary>Detecção do dispositivo. Pode ser lenta (I2C/HID).</summary>
     void Initialize();
 

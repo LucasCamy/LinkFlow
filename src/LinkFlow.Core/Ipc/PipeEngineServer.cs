@@ -107,49 +107,17 @@ public sealed class PipeEngineServer : IAsyncDisposable
             {
                 var line = await PipeProtocol.ReadLineAsync(conn.Pipe, buffer, pending, ct).ConfigureAwait(false);
                 if (line == null) break;
-                if (!PipeProtocol.TryDecode(line, out var type, out var payload)) continue;
-
-                switch (type)
+                if (!PipeProtocol.TryDecode(line, out var type, out var payload))
                 {
-                    case PipeProtocol.SetConfig:
-                        if (PipeProtocol.Read<ControlConfig>(payload) is { } cfg)
-                        {
-                            // Qualquer processo da sessão pode mandar configuração: desligar a proteção fica registrado
-                            if (!cfg.Safety.FailSafeEnabled && _engine.FailSafeEnabled)
-                            {
-                                var pid = PipeIdentity.ClientProcessId(conn.Pipe);
-                                Log.Warn($"Modo de segurança DESLIGADO pelo processo {(pid is { } p ? PipeIdentity.Describe(p) : "desconhecido")}.");
-                            }
-                            _engine.ReplaceConfig(cfg, conn);
-                        }
-                        break;
-                    case PipeProtocol.LcdFrame:
-                        _engine.RequestLcdFrame();
-                        break;
-                    case PipeProtocol.Resume:
-                        _engine.NotifyResume();
-                        break;
-                    case PipeProtocol.RefreshRgb:
-                        _engine.RefreshRgb();
-                        break;
-                    case PipeProtocol.Demand:
-                        if (PipeProtocol.Read<int>(payload) is var d) _engine.SetSensorDemand(conn, (SensorDemand)d);
-                        break;
-                    case PipeProtocol.Rescan:
-                        _engine.RescanDevices();
-                        break;
-                    case PipeProtocol.CurveTest:
-                        _engine.SetCurveTest(PipeProtocol.Read<float?>(payload));
-                        break;
-                    case PipeProtocol.CalibrationStart:
-                        // Mexe nas ventoinhas por cerca de um minuto: fica registrado quem pediu
-                        var starter = PipeIdentity.ClientProcessId(conn.Pipe);
-                        Log.Info($"Calibração pedida pelo processo {(starter is { } sp ? PipeIdentity.Describe(sp) : "desconhecido")}.");
-                        _engine.StartCalibration();
-                        break;
-                    case PipeProtocol.CalibrationCancel:
-                        _engine.CancelCalibration();
-                        break;
+                    conn.Reject("linha que não é uma mensagem do protocolo");
+                    continue;
+                }
+
+                // Uma mensagem com conteúdo errado é descartada sozinha: antes ela derrubava a conexão da interface
+                try { Handle(conn, type, payload); }
+                catch (Exception ex) when (ex is not (OperationCanceledException or IOException or ObjectDisposedException))
+                {
+                    conn.Reject($"'{type}' ({ex.GetType().Name}: {ex.Message})");
                 }
             }
         }
@@ -169,6 +137,62 @@ public sealed class PipeEngineServer : IAsyncDisposable
             conn.Dispose();
             try { await writer.ConfigureAwait(false); } catch { }
             Log.Info($"Interface desconectada ({ClientCount} cliente(s)).");
+        }
+    }
+
+    private void Handle(Connection conn, string type, System.Text.Json.Nodes.JsonNode? payload)
+    {
+        switch (type)
+        {
+            case PipeProtocol.SetConfig:
+                if (!PipeProtocol.TryRead<ControlConfig>(payload, out var cfg) || cfg == null)
+                {
+                    conn.Reject("configuração ilegível");
+                    return;
+                }
+                // Campos ausentes ou nulos ganham o padrão antes de qualquer leitura (ex.: "safety": null)
+                cfg.Normalize();
+                // Qualquer processo da sessão pode mandar configuração: desligar a proteção fica registrado
+                if (!cfg.Safety.FailSafeEnabled && _engine.FailSafeEnabled)
+                {
+                    var pid = PipeIdentity.ClientProcessId(conn.Pipe);
+                    Log.Warn($"Modo de segurança DESLIGADO pelo processo {(pid is { } p ? PipeIdentity.Describe(p) : "desconhecido")}.");
+                }
+                _engine.ReplaceConfig(cfg, conn);
+                break;
+            case PipeProtocol.LcdFrame:
+                _engine.RequestLcdFrame();
+                break;
+            case PipeProtocol.Resume:
+                _engine.NotifyResume();
+                break;
+            case PipeProtocol.RefreshRgb:
+                _engine.RefreshRgb();
+                break;
+            case PipeProtocol.Demand:
+                if (PipeProtocol.TryRead<int>(payload, out var d)) _engine.SetSensorDemand(conn, (SensorDemand)d);
+                else conn.Reject("pedido de sensores ilegível");
+                break;
+            case PipeProtocol.Rescan:
+                _engine.RescanDevices();
+                break;
+            case PipeProtocol.CurveTest:
+                if (PipeProtocol.TryRead<float?>(payload, out var temperature)) _engine.SetCurveTest(temperature);
+                else conn.Reject("temperatura do teste de curva ilegível");
+                break;
+            case PipeProtocol.CalibrationStart:
+                // Mexe nas ventoinhas por cerca de um minuto: fica registrado quem pediu
+                var starter = PipeIdentity.ClientProcessId(conn.Pipe);
+                Log.Info($"Calibração pedida pelo processo {(starter is { } sp ? PipeIdentity.Describe(sp) : "desconhecido")}.");
+                _engine.StartCalibration();
+                break;
+            case PipeProtocol.CalibrationCancel:
+                _engine.CancelCalibration();
+                break;
+            default:
+                // Tipo desconhecido (ex.: interface mais nova que o serviço): ignorado sem derrubar a conexão
+                Log.Debug($"Pipe: mensagem de tipo desconhecido '{type}' ignorada.");
+                break;
         }
     }
 
@@ -213,6 +237,15 @@ public sealed class PipeEngineServer : IAsyncDisposable
 
         internal int PendingSnapshots => Volatile.Read(ref _pendingSnapshots);
         public NamedPipeServerStream Pipe { get; }
+        private int _rejected;
+
+        /// <summary>Mensagem descartada. Só as primeiras vão como aviso: um processo insistindo não enche o log.</summary>
+        public void Reject(string what)
+        {
+            int n = Interlocked.Increment(ref _rejected);
+            if (n <= 3) Log.Warn($"Pipe: mensagem inválida ignorada: {what}.");
+            else Log.Debug($"Pipe: mensagem inválida ignorada (nº {n}): {what}.");
+        }
 
         public void Enqueue(string message, bool isSnapshot = false)
         {

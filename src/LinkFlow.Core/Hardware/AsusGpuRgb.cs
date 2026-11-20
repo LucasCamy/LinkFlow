@@ -72,6 +72,11 @@ public sealed class AsusGpuRgb : IRgbDevice
     private int _blockWriteFailures;
     private const int BlockFailuresBeforeByteWrites = 3;
 
+    // Adaptador que some e volta a cada poucos segundos (NVAPI -6) repetia estas linhas milhares de vezes por dia:
+    // só registra quando mudam
+    private string? _announced;
+    private string? _stateLogged;
+
     public bool IsAvailable { get; private set; }
     public string ControllerName { get; private set; } = string.Empty;
     public int LedCount { get; private set; }
@@ -142,7 +147,9 @@ public sealed class AsusGpuRgb : IRgbDevice
                     DiagnosticText = null;
                     NeedsInitializationRetry = false;
                     IsAvailable = true;
-                    Log.Info($"Aura da GPU detectado em PCI {device:X8}/{subsystem:X8}: {ControllerName}, {LedCount} LEDs.");
+                    string announcement = $"Aura da GPU detectado em PCI {device:X8}/{subsystem:X8}: {ControllerName}, {LedCount} LEDs.";
+                    if (announcement != _announced) Log.Info(announcement);
+                    _announced = announcement;
                     return;
                 }
 
@@ -239,7 +246,9 @@ public sealed class AsusGpuRgb : IRgbDevice
         if (ReadRegister(DirectModeRegister, out byte previousDirect) &&
             ReadRegister(EffectModeRegister, out byte previousMode))
         {
-            Log.Info($"RGB GPU: estado antes de configurar o controlador: direto={previousDirect}, modo=0x{previousMode:X2}.");
+            string state = $"RGB GPU: estado antes de configurar o controlador: direto={previousDirect}, modo=0x{previousMode:X2}.";
+            if (state != _stateLogged) Log.Info(state);
+            _stateLogged = state;
         }
         if (!IsAvailable) return false;
 
