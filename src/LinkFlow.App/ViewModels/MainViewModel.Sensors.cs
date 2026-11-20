@@ -53,7 +53,8 @@ public partial class MainViewModel
     public void UpdateSensorDemand()
     {
         var d = SensorDemand.None;
-        if (_isViewActive && (_selectedPage == 0 || _selectedPage == WidgetPageIndex)) d |= SensorDemand.DiskIo;
+        if (_isViewActive && (_selectedPage == 0 || _selectedPage == WidgetPageIndex || _hardwareDetail?.Kind == HardwareKind.Storage))
+            d |= SensorDemand.DiskIo;
         if (_widgetDemand?.Invoke() is { } w) d |= w;
         if (d == _sentDemand) return;
         _sentDemand = d;

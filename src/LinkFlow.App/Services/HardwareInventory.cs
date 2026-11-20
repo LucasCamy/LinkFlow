@@ -9,7 +9,13 @@ namespace LinkFlow.App.Services;
 
 internal sealed record HardwarePart(string Category, string Name, string Details);
 
-internal sealed record HardwareInventoryResult(IReadOnlyList<HardwarePart> Parts, IReadOnlyList<string> Unavailable);
+/// <summary>Inventário lido: um componente por cartão e as categorias que o Windows não deixou ler.</summary>
+internal sealed record HardwareInventoryResult(IReadOnlyList<HardwareComponent> Components, IReadOnlyList<HardwareKind> Unavailable)
+{
+    /// <summary>Lista plana (categoria em português, nome, resumo) para o pacote de diagnóstico.</summary>
+    public IReadOnlyList<HardwarePart> Parts => Components.Select(c => new HardwarePart(HardwareInventory.CategoryOf(c.Kind), c.Name,
+        string.Join(" · ", c.Summary.Select(row => $"{row.Label}: {row.Value}")))).ToArray();
+}
 
 internal sealed record GraphicsAdapter(string Name, string? DriverVersion, string? PciVendor);
 
@@ -19,72 +25,11 @@ internal sealed record InstalledDeviceDriver(string Name, string DeviceClass, st
 internal sealed record DriverHardware(IReadOnlyList<GraphicsAdapter> Graphics, string? BoardManufacturer,
     string? BoardModel, string? RyzenProcessor, bool HasIntel, IReadOnlyList<InstalledDeviceDriver> Devices, bool Incomplete);
 
-internal static class HardwareInventory
+internal static partial class HardwareInventory
 {
     internal const string StorageScope = @"root\Microsoft\Windows\Storage";
     private const string GraphicsQuery = "SELECT Name, DriverVersion, PNPDeviceID FROM Win32_VideoController";
     private static readonly string[] DriverClasses = ["DISPLAY", "MEDIA", "NET", "BLUETOOTH", "SYSTEM", "USB", "SCSIADAPTER", "HDC"];
-
-    public static HardwareInventoryResult Read()
-    {
-        var parts = new List<HardwarePart>();
-        var unavailable = new List<string>();
-
-        void Add(string category, string query, Func<ManagementBaseObject, (string? Name, string Details)> describe,
-            string scope = @"root\cimv2")
-        {
-            try
-            {
-                foreach (var (name, details) in Query(query, describe, scope))
-                {
-                    if (!string.IsNullOrWhiteSpace(name)) parts.Add(new HardwarePart(category, name, details));
-                }
-            }
-            catch (Exception ex) when (ex is ManagementException or COMException or UnauthorizedAccessException)
-            {
-                unavailable.Add(category);
-                Log.Warn($"Inventário de {category}: {ex.Message}");
-            }
-        }
-
-        var windowsVersion = ReadWindowsVersion();
-        Add("Windows", "SELECT Caption, BuildNumber, OSArchitecture FROM Win32_OperatingSystem", item =>
-        {
-            string? build = Text(item, "BuildNumber");
-            string? buildLabel = build == null ? null : $"Build {build}";
-            if (build != null && windowsVersion.Build == build && windowsVersion.Revision is { } revision) buildLabel += $".{revision}";
-            return (Text(item, "Caption"), Join(windowsVersion.Release, buildLabel, Text(item, "OSArchitecture")));
-        });
-        Add("Processador", "SELECT Name, NumberOfCores, NumberOfLogicalProcessors, SocketDesignation FROM Win32_Processor",
-            item => (Text(item, "Name"), Join(Text(item, "NumberOfCores", Strings.Hw_Nucleos), Text(item, "NumberOfLogicalProcessors", " threads"),
-                Text(item, "SocketDesignation"))));
-        Add("Placa-mãe", "SELECT Manufacturer, Product, Version FROM Win32_BaseBoard",
-            item => (Join(Text(item, "Manufacturer"), Text(item, "Product")), Text(item, "Version") is { } revision ? string.Format(Strings.Hw_Revisao, revision) : string.Empty));
-        Add("BIOS", "SELECT Manufacturer, SMBIOSBIOSVersion, ReleaseDate FROM Win32_BIOS",
-            item => (Text(item, "SMBIOSBIOSVersion"), Join(Text(item, "Manufacturer"), WmiDate(item, "ReleaseDate")?.ToString("d"))));
-        Add("Placa de vídeo", "SELECT Name, DriverVersion, CurrentHorizontalResolution, CurrentVerticalResolution, CurrentRefreshRate FROM Win32_VideoController",
-            item => (Text(item, "Name"), Join(Text(item, "DriverVersion") is { } version ? $"Driver {version}" : null, ActiveVideoMode(item))));
-        Add("Memória", "SELECT Manufacturer, PartNumber, Capacity, DeviceLocator, ConfiguredClockSpeed, Speed, SMBIOSMemoryType FROM Win32_PhysicalMemory",
-            item => (Text(item, "PartNumber") ?? Strings.Hw_ModuloMemoria,
-                Join(Text(item, "Manufacturer"), MemoryType(item["SMBIOSMemoryType"]), Size(item, "Capacity", 1UL << 30, "GiB"), MemorySpeed(item),
-                    Text(item, "DeviceLocator"))));
-        var disks = ReadPhysicalDisks();
-        if (disks.Length > 0) parts.AddRange(disks);
-        else Add("Armazenamento", "SELECT Model, Size, FirmwareRevision FROM Win32_DiskDrive",
-            item => (Text(item, "Model"), Join(Size(item, "Size", 1_000_000_000, "GB"),
-                Text(item, "FirmwareRevision") is { } firmware ? $"Firmware {firmware}" : null)));
-        Add("Rede", "SELECT Name, NetConnectionID FROM Win32_NetworkAdapter WHERE PhysicalAdapter = TRUE",
-            item => (Text(item, "Name"), Text(item, "NetConnectionID") ?? string.Empty));
-        Add("Monitor", "SELECT ManufacturerName, UserFriendlyName, ProductCodeID FROM WmiMonitorID WHERE Active = TRUE",
-            item => (EdidText(item, "UserFriendlyName") ?? EdidText(item, "ProductCodeID") ?? Strings.Hw_MonitorConectado,
-                EdidText(item, "ManufacturerName") ?? string.Empty), @"root\wmi");
-        Add("Áudio", "SELECT Name, Manufacturer FROM Win32_SoundDevice",
-            item => (Text(item, "Name"), Text(item, "Manufacturer") ?? string.Empty));
-        Add("Periféricos", "SELECT Name, PNPClass FROM Win32_PnPEntity WHERE Present = TRUE AND (PNPClass = 'Keyboard' OR PNPClass = 'Mouse')",
-            item => (Text(item, "Name"), Text(item, "PNPClass") == "Keyboard" ? Strings.Hw_Teclado : "Mouse"));
-
-        return new HardwareInventoryResult(parts, unavailable);
-    }
 
     public static DriverHardware ReadDriverHardware()
     {
@@ -157,37 +102,6 @@ internal static class HardwareInventory
                                                 !id.Contains("&REV_", StringComparison.OrdinalIgnoreCase)) ?? physicalIds.FirstOrDefault();
     }
 
-    private static (string? Release, string? Build, int? Revision) ReadWindowsVersion()
-    {
-        try
-        {
-            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-            return (key?.GetValue("DisplayVersion") as string, key?.GetValue("CurrentBuildNumber") as string, key?.GetValue("UBR") as int?);
-        }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException)
-        {
-            return default;
-        }
-    }
-
-    private static HardwarePart[] ReadPhysicalDisks()
-    {
-        try
-        {
-            return Query("SELECT FriendlyName, MediaType, BusType, FirmwareVersion, Size FROM MSFT_PhysicalDisk", item =>
-                new HardwarePart("Armazenamento", Text(item, "FriendlyName") ?? Strings.Hw_DiscoFisico,
-                    Join(item["MediaType"] switch { (ushort)3 => "HDD", (ushort)4 => "SSD", (ushort)5 => "SCM", _ => null },
-                        StorageBus(item["BusType"] as ushort?), Size(item, "Size", 1_000_000_000, "GB"),
-                        Text(item, "FirmwareVersion") is { } firmware ? $"Firmware {firmware}" : null)),
-                StorageScope).ToArray();
-        }
-        catch (Exception ex) when (ex is ManagementException or COMException or UnauthorizedAccessException)
-        {
-            Log.Debug($"Informações de armazenamento: {ex.Message}");
-            return [];
-        }
-    }
-
     internal static string? StorageBus(ushort? bus) => bus switch
     {
         (ushort)1 => "SCSI",
@@ -201,35 +115,6 @@ internal static class HardwareInventory
         (ushort)19 => "UFS",
         _ => null
     };
-
-    private static string? MemoryType(object? type) => type switch
-    {
-        (uint)20 => "DDR",
-        (uint)21 => "DDR2",
-        (uint)24 => "DDR3",
-        (uint)26 => "DDR4",
-        (uint)27 => "LPDDR",
-        (uint)28 => "LPDDR2",
-        (uint)29 => "LPDDR3",
-        (uint)30 => "LPDDR4",
-        (uint)34 => "DDR5",
-        (uint)35 => "LPDDR5",
-        _ => null
-    };
-
-    private static string? MemorySpeed(ManagementBaseObject item)
-    {
-        if (item["ConfiguredClockSpeed"] is uint configured && configured > 0) return string.Format(Strings.Hw_MTConfigurados, configured);
-        return item["Speed"] is uint nominal && nominal > 0 ? string.Format(Strings.Hw_MTNominais, nominal) : null;
-    }
-
-    private static string? ActiveVideoMode(ManagementBaseObject item)
-    {
-        if (item["CurrentHorizontalResolution"] is not uint width || width == 0 ||
-            item["CurrentVerticalResolution"] is not uint height || height == 0) return null;
-        string resolution = $"{width} × {height}";
-        return item["CurrentRefreshRate"] is uint refresh && refresh is > 1 and <= 1000 ? $"{resolution} · {refresh} Hz" : resolution;
-    }
 
     private static DateOnly? WmiDate(ManagementBaseObject item, string property) =>
         Text(item, property) is { Length: >= 8 } value && DateOnly.TryParseExact(value.AsSpan(0, 8), "yyyyMMdd", CultureInfo.InvariantCulture,
@@ -253,11 +138,6 @@ internal static class HardwareInventory
 
     private static string? Text(ManagementBaseObject item, string property, string suffix = "") =>
         item[property]?.ToString()?.Trim() is { Length: > 0 } value ? value + suffix : null;
-
-    private static string? Size(ManagementBaseObject item, string property, ulong unit, string label) =>
-        item[property] is ulong size && size > 0 ? $"{(double)size / unit:0.#} {label}" : null;
-
-    private static string Join(params string?[] parts) => string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
 
     private static string? EdidText(ManagementBaseObject item, string property)
     {

@@ -805,29 +805,11 @@
   <data name="Hw_LendoPecasDestePC" xml:space="preserve">
     <value>Reading this PC's parts…</value>
   </data>
-  <data name="Hw_Firmware" xml:space="preserve">
-    <value>Firmware {0}</value>
-  </data>
   <data name="Hw_Canal" xml:space="preserve">
     <value>Channel {0}</value>
   </data>
   <data name="Hw_Conectado" xml:space="preserve">
     <value>Connected</value>
-  </data>
-  <data name="Hw_Simulado" xml:space="preserve">
-    <value>Simulated</value>
-  </data>
-  <data name="Hw_SimulatedF" xml:space="preserve">
-    <value>Simulated</value>
-  </data>
-  <data name="Hw_ModuloDDR5Simulado" xml:space="preserve">
-    <value>DDR5 module (simulated)</value>
-  </data>
-  <data name="Hw_32GiB6000MT" xml:space="preserve">
-    <value>32 GiB · 6000 MT/s configured · DIMMA2</value>
-  </data>
-  <data name="Hw_SSD1TBSimulado" xml:space="preserve">
-    <value>1 TB SSD (simulated)</value>
   </data>
   <data name="Hw_InventarioSimulado" xml:space="preserve">
     <value> Simulated inventory.</value>
@@ -838,9 +820,6 @@
   <data name="Hw_NaoFoiPossivelLer" xml:space="preserve">
     <value>Could not read the inventory. Try again.</value>
   </data>
-  <data name="Hw_GiBVRAM" xml:space="preserve">
-    <value>{0:0.#} GiB of VRAM</value>
-  </data>
   <data name="Hw_DetectarNovamente" xml:space="preserve">
     <value>Detect again</value>
   </data>
@@ -850,15 +829,6 @@
   <data name="Hw_Itens" xml:space="preserve">
     <value>{0} of {1} items.</value>
   </data>
-  <data name="Hw_Nucleos" xml:space="preserve">
-    <value> cores</value>
-  </data>
-  <data name="Hw_Revisao" xml:space="preserve">
-    <value>Revision {0}</value>
-  </data>
-  <data name="Hw_ModuloMemoria" xml:space="preserve">
-    <value>Memory module</value>
-  </data>
   <data name="Hw_MonitorConectado" xml:space="preserve">
     <value>Connected monitor</value>
   </data>
@@ -867,12 +837,6 @@
   </data>
   <data name="Hw_DiscoFisico" xml:space="preserve">
     <value>Physical disk</value>
-  </data>
-  <data name="Hw_MTConfigurados" xml:space="preserve">
-    <value>{0} MT/s configured</value>
-  </data>
-  <data name="Hw_MTNominais" xml:space="preserve">
-    <value>{0} MT/s rated</value>
   </data>
   <data name="Hw_CatMotherboard" xml:space="preserve">
     <value>Motherboard</value>
@@ -3897,5 +3861,464 @@
   </data>
   <data name="Win_Measuring" xml:space="preserve">
     <value>Measuring…</value>
+  </data>
+  <data name="Hwi_CardProcessor" xml:space="preserve">
+    <value>Processor</value>
+  </data>
+  <data name="Hwi_CardBoard" xml:space="preserve">
+    <value>Motherboard &amp; BIOS</value>
+  </data>
+  <data name="Hwi_CardMemory" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="Hwi_CardGraphics" xml:space="preserve">
+    <value>Graphics card</value>
+  </data>
+  <data name="Hwi_CardStorage" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="Hwi_CardNetwork" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="Hwi_CardAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Hwi_CardMonitors" xml:space="preserve">
+    <value>Displays</value>
+  </data>
+  <data name="Hwi_CardOs" xml:space="preserve">
+    <value>Operating system</value>
+  </data>
+  <data name="Hwi_CardPeripherals" xml:space="preserve">
+    <value>Peripherals</value>
+  </data>
+  <data name="Hwi_OpenDetails" xml:space="preserve">
+    <value>Open {0} details</value>
+  </data>
+  <data name="Hwi_MoreItems" xml:space="preserve">
+    <value>+{0} more in the full details</value>
+  </data>
+  <data name="Hwi_Unavailable" xml:space="preserve">
+    <value>Unavailable</value>
+  </data>
+  <data name="Hwi_ReadFailed" xml:space="preserve">
+    <value>Windows did not report this data to a standard user.</value>
+  </data>
+  <data name="Hwi_LiveTitle" xml:space="preserve">
+    <value>Live telemetry</value>
+  </data>
+  <data name="Hwi_ChartStats" xml:space="preserve">
+    <value>Min {0} · max {1} · avg {2} (last 5 min)</value>
+  </data>
+  <data name="Hwi_Copy" xml:space="preserve">
+    <value>Copy details</value>
+  </data>
+  <data name="Hwi_CopyTip" xml:space="preserve">
+    <value>Copy all specifications as text</value>
+  </data>
+  <data name="Hwi_Copied" xml:space="preserve">
+    <value>Specifications copied.</value>
+  </data>
+  <data name="Hwi_BusiestCore" xml:space="preserve">
+    <value>Busiest core</value>
+  </data>
+  <data name="Hwi_Visible" xml:space="preserve">
+    <value>Visible to Windows</value>
+  </data>
+  <data name="Hwi_Devices" xml:space="preserve">
+    <value>Devices</value>
+  </data>
+  <data name="Hwi_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Hwi_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Hwi_Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Hwi_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Hwi_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Hwi_Manufacturer" xml:space="preserve">
+    <value>Manufacturer</value>
+  </data>
+  <data name="Hwi_Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="Hwi_Revision" xml:space="preserve">
+    <value>Revision</value>
+  </data>
+  <data name="Hwi_SerialNumber" xml:space="preserve">
+    <value>Serial number</value>
+  </data>
+  <data name="Hwi_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Hwi_Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Hwi_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Hwi_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Hwi_Bus" xml:space="preserve">
+    <value>Bus</value>
+  </data>
+  <data name="Hwi_Interface" xml:space="preserve">
+    <value>Interface</value>
+  </data>
+  <data name="Hwi_Firmware" xml:space="preserve">
+    <value>Firmware</value>
+  </data>
+  <data name="Hwi_DriverDate" xml:space="preserve">
+    <value>Driver date</value>
+  </data>
+  <data name="Hwi_DriverProvider" xml:space="preserve">
+    <value>Driver provider</value>
+  </data>
+  <data name="Hwi_PciIds" xml:space="preserve">
+    <value>PCI IDs</value>
+  </data>
+  <data name="Hwi_PciSubsystem" xml:space="preserve">
+    <value>subsystem {0}</value>
+  </data>
+  <data name="Hwi_PciRevision" xml:space="preserve">
+    <value>rev. {0}</value>
+  </data>
+  <data name="Hwi_UsbId" xml:space="preserve">
+    <value>USB ID</value>
+  </data>
+  <data name="Hwi_Socket" xml:space="preserve">
+    <value>Socket</value>
+  </data>
+  <data name="Hwi_CoresThreads" xml:space="preserve">
+    <value>Cores / threads</value>
+  </data>
+  <data name="Hwi_BaseClock" xml:space="preserve">
+    <value>Base clock</value>
+  </data>
+  <data name="Hwi_Architecture" xml:space="preserve">
+    <value>Architecture</value>
+  </data>
+  <data name="Hwi_Signature" xml:space="preserve">
+    <value>Family / model / stepping</value>
+  </data>
+  <data name="Hwi_Virtualization" xml:space="preserve">
+    <value>Virtualization (firmware)</value>
+  </data>
+  <data name="Hwi_SectionCaches" xml:space="preserve">
+    <value>Caches</value>
+  </data>
+  <data name="Hwi_CacheL1Data" xml:space="preserve">
+    <value>L1 data</value>
+  </data>
+  <data name="Hwi_CacheL1Instruction" xml:space="preserve">
+    <value>L1 instruction</value>
+  </data>
+  <data name="Hwi_CacheL3Label" xml:space="preserve">
+    <value>L3 cache</value>
+  </data>
+  <data name="Hwi_CacheWays" xml:space="preserve">
+    <value>{0}-way</value>
+  </data>
+  <data name="Hwi_SectionInstructions" xml:space="preserve">
+    <value>Instruction sets</value>
+  </data>
+  <data name="Hwi_InstrBase" xml:space="preserve">
+    <value>Base</value>
+  </data>
+  <data name="Hwi_InstrVector" xml:space="preserve">
+    <value>Vector (SIMD)</value>
+  </data>
+  <data name="Hwi_InstrCrypto" xml:space="preserve">
+    <value>Cryptography and random numbers</value>
+  </data>
+  <data name="Hwi_InstrOther" xml:space="preserve">
+    <value>Bit manipulation</value>
+  </data>
+  <data name="Hwi_InstrVirtualization" xml:space="preserve">
+    <value>Virtualization</value>
+  </data>
+  <data name="Hwi_SectionBoard" xml:space="preserve">
+    <value>Motherboard</value>
+  </data>
+  <data name="Hwi_Chipset" xml:space="preserve">
+    <value>Chipset</value>
+  </data>
+  <data name="Hwi_SystemModel" xml:space="preserve">
+    <value>System model</value>
+  </data>
+  <data name="Hwi_SectionBios" xml:space="preserve">
+    <value>BIOS / UEFI</value>
+  </data>
+  <data name="Hwi_SmbiosVersion" xml:space="preserve">
+    <value>SMBIOS version</value>
+  </data>
+  <data name="Hwi_FirmwareMode" xml:space="preserve">
+    <value>Boot mode</value>
+  </data>
+  <data name="Hwi_FirmwareLegacy" xml:space="preserve">
+    <value>Legacy BIOS</value>
+  </data>
+  <data name="Hwi_SecureBootOn" xml:space="preserve">
+    <value>Secure Boot on</value>
+  </data>
+  <data name="Hwi_SecureBootOff" xml:space="preserve">
+    <value>Secure Boot off</value>
+  </data>
+  <data name="Hwi_SectionOverview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Hwi_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Hwi_Speed" xml:space="preserve">
+    <value>Speed</value>
+  </data>
+  <data name="Hwi_Modules" xml:space="preserve">
+    <value>Modules</value>
+  </data>
+  <data name="Hwi_Slots" xml:space="preserve">
+    <value>Slots</value>
+  </data>
+  <data name="Hwi_SlotsValue" xml:space="preserve">
+    <value>{0} of {1} in use</value>
+  </data>
+  <data name="Hwi_Channels" xml:space="preserve">
+    <value>Channels</value>
+  </data>
+  <data name="Hwi_ChannelSingle" xml:space="preserve">
+    <value>Single channel</value>
+  </data>
+  <data name="Hwi_ChannelDual" xml:space="preserve">
+    <value>Dual channel</value>
+  </data>
+  <data name="Hwi_ChannelCount" xml:space="preserve">
+    <value>{0} channels</value>
+  </data>
+  <data name="Hwi_MaxCapacity" xml:space="preserve">
+    <value>Board maximum capacity</value>
+  </data>
+  <data name="Hwi_ModuleTitle" xml:space="preserve">
+    <value>Module {0}</value>
+  </data>
+  <data name="Hwi_PartNumber" xml:space="preserve">
+    <value>Part number</value>
+  </data>
+  <data name="Hwi_Capacity" xml:space="preserve">
+    <value>Capacity</value>
+  </data>
+  <data name="Hwi_ConfiguredSpeed" xml:space="preserve">
+    <value>Configured speed</value>
+  </data>
+  <data name="Hwi_RatedSpeed" xml:space="preserve">
+    <value>Rated speed</value>
+  </data>
+  <data name="Hwi_Voltage" xml:space="preserve">
+    <value>Voltage</value>
+  </data>
+  <data name="Hwi_Ranks" xml:space="preserve">
+    <value>Ranks</value>
+  </data>
+  <data name="Hwi_DataWidth" xml:space="preserve">
+    <value>Data width</value>
+  </data>
+  <data name="Hwi_Slot" xml:space="preserve">
+    <value>Slot</value>
+  </data>
+  <data name="Hwi_Bank" xml:space="preserve">
+    <value>Bank</value>
+  </data>
+  <data name="Hwi_ChipVendor" xml:space="preserve">
+    <value>Chip vendor</value>
+  </data>
+  <data name="Hwi_BoardVendor" xml:space="preserve">
+    <value>Board partner</value>
+  </data>
+  <data name="Hwi_VideoMemory" xml:space="preserve">
+    <value>Video memory</value>
+  </data>
+  <data name="Hwi_VideoMode" xml:space="preserve">
+    <value>Video mode</value>
+  </data>
+  <data name="Hwi_PcieNow" xml:space="preserve">
+    <value>{0} (now {1})</value>
+  </data>
+  <data name="Hwi_OtherAdapters" xml:space="preserve">
+    <value>Other adapters</value>
+  </data>
+  <data name="Hwi_DiskCountOne" xml:space="preserve">
+    <value>1 drive · {0}</value>
+  </data>
+  <data name="Hwi_DiskCount" xml:space="preserve">
+    <value>{0} drives · {1}</value>
+  </data>
+  <data name="Hwi_MediaType" xml:space="preserve">
+    <value>Media type</value>
+  </data>
+  <data name="Hwi_HealthWindows" xml:space="preserve">
+    <value>Health (Windows)</value>
+  </data>
+  <data name="Hwi_SmartOk" xml:space="preserve">
+    <value>No critical warning</value>
+  </data>
+  <data name="Hwi_SmartAlert" xml:space="preserve">
+    <value>Controller alert</value>
+  </data>
+  <data name="Hwi_SmartPredicted" xml:space="preserve">
+    <value>Failure predicted</value>
+  </data>
+  <data name="Hwi_SmartNoPrediction" xml:space="preserve">
+    <value>No failure predicted</value>
+  </data>
+  <data name="Hwi_LifeUsed" xml:space="preserve">
+    <value>Life used</value>
+  </data>
+  <data name="Hwi_AvailableSpare" xml:space="preserve">
+    <value>Available spare</value>
+  </data>
+  <data name="Hwi_SpareValue" xml:space="preserve">
+    <value>{0}% (threshold {1}%)</value>
+  </data>
+  <data name="Hwi_PowerOnHours" xml:space="preserve">
+    <value>Power-on time</value>
+  </data>
+  <data name="Hwi_DataWritten" xml:space="preserve">
+    <value>Total written</value>
+  </data>
+  <data name="Hwi_DataRead" xml:space="preserve">
+    <value>Total read</value>
+  </data>
+  <data name="Hwi_PowerCycles" xml:space="preserve">
+    <value>Power cycles</value>
+  </data>
+  <data name="Hwi_UnsafeShutdowns" xml:space="preserve">
+    <value>Unsafe shutdowns</value>
+  </data>
+  <data name="Hwi_MediaErrors" xml:space="preserve">
+    <value>Media errors</value>
+  </data>
+  <data name="Hwi_CriticalWarning" xml:space="preserve">
+    <value>Critical warning</value>
+  </data>
+  <data name="Hwi_Rotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="Hwi_SectorSize" xml:space="preserve">
+    <value>Logical / physical sector</value>
+  </data>
+  <data name="Hwi_PartitionStyle" xml:space="preserve">
+    <value>Partition style</value>
+  </data>
+  <data name="Hwi_Volumes" xml:space="preserve">
+    <value>Volumes</value>
+  </data>
+  <data name="Hwi_SystemDisk" xml:space="preserve">
+    <value>Windows drive</value>
+  </data>
+  <data name="Hwi_AdapterCount" xml:space="preserve">
+    <value>{0} adapters</value>
+  </data>
+  <data name="Hwi_Connection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="Hwi_StateConnected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="Hwi_StateDisconnected" xml:space="preserve">
+    <value>Disconnected</value>
+  </data>
+  <data name="Hwi_Mac" xml:space="preserve">
+    <value>MAC address</value>
+  </data>
+  <data name="Hwi_Gateway" xml:space="preserve">
+    <value>Default gateway</value>
+  </data>
+  <data name="Hwi_DeviceCount" xml:space="preserve">
+    <value>{0} devices</value>
+  </data>
+  <data name="Hwi_Virtual" xml:space="preserve">
+    <value>Virtual</value>
+  </data>
+  <data name="Hwi_StatusOk" xml:space="preserve">
+    <value>Working</value>
+  </data>
+  <data name="Hwi_StatusProblem" xml:space="preserve">
+    <value>Problem ({0})</value>
+  </data>
+  <data name="Hwi_MonitorCountOne" xml:space="preserve">
+    <value>1 display</value>
+  </data>
+  <data name="Hwi_MonitorCount" xml:space="preserve">
+    <value>{0} displays</value>
+  </data>
+  <data name="Hwi_ProductCode" xml:space="preserve">
+    <value>Product code</value>
+  </data>
+  <data name="Hwi_ConnectionInternal" xml:space="preserve">
+    <value>Internal panel</value>
+  </data>
+  <data name="Hwi_NativeResolution" xml:space="preserve">
+    <value>Native resolution</value>
+  </data>
+  <data name="Hwi_CurrentMode" xml:space="preserve">
+    <value>Current mode</value>
+  </data>
+  <data name="Hwi_PrimaryValue" xml:space="preserve">
+    <value>{0} · primary</value>
+  </data>
+  <data name="Hwi_RefreshRange" xml:space="preserve">
+    <value>Refresh range</value>
+  </data>
+  <data name="Hwi_ScreenSize" xml:space="preserve">
+    <value>Screen size</value>
+  </data>
+  <data name="Hwi_ColorDepth" xml:space="preserve">
+    <value>Color depth</value>
+  </data>
+  <data name="Hwi_ColorDepthValue" xml:space="preserve">
+    <value>{0} bits per color</value>
+  </data>
+  <data name="Hwi_Manufactured" xml:space="preserve">
+    <value>Manufactured</value>
+  </data>
+  <data name="Hwi_ManufacturedValue" xml:space="preserve">
+    <value>week {0}, {1}</value>
+  </data>
+  <data name="Hwi_EdidVersion" xml:space="preserve">
+    <value>EDID version</value>
+  </data>
+  <data name="Hwi_Gamma" xml:space="preserve">
+    <value>Gamma</value>
+  </data>
+  <data name="Hwi_GraphicsAdapter" xml:space="preserve">
+    <value>Graphics card</value>
+  </data>
+  <data name="Hwi_Edition" xml:space="preserve">
+    <value>Edition</value>
+  </data>
+  <data name="Hwi_Build" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="Hwi_Kernel" xml:space="preserve">
+    <value>Kernel version</value>
+  </data>
+  <data name="Hwi_Installed" xml:space="preserve">
+    <value>Installed on</value>
+  </data>
+  <data name="Hwi_LastBoot" xml:space="preserve">
+    <value>Last boot</value>
+  </data>
+  <data name="Hwi_Uptime" xml:space="preserve">
+    <value>Uptime</value>
+  </data>
+  <data name="Hwi_UptimeValue" xml:space="preserve">
+    <value>{0} d {1} h {2} min</value>
   </data>
 </root>

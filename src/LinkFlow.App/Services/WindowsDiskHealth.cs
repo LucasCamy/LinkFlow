@@ -65,13 +65,45 @@ internal static class WindowsDiskHealth
 
     private static SmartReading? ReadSmart(Disk disk)
     {
-        // A consulta abre apenas os metadados do dispositivo, com acesso desejado zero.
-        using var drive = CreateFile($@"\\.\PhysicalDrive{disk.Number}", 0, ShareReadWrite, 0, OpenExisting, 0, 0);
-        if (drive.IsInvalid) return null;
-        return disk.Bus == NvmeBus ? ReadNvme(drive) : ReadFailurePrediction(drive);
+        var health = ReadHealth(disk.Number, disk.Bus);
+        if (health.Nvme is { } nvme) return Describe(nvme);
+        if (health.FailurePredicted is { } predicted)
+            return new(predicted ? Strings.Win_FalhaPrevista : Strings.Win_SemPrevisaoFalha, Strings.Win_PrevisaoReportadaPeloDispositivo);
+        return null;
     }
 
-    private static SmartReading? ReadNvme(SafeFileHandle drive)
+    private static SmartReading Describe(NvmeHealth log)
+    {
+        var details = new List<string>();
+        if (log.TemperatureC is { } celsius) details.Add($"{celsius} °C");
+        details.Add(string.Format(Strings.Win_VidaUtilEstimadaUsada, log.PercentUsed));
+        if (log.AvailableSpare <= 100) details.Add(string.Format(Strings.Win_ReservaDisponivel, log.AvailableSpare));
+        details.Add(string.Format(Strings.Win_Operacao2, log.PowerOnHours));
+        details.Add(string.Format(Strings.Win_ErrosMidia, log.MediaErrors));
+        if (log.CriticalWarning != 0)
+            details.Add(string.Join(", ", NvmeWarningLabels(log.CriticalWarning).Prepend(string.Format(Strings.Win_Aviso0x, log.CriticalWarning))));
+
+        return new(log.CriticalWarning == 0 ? Strings.Win_NVMeSemAvisoCritico : Strings.Win_NVMeAlertaControlador,
+            string.Join(" · ", details));
+    }
+
+    /// <summary>Avisos ligados no byte "Critical Warning" do NVMe, já traduzidos.</summary>
+    internal static IEnumerable<string> NvmeWarningLabels(byte warning) =>
+        NvmeWarnings.Where(flag => (warning & flag.Mask) != 0).Select(flag => flag.Label);
+
+    /// <summary>
+    /// Saúde do disco físico N sem administrador: a página de saúde do NVMe ou, nos demais, a previsão de falha do S.M.A.R.T.
+    /// O que o dispositivo não responder volta como null.
+    /// </summary>
+    internal static (NvmeHealth? Nvme, bool? FailurePredicted) ReadHealth(uint number, ushort? bus)
+    {
+        // A consulta abre apenas os metadados do dispositivo, com acesso desejado zero.
+        using var drive = CreateFile($@"\\.\PhysicalDrive{number}", 0, ShareReadWrite, 0, OpenExisting, 0, 0);
+        if (drive.IsInvalid) return default;
+        return bus == NvmeBus ? (ReadNvme(drive), null) : (null, ReadFailurePrediction(drive));
+    }
+
+    private static NvmeHealth? ReadNvme(SafeFileHandle drive)
     {
         var request = new byte[DescriptorSize + HealthLogSize];
         BinaryPrimitives.WriteUInt32LittleEndian(request, DeviceProtocolProperty);
@@ -95,34 +127,15 @@ internal static class WindowsDiskHealth
             BinaryPrimitives.ReadUInt32LittleEndian(protocol[4..]) != NvmeLogPage ||
             offset < ProtocolSize || offset > bytes - ProtocolOffset - HealthLogSize || length < HealthLogSize) return null;
 
-        var log = response.AsSpan(ProtocolOffset + (int)offset, HealthLogSize);
-        var details = new List<string>();
-        int kelvin = BinaryPrimitives.ReadUInt16LittleEndian(log[1..]);
-        if (kelvin is > 0 and < ushort.MaxValue) details.Add($"{kelvin - 273.15:0} °C");
-        details.Add(string.Format(Strings.Win_VidaUtilEstimadaUsada, log[5]));
-        if (log[3] <= 100) details.Add(string.Format(Strings.Win_ReservaDisponivel, log[3]));
-        details.Add(string.Format(Strings.Win_Operacao2, BinaryPrimitives.ReadUInt128LittleEndian(log[128..])));
-        details.Add(string.Format(Strings.Win_ErrosMidia, BinaryPrimitives.ReadUInt128LittleEndian(log[160..])));
-        byte warning = log[0];
-        if (warning != 0)
-        {
-            var warnings = NvmeWarnings.Where(flag => (warning & flag.Mask) != 0).Select(flag => flag.Label);
-            details.Add(string.Join(", ", warnings.Prepend(string.Format(Strings.Win_Aviso0x, warning))));
-        }
-
-        return new(warning == 0 ? Strings.Win_NVMeSemAvisoCritico : Strings.Win_NVMeAlertaControlador,
-            string.Join(" · ", details));
+        return HardwareSpecs.ParseNvmeHealth(response.AsSpan(ProtocolOffset + (int)offset, HealthLogSize));
     }
 
-    private static SmartReading? ReadFailurePrediction(SafeFileHandle drive)
+    private static bool? ReadFailurePrediction(SafeFileHandle drive)
     {
         var response = new byte[sizeof(uint) + 512];
         if (!DeviceIoControl(drive, StoragePredictFailure, null, 0, response, response.Length, out int bytes, 0) ||
             bytes < sizeof(uint)) return null;
-
-        bool predicted = BinaryPrimitives.ReadUInt32LittleEndian(response) != 0;
-        return new(predicted ? Strings.Win_FalhaPrevista : Strings.Win_SemPrevisaoFalha,
-            Strings.Win_PrevisaoReportadaPeloDispositivo);
+        return BinaryPrimitives.ReadUInt32LittleEndian(response) != 0;
     }
 
     [DllImport("kernel32.dll", EntryPoint = "CreateFileW", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]

@@ -137,7 +137,7 @@ public partial class MainViewModel
         return true;
     }
 
-    private static IReadOnlyList<DetailSeries> SeriesFor(string? kind) => kind switch
+    internal static IReadOnlyList<DetailSeries> SeriesFor(string? kind) => kind switch
     {
         "cpu" => new DetailSeries[]
         {

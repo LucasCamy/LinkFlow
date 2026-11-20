@@ -232,7 +232,7 @@
                     <views:LcdPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=3}"/>
                     <views:WidgetPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=4}"/>
                     <views:SettingsPage x:Name="AppSettingsPage" Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=5}"/>
-                    <views:HardwarePage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=6}"/>
+                    <views:HardwarePage x:Name="HardwareView" Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=6}"/>
                     <views:WindowsPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=7}"/>
                     <views:DriversPage Visibility="{Binding SelectedPage, Converter={StaticResource EqualsToVis}, ConverterParameter=8}"/>
                 </Grid>

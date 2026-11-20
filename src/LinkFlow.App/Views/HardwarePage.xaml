@@ -2,8 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:r="clr-namespace:LinkFlow.App.Resources"
-             xmlns:c="clr-namespace:LinkFlow.App.Controls">
+             xmlns:c="clr-namespace:LinkFlow.App.Controls"
+             xmlns:views="clr-namespace:LinkFlow.App.Views">
     <UserControl.Resources>
+        <!-- Aba Compatibilidade: o que o LinkFlow suporta -->
         <DataTemplate x:Key="PartGroupCard">
             <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12">
                 <StackPanel>
@@ -33,30 +35,92 @@
         <ItemsPanelTemplate x:Key="PartGroupsPanel">
             <c:AdaptiveUniformGrid MinItemWidth="300" MaxColumns="2" StackColumns="True"/>
         </ItemsPanelTemplate>
+
+        <!-- Aba Meu PC: um cartão por componente; clicar abre a ficha completa -->
+        <DataTemplate x:Key="ComponentCard">
+            <Button Style="{StaticResource CardButton}" Click="Card_Click" AutomationProperties.Name="{Binding OpenName}">
+                <StackPanel Margin="0,0,14,0">
+                    <DockPanel Margin="0,0,0,8">
+                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                            <TextBlock Text="{Binding Icon}" Style="{StaticResource SystemIcon}"
+                                       Foreground="{Binding Color, Converter={StaticResource HexToBrush}}"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}" Style="{StaticResource Label}"/>
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource SystemItemTitle}" TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
+                        </StackPanel>
+                    </DockPanel>
+                    <ItemsControl ItemsSource="{Binding Rows}" Focusable="False"
+                                  Visibility="{Binding Stacked, Converter={StaticResource BoolToVisInverse}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,7">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Label}" Foreground="{StaticResource TextMutedBrush}" FontSize="12.5"
+                                                   MaxWidth="170" TextTrimming="CharacterEllipsis" Margin="0,0,14,0" ToolTip="{Binding Label}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12.5" FontWeight="SemiBold" TextAlignment="Right"
+                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Value}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <!-- Um dispositivo por linha: nome e, embaixo, a especificação -->
+                    <ItemsControl ItemsSource="{Binding Rows}" Focusable="False"
+                                  Visibility="{Binding Stacked, Converter={StaticResource BoolToVis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,6">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Label}" FontSize="12.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Label}"/>
+                                        <TextBlock Text="{Binding Value}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,1,0,0"
+                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding Value}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding More}" Style="{StaticResource Caption}" Margin="0,6,0,0"
+                               Visibility="{Binding More, Converter={StaticResource NullToVis}}"/>
+                    <TextBlock Text="{Binding Note}" Style="{StaticResource SystemDetail}" Margin="0,4,0,0"
+                               Visibility="{Binding Note, Converter={StaticResource NullToVis}}"/>
+                </StackPanel>
+            </Button>
+        </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Margin="24,20,24,0" MaxWidth="1160">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <StackPanel Margin="0,0,0,18">
-            <TextBlock Text="{x:Static r:Strings.Nav_Hardware}" Style="{StaticResource SystemPageTitle}"/>
-            <TextBlock Text="{x:Static r:Strings.Hw_EspecificacoesDestePCCompatibilidade}" Style="{StaticResource SystemDetail}"/>
-        </StackPanel>
+    <Grid>
+        <Grid Margin="24,20,24,0" MaxWidth="1160">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,18">
+                <TextBlock Text="{x:Static r:Strings.Nav_Hardware}" Style="{StaticResource SystemPageTitle}"/>
+                <TextBlock Text="{x:Static r:Strings.Hw_EspecificacoesDestePCCompatibilidade}" Style="{StaticResource SystemDetail}"/>
+            </StackPanel>
 
-        <TabControl x:Name="HardwareTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
-            <TabItem Header="{x:Static r:Strings.Hw_MeuPC}" Style="{StaticResource SystemTab}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Border Style="{StaticResource SystemPanel}" Margin="0,0,8,14">
-                        <StackPanel>
+            <TabControl x:Name="HardwareTabs" Grid.Row="1" Style="{StaticResource SystemTabs}" SelectedIndex="0">
+                <TabItem Header="{x:Static r:Strings.Hw_MeuPC}" Style="{StaticResource SystemTab}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Style="{StaticResource SystemPanel}" Margin="0,0,8,14" Padding="18,14">
                             <DockPanel>
-                                <Button x:Name="ScanButton" DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}"
+                                <Button x:Name="ScanButton" DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}"
                                         Content="{x:Static r:Strings.Hw_DetectarHardware}" Click="Scan_Click" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                <TextBox x:Name="InventoryFilter" DockPanel.Dock="Right" Style="{StaticResource SystemSearch}" Width="260"
+                                         VerticalAlignment="Center" Visibility="Collapsed"
+                                         TextChanged="Filter_Changed" Tag="{x:Static r:Strings.Hw_FiltrarPecaOuEspecificacao}"
+                                         AutomationProperties.Name="{x:Static r:Strings.Hw_FiltrarPecas}"/>
                                 <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
                                     <TextBlock Text="&#xE7F8;" Style="{StaticResource SystemIcon}"/>
                                 </Border>
@@ -66,28 +130,30 @@
                                                Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
                                 </StackPanel>
                             </DockPanel>
-                            <Grid x:Name="InventoryFilterPanel" Margin="0,14,0,0" MaxWidth="480"
-                                  HorizontalAlignment="Left" Visibility="Collapsed">
-                                <TextBox x:Name="InventoryFilter" Style="{StaticResource SystemSearch}" Width="320"
-                                         TextChanged="Filter_Changed" Tag="{x:Static r:Strings.Hw_FiltrarPecaOuEspecificacao}"
-                                         AutomationProperties.Name="{x:Static r:Strings.Hw_FiltrarPecas}"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
+                        </Border>
 
-                    <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}">
-                        <ItemsControl x:Name="DetectedParts" ItemsPanel="{StaticResource PartGroupsPanel}"
+                        <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}">
+                            <ItemsControl x:Name="DetectedParts" ItemTemplate="{StaticResource ComponentCard}" Margin="0,0,-12,12" Focusable="False">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <c:AdaptiveUniformGrid MinItemWidth="290" MaxColumns="3" StackColumns="True" BalanceRows="False"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="{x:Static r:Strings.Hw_Compatibilidade}" Style="{StaticResource SystemTab}">
+                    <ScrollViewer Style="{StaticResource SystemScroll}">
+                        <ItemsControl x:Name="SupportedParts" ItemsPanel="{StaticResource PartGroupsPanel}"
                                       ItemTemplate="{StaticResource PartGroupCard}" Margin="0,0,-12,12"/>
                     </ScrollViewer>
-                </Grid>
-            </TabItem>
+                </TabItem>
+            </TabControl>
+        </Grid>
 
-            <TabItem Header="{x:Static r:Strings.Hw_Compatibilidade}" Style="{StaticResource SystemTab}">
-                <ScrollViewer Style="{StaticResource SystemScroll}">
-                    <ItemsControl x:Name="SupportedParts" ItemsPanel="{StaticResource PartGroupsPanel}"
-                                  ItemTemplate="{StaticResource PartGroupCard}" Margin="0,0,-12,12"/>
-                </ScrollViewer>
-            </TabItem>
-        </TabControl>
+        <!-- Ficha completa de um componente -->
+        <views:HardwareDetailPanel DataContext="{Binding HardwareDetail}" Visibility="{Binding Converter={StaticResource NullToVis}}"/>
     </Grid>
 </UserControl>
