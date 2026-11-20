@@ -152,6 +152,20 @@ public sealed class StringResourceTests
     private static HashSet<string> Placeholders(string text) => Placeholder.Matches(text).Select(m => m.Groups[1].Value).ToHashSet();
 
     [Fact]
+    public void Line_breaks_inside_texts_are_plain_newlines()
+    {
+        // Quebra de linha dentro do texto vai como &#xA;: uma quebra literal no arquivo (CRLF no Windows) chegaria ao
+        // texto como \r\n pelo ResourceManager (o overlay do RTSS, por exemplo, espera só \n). O XDocument normaliza
+        // as quebras ao ler, então a conferência é no texto bruto.
+        foreach (var file in new[] { "Strings.resx", "Strings.en.resx" })
+        {
+            string raw = File.ReadAllText(Path.Combine(AppSourceDir, "Resources", file));
+            var broken = Regex.Matches(raw, @"<data name=""([^""]+)""[^>]*>\s*<value>[^<]*\n[^<]*</value>").Select(m => m.Groups[1].Value);
+            Assert.Empty(broken);
+        }
+    }
+
+    [Fact]
     public void Keys_are_unique_ignoring_case()
     {
         // O gerador da classe Strings ignora maiúsculas: duas chaves iguais a menos disso somem uma delas
@@ -207,11 +221,11 @@ public sealed class XamlHardcodedTextTests
     /// <summary>Iguais em qualquer idioma: unidades e nomes de produto.</summary>
     private static readonly HashSet<string> Universal = ["RPM", "°C", "GB", "MB", "MHz", "GHz", "Mbps", "ms", "min", "LinkFlow", "iCUE LINK", "LCD", "RGB", "CPU", "GPU", "RAM"];
 
-    /// <summary>Telas que ainda não foram traduzidas (v3.0, fases 1 a 4).</summary>
-    private static readonly HashSet<string> NotYetTranslated =
-    [
-        "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml",
-    ];
+    /// <summary>
+    /// Telas ainda sem tradução. Todas foram traduzidas na v3.0; uma tela nova só entra aqui temporariamente,
+    /// enquanto os textos dela não vão para Strings.resx.
+    /// </summary>
+    private static readonly HashSet<string> NotYetTranslated = [];
 
     private static IEnumerable<string> XamlFiles(string root) =>
         Directory.EnumerateFiles(root, "*.xaml", SearchOption.AllDirectories)

@@ -1,5 +1,6 @@
 using System.Windows;
 using LinkFlow.App.Services;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -12,7 +13,7 @@ public partial class DriverInstallDialog : Window
         if (driver.LicenseTerms is not { } terms) return;
         LicensePanel.Visibility = Visibility.Visible;
         LicenseText.Text = terms;
-        ConfirmButton.Content = "Aceitar termos e instalar";
+        ConfirmButton.Content = Strings.Drv_AceitarTermosInstalar;
     }
 
     private void Confirm_Click(object sender, RoutedEventArgs e) => DialogResult = true;

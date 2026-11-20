@@ -4,13 +4,17 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using LinkFlow.Core;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
 internal enum DriverPublisher { Nvidia, Amd }
 
-internal sealed record ManufacturerDriverPackage(string Title, DriverPublisher Publisher, Uri? DownloadUrl,
-    string Action = "Baixar e instalar");
+internal sealed record ManufacturerDriverPackage(string Title, DriverPublisher Publisher, Uri? DownloadUrl, string? ActionLabel = null)
+{
+    /// <summary>Texto do botão (padrão: "Baixar e instalar", no idioma da interface).</summary>
+    public string Action => ActionLabel ?? Strings.Drv_BaixarInstalar;
+}
 
 internal sealed record ManufacturerDriverSource(string Device, string Details, Uri? SupportUrl, ManufacturerDriverPackage? Package = null)
 {
@@ -22,7 +26,7 @@ internal sealed record InstalledDriverEntry(string Name, string Category, string
 {
     public string? DateText => Date?.ToString("d");
 
-    public string Details => string.Join(" · ", new[] { Category, Version, Provider, InfName, DateText is { } date ? $"Pacote de {date}" : null }
+    public string Details => string.Join(" · ", new[] { Category, Version, Provider, InfName, DateText is { } date ? string.Format(Strings.Drv_Pacote, date) : null }
         .Where(value => !string.IsNullOrWhiteSpace(value)));
 
     public Uri? CatalogUrl => HardwareId == null ? null :
@@ -68,7 +72,7 @@ internal static class ManufacturerDrivers
                 incomplete = true;
                 Log.Warn($"Catálogo de drivers NVIDIA: {ex.Message}");
                 sources.AddRange(nvidia.Select(gpu => new ManufacturerDriverSource(gpu.Name,
-                    "A consulta à NVIDIA falhou. Abra o site oficial para conferir.", NvidiaSupport)));
+                    Strings.Drv_ConsultaNVIDIAFalhouAbra, NvidiaSupport)));
             }
         }
 
@@ -82,16 +86,16 @@ internal static class ManufacturerDrivers
         if (chipset != null) sources.Add(chipset);
 
         var amd = hardware.Graphics.Where(gpu => gpu.PciVendor == "1002").Select(gpu => gpu.Name).ToList();
-        if (hardware.RyzenProcessor != null && chipset == null) amd.Add("Chipset Ryzen");
+        if (hardware.RyzenProcessor != null && chipset == null) amd.Add(Strings.Drv_ChipsetRyzen);
         if (amd.Count > 0)
         {
-            var installer = IsWindowsX64 ? new ManufacturerDriverPackage("AMD Auto-Detect", DriverPublisher.Amd, null, "Baixar Auto-Detect") : null;
+            var installer = IsWindowsX64 ? new ManufacturerDriverPackage("AMD Auto-Detect", DriverPublisher.Amd, null, Strings.Drv_BaixarAutoDetect) : null;
             sources.Add(new ManufacturerDriverSource(string.Join(" · ", amd),
-                "AMD · O Auto-Detect identifica o hardware e mostra os drivers compatíveis no instalador.", AmdSupport, installer));
+                Strings.Drv_AMDAutoDetectIdentifica, AmdSupport, installer));
         }
 
         if (hardware.HasIntel)
-            sources.Add(new ManufacturerDriverSource("Dispositivos Intel", "Intel Driver & Support Assistant", IntelSupport));
+            sources.Add(new ManufacturerDriverSource(Strings.Drv_DispositivosIntel, "Intel Driver & Support Assistant", IntelSupport));
 
         var board = GetBoardSource(hardware.BoardManufacturer, hardware.BoardModel);
         if (board != null) sources.Add(board);
@@ -101,14 +105,14 @@ internal static class ManufacturerDrivers
     private static async Task<(IReadOnlyList<ManufacturerDriverSource> Sources, bool Incomplete)> ReadNvidiaAsync(IReadOnlyList<GraphicsAdapter> adapters)
     {
         if (!IsWindowsX64 || !adapters.Any(IsGeForce))
-            return (adapters.Select(gpu => NvidiaSite(gpu, "NVIDIA · Consulte o catálogo oficial para este modelo.")).ToArray(), false);
+            return (adapters.Select(gpu => NvidiaSite(gpu, Strings.Drv_NVIDIAConsulteCatalogoOficial)).ToArray(), false);
 
         string xml = await OfficialDriverInstaller.GetMetadataAsync(NvidiaProducts).ConfigureAwait(false);
         var products = XDocument.Parse(xml).Descendants("LookupValue")
             .Where(value => value.Element("Name") != null)
             .ToLookup(value => NvidiaModelName(value.Element("Name")!.Value), value => (string?)value.Element("Value"),
                 StringComparer.OrdinalIgnoreCase);
-        if (products.Count == 0) throw new InvalidOperationException("O catálogo de modelos da NVIDIA está vazio.");
+        if (products.Count == 0) throw new InvalidOperationException(Strings.Drv_CatalogoModelosNVIDIAEsta);
 
         var results = new List<ManufacturerDriverSource>(adapters.Count);
         bool incomplete = false;
@@ -117,7 +121,7 @@ internal static class ManufacturerDrivers
             var ids = products[NvidiaModelName(gpu.Name)].Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToArray();
             if (!IsGeForce(gpu) || ids.Length != 1 || !int.TryParse(ids[0], NumberStyles.None, CultureInfo.InvariantCulture, out int productId) || productId <= 0)
             {
-                results.Add(NvidiaSite(gpu, "NVIDIA · Consulte o catálogo oficial para este modelo."));
+                results.Add(NvidiaSite(gpu, Strings.Drv_NVIDIAConsulteCatalogoOficial));
                 continue;
             }
 
@@ -126,7 +130,7 @@ internal static class ManufacturerDrivers
             {
                 incomplete = true;
                 Log.Warn($"Driver de {gpu.Name}: {ex.Message}");
-                results.Add(NvidiaSite(gpu, "A consulta à NVIDIA falhou. Abra o site oficial para conferir."));
+                results.Add(NvidiaSite(gpu, Strings.Drv_ConsultaNVIDIAFalhouAbra));
             }
         }
         return (results, incomplete);
@@ -150,11 +154,11 @@ internal static class ManufacturerDrivers
                 !download.AbsolutePath.StartsWith($"/Windows/{version}/", StringComparison.OrdinalIgnoreCase)) continue;
 
             var current = NvidiaInstalledRelease(gpu.DriverVersion);
-            string currentText = current == null ? "versão instalada indisponível" : $"instalada {current.Major}.{current.Minor:D2}";
-            string name = Uri.UnescapeDataString(ReadJsonValue(item, "Name") ?? "Driver NVIDIA");
-            string details = $"{name} WHQL · {currentText} · disponível {version}";
-            if (current == release) details += " · versão atual";
-            if (current > release) details += " · a versão instalada é mais recente";
+            string currentText = current == null ? Strings.Drv_VersaoInstaladaIndisponivel : string.Format(Strings.Drv_Instalada, current.Major, current.Minor);
+            string name = Uri.UnescapeDataString(ReadJsonValue(item, "Name") ?? Strings.Drv_DriverNVIDIA);
+            string details = string.Format(Strings.Drv_WHQLDisponivel, name, currentText, version);
+            if (current == release) details += Strings.Drv_VersaoAtual;
+            if (current > release) details += Strings.Drv_VersaoInstaladaMaisRecente;
 
             var support = new Uri($"https://www.nvidia.com/en-us/drivers/details/{id}/");
             var package = current == null || current < release
@@ -163,7 +167,7 @@ internal static class ManufacturerDrivers
             return new ManufacturerDriverSource(gpu.Name, details, support, package);
         }
 
-        return NvidiaSite(gpu, "A NVIDIA não retornou um pacote WHQL para este modelo e versão do Windows.");
+        return NvidiaSite(gpu, Strings.Drv_NVIDIANaoRetornouPacote);
     }
 
     private static string? ReadJsonValue(JsonElement item, string name)
@@ -187,18 +191,18 @@ internal static class ManufacturerDrivers
     {
         string category = device.DeviceClass.ToUpperInvariant() switch
         {
-            "DISPLAY" => "Vídeo",
-            "MEDIA" => "Áudio",
+            "DISPLAY" => Strings.Drv_Video,
+            "MEDIA" => Strings.Hw_CatAudio,
             "BLUETOOTH" => "Bluetooth",
-            "SYSTEM" => "Sistema e chipset",
+            "SYSTEM" => Strings.Drv_SistemaChipset,
             "USB" => "USB",
-            "SCSIADAPTER" or "HDC" => "Armazenamento",
+            "SCSIADAPTER" or "HDC" => Strings.Dash_Storage,
             _ when device.Name.Contains("Wi-Fi", StringComparison.OrdinalIgnoreCase) ||
                    device.Name.Contains("Wireless", StringComparison.OrdinalIgnoreCase) ||
                    device.Name.Contains("WLAN", StringComparison.OrdinalIgnoreCase) => "Wi-Fi",
             _ when device.Name.Contains("Ethernet", StringComparison.OrdinalIgnoreCase) ||
                    device.Name.Contains("GbE", StringComparison.OrdinalIgnoreCase) => "Ethernet",
-            _ => "Rede"
+            _ => Strings.Dash_Network
         };
         string vendor = device.Provider.ToUpperInvariant();
         Uri? support = vendor switch
@@ -243,7 +247,7 @@ internal static class ManufacturerDrivers
                 string slug = Regex.Replace(model[..suffix].ToUpperInvariant(), "[^A-Z0-9-]+", "-").Trim('-');
                 if (slug.Length > 0) url = $"https://www.msi.com/Motherboard/{slug}/support#driver";
             }
-            return new ManufacturerDriverSource(model, "MSI · Drivers da placa-mãe", new Uri(url));
+            return new ManufacturerDriverSource(model, Strings.Drv_MSIDriversPlacaMae, new Uri(url));
         }
 
         var support = vendor switch
@@ -253,6 +257,6 @@ internal static class ManufacturerDrivers
             _ when vendor.Contains("ASROCK") => "https://www.asrock.com/support/index.asp?cat=Drivers",
             _ => null
         };
-        return support == null ? null : new ManufacturerDriverSource(model, $"{manufacturer} · Drivers da placa-mãe", new Uri(support));
+        return support == null ? null : new ManufacturerDriverSource(model, string.Format(Strings.Drv_DriversPlacaMae, manufacturer), new Uri(support));
     }
 }

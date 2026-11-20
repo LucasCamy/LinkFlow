@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using LinkFlow.Core;
 using Microsoft.CSharp.RuntimeBinder;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -54,8 +55,8 @@ internal static class WindowsDrivers
                 bool accepted = update.EulaAccepted;
                 string? terms = accepted ? null : (string?)update.EulaText;
                 string? issue = (bool)behavior.CanRequestUserInput
-                    ? "O instalador deste driver pode exigir interação no Windows Update."
-                    : !accepted && string.IsNullOrWhiteSpace(terms) ? "Os termos de licença estão indisponíveis." : null;
+                    ? Strings.Drv_InstaladorDesteDriverPode
+                    : !accepted && string.IsNullOrWhiteSpace(terms) ? Strings.Drv_TermosLicencaEstaoIndisponiveis : null;
                 string details = string.Join(" · ", new[] { driver.DriverProvider, driver.DriverModel, driver.DriverHardwareId }
                     .Where(value => !string.IsNullOrWhiteSpace(value)).Distinct(StringComparer.OrdinalIgnoreCase));
                 found.Add(new DriverUpdate(new DriverIdentity(Guid.Parse((string)identity.UpdateID), (int)identity.RevisionNumber),
@@ -153,7 +154,7 @@ internal static class WindowsDrivers
         searcher.CanAutomaticallyUpgradeService = false;
         dynamic result = com.Keep((object)searcher.Search(criteria));
         if ((int)result.ResultCode is not (Succeeded or SucceededWithErrors))
-            throw new InvalidOperationException("O Windows Update não concluiu a busca por drivers.");
+            throw new InvalidOperationException(Strings.Drv_WindowsUpdateNaoConcluiu2);
         return result;
     }
 

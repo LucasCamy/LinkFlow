@@ -9,7 +9,7 @@ namespace LinkFlow.App.Views;
 
 public partial class WindowsNetworkPage : UserControl
 {
-    private const string Measuring = "Em medição…";
+    private static string Measuring => Strings.Win_Measuring;
     private static readonly double[] GaugeScales = [100, 250, 500, 1_000, 2_500, 5_000, 10_000];
     private CancellationTokenSource? _activeTest;
     private double _gaugeScale;
