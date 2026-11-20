@@ -119,6 +119,20 @@ public sealed class SimulatedHub : IFanHub
         }
     }
 
+    /// <summary>
+    /// Teste: o PC suspendeu e voltou. Como no hub real, ele perde a energia e volta ao modo hardware, sem as
+    /// velocidades e a cor enviadas; o handle continua "aberto" do ponto de vista do engine.
+    /// </summary>
+    public void SimulateSuspend()
+    {
+        lock (_lock)
+        {
+            InSoftwareMode = false;
+            LastSpeeds = new Dictionary<int, byte>();
+            LastRgb = null;
+        }
+    }
+
     /// <summary>Teste: enquanto fechado, a leitura de RPM trava (simula um driver USB que não responde).</summary>
     public ManualResetEventSlim ReadGate { get; } = new(initialState: true);
 

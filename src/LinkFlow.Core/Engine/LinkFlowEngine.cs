@@ -8,6 +8,20 @@ public sealed class EngineOptions
     public TimeSpan TelemetryInterval { get; set; } = TimeSpan.FromSeconds(1);
     public TimeSpan SnapshotInterval { get; set; } = TimeSpan.FromMilliseconds(500);
     public TimeSpan ReconnectInterval { get; set; } = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// Depois de voltar da suspensão o USB do hub leva alguns segundos para reaparecer: nesse período o hub é
+    /// procurado a cada <see cref="ResumeReconnectInterval"/> (e não a cada <see cref="ReconnectInterval"/>), sem o
+    /// alerta de hub perdido.
+    /// </summary>
+    public TimeSpan ResumeGracePeriod { get; set; } = TimeSpan.FromSeconds(20);
+    public TimeSpan ResumeReconnectInterval { get; set; } = TimeSpan.FromSeconds(1);
+
+    /// <summary>
+    /// Avisos de retorno da suspensão dentro deste intervalo contam como um só. O Windows manda dois ao serviço
+    /// (ResumeAutomatic e ResumeSuspend) e a interface repassa o dela: eram três reconexões seguidas do hub.
+    /// </summary>
+    public TimeSpan ResumeCoalesceWindow { get; set; } = TimeSpan.FromSeconds(3);
     public TimeSpan SubDeviceCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
     public TimeSpan SpeedReassertInterval { get; set; } = TimeSpan.FromSeconds(30);
     public TimeSpan HubRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(60);
@@ -71,12 +85,14 @@ public sealed class EngineOptions
 }
 
 /// <summary>
-/// Núcleo do LinkFlow: dono exclusivo do hardware. Roda três filas de trabalho independentes,
+/// Núcleo do LinkFlow: dono exclusivo do hardware. Roda filas de trabalho independentes,
 /// cada uma em sua própria thread de fundo, para que nada bloqueie a interface:
 /// <list type="bullet">
 /// <item><b>Hub</b>: leitura de RPM/temperaturas do iCUE LINK, aplicação de velocidades e RGB do hub.</item>
 /// <item><b>Sensores</b>: LibreHardwareMonitor (CPU/GPU/RAM), curva automática, modo de segurança e fan da GPU.</item>
-/// <item><b>Periféricos</b>: RGB da GPU e da placa-mãe, quadros do LCD.</item>
+/// <item><b>Periféricos</b>: RGB da GPU, da placa-mãe e dos periféricos, quadros do LCD.</item>
+/// <item><b>Memórias</b>: RGB dos pentes de memória, na cadência do controlador sem atrasar os outros dispositivos.</item>
+/// <item><b>Snapshot</b>: publica o estado para as interfaces.</item>
 /// </list>
 /// A configuração é tratada como "último valor vence": arrastar um slider gera muitas atualizações,
 /// mas cada fila aplica apenas o estado mais recente quando acorda.
@@ -146,6 +162,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     private float? _curveInputTemp;
     private int _lcdRequested;
     private int _forceReconnectHub;
+    private int _resumeHub;
     private int _forceReconnectAux;
     private int _rescanRgb;
     private EngineText? _lcdStatus;
@@ -243,7 +260,8 @@ public sealed partial class LinkFlowEngine : IDisposable
         _lanes.Add(RunLane("memórias", () => RamLoopAsync(ct)));
         _lanes.Add(RunLane("snapshot", () => PublishLoopAsync(ct)));
         if (!IsSimulated) WatchUsb();
-        var period = Min(TimeSpan.FromSeconds(5), _opt.LaneStallTimeout / 4);
+        var period = WatchdogPeriod;
+        Interlocked.Exchange(ref _lastLaneCheck, Stopwatch.GetTimestamp()); // suspensão antes da primeira verificação
         _watchdog.Change(period, period);
         Log.Info($"Engine iniciado ({(IsSimulated ? "simulação" : "hardware real")}).");
     }
@@ -326,11 +344,25 @@ public sealed partial class LinkFlowEngine : IDisposable
         Signal(_ramSignal);
     }
 
-    /// <summary>Força reconexão de todos os dispositivos (ex.: ao voltar da suspensão).</summary>
+    private long _lastResume;
+
+    /// <summary>Força reconexão de todos os dispositivos (ex.: ao voltar da suspensão). Avisos repetidos contam uma vez.</summary>
     public void NotifyResume()
     {
+        long now = Stopwatch.GetTimestamp();
+        long last = Interlocked.Read(ref _lastResume);
+        if (last != 0 && Stopwatch.GetElapsedTime(last, now) < _opt.ResumeCoalesceWindow)
+        {
+            Log.Debug("Aviso repetido de retorno da suspensão ignorado.");
+            return;
+        }
+        if (Interlocked.CompareExchange(ref _lastResume, now, last) != last) return; // outro aviso simultâneo já tratou
+
         Log.Info("Retorno da suspensão: reconectando dispositivos.");
+        // O processo ficou parado durante a suspensão: a última batida das filas é de antes dela
+        ResetLaneBeats(now);
         lock (_stateLock) _failSafeRecoveryStarted = null;
+        Interlocked.Exchange(ref _resumeHub, 1);
         Interlocked.Exchange(ref _forceReconnectHub, 1);
         Interlocked.Exchange(ref _forceReconnectAux, 1);
         Interlocked.Increment(ref _rgbVersion);
@@ -351,10 +383,6 @@ public sealed partial class LinkFlowEngine : IDisposable
         Signal(_ramSignal);
     }
 
-    /// <summary>
-    /// Procura de novo todos os dispositivos: reabre o hub (relê a lista de ventoinhas/bomba),
-    /// reconecta o LCD e tenta detectar o RGB da GPU/placa-mãe que não foi encontrado.
-    /// </summary>
     /// <summary>
     /// "Testar curva": as curvas passam a usar <paramref name="temperature"/> no lugar da leitura real, sem histerese
     /// nem suavização, para ouvir o ruído de cada ponto. Vale por <see cref="EngineOptions.CurveTestTimeout"/>;
@@ -394,6 +422,10 @@ public sealed partial class LinkFlowEngine : IDisposable
         }
     }
 
+    /// <summary>
+    /// Procura de novo todos os dispositivos: reabre o hub (relê a lista de ventoinhas/bomba),
+    /// reconecta o LCD e tenta detectar o RGB da GPU/placa-mãe que não foi encontrado.
+    /// </summary>
     public void RescanDevices()
     {
         Log.Info("Reatualizando dispositivos a pedido do usuário.");

@@ -50,15 +50,19 @@ public static class PipeProtocol
         return node.ToJsonString(Json.Compact);
     }
 
+    /// <summary>
+    /// Separa tipo e conteúdo de uma linha. Linha que não é um objeto JSON com "t" de texto retorna false: antes
+    /// <c>{"t":5}</c> ou <c>[1]</c> lançavam InvalidOperationException e derrubavam a conexão inteira.
+    /// </summary>
     public static bool TryDecode(string line, out string type, out JsonNode? payload)
     {
         type = string.Empty;
         payload = null;
         try
         {
-            var node = JsonNode.Parse(line);
-            if (node?["t"]?.GetValue<string>() is not { } t) return false;
-            type = t;
+            if (JsonNode.Parse(line) is not JsonObject node) return false;
+            if (node["t"] is not JsonValue t || !t.TryGetValue<string>(out var name) || name.Length == 0) return false;
+            type = name;
             payload = node["d"];
             return true;
         }
@@ -69,6 +73,21 @@ public static class PipeProtocol
     }
 
     public static T? Read<T>(JsonNode? payload) => payload == null ? default : payload.Deserialize<T>(Json.Compact);
+
+    /// <summary>Como <see cref="Read{T}"/>, mas conteúdo do tipo errado (ex.: texto onde se espera um número) retorna false.</summary>
+    public static bool TryRead<T>(JsonNode? payload, out T? value)
+    {
+        try
+        {
+            value = Read<T>(payload);
+            return true;
+        }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or NotSupportedException or FormatException)
+        {
+            value = default;
+            return false;
+        }
+    }
 
     /// <summary>Lê uma linha limitada a <see cref="MaxMessageBytes"/> (proteção contra mensagens gigantes).</summary>
     public static async Task<string?> ReadLineAsync(Stream stream, byte[] buffer, MemoryStream pending, CancellationToken ct)
