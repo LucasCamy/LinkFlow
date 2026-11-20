@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Views;
 
@@ -45,6 +46,6 @@ public partial class WidgetPage : UserControl
     {
         const string url = "https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/";
         try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })?.Dispose(); }
-        catch (Win32Exception) { Main?.ViewModel.ShowToast("Não foi possível abrir a página do RTSS.", canUndo: false); }
+        catch (Win32Exception) { Main?.ViewModel.ShowToast(Strings.Wid_NaoFoiPossivelAbrir, canUndo: false); }
     }
 }

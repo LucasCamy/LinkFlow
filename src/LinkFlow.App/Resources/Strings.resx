@@ -2042,4 +2042,217 @@ Os alertas continuam aparecendo, e a alteração fica registrada no log.</value>
   <data name="Lcd_CouldNotOpenMany" xml:space="preserve">
     <value>Não foi possível abrir: {0}</value>
   </data>
+  <data name="Wid_AlternarWidgetFlutuanteCtrl" xml:space="preserve">
+    <value>Alternar o widget flutuante (Ctrl+Alt+M)</value>
+  </data>
+  <data name="Wid_PersonalizeMonitorFlutuanteArea" xml:space="preserve">
+    <value>Personalize o monitor flutuante da área de trabalho.</value>
+  </data>
+  <data name="Wid_PreviaVivo" xml:space="preserve">
+    <value>Prévia ao vivo</value>
+  </data>
+  <data name="Wid_PreviaAjustaEspacoUse" xml:space="preserve">
+    <value>A prévia se ajusta ao espaço. Use Mostrar widget para conferir no tamanho escolhido.</value>
+  </data>
+  <data name="Wid_Widget" xml:space="preserve">
+    <value>No widget</value>
+  </data>
+  <data name="Wid_UseSetasMudarOrdem" xml:space="preserve">
+    <value>Use as setas para mudar a ordem.</value>
+  </data>
+  <data name="Wid_EscolhaAbaixoInformacoesDeseja" xml:space="preserve">
+    <value>Escolha abaixo as informações que deseja acompanhar.</value>
+  </data>
+  <data name="Wid_AlternarEntrePorcentagemValor" xml:space="preserve">
+    <value>Alternar entre porcentagem e valor real</value>
+  </data>
+  <data name="Wid_AdicionarInformacoes" xml:space="preserve">
+    <value>Adicionar informações</value>
+  </data>
+  <data name="Wid_MarqueDesejaAcompanharDiscos" xml:space="preserve">
+    <value>Marque o que deseja acompanhar. Discos físicos podem levar alguns segundos para aparecer.</value>
+  </data>
+  <data name="Wid_Aparencia" xml:space="preserve">
+    <value>Aparência</value>
+  </data>
+  <data name="Wid_RedefineInformacoesAparenciaWidget" xml:space="preserve">
+    <value>Redefine as informações e a aparência do widget</value>
+  </data>
+  <data name="Wid_FormatoTamanho" xml:space="preserve">
+    <value>Formato e tamanho</value>
+  </data>
+  <data name="Wid_Linha" xml:space="preserve">
+    <value>Em linha</value>
+  </data>
+  <data name="Wid_Coluna" xml:space="preserve">
+    <value>Em coluna</value>
+  </data>
+  <data name="Wid_Grade" xml:space="preserve">
+    <value>Grade</value>
+  </data>
+  <data name="Wid_Tamanho" xml:space="preserve">
+    <value>Tamanho</value>
+  </data>
+  <data name="Wid_TamanhoWidget" xml:space="preserve">
+    <value>Tamanho do widget</value>
+  </data>
+  <data name="Wid_Colunas" xml:space="preserve">
+    <value>Colunas</value>
+  </data>
+  <data name="Wid_ColunasGrade" xml:space="preserve">
+    <value>Colunas da grade</value>
+  </data>
+  <data name="Wid_CoresTransparencia" xml:space="preserve">
+    <value>Cores e transparência</value>
+  </data>
+  <data name="Wid_Opacidade" xml:space="preserve">
+    <value>Opacidade</value>
+  </data>
+  <data name="Wid_OpacidadeWidget" xml:space="preserve">
+    <value>Opacidade do widget</value>
+  </data>
+  <data name="Wid_Fundo" xml:space="preserve">
+    <value>Fundo</value>
+  </data>
+  <data name="Wid_TransparenciaSomenteFundo" xml:space="preserve">
+    <value>Transparência somente do fundo</value>
+  </data>
+  <data name="Wid_OpacidadeFundo" xml:space="preserve">
+    <value>Opacidade do fundo</value>
+  </data>
+  <data name="Wid_CorFundo" xml:space="preserve">
+    <value>Cor do fundo</value>
+  </data>
+  <data name="Wid_CorValores" xml:space="preserve">
+    <value>Cor dos valores</value>
+  </data>
+  <data name="Wid_CadaInformacaoSuaCor" xml:space="preserve">
+    <value>Cada informação com sua cor</value>
+  </data>
+  <data name="Wid_FonteDetalhes" xml:space="preserve">
+    <value>Fonte e detalhes</value>
+  </data>
+  <data name="Wid_Cantos" xml:space="preserve">
+    <value>Cantos</value>
+  </data>
+  <data name="Wid_ArredondamentoCantos" xml:space="preserve">
+    <value>Arredondamento dos cantos</value>
+  </data>
+  <data name="Wid_Nomes" xml:space="preserve">
+    <value>Nomes</value>
+  </data>
+  <data name="Wid_Barras" xml:space="preserve">
+    <value>Barras</value>
+  </data>
+  <data name="Wid_Borda" xml:space="preserve">
+    <value>Borda</value>
+  </data>
+  <data name="Wid_Comportamento" xml:space="preserve">
+    <value>Comportamento</value>
+  </data>
+  <data name="Wid_JanelaFlutuante" xml:space="preserve">
+    <value>Janela flutuante</value>
+  </data>
+  <data name="Wid_MantemWidgetAcimaJanelas" xml:space="preserve">
+    <value>Mantém o widget acima das janelas, inclusive ao usar outro monitor.</value>
+  </data>
+  <data name="Wid_OcultarTelaCheia" xml:space="preserve">
+    <value>Ocultar em tela cheia</value>
+  </data>
+  <data name="Wid_OcultaSoQuandoTela" xml:space="preserve">
+    <value>Oculta só quando a tela cheia está no monitor do widget. Desative para manter sobre janelas sem bordas.</value>
+  </data>
+  <data name="Wid_DeixarCliquesPassarem" xml:space="preserve">
+    <value>Deixar cliques passarem</value>
+  </data>
+  <data name="Wid_MouseInterageJanelaAtras" xml:space="preserve">
+    <value>O mouse interage com a janela atrás do widget. Desative aqui para voltar a mover a janela.</value>
+  </data>
+  <data name="Wid_OverlayJogosRTSS" xml:space="preserve">
+    <value>Overlay em jogos (RTSS)</value>
+  </data>
+  <data name="Wid_MostraLeiturasWidgetJogos" xml:space="preserve">
+    <value>Mostra as leituras do widget em jogos compatíveis, inclusive em tela cheia exclusiva. A posição é ajustada no RTSS.</value>
+  </data>
+  <data name="Wid_BaixarRTSS" xml:space="preserve">
+    <value>Baixar RTSS</value>
+  </data>
+  <data name="Wid_Posicao" xml:space="preserve">
+    <value>Posição</value>
+  </data>
+  <data name="Wid_UseAtalhosAbaixoOu" xml:space="preserve">
+    <value>Use os atalhos abaixo ou arraste a janela flutuante.</value>
+  </data>
+  <data name="Wid_SuperiorEsquerdo" xml:space="preserve">
+    <value>↖ Superior esquerdo</value>
+  </data>
+  <data name="Wid_TopoCentral" xml:space="preserve">
+    <value>↑ Topo central</value>
+  </data>
+  <data name="Wid_SuperiorDireito" xml:space="preserve">
+    <value>↗ Superior direito</value>
+  </data>
+  <data name="Wid_InferiorEsquerdo" xml:space="preserve">
+    <value>↙ Inferior esquerdo</value>
+  </data>
+  <data name="Wid_InferiorDireito" xml:space="preserve">
+    <value>↘ Inferior direito</value>
+  </data>
+  <data name="Wid_EncaixarBordas" xml:space="preserve">
+    <value>Encaixar nas bordas</value>
+  </data>
+  <data name="Wid_MostrarWidget" xml:space="preserve">
+    <value>Mostrar widget</value>
+  </data>
+  <data name="Wid_MoverCima" xml:space="preserve">
+    <value>Mover {0} para cima</value>
+  </data>
+  <data name="Wid_MoverBaixo" xml:space="preserve">
+    <value>Mover {0} para baixo</value>
+  </data>
+  <data name="Wid_Remover" xml:space="preserve">
+    <value>Remover {0}</value>
+  </data>
+  <data name="Wid_CorFundo2" xml:space="preserve">
+    <value>Cor de fundo {0}</value>
+  </data>
+  <data name="Wid_CorUnica" xml:space="preserve">
+    <value>Cor única {0}</value>
+  </data>
+  <data name="Wid_EscolhaInformacoesAbaWidget" xml:space="preserve">
+    <value>Escolha informações na aba Widget</value>
+  </data>
+  <data name="Wid_NaoEncontrado" xml:space="preserve">
+    <value>{0} (não encontrado)</value>
+  </data>
+  <data name="Wid_Valor" xml:space="preserve">
+    <value>Valor</value>
+  </data>
+  <data name="Wid_MostreWidgetEnviarLeituras" xml:space="preserve">
+    <value>Mostre o widget para enviar as leituras ao RTSS.</value>
+  </data>
+  <data name="Wid_AdicioneLeituraWidgetExibir" xml:space="preserve">
+    <value>Adicione uma leitura ao widget para exibir no jogo.</value>
+  </data>
+  <data name="Wid_LeiturasEnviadasRTSS" xml:space="preserve">
+    <value>Leituras enviadas ao RTSS.</value>
+  </data>
+  <data name="Wid_AbraRivaTunerStatisticsServer" xml:space="preserve">
+    <value>Abra o RivaTuner Statistics Server para receber as leituras.</value>
+  </data>
+  <data name="Wid_SemAcessoOSDConfira" xml:space="preserve">
+    <value>Sem acesso ao OSD. Confira se o RTSS está atualizado e acessível nesta sessão.</value>
+  </data>
+  <data name="Wid_RTSSEstaSemEspaco" xml:space="preserve">
+    <value>O RTSS está sem espaço para mais informações no OSD.</value>
+  </data>
+  <data name="Wid_AguardandoRTSSLiberarAtualizacao" xml:space="preserve">
+    <value>Aguardando o RTSS liberar a atualização.</value>
+  </data>
+  <data name="Wid_AguardandoEnvioLeiturasRTSS" xml:space="preserve">
+    <value>Aguardando o envio das leituras ao RTSS.</value>
+  </data>
+  <data name="Wid_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Não foi possível abrir a página do RTSS.</value>
+  </data>
 </root>

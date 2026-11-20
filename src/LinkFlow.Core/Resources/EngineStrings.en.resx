@@ -418,4 +418,127 @@
   <data name="PresetAutoDesc" xml:space="preserve">
     <value>Follows the temperature</value>
   </data>
+  <data name="SensorGroupCpu" xml:space="preserve">
+    <value>Processor</value>
+  </data>
+  <data name="SensorGroupGpu" xml:space="preserve">
+    <value>Graphics card</value>
+  </data>
+  <data name="SensorGroupCooling" xml:space="preserve">
+    <value>Cooling</value>
+  </data>
+  <data name="SensorGroupMemory" xml:space="preserve">
+    <value>Memory</value>
+  </data>
+  <data name="SensorGroupNetwork" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="SensorGroupStorage" xml:space="preserve">
+    <value>Disks</value>
+  </data>
+  <data name="SensorGroupSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="SensorCpuTemp" xml:space="preserve">
+    <value>CPU temperature</value>
+  </data>
+  <data name="SensorCpuLoad" xml:space="preserve">
+    <value>CPU usage</value>
+  </data>
+  <data name="SensorCpuCoreMax" xml:space="preserve">
+    <value>Busiest core</value>
+  </data>
+  <data name="SensorShortCore" xml:space="preserve">
+    <value>Core</value>
+  </data>
+  <data name="SensorCpuClock" xml:space="preserve">
+    <value>CPU clock</value>
+  </data>
+  <data name="SensorCpuPower" xml:space="preserve">
+    <value>CPU power</value>
+  </data>
+  <data name="SensorGpuTemp" xml:space="preserve">
+    <value>GPU temperature</value>
+  </data>
+  <data name="SensorGpuHotspot" xml:space="preserve">
+    <value>GPU hotspot</value>
+  </data>
+  <data name="SensorGpuLoad" xml:space="preserve">
+    <value>GPU usage</value>
+  </data>
+  <data name="SensorGpuVram" xml:space="preserve">
+    <value>Video memory</value>
+  </data>
+  <data name="SensorGpuClock" xml:space="preserve">
+    <value>GPU clock</value>
+  </data>
+  <data name="SensorGpuPower" xml:space="preserve">
+    <value>GPU power</value>
+  </data>
+  <data name="SensorGpuFan" xml:space="preserve">
+    <value>GPU fans</value>
+  </data>
+  <data name="SensorShortGpuFan" xml:space="preserve">
+    <value>GPU fan</value>
+  </data>
+  <data name="SensorCoolantTemp" xml:space="preserve">
+    <value>Coolant temperature</value>
+  </data>
+  <data name="SensorShortCoolant" xml:space="preserve">
+    <value>Coolant</value>
+  </data>
+  <data name="SensorPump" xml:space="preserve">
+    <value>Pump</value>
+  </data>
+  <data name="SensorFansAvg" xml:space="preserve">
+    <value>Fans (average)</value>
+  </data>
+  <data name="SensorRam" xml:space="preserve">
+    <value>RAM</value>
+  </data>
+  <data name="SensorShortNetDown" xml:space="preserve">
+    <value>↓ Network</value>
+  </data>
+  <data name="SensorShortNetUp" xml:space="preserve">
+    <value>↑ Network</value>
+  </data>
+  <data name="SensorNetSession" xml:space="preserve">
+    <value>Traffic since startup</value>
+  </data>
+  <data name="SensorShortTraffic" xml:space="preserve">
+    <value>Traffic</value>
+  </data>
+  <data name="SensorTime" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="SensorUptime" xml:space="preserve">
+    <value>Uptime</value>
+  </data>
+  <data name="SensorShortUptime" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="SensorVolume" xml:space="preserve">
+    <value>Space on {0}</value>
+  </data>
+  <data name="SensorVolumeUsed" xml:space="preserve">
+    <value>{0}% used</value>
+  </data>
+  <data name="SensorVolumeFree" xml:space="preserve">
+    <value>{0} GB free</value>
+  </data>
+  <data name="SensorDiskActivity" xml:space="preserve">
+    <value>Activity • {0}</value>
+  </data>
+  <data name="SensorDiskShort" xml:space="preserve">
+    <value>Disk {0}</value>
+  </data>
+  <data name="SensorDiskRw" xml:space="preserve">
+    <value>Read/write • {0}</value>
+  </data>
+  <data name="SensorDiskRwValue" xml:space="preserve">
+    <value>R {0} • W {1}</value>
+  </data>
+  <data name="SensorDiskTemp" xml:space="preserve">
+    <value>Temperature • {0}</value>
+  </data>
 </root>
