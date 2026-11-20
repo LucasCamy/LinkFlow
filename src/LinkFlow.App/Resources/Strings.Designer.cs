@@ -8096,5 +8096,2403 @@ namespace LinkFlow.App.Resources {
                 return ResourceManager.GetString("Wid_Widget", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 evento nos últimos {0} dias..
+        /// </summary>
+        public static string Win_1EventoUltimosDias {
+            get {
+                return ResourceManager.GetString("Win_1EventoUltimosDias", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 registro recente do histórico local..
+        /// </summary>
+        public static string Win_1RegistroRecenteHistorico {
+            get {
+                return ResourceManager.GetString("Win_1RegistroRecenteHistorico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir aplicativos instalados ↗.
+        /// </summary>
+        public static string Win_AbrirAplicativosInstalados {
+            get {
+                return ResourceManager.GetString("Win_AbrirAplicativosInstalados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir automação.
+        /// </summary>
+        public static string Win_AbrirAutomacao {
+            get {
+                return ResourceManager.GetString("Win_AbrirAutomacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir Limpeza de Disco.
+        /// </summary>
+        public static string Win_AbrirLimpezaDisco {
+            get {
+                return ResourceManager.GetString("Win_AbrirLimpezaDisco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir verificação.
+        /// </summary>
+        public static string Win_AbrirVerificacao {
+            get {
+                return ResourceManager.GetString("Win_AbrirVerificacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acompanhe a Limpeza de Disco na janela do Windows..
+        /// </summary>
+        public static string Win_AcompanheLimpezaDiscoJanela {
+            get {
+                return ResourceManager.GetString("Win_AcompanheLimpezaDiscoJanela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adaptador em uso.
+        /// </summary>
+        public static string Win_AdaptadorUso {
+            get {
+                return ResourceManager.GetString("Win_AdaptadorUso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aguardando abertura da ferramenta pelo Windows….
+        /// </summary>
+        public static string Win_AguardandoAberturaFerramentaPelo {
+            get {
+                return ResourceManager.GetString("Win_AguardandoAberturaFerramentaPelo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajuste o comportamento do Windows durante jogos..
+        /// </summary>
+        public static string Win_AjusteComportamentoWindowsDurante {
+            get {
+                return ResourceManager.GetString("Win_AjusteComportamentoWindowsDurante", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajustes carregados..
+        /// </summary>
+        public static string Win_AjustesCarregados {
+            get {
+                return ResourceManager.GetString("Win_AjustesCarregados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Os ajustes de energia e tela estão disponíveis no modo real..
+        /// </summary>
+        public static string Win_AjustesEnergiaTelaEstao {
+            get {
+                return ResourceManager.GetString("Win_AjustesEnergiaTelaEstao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajustes do PC.
+        /// </summary>
+        public static string Win_AjustesPC {
+            get {
+                return ResourceManager.GetString("Win_AjustesPC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ajustes do Windows para jogos.
+        /// </summary>
+        public static string Win_AjustesWindowsJogos {
+            get {
+                return ResourceManager.GetString("Win_AjustesWindowsJogos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alertas, temperatura e desgaste que os discos reportam..
+        /// </summary>
+        public static string Win_AlertasTemperaturaDesgasteDiscos {
+            get {
+                return ResourceManager.GetString("Win_AlertasTemperaturaDesgasteDiscos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alguns registros do Windows Update ficaram indisponíveis..
+        /// </summary>
+        public static string Win_AlgunsRegistrosWindowsUpdate {
+            get {
+                return ResourceManager.GetString("Win_AlgunsRegistrosWindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em andamento.
+        /// </summary>
+        public static string Win_Andamento {
+            get {
+                return ResourceManager.GetString("Win_Andamento", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Em andamento. Acompanhe o progresso e responda às perguntas no console da ferramenta..
+        /// </summary>
+        public static string Win_AndamentoAcompanheProgressoResponda {
+            get {
+                return ResourceManager.GetString("Win_AndamentoAcompanheProgressoResponda", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animações ativadas..
+        /// </summary>
+        public static string Win_AnimacoesAtivadas {
+            get {
+                return ResourceManager.GetString("Win_AnimacoesAtivadas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animações desativadas..
+        /// </summary>
+        public static string Win_AnimacoesDesativadas {
+            get {
+                return ResourceManager.GetString("Win_AnimacoesDesativadas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to As animações foram alteradas no Windows. Leia os ajustes novamente..
+        /// </summary>
+        public static string Win_AnimacoesForamAlteradasWindows {
+            get {
+                return ResourceManager.GetString("Win_AnimacoesForamAlteradasWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Animações da interface.
+        /// </summary>
+        public static string Win_AnimacoesInterface {
+            get {
+                return ResourceManager.GetString("Win_AnimacoesInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplicando o ajuste….
+        /// </summary>
+        public static string Win_AplicandoAjuste {
+            get {
+                return ResourceManager.GetString("Win_AplicandoAjuste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplicativos.
+        /// </summary>
+        public static string Win_Aplicativos {
+            get {
+                return ResourceManager.GetString("Win_Aplicativos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aplicativos opcionais.
+        /// </summary>
+        public static string Win_AplicativosOpcionais {
+            get {
+                return ResourceManager.GetString("Win_AplicativosOpcionais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} apps disponíveis para revisão..
+        /// </summary>
+        public static string Win_AppsDisponiveisRevisao {
+            get {
+                return ResourceManager.GetString("Win_AppsDisponiveisRevisao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apps de inicialização.
+        /// </summary>
+        public static string Win_AppsInicializacao {
+            get {
+                return ResourceManager.GetString("Win_AppsInicializacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A área de transferência está indisponível. Tente novamente..
+        /// </summary>
+        public static string Win_AreaTransferenciaEstaIndisponivel {
+            get {
+                return ResourceManager.GetString("Win_AreaTransferenciaEstaIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arquivos do Windows (SFC).
+        /// </summary>
+        public static string Win_ArquivosWindowsSFC {
+            get {
+                return ResourceManager.GetString("Win_ArquivosWindowsSFC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Associe um perfil de ventoinhas ao processo do jogo..
+        /// </summary>
+        public static string Win_AssociePerfilVentoinhasProcesso {
+            get {
+                return ResourceManager.GetString("Win_AssociePerfilVentoinhasProcesso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atalhos do Windows.
+        /// </summary>
+        public static string Win_AtalhosWindows {
+            get {
+                return ResourceManager.GetString("Win_AtalhosWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atenção.
+        /// </summary>
+        public static string Win_Atencao {
+            get {
+                return ResourceManager.GetString("Win_Atencao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Até {0} s ou {1} MiB por direção..
+        /// </summary>
+        public static string Win_AteOuMiBDirecao {
+            get {
+                return ResourceManager.GetString("Win_AteOuMiBDirecao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativar.
+        /// </summary>
+        public static string Win_Ativar {
+            get {
+                return ResourceManager.GetString("Win_Ativar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativar plano de energia para jogos.
+        /// </summary>
+        public static string Win_AtivarPlanoEnergiaJogos {
+            get {
+                return ResourceManager.GetString("Win_AtivarPlanoEnergiaJogos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualização sem título.
+        /// </summary>
+        public static string Win_AtualizacaoSemTitulo {
+            get {
+                return ResourceManager.GetString("Win_AtualizacaoSemTitulo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizar ajustes.
+        /// </summary>
+        public static string Win_AtualizarAjustes {
+            get {
+                return ResourceManager.GetString("Win_AtualizarAjustes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizar lista.
+        /// </summary>
+        public static string Win_AtualizarLista {
+            get {
+                return ResourceManager.GetString("Win_AtualizarLista", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Atualizar planos.
+        /// </summary>
+        public static string Win_AtualizarPlanos {
+            get {
+                return ResourceManager.GetString("Win_AtualizarPlanos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aviso.
+        /// </summary>
+        public static string Win_Aviso {
+            get {
+                return ResourceManager.GetString("Win_Aviso", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aviso 0x{0:X2}.
+        /// </summary>
+        public static string Win_Aviso0x {
+            get {
+                return ResourceManager.GetString("Win_Aviso0x", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Barramento indisponível.
+        /// </summary>
+        public static string Win_BarramentoIndisponivel {
+            get {
+                return ResourceManager.GetString("Win_BarramentoIndisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelada.
+        /// </summary>
+        public static string Win_Cancelada {
+            get {
+                return ResourceManager.GetString("Win_Cancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancelando o teste….
+        /// </summary>
+        public static string Win_CancelandoTeste {
+            get {
+                return ResourceManager.GetString("Win_CancelandoTeste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Capturas.
+        /// </summary>
+        public static string Win_Capturas {
+            get {
+                return ResourceManager.GetString("Win_Capturas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clima.
+        /// </summary>
+        public static string Win_Clima {
+            get {
+                return ResourceManager.GetString("Win_Clima", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comando.
+        /// </summary>
+        public static string Win_Comando {
+            get {
+                return ResourceManager.GetString("Win_Comando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A comunicação com o servidor falhou..
+        /// </summary>
+        public static string Win_ComunicacaoServidorFalhou {
+            get {
+                return ResourceManager.GetString("Win_ComunicacaoServidorFalhou", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Concluída.
+        /// </summary>
+        public static string Win_Concluida {
+            get {
+                return ResourceManager.GetString("Win_Concluida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Concluída com erros.
+        /// </summary>
+        public static string Win_ConcluidaErros {
+            get {
+                return ResourceManager.GetString("Win_ConcluidaErros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to confiabilidade degradada.
+        /// </summary>
+        public static string Win_ConfiabilidadeDegradada {
+            get {
+                return ResourceManager.GetString("Win_ConfiabilidadeDegradada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Configurações do Windows.
+        /// </summary>
+        public static string Win_ConfiguracoesWindows {
+            get {
+                return ResourceManager.GetString("Win_ConfiguracoesWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confira o comando e o impacto antes de abrir a ferramenta..
+        /// </summary>
+        public static string Win_ConfiraComandoImpactoAntes {
+            get {
+                return ResourceManager.GetString("Win_ConfiraComandoImpactoAntes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to confirmados.
+        /// </summary>
+        public static string Win_Confirmados {
+            get {
+                return ResourceManager.GetString("Win_Confirmados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consultado às {0:t}..
+        /// </summary>
+        public static string Win_Consultado {
+            get {
+                return ResourceManager.GetString("Win_Consultado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consulta a integridade dos arquivos protegidos do Windows..
+        /// </summary>
+        public static string Win_ConsultaIntegridadeArquivosProtegidos {
+            get {
+                return ResourceManager.GetString("Win_ConsultaIntegridadeArquivosProtegidos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consultando volumes locais….
+        /// </summary>
+        public static string Win_ConsultandoVolumesLocais {
+            get {
+                return ResourceManager.GetString("Win_ConsultandoVolumesLocais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consultando o Windows….
+        /// </summary>
+        public static string Win_ConsultandoWindows {
+            get {
+                return ResourceManager.GetString("Win_ConsultandoWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Consultar estado da imagem.
+        /// </summary>
+        public static string Win_ConsultarEstadoImagem {
+            get {
+                return ResourceManager.GetString("Win_ConsultarEstadoImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to As consultas do Windows estão disponíveis no modo real..
+        /// </summary>
+        public static string Win_ConsultasWindowsEstaoDisponiveis {
+            get {
+                return ResourceManager.GetString("Win_ConsultasWindowsEstaoDisponiveis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copiar relatório.
+        /// </summary>
+        public static string Win_CopiarRelatorio {
+            get {
+                return ResourceManager.GetString("Win_CopiarRelatorio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Corrigir erros no volume.
+        /// </summary>
+        public static string Win_CorrigirErrosVolume {
+            get {
+                return ResourceManager.GetString("Win_CorrigirErrosVolume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Os dados disponíveis variam conforme o controlador, o driver e as permissões da conta..
+        /// </summary>
+        public static string Win_DadosDisponiveisVariamConforme {
+            get {
+                return ResourceManager.GetString("Win_DadosDisponiveisVariamConforme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dados simulados.
+        /// </summary>
+        public static string Win_DadosSimulados {
+            get {
+                return ResourceManager.GetString("Win_DadosSimulados", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desempenho do Windows.
+        /// </summary>
+        public static string Win_DesempenhoWindows {
+            get {
+                return ResourceManager.GetString("Win_DesempenhoWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desfazer.
+        /// </summary>
+        public static string Win_Desfazer {
+            get {
+                return ResourceManager.GetString("Win_Desfazer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desfazer o último ajuste.
+        /// </summary>
+        public static string Win_DesfazerUltimoAjuste {
+            get {
+                return ResourceManager.GetString("Win_DesfazerUltimoAjuste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desfazer o último ajuste desta sessão.
+        /// </summary>
+        public static string Win_DesfazerUltimoAjusteDesta {
+            get {
+                return ResourceManager.GetString("Win_DesfazerUltimoAjusteDesta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desfazer o último ajuste de energia ou tela.
+        /// </summary>
+        public static string Win_DesfazerUltimoAjusteEnergia {
+            get {
+                return ResourceManager.GetString("Win_DesfazerUltimoAjusteEnergia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desinstalação.
+        /// </summary>
+        public static string Win_Desinstalacao {
+            get {
+                return ResourceManager.GetString("Win_Desinstalacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diagnóstico.
+        /// </summary>
+        public static string Win_Diagnostico {
+            get {
+                return ResourceManager.GetString("Win_Diagnostico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dicas do Windows.
+        /// </summary>
+        public static string Win_DicasWindows {
+            get {
+                return ResourceManager.GetString("Win_DicasWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disco.
+        /// </summary>
+        public static string Win_Disco {
+            get {
+                return ResourceManager.GetString("Win_Disco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disco {0} · {1}.
+        /// </summary>
+        public static string Win_Disco2 {
+            get {
+                return ResourceManager.GetString("Win_Disco2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log do DISM em {0}.
+        /// </summary>
+        public static string Win_DismLog {
+            get {
+                return ResourceManager.GetString("Win_DismLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download e upload via Cloudflare · {0} conexões em paralelo · .
+        /// </summary>
+        public static string Win_DownloadUploadViaCloudflare {
+            get {
+                return ResourceManager.GetString("Win_DownloadUploadViaCloudflare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Energia, aplicativos e ferramentas do sistema..
+        /// </summary>
+        public static string Win_EnergiaAplicativosFerramentasSistema {
+            get {
+                return ResourceManager.GetString("Win_EnergiaAplicativosFerramentasSistema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Energia e bateria.
+        /// </summary>
+        public static string Win_EnergiaBateria {
+            get {
+                return ResourceManager.GetString("Win_EnergiaBateria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Energia para jogar.
+        /// </summary>
+        public static string Win_EnergiaJogar {
+            get {
+                return ResourceManager.GetString("Win_EnergiaJogar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Energia e tela.
+        /// </summary>
+        public static string Win_EnergiaTela {
+            get {
+                return ResourceManager.GetString("Win_EnergiaTela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Erro.
+        /// </summary>
+        public static string Win_Erro {
+            get {
+                return ResourceManager.GetString("Win_Erro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Erros, eventos críticos e avisos de hardware e disco..
+        /// </summary>
+        public static string Win_ErrosEventosCriticosAvisos {
+            get {
+                return ResourceManager.GetString("Win_ErrosEventosCriticosAvisos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:N0} erros de mídia.
+        /// </summary>
+        public static string Win_ErrosMidia {
+            get {
+                return ResourceManager.GetString("Win_ErrosMidia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolha os itens e confirme a remoção na janela da Limpeza de Disco do Windows..
+        /// </summary>
+        public static string Win_EscolhaItensConfirmeRemocao {
+            get {
+                return ResourceManager.GetString("Win_EscolhaItensConfirmeRemocao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Escolha a preferência de GPU por aplicativo..
+        /// </summary>
+        public static string Win_EscolhaPreferenciaGPUAplicativo {
+            get {
+                return ResourceManager.GetString("Win_EscolhaPreferenciaGPUAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Estado do PC.
+        /// </summary>
+        public static string Win_EstadoPC {
+            get {
+                return ResourceManager.GetString("Win_EstadoPC", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O estado de reinício do Windows Update ficou indisponível..
+        /// </summary>
+        public static string Win_EstadoReinicioWindowsUpdate {
+            get {
+                return ResourceManager.GetString("Win_EstadoReinicioWindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Esta ferramenta não está disponível nesta instalação do Windows..
+        /// </summary>
+        public static string Win_EstaFerramentaNaoEsta {
+            get {
+                return ResourceManager.GetString("Win_EstaFerramentaNaoEsta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} eventos mais recentes dos últimos {1} dias..
+        /// </summary>
+        public static string Win_EventosMaisRecentesUltimos {
+            get {
+                return ResourceManager.GetString("Win_EventosMaisRecentesUltimos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Eventos do sistema.
+        /// </summary>
+        public static string Win_EventosSistema {
+            get {
+                return ResourceManager.GetString("Win_EventosSistema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · Evento {1}.
+        /// </summary>
+        public static string Win_EventSource {
+            get {
+                return ResourceManager.GetString("Win_EventSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Examina o armazenamento de componentes do Windows. A verificação pode demorar..
+        /// </summary>
+        public static string Win_ExaminaArmazenamentoComponentesWindows {
+            get {
+                return ResourceManager.GetString("Win_ExaminaArmazenamentoComponentesWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Examinar imagem.
+        /// </summary>
+        public static string Win_ExaminarImagem {
+            get {
+                return ResourceManager.GetString("Win_ExaminarImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}
+        ///
+        ///{1}
+        ///
+        ///Executar este reparo?.
+        /// </summary>
+        public static string Win_ExecutarEsteReparo {
+            get {
+                return ResourceManager.GetString("Win_ExecutarEsteReparo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Falha.
+        /// </summary>
+        public static string Win_Falha {
+            get {
+                return ResourceManager.GetString("Win_Falha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Com falha.
+        /// </summary>
+        public static string Win_Falha2 {
+            get {
+                return ResourceManager.GetString("Win_Falha2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.M.A.R.T. · Falha prevista.
+        /// </summary>
+        public static string Win_FalhaPrevista {
+            get {
+                return ResourceManager.GetString("Win_FalhaPrevista", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ferramenta.
+        /// </summary>
+        public static string Win_Ferramenta {
+            get {
+                return ResourceManager.GetString("Win_Ferramenta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A ferramenta abre em uma janela do Windows..
+        /// </summary>
+        public static string Win_FerramentaAbreJanelaWindows {
+            get {
+                return ResourceManager.GetString("Win_FerramentaAbreJanelaWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A ferramenta foi iniciada. Não foi possível ler o código de saída..
+        /// </summary>
+        public static string Win_FerramentaFoiIniciadaNao {
+            get {
+                return ResourceManager.GetString("Win_FerramentaFoiIniciadaNao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ferramenta de manutenção.
+        /// </summary>
+        public static string Win_FerramentaManutencao {
+            get {
+                return ResourceManager.GetString("Win_FerramentaManutencao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ferramentas de manutenção.
+        /// </summary>
+        public static string Win_FerramentasManutencao {
+            get {
+                return ResourceManager.GetString("Win_FerramentasManutencao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:N1} GiB livres de {1:N1} GiB.
+        /// </summary>
+        public static string Win_GiBLivresGiB {
+            get {
+                return ResourceManager.GetString("Win_GiBLivresGiB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GPU por jogo.
+        /// </summary>
+        public static string Win_GPUJogo {
+            get {
+                return ResourceManager.GetString("Win_GPUJogo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gráficos.
+        /// </summary>
+        public static string Win_Graficos {
+            get {
+                return ResourceManager.GetString("Win_Graficos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Histórico de atualizações.
+        /// </summary>
+        public static string Win_HistoricoAtualizacoes {
+            get {
+                return ResourceManager.GetString("Win_HistoricoAtualizacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hub de Comentários.
+        /// </summary>
+        public static string Win_HubComentarios {
+            get {
+                return ResourceManager.GetString("Win_HubComentarios", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Imagem do Windows (DISM).
+        /// </summary>
+        public static string Win_ImagemWindowsDISM {
+            get {
+                return ResourceManager.GetString("Win_ImagemWindowsDISM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indisponível.
+        /// </summary>
+        public static string Win_Indisponivel {
+            get {
+                return ResourceManager.GetString("Win_Indisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.M.A.R.T. indisponível.
+        /// </summary>
+        public static string Win_Indisponivel2 {
+            get {
+                return ResourceManager.GetString("Win_Indisponivel2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iniciando teste….
+        /// </summary>
+        public static string Win_IniciandoTeste {
+            get {
+                return ResourceManager.GetString("Win_IniciandoTeste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Iniciar teste.
+        /// </summary>
+        public static string Win_IniciarTeste {
+            get {
+                return ResourceManager.GetString("Win_IniciarTeste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Início estimado · {0:g}.
+        /// </summary>
+        public static string Win_InicioEstimado {
+            get {
+                return ResourceManager.GetString("Win_InicioEstimado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalação.
+        /// </summary>
+        public static string Win_Instalacao {
+            get {
+                return ResourceManager.GetString("Win_Instalacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} já está indisponível para remoção..
+        /// </summary>
+        public static string Win_JaEstaIndisponivelRemocao {
+            get {
+                return ResourceManager.GetString("Win_JaEstaIndisponivelRemocao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Jogos.
+        /// </summary>
+        public static string Win_Jogos {
+            get {
+                return ResourceManager.GetString("Win_Jogos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lê o estado de corrupção já registrado na imagem do Windows..
+        /// </summary>
+        public static string Win_LeEstadoCorrupcaoJa {
+            get {
+                return ResourceManager.GetString("Win_LeEstadoCorrupcaoJa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leia o plano, os tempos de inatividade e as animações..
+        /// </summary>
+        public static string Win_LeiaPlanoTemposInatividade {
+            get {
+                return ResourceManager.GetString("Win_LeiaPlanoTemposInatividade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leitura S.M.A.R.T. disponível em {0} de {1} discos..
+        /// </summary>
+        public static string Win_LeituraDisponivelDiscos {
+            get {
+                return ResourceManager.GetString("Win_LeituraDisponivelDiscos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A leitura dos eventos foi interrompida. Os registros já lidos estão disponíveis..
+        /// </summary>
+        public static string Win_LeituraEventosFoiInterrompida {
+            get {
+                return ResourceManager.GetString("Win_LeituraEventosFoiInterrompida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lendo os ajustes do Windows….
+        /// </summary>
+        public static string Win_LendoAjustesWindows {
+            get {
+                return ResourceManager.GetString("Win_LendoAjustesWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lendo os apps desta conta….
+        /// </summary>
+        public static string Win_LendoAppsDestaConta {
+            get {
+                return ResourceManager.GetString("Win_LendoAppsDestaConta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ler ajustes.
+        /// </summary>
+        public static string Win_LerAjustes {
+            get {
+                return ResourceManager.GetString("Win_LerAjustes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ler planos.
+        /// </summary>
+        public static string Win_LerPlanos {
+            get {
+                return ResourceManager.GetString("Win_LerPlanos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · Limite de dados atingido..
+        /// </summary>
+        public static string Win_LimiteDadosAtingido {
+            get {
+                return ResourceManager.GetString("Win_LimiteDadosAtingido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · Limite de dados atingido em menos de 1 s..
+        /// </summary>
+        public static string Win_LimiteDadosAtingidoMenos {
+            get {
+                return ResourceManager.GetString("Win_LimiteDadosAtingidoMenos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limpeza de Disco.
+        /// </summary>
+        public static string Win_LimpezaDisco {
+            get {
+                return ResourceManager.GetString("Win_LimpezaDisco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A lista de apps opcionais está disponível no modo real..
+        /// </summary>
+        public static string Win_ListaAppsOpcionaisEsta {
+            get {
+                return ResourceManager.GetString("Win_ListaAppsOpcionaisEsta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} A lista não pôde ser recarregada. Liste os apps novamente para conferir..
+        /// </summary>
+        public static string Win_ListaNaoPodeSer {
+            get {
+                return ResourceManager.GetString("Win_ListaNaoPodeSer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Listar apps.
+        /// </summary>
+        public static string Win_ListarApps {
+            get {
+                return ResourceManager.GetString("Win_ListarApps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Liste os apps novamente para conferir..
+        /// </summary>
+        public static string Win_ListeAppsNovamenteConferir {
+            get {
+                return ResourceManager.GetString("Win_ListeAppsNovamenteConferir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manutenção.
+        /// </summary>
+        public static string Win_Manutencao {
+            get {
+                return ResourceManager.GetString("Win_Manutencao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mapas do Windows.
+        /// </summary>
+        public static string Win_MapasWindows {
+            get {
+                return ResourceManager.GetString("Win_MapasWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mbps · taxa provisória.
+        /// </summary>
+        public static string Win_MbpsTaxaProvisoria {
+            get {
+                return ResourceManager.GetString("Win_MbpsTaxaProvisoria", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Medindo download….
+        /// </summary>
+        public static string Win_MedindoDownload {
+            get {
+                return ResourceManager.GetString("Win_MedindoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Medindo ping para o Google….
+        /// </summary>
+        public static string Win_MedindoPingGoogle {
+            get {
+                return ResourceManager.GetString("Win_MedindoPingGoogle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Medindo upload….
+        /// </summary>
+        public static string Win_MedindoUpload {
+            get {
+                return ResourceManager.GetString("Win_MedindoUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to mídia em modo somente leitura.
+        /// </summary>
+        public static string Win_MidiaModoSomenteLeitura {
+            get {
+                return ResourceManager.GetString("Win_MidiaModoSomenteLeitura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de Jogo.
+        /// </summary>
+        public static string Win_ModoJogo {
+            get {
+                return ResourceManager.GetString("Win_ModoJogo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir a página das Configurações do Windows..
+        /// </summary>
+        public static string Win_NaoFoiPossivelAbrir {
+            get {
+                return ResourceManager.GetString("Win_NaoFoiPossivelAbrir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível abrir a ferramenta. Tente novamente..
+        /// </summary>
+        public static string Win_NaoFoiPossivelAbrir2 {
+            get {
+                return ResourceManager.GetString("Win_NaoFoiPossivelAbrir2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível concluir a consulta. Tente novamente..
+        /// </summary>
+        public static string Win_NaoFoiPossivelConcluir {
+            get {
+                return ResourceManager.GetString("Win_NaoFoiPossivelConcluir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível concluir o teste de rede..
+        /// </summary>
+        public static string Win_NaoFoiPossivelConcluir2 {
+            get {
+                return ResourceManager.GetString("Win_NaoFoiPossivelConcluir2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível iniciar o Windows PowerShell..
+        /// </summary>
+        public static string Win_NaoFoiPossivelIniciar {
+            get {
+                return ResourceManager.GetString("Win_NaoFoiPossivelIniciar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível listar os volumes. Atualize a lista para tentar novamente..
+        /// </summary>
+        public static string Win_NaoFoiPossivelListar {
+            get {
+                return ResourceManager.GetString("Win_NaoFoiPossivelListar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não iniciada.
+        /// </summary>
+        public static string Win_NaoIniciada {
+            get {
+                return ResourceManager.GetString("Win_NaoIniciada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Necessário.
+        /// </summary>
+        public static string Win_Necessario {
+            get {
+                return ResourceManager.GetString("Win_Necessario", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhuma medição concluída..
+        /// </summary>
+        public static string Win_NenhumaMedicaoConcluida {
+            get {
+                return ResourceManager.GetString("Win_NenhumaMedicaoConcluida", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum app opcional do catálogo está instalado..
+        /// </summary>
+        public static string Win_NenhumAppOpcionalCatalogo {
+            get {
+                return ResourceManager.GetString("Win_NenhumAppOpcionalCatalogo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum bloco de upload foi confirmado a tempo..
+        /// </summary>
+        public static string Win_NenhumBlocoUploadFoi {
+            get {
+                return ResourceManager.GetString("Win_NenhumBlocoUploadFoi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum dado de download recebido a tempo..
+        /// </summary>
+        public static string Win_NenhumDadoDownloadRecebido {
+            get {
+                return ResourceManager.GetString("Win_NenhumDadoDownloadRecebido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum disco foi encontrado pelo Windows..
+        /// </summary>
+        public static string Win_NenhumDiscoFoiEncontrado {
+            get {
+                return ResourceManager.GetString("Win_NenhumDiscoFoiEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum evento correspondente nos últimos {0} dias..
+        /// </summary>
+        public static string Win_NenhumEventoCorrespondenteUltimos {
+            get {
+                return ResourceManager.GetString("Win_NenhumEventoCorrespondenteUltimos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum registro no histórico local do Windows Update..
+        /// </summary>
+        public static string Win_NenhumRegistroHistoricoLocal {
+            get {
+                return ResourceManager.GetString("Win_NenhumRegistroHistoricoLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum registro pôde ser exibido..
+        /// </summary>
+        public static string Win_NenhumRegistroPodeSer {
+            get {
+                return ResourceManager.GetString("Win_NenhumRegistroPodeSer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum volume fixo encontrado..
+        /// </summary>
+        public static string Win_NenhumVolumeFixoEncontrado {
+            get {
+                return ResourceManager.GetString("Win_NenhumVolumeFixoEncontrado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nenhum volume local fixo está disponível..
+        /// </summary>
+        public static string Win_NenhumVolumeLocalFixo {
+            get {
+                return ResourceManager.GetString("Win_NenhumVolumeLocalFixo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Notícias.
+        /// </summary>
+        public static string Win_Noticias {
+            get {
+                return ResourceManager.GetString("Win_Noticias", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nunca.
+        /// </summary>
+        public static string Win_Nunca {
+            get {
+                return ResourceManager.GetString("Win_Nunca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.M.A.R.T. NVMe · Alerta do controlador.
+        /// </summary>
+        public static string Win_NVMeAlertaControlador {
+            get {
+                return ResourceManager.GetString("Win_NVMeAlertaControlador", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.M.A.R.T. NVMe · Sem aviso crítico.
+        /// </summary>
+        public static string Win_NVMeSemAvisoCritico {
+            get {
+                return ResourceManager.GetString("Win_NVMeSemAvisoCritico", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Obter Ajuda.
+        /// </summary>
+        public static string Win_ObterAjuda {
+            get {
+                return ResourceManager.GetString("Win_ObterAjuda", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:0}% ocupado · {1}.
+        /// </summary>
+        public static string Win_Ocupado {
+            get {
+                return ResourceManager.GetString("Win_Ocupado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operação.
+        /// </summary>
+        public static string Win_Operacao {
+            get {
+                return ResourceManager.GetString("Win_Operacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0:N0} h de operação.
+        /// </summary>
+        public static string Win_Operacao2 {
+            get {
+                return ResourceManager.GetString("Win_Operacao2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operação de manutenção.
+        /// </summary>
+        public static string Win_OperacaoManutencao {
+            get {
+                return ResourceManager.GetString("Win_OperacaoManutencao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parte da leitura de espaço em disco ficou indisponível..
+        /// </summary>
+        public static string Win_ParteLeituraEspacoDisco {
+            get {
+                return ResourceManager.GetString("Win_ParteLeituraEspacoDisco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pessoas.
+        /// </summary>
+        public static string Win_Pessoas {
+            get {
+                return ResourceManager.GetString("Win_Pessoas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ping · Google.
+        /// </summary>
+        public static string Win_PingGoogle {
+            get {
+                return ResourceManager.GetString("Win_PingGoogle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plano {0} ativado..
+        /// </summary>
+        public static string Win_PlanoAtivado {
+            get {
+                return ResourceManager.GetString("Win_PlanoAtivado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O plano ativo mudou. Leia os ajustes novamente..
+        /// </summary>
+        public static string Win_PlanoAtivoMudouLeia {
+            get {
+                return ResourceManager.GetString("Win_PlanoAtivoMudouLeia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plano de energia.
+        /// </summary>
+        public static string Win_PlanoEnergia {
+            get {
+                return ResourceManager.GetString("Win_PlanoEnergia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plano de energia para jogos.
+        /// </summary>
+        public static string Win_PlanoEnergiaJogos {
+            get {
+                return ResourceManager.GetString("Win_PlanoEnergiaJogos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plano não identificado.
+        /// </summary>
+        public static string Win_PlanUnknown {
+            get {
+                return ResourceManager.GetString("Win_PlanUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prévia em modo simulado..
+        /// </summary>
+        public static string Win_PreviaModoSimulado {
+            get {
+                return ResourceManager.GetString("Win_PreviaModoSimulado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Previsão reportada pelo dispositivo..
+        /// </summary>
+        public static string Win_PrevisaoReportadaPeloDispositivo {
+            get {
+                return ResourceManager.GetString("Win_PrevisaoReportadaPeloDispositivo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processo encerrado · código {0}..
+        /// </summary>
+        public static string Win_ProcessoEncerradoCodigo {
+            get {
+                return ResourceManager.GetString("Win_ProcessoEncerradoCodigo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Progresso do teste de velocidade.
+        /// </summary>
+        public static string Win_ProgressoTesteVelocidade {
+            get {
+                return ResourceManager.GetString("Win_ProgressoTesteVelocidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pronto para testar.
+        /// </summary>
+        public static string Win_ProntoTestar {
+            get {
+                return ResourceManager.GetString("Win_ProntoTestar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to proteção da memória volátil com falha.
+        /// </summary>
+        public static string Win_ProtecaoMemoriaVolatilFalha {
+            get {
+                return ResourceManager.GetString("Win_ProtecaoMemoriaVolatilFalha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to recebidos.
+        /// </summary>
+        public static string Win_Recebidos {
+            get {
+                return ResourceManager.GetString("Win_Recebidos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refrigeração por jogo.
+        /// </summary>
+        public static string Win_RefrigeracaoJogo {
+            get {
+                return ResourceManager.GetString("Win_RefrigeracaoJogo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to região de memória persistente com problema.
+        /// </summary>
+        public static string Win_RegiaoMemoriaPersistenteProblema {
+            get {
+                return ResourceManager.GetString("Win_RegiaoMemoriaPersistenteProblema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} registros recentes do histórico local..
+        /// </summary>
+        public static string Win_RegistrosRecentesHistoricoLocal {
+            get {
+                return ResourceManager.GetString("Win_RegistrosRecentesHistoricoLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reinício pelo Windows Update.
+        /// </summary>
+        public static string Win_ReinicioPeloWindowsUpdate {
+            get {
+                return ResourceManager.GetString("Win_ReinicioPeloWindowsUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Relatório copiado..
+        /// </summary>
+        public static string Win_RelatorioCopiado {
+            get {
+                return ResourceManager.GetString("Win_RelatorioCopiado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removendo {0}….
+        /// </summary>
+        public static string Win_Removendo {
+            get {
+                return ResourceManager.GetString("Win_Removendo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover aplicativo.
+        /// </summary>
+        public static string Win_RemoverAplicativo {
+            get {
+                return ResourceManager.GetString("Win_RemoverAplicativo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remover {0} desta conta do Windows?.
+        /// </summary>
+        public static string Win_RemoverDestaContaWindows {
+            get {
+                return ResourceManager.GetString("Win_RemoverDestaContaWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} removido desta conta..
+        /// </summary>
+        public static string Win_RemovidoDestaConta {
+            get {
+                return ResourceManager.GetString("Win_RemovidoDestaConta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reparar arquivos.
+        /// </summary>
+        public static string Win_RepararArquivos {
+            get {
+                return ResourceManager.GetString("Win_RepararArquivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reparar imagem.
+        /// </summary>
+        public static string Win_RepararImagem {
+            get {
+                return ResourceManager.GetString("Win_RepararImagem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Requer privilégios administrativos. O andamento aparece no console do Windows..
+        /// </summary>
+        public static string Win_RequerPrivilegiosAdministrativosAndamento {
+            get {
+                return ResourceManager.GetString("Win_RequerPrivilegiosAdministrativosAndamento", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to reserva abaixo do limite.
+        /// </summary>
+        public static string Win_ReservaAbaixoLimite {
+            get {
+                return ResourceManager.GetString("Win_ReservaAbaixoLimite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reserva disponível {0}%.
+        /// </summary>
+        public static string Win_ReservaDisponivel {
+            get {
+                return ResourceManager.GetString("Win_ReservaDisponivel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1} de {2} respostas.
+        /// </summary>
+        public static string Win_Respostas {
+            get {
+                return ResourceManager.GetString("Win_Respostas", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resultado de demonstração..
+        /// </summary>
+        public static string Win_ResultadoDemonstracao {
+            get {
+                return ResourceManager.GetString("Win_ResultadoDemonstracao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resultado desconhecido.
+        /// </summary>
+        public static string Win_ResultadoDesconhecido {
+            get {
+                return ResourceManager.GetString("Win_ResultadoDesconhecido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resultados registrados pelo Windows Update..
+        /// </summary>
+        public static string Win_ResultadosRegistradosPeloWindows {
+            get {
+                return ResourceManager.GetString("Win_ResultadosRegistradosPeloWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resultados no Visualizador de Eventos, em Logs do Windows → Aplicativo, nas fontes Chkdsk e Wininit..
+        /// </summary>
+        public static string Win_ResultadosVisualizadorEventosLogs {
+            get {
+                return ResourceManager.GetString("Win_ResultadosVisualizadorEventosLogs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisar e executar reparo.
+        /// </summary>
+        public static string Win_RevisarExecutarReparo {
+            get {
+                return ResourceManager.GetString("Win_RevisarExecutarReparo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisar reparo.
+        /// </summary>
+        public static string Win_RevisarReparo {
+            get {
+                return ResourceManager.GetString("Win_RevisarReparo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revise a gravação em segundo plano..
+        /// </summary>
+        public static string Win_ReviseGravacaoSegundoPlano {
+            get {
+                return ResourceManager.GetString("Win_ReviseGravacaoSegundoPlano", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Salvar animações da interface.
+        /// </summary>
+        public static string Win_SalvarAnimacoesInterface {
+            get {
+                return ResourceManager.GetString("Win_SalvarAnimacoesInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Salvar tempo para {0}.
+        /// </summary>
+        public static string Win_SalvarTempo {
+            get {
+                return ResourceManager.GetString("Win_SalvarTempo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saudável.
+        /// </summary>
+        public static string Win_Saudavel {
+            get {
+                return ResourceManager.GetString("Win_Saudavel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saúde S.M.A.R.T..
+        /// </summary>
+        public static string Win_Saude {
+            get {
+                return ResourceManager.GetString("Win_Saude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · Saúde no Windows · {1}.
+        /// </summary>
+        public static string Win_SaudeWindows {
+            get {
+                return ResourceManager.GetString("Win_SaudeWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apagar a tela na bateria.
+        /// </summary>
+        public static string Win_ScreenBattery {
+            get {
+                return ResourceManager.GetString("Win_ScreenBattery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apagar a tela na tomada.
+        /// </summary>
+        public static string Win_ScreenPlugged {
+            get {
+                return ResourceManager.GetString("Win_ScreenPlugged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecione um volume para conferir o comando..
+        /// </summary>
+        public static string Win_SelecioneVolumeConferirComando {
+            get {
+                return ResourceManager.GetString("Win_SelecioneVolumeConferirComando", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem pendência.
+        /// </summary>
+        public static string Win_SemPendencia {
+            get {
+                return ResourceManager.GetString("Win_SemPendencia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S.M.A.R.T. · Sem previsão de falha.
+        /// </summary>
+        public static string Win_SemPrevisaoFalha {
+            get {
+                return ResourceManager.GetString("Win_SemPrevisaoFalha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · Sem resposta ao ping..
+        /// </summary>
+        public static string Win_SemRespostaPing {
+            get {
+                return ResourceManager.GetString("Win_SemRespostaPing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor de armazenamento.
+        /// </summary>
+        public static string Win_SensorArmazenamento {
+            get {
+                return ResourceManager.GetString("Win_SensorArmazenamento", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O servidor confirmou um volume de upload diferente do enviado..
+        /// </summary>
+        public static string Win_ServidorConfirmouVolumeUpload {
+            get {
+                return ResourceManager.GetString("Win_ServidorConfirmouVolumeUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O servidor encerrou o bloco de download antes do fim..
+        /// </summary>
+        public static string Win_ServidorEncerrouBlocoDownload {
+            get {
+                return ResourceManager.GetString("Win_ServidorEncerrouBlocoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Servidor respondeu HTTP {0}..
+        /// </summary>
+        public static string Win_ServidorRespondeuHTTP {
+            get {
+                return ResourceManager.GetString("Win_ServidorRespondeuHTTP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O servidor retornou um tamanho de download diferente do solicitado..
+        /// </summary>
+        public static string Win_ServidorRetornouTamanhoDownload {
+            get {
+                return ResourceManager.GetString("Win_ServidorRetornouTamanhoDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log do SFC em {0}.
+        /// </summary>
+        public static string Win_SfcLog {
+            get {
+                return ResourceManager.GetString("Win_SfcLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  · Sistema.
+        /// </summary>
+        public static string Win_Sistema {
+            get {
+                return ResourceManager.GetString("Win_Sistema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · Sistema.
+        /// </summary>
+        public static string Win_Sistema2 {
+            get {
+                return ResourceManager.GetString("Win_Sistema2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suspender o PC na bateria.
+        /// </summary>
+        public static string Win_SleepBattery {
+            get {
+                return ResourceManager.GetString("Win_SleepBattery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suspender o PC na tomada.
+        /// </summary>
+        public static string Win_SleepPlugged {
+            get {
+                return ResourceManager.GetString("Win_SleepPlugged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Solicitação encaminhada ao Windows. Confira a janela da ferramenta..
+        /// </summary>
+        public static string Win_SolicitacaoEncaminhadaWindowsConfira {
+            get {
+                return ResourceManager.GetString("Win_SolicitacaoEncaminhadaWindowsConfira", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A solicitação do Windows foi cancelada..
+        /// </summary>
+        public static string Win_SolicitacaoWindowsFoiCancelada {
+            get {
+                return ResourceManager.GetString("Win_SolicitacaoWindowsFoiCancelada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sistema.
+        /// </summary>
+        public static string Win_SystemName {
+            get {
+                return ResourceManager.GetString("Win_SystemName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tela.
+        /// </summary>
+        public static string Win_Tela {
+            get {
+                return ResourceManager.GetString("Win_Tela", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to temperatura fora da faixa.
+        /// </summary>
+        public static string Win_TemperaturaForaFaixa {
+            get {
+                return ResourceManager.GetString("Win_TemperaturaForaFaixa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo para apagar a tela salvo..
+        /// </summary>
+        public static string Win_TempoApagarTelaSalvo {
+            get {
+                return ResourceManager.GetString("Win_TempoApagarTelaSalvo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo de atividade, reinício e espaço nos volumes..
+        /// </summary>
+        public static string Win_TempoAtividadeReinicioEspaco {
+            get {
+                return ResourceManager.GetString("Win_TempoAtividadeReinicioEspaco", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo desde a inicialização.
+        /// </summary>
+        public static string Win_TempoDesdeInicializacao {
+            get {
+                return ResourceManager.GetString("Win_TempoDesdeInicializacao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O tempo de inatividade mudou. Leia os ajustes novamente..
+        /// </summary>
+        public static string Win_TempoInatividadeMudouLeia {
+            get {
+                return ResourceManager.GetString("Win_TempoInatividadeMudouLeia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo limite atingido..
+        /// </summary>
+        public static string Win_TempoLimiteAtingido {
+            get {
+                return ResourceManager.GetString("Win_TempoLimiteAtingido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo para suspender salvo..
+        /// </summary>
+        public static string Win_TempoSuspenderSalvo {
+            get {
+                return ResourceManager.GetString("Win_TempoSuspenderSalvo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tenta corrigir erros no sistema de arquivos. Se o volume estiver em uso, o Windows pode pedir para desmontá-lo ou agendar a correção..
+        /// </summary>
+        public static string Win_TentaCorrigirErrosSistema {
+            get {
+                return ResourceManager.GetString("Win_TentaCorrigirErrosSistema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tenta restaurar a imagem do Windows. O DISM pode buscar arquivos de reparo pelo Windows Update..
+        /// </summary>
+        public static string Win_TentaRestaurarImagemWindows {
+            get {
+                return ResourceManager.GetString("Win_TentaRestaurarImagemWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teste cancelado..
+        /// </summary>
+        public static string Win_TesteCancelado {
+            get {
+                return ResourceManager.GetString("Win_TesteCancelado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teste concluído..
+        /// </summary>
+        public static string Win_TesteConcluido {
+            get {
+                return ResourceManager.GetString("Win_TesteConcluido", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teste concluído com resultados parciais..
+        /// </summary>
+        public static string Win_TesteConcluidoResultadosParciais {
+            get {
+                return ResourceManager.GetString("Win_TesteConcluidoResultadosParciais", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teste de velocidade.
+        /// </summary>
+        public static string Win_TesteVelocidade {
+            get {
+                return ResourceManager.GetString("Win_TesteVelocidade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Último ajuste desfeito..
+        /// </summary>
+        public static string Win_UltimoAjusteDesfeito {
+            get {
+                return ResourceManager.GetString("Win_UltimoAjusteDesfeito", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Veja os planos disponíveis no Windows..
+        /// </summary>
+        public static string Win_VejaPlanosDisponiveisWindows {
+            get {
+                return ResourceManager.GetString("Win_VejaPlanosDisponiveisWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Veja quais apps pré-instalados podem ser removidos desta conta..
+        /// </summary>
+        public static string Win_VejaQuaisAppsPre {
+            get {
+                return ResourceManager.GetString("Win_VejaQuaisAppsPre", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificação de disco (CHKDSK).
+        /// </summary>
+        public static string Win_VerificacaoDiscoCHKDSK {
+            get {
+                return ResourceManager.GetString("Win_VerificacaoDiscoCHKDSK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verifica a estrutura do sistema de arquivos do volume selecionado..
+        /// </summary>
+        public static string Win_VerificaEstruturaSistemaArquivos {
+            get {
+                return ResourceManager.GetString("Win_VerificaEstruturaSistemaArquivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificar arquivos.
+        /// </summary>
+        public static string Win_VerificarArquivos {
+            get {
+                return ResourceManager.GetString("Win_VerificarArquivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verificar volume.
+        /// </summary>
+        public static string Win_VerificarVolume {
+            get {
+                return ResourceManager.GetString("Win_VerificarVolume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verifica e tenta restaurar os arquivos protegidos do Windows..
+        /// </summary>
+        public static string Win_VerificaTentaRestaurarArquivos {
+            get {
+                return ResourceManager.GetString("Win_VerificaTentaRestaurarArquivos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}% de vida útil estimada usada.
+        /// </summary>
+        public static string Win_VidaUtilEstimadaUsada {
+            get {
+                return ResourceManager.GetString("Win_VidaUtilEstimadaUsada", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vincular ao Celular.
+        /// </summary>
+        public static string Win_VincularCelular {
+            get {
+                return ResourceManager.GetString("Win_VincularCelular", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volume {0}.
+        /// </summary>
+        public static string Win_Volume {
+            get {
+                return ResourceManager.GetString("Win_Volume", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volume local.
+        /// </summary>
+        public static string Win_VolumeLocal {
+            get {
+                return ResourceManager.GetString("Win_VolumeLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volume local para CHKDSK.
+        /// </summary>
+        public static string Win_VolumeLocalCHKDSK {
+            get {
+                return ResourceManager.GetString("Win_VolumeLocalCHKDSK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O volume selecionado não está mais disponível. Atualize a lista de volumes..
+        /// </summary>
+        public static string Win_VolumeSelecionadoNaoEsta {
+            get {
+                return ResourceManager.GetString("Win_VolumeSelecionadoNaoEsta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volumes fixos.
+        /// </summary>
+        public static string Win_VolumesFixos {
+            get {
+                return ResourceManager.GetString("Win_VolumesFixos", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  O Windows informou que é necessário reiniciar..
+        /// </summary>
+        public static string Win_WindowsInformouNecessarioReiniciar {
+            get {
+                return ResourceManager.GetString("Win_WindowsInformouNecessarioReiniciar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows manteve a configuração de animações anterior..
+        /// </summary>
+        public static string Win_WindowsManteveConfiguracaoAnimacoes {
+            get {
+                return ResourceManager.GetString("Win_WindowsManteveConfiguracaoAnimacoes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não abriu a ferramenta. Código {0}..
+        /// </summary>
+        public static string Win_WindowsNaoAbriuFerramenta {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoAbriuFerramenta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não concluiu a remoção de {0}. Consulte o log do LinkFlow..
+        /// </summary>
+        public static string Win_WindowsNaoConcluiuRemocao {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoConcluiuRemocao", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não confirmou o tempo de inatividade..
+        /// </summary>
+        public static string Win_WindowsNaoConfirmouTempo {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoConfirmouTempo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não confirmou a troca do plano..
+        /// </summary>
+        public static string Win_WindowsNaoConfirmouTroca {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoConfirmouTroca", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não conseguiu aplicar o tempo. Leia os ajustes novamente..
+        /// </summary>
+        public static string Win_WindowsNaoConseguiuAplicar {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoConseguiuAplicar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não conseguiu aplicar o tempo nem restaurar o valor salvo no plano..
+        /// </summary>
+        public static string Win_WindowsNaoConseguiuAplicar2 {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoConseguiuAplicar2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não conseguiu listar os aplicativos desta conta..
+        /// </summary>
+        public static string Win_WindowsNaoConseguiuListar {
+            get {
+                return ResourceManager.GetString("Win_WindowsNaoConseguiuListar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows restringiu o acesso a esta fonte nesta conta..
+        /// </summary>
+        public static string Win_WindowsRestringiuAcessoEsta {
+            get {
+                return ResourceManager.GetString("Win_WindowsRestringiuAcessoEsta", resourceCulture);
+            }
+        }
     }
 }

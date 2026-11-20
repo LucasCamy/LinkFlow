@@ -2698,4 +2698,806 @@ Open the file's folder?</value>
   <data name="Language_RestartNow" xml:space="preserve">
     <value>Restart now</value>
   </data>
+  <data name="Win_SleepPlugged" xml:space="preserve">
+    <value>Sleep when plugged in</value>
+  </data>
+  <data name="Win_ScreenBattery" xml:space="preserve">
+    <value>Turn off the screen on battery</value>
+  </data>
+  <data name="Win_ScreenPlugged" xml:space="preserve">
+    <value>Turn off the screen when plugged in</value>
+  </data>
+  <data name="Win_PlanUnknown" xml:space="preserve">
+    <value>Unidentified plan</value>
+  </data>
+  <data name="Win_SystemName" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Win_DesempenhoWindows" xml:space="preserve">
+    <value>Windows performance</value>
+  </data>
+  <data name="Win_EnergiaAplicativosFerramentasSistema" xml:space="preserve">
+    <value>Power, apps and system tools.</value>
+  </data>
+  <data name="Win_EnergiaTela" xml:space="preserve">
+    <value>Power and display</value>
+  </data>
+  <data name="Win_Desfazer" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Win_DesfazerUltimoAjusteDesta" xml:space="preserve">
+    <value>Undo the last change of this session</value>
+  </data>
+  <data name="Win_DesfazerUltimoAjuste" xml:space="preserve">
+    <value>Undo the last change</value>
+  </data>
+  <data name="Win_LerAjustes" xml:space="preserve">
+    <value>Read settings</value>
+  </data>
+  <data name="Win_AjustesPC" xml:space="preserve">
+    <value>PC settings</value>
+  </data>
+  <data name="Win_LeiaPlanoTemposInatividade" xml:space="preserve">
+    <value>Read the plan, idle timeouts and animations.</value>
+  </data>
+  <data name="Win_Ativar" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Win_PlanoEnergia" xml:space="preserve">
+    <value>Power plan</value>
+  </data>
+  <data name="Win_SalvarAnimacoesInterface" xml:space="preserve">
+    <value>Save interface animations</value>
+  </data>
+  <data name="Win_AnimacoesInterface" xml:space="preserve">
+    <value>Interface animations</value>
+  </data>
+  <data name="Win_AtalhosWindows" xml:space="preserve">
+    <value>Windows shortcuts</value>
+  </data>
+  <data name="Win_Aplicativos" xml:space="preserve">
+    <value>Apps</value>
+  </data>
+  <data name="Win_ListarApps" xml:space="preserve">
+    <value>List apps</value>
+  </data>
+  <data name="Win_AplicativosOpcionais" xml:space="preserve">
+    <value>Optional apps</value>
+  </data>
+  <data name="Win_VejaQuaisAppsPre" xml:space="preserve">
+    <value>See which preinstalled apps can be removed from this account.</value>
+  </data>
+  <data name="Win_AbrirAplicativosInstalados" xml:space="preserve">
+    <value>Open installed apps ↗</value>
+  </data>
+  <data name="Win_Diagnostico" xml:space="preserve">
+    <value>Diagnostics</value>
+  </data>
+  <data name="Win_CopiarRelatorio" xml:space="preserve">
+    <value>Copy report</value>
+  </data>
+  <data name="Win_Manutencao" xml:space="preserve">
+    <value>Maintenance</value>
+  </data>
+  <data name="Win_Jogos" xml:space="preserve">
+    <value>Gaming</value>
+  </data>
+  <data name="Win_DesfazerUltimoAjusteEnergia" xml:space="preserve">
+    <value>Undo the last power or display change</value>
+  </data>
+  <data name="Win_LerPlanos" xml:space="preserve">
+    <value>Read plans</value>
+  </data>
+  <data name="Win_EnergiaJogar" xml:space="preserve">
+    <value>Power for gaming</value>
+  </data>
+  <data name="Win_VejaPlanosDisponiveisWindows" xml:space="preserve">
+    <value>See the plans available in Windows.</value>
+  </data>
+  <data name="Win_AtivarPlanoEnergiaJogos" xml:space="preserve">
+    <value>Activate power plan for gaming</value>
+  </data>
+  <data name="Win_PlanoEnergiaJogos" xml:space="preserve">
+    <value>Power plan for gaming</value>
+  </data>
+  <data name="Win_AjustesWindowsJogos" xml:space="preserve">
+    <value>Windows settings for gaming</value>
+  </data>
+  <data name="Win_AbrirAutomacao" xml:space="preserve">
+    <value>Open automation</value>
+  </data>
+  <data name="Win_RefrigeracaoJogo" xml:space="preserve">
+    <value>Cooling per game</value>
+  </data>
+  <data name="Win_AssociePerfilVentoinhasProcesso" xml:space="preserve">
+    <value>Link a fan profile to the game's process.</value>
+  </data>
+  <data name="Win_SalvarTempo" xml:space="preserve">
+    <value>Save timeout for {0}</value>
+  </data>
+  <data name="Win_Tela" xml:space="preserve">
+    <value>Display</value>
+  </data>
+  <data name="Win_Graficos" xml:space="preserve">
+    <value>Graphics</value>
+  </data>
+  <data name="Win_EnergiaBateria" xml:space="preserve">
+    <value>Power and battery</value>
+  </data>
+  <data name="Win_ModoJogo" xml:space="preserve">
+    <value>Game Mode</value>
+  </data>
+  <data name="Win_AppsInicializacao" xml:space="preserve">
+    <value>Startup apps</value>
+  </data>
+  <data name="Win_SensorArmazenamento" xml:space="preserve">
+    <value>Storage Sense</value>
+  </data>
+  <data name="Win_AjusteComportamentoWindowsDurante" xml:space="preserve">
+    <value>Adjust how Windows behaves during games.</value>
+  </data>
+  <data name="Win_GPUJogo" xml:space="preserve">
+    <value>GPU per game</value>
+  </data>
+  <data name="Win_EscolhaPreferenciaGPUAplicativo" xml:space="preserve">
+    <value>Choose the GPU preference per app.</value>
+  </data>
+  <data name="Win_Capturas" xml:space="preserve">
+    <value>Captures</value>
+  </data>
+  <data name="Win_ReviseGravacaoSegundoPlano" xml:space="preserve">
+    <value>Review background recording.</value>
+  </data>
+  <data name="Win_EstadoPC" xml:space="preserve">
+    <value>PC status</value>
+  </data>
+  <data name="Win_TempoAtividadeReinicioEspaco" xml:space="preserve">
+    <value>Uptime, restart and volume space.</value>
+  </data>
+  <data name="Win_HistoricoAtualizacoes" xml:space="preserve">
+    <value>Update history</value>
+  </data>
+  <data name="Win_ResultadosRegistradosPeloWindows" xml:space="preserve">
+    <value>Results recorded by Windows Update.</value>
+  </data>
+  <data name="Win_EventosSistema" xml:space="preserve">
+    <value>System events</value>
+  </data>
+  <data name="Win_ErrosEventosCriticosAvisos" xml:space="preserve">
+    <value>Errors, critical events and hardware and disk warnings.</value>
+  </data>
+  <data name="Win_Saude" xml:space="preserve">
+    <value>S.M.A.R.T. health</value>
+  </data>
+  <data name="Win_AlertasTemperaturaDesgasteDiscos" xml:space="preserve">
+    <value>Alerts, temperature and wear reported by the disks.</value>
+  </data>
+  <data name="Win_Nunca" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Win_SleepBattery" xml:space="preserve">
+    <value>Sleep on battery</value>
+  </data>
+  <data name="Win_PlanoAtivado" xml:space="preserve">
+    <value>{0} plan activated.</value>
+  </data>
+  <data name="Win_TempoSuspenderSalvo" xml:space="preserve">
+    <value>Sleep timeout saved.</value>
+  </data>
+  <data name="Win_TempoApagarTelaSalvo" xml:space="preserve">
+    <value>Screen-off timeout saved.</value>
+  </data>
+  <data name="Win_AnimacoesAtivadas" xml:space="preserve">
+    <value>Animations turned on.</value>
+  </data>
+  <data name="Win_AnimacoesDesativadas" xml:space="preserve">
+    <value>Animations turned off.</value>
+  </data>
+  <data name="Win_UltimoAjusteDesfeito" xml:space="preserve">
+    <value>Last change undone.</value>
+  </data>
+  <data name="Win_AjustesCarregados" xml:space="preserve">
+    <value>Settings loaded.</value>
+  </data>
+  <data name="Win_AjustesEnergiaTelaEstao" xml:space="preserve">
+    <value>Power and display settings are available in real mode.</value>
+  </data>
+  <data name="Win_LendoAjustesWindows" xml:space="preserve">
+    <value>Reading the Windows settings…</value>
+  </data>
+  <data name="Win_AplicandoAjuste" xml:space="preserve">
+    <value>Applying the change…</value>
+  </data>
+  <data name="Win_AtualizarAjustes" xml:space="preserve">
+    <value>Refresh settings</value>
+  </data>
+  <data name="Win_AtualizarPlanos" xml:space="preserve">
+    <value>Refresh plans</value>
+  </data>
+  <data name="Win_RemoverDestaContaWindows" xml:space="preserve">
+    <value>Remove {0} from this Windows account?</value>
+  </data>
+  <data name="Win_RemoverAplicativo" xml:space="preserve">
+    <value>Remove app</value>
+  </data>
+  <data name="Win_ListaAppsOpcionaisEsta" xml:space="preserve">
+    <value>The optional apps list is available in real mode.</value>
+  </data>
+  <data name="Win_LendoAppsDestaConta" xml:space="preserve">
+    <value>Reading this account's apps…</value>
+  </data>
+  <data name="Win_Removendo" xml:space="preserve">
+    <value>Removing {0}…</value>
+  </data>
+  <data name="Win_RemovidoDestaConta" xml:space="preserve">
+    <value>{0} removed from this account.</value>
+  </data>
+  <data name="Win_JaEstaIndisponivelRemocao" xml:space="preserve">
+    <value>{0} can no longer be removed.</value>
+  </data>
+  <data name="Win_AtualizarLista" xml:space="preserve">
+    <value>Refresh list</value>
+  </data>
+  <data name="Win_NenhumAppOpcionalCatalogo" xml:space="preserve">
+    <value>No optional app from the catalog is installed.</value>
+  </data>
+  <data name="Win_AppsDisponiveisRevisao" xml:space="preserve">
+    <value>{0} apps available to review.</value>
+  </data>
+  <data name="Win_ListeAppsNovamenteConferir" xml:space="preserve">
+    <value>{0} List the apps again to check.</value>
+  </data>
+  <data name="Win_ListaNaoPodeSer" xml:space="preserve">
+    <value>{0} The list could not be reloaded. List the apps again to check.</value>
+  </data>
+  <data name="Win_ConsultasWindowsEstaoDisponiveis" xml:space="preserve">
+    <value>Windows queries are available in real mode.</value>
+  </data>
+  <data name="Win_ConsultandoWindows" xml:space="preserve">
+    <value>Querying Windows…</value>
+  </data>
+  <data name="Win_WindowsRestringiuAcessoEsta" xml:space="preserve">
+    <value>Windows restricted access to this source on this account.</value>
+  </data>
+  <data name="Win_NaoFoiPossivelConcluir" xml:space="preserve">
+    <value>Could not finish the query. Try again.</value>
+  </data>
+  <data name="Win_RelatorioCopiado" xml:space="preserve">
+    <value>Report copied.</value>
+  </data>
+  <data name="Win_AreaTransferenciaEstaIndisponivel" xml:space="preserve">
+    <value>The clipboard is unavailable. Try again.</value>
+  </data>
+  <data name="Win_NaoFoiPossivelAbrir" xml:space="preserve">
+    <value>Could not open the Windows Settings page.</value>
+  </data>
+  <data name="Win_ConfiguracoesWindows" xml:space="preserve">
+    <value>Windows Settings</value>
+  </data>
+  <data name="Win_TesteVelocidade" xml:space="preserve">
+    <value>Speed test</value>
+  </data>
+  <data name="Win_ProntoTestar" xml:space="preserve">
+    <value>Ready to test</value>
+  </data>
+  <data name="Win_IniciarTeste" xml:space="preserve">
+    <value>Start test</value>
+  </data>
+  <data name="Win_ProgressoTesteVelocidade" xml:space="preserve">
+    <value>Speed test progress</value>
+  </data>
+  <data name="Win_PingGoogle" xml:space="preserve">
+    <value>Ping · Google</value>
+  </data>
+  <data name="Win_AdaptadorUso" xml:space="preserve">
+    <value>Adapter in use</value>
+  </data>
+  <data name="Win_DownloadUploadViaCloudflare" xml:space="preserve">
+    <value>Download and upload via Cloudflare · {0} parallel connections · </value>
+  </data>
+  <data name="Win_AteOuMiBDirecao" xml:space="preserve">
+    <value>Up to {0} s or {1} MiB per direction.</value>
+  </data>
+  <data name="Win_DadosSimulados" xml:space="preserve">
+    <value>Simulated data</value>
+  </data>
+  <data name="Win_ResultadoDemonstracao" xml:space="preserve">
+    <value>Demo result.</value>
+  </data>
+  <data name="Win_IniciandoTeste" xml:space="preserve">
+    <value>Starting test…</value>
+  </data>
+  <data name="Win_NenhumaMedicaoConcluida" xml:space="preserve">
+    <value>No measurement finished.</value>
+  </data>
+  <data name="Win_TesteConcluidoResultadosParciais" xml:space="preserve">
+    <value>Test finished with partial results.</value>
+  </data>
+  <data name="Win_TesteConcluido" xml:space="preserve">
+    <value>Test finished.</value>
+  </data>
+  <data name="Win_TesteCancelado" xml:space="preserve">
+    <value>Test canceled.</value>
+  </data>
+  <data name="Win_NaoFoiPossivelConcluir2" xml:space="preserve">
+    <value>Could not finish the network test.</value>
+  </data>
+  <data name="Win_CancelandoTeste" xml:space="preserve">
+    <value>Canceling the test…</value>
+  </data>
+  <data name="Win_MedindoPingGoogle" xml:space="preserve">
+    <value>Measuring ping to Google…</value>
+  </data>
+  <data name="Win_MedindoDownload" xml:space="preserve">
+    <value>Measuring download…</value>
+  </data>
+  <data name="Win_MedindoUpload" xml:space="preserve">
+    <value>Measuring upload…</value>
+  </data>
+  <data name="Win_MbpsTaxaProvisoria" xml:space="preserve">
+    <value>Mbps · provisional rate</value>
+  </data>
+  <data name="Win_Recebidos" xml:space="preserve">
+    <value>received</value>
+  </data>
+  <data name="Win_Confirmados" xml:space="preserve">
+    <value>confirmed</value>
+  </data>
+  <data name="Win_FerramentasManutencao" xml:space="preserve">
+    <value>Maintenance tools</value>
+  </data>
+  <data name="Win_ConfiraComandoImpactoAntes" xml:space="preserve">
+    <value>Check the command and its impact before opening the tool.</value>
+  </data>
+  <data name="Win_Ferramenta" xml:space="preserve">
+    <value>Tool</value>
+  </data>
+  <data name="Win_FerramentaManutencao" xml:space="preserve">
+    <value>Maintenance tool</value>
+  </data>
+  <data name="Win_Operacao" xml:space="preserve">
+    <value>Operation</value>
+  </data>
+  <data name="Win_OperacaoManutencao" xml:space="preserve">
+    <value>Maintenance operation</value>
+  </data>
+  <data name="Win_VolumeLocal" xml:space="preserve">
+    <value>Local volume</value>
+  </data>
+  <data name="Win_VolumeLocalCHKDSK" xml:space="preserve">
+    <value>Local volume for CHKDSK</value>
+  </data>
+  <data name="Win_Comando" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="Win_AbrirVerificacao" xml:space="preserve">
+    <value>Open check</value>
+  </data>
+  <data name="Win_ConsultandoVolumesLocais" xml:space="preserve">
+    <value>Querying local volumes…</value>
+  </data>
+  <data name="Win_NenhumVolumeLocalFixo" xml:space="preserve">
+    <value>No fixed local volume is available.</value>
+  </data>
+  <data name="Win_NaoFoiPossivelListar" xml:space="preserve">
+    <value>Could not list the volumes. Refresh the list to try again.</value>
+  </data>
+  <data name="Win_SelecioneVolumeConferirComando" xml:space="preserve">
+    <value>Select a volume to check the command.</value>
+  </data>
+  <data name="Win_PreviaModoSimulado" xml:space="preserve">
+    <value>Preview in simulation mode.</value>
+  </data>
+  <data name="Win_RequerPrivilegiosAdministrativosAndamento" xml:space="preserve">
+    <value>Requires administrator privileges. Progress shows in the Windows console.</value>
+  </data>
+  <data name="Win_FerramentaAbreJanelaWindows" xml:space="preserve">
+    <value>The tool opens in a Windows window.</value>
+  </data>
+  <data name="Win_AbrirLimpezaDisco" xml:space="preserve">
+    <value>Open Disk Cleanup</value>
+  </data>
+  <data name="Win_RevisarExecutarReparo" xml:space="preserve">
+    <value>Review and run repair</value>
+  </data>
+  <data name="Win_ExecutarEsteReparo" xml:space="preserve">
+    <value>{0}
+
+{1}
+
+Run this repair?</value>
+  </data>
+  <data name="Win_RevisarReparo" xml:space="preserve">
+    <value>Review repair</value>
+  </data>
+  <data name="Win_AguardandoAberturaFerramentaPelo" xml:space="preserve">
+    <value>Waiting for Windows to open the tool…</value>
+  </data>
+  <data name="Win_SolicitacaoEncaminhadaWindowsConfira" xml:space="preserve">
+    <value>Request sent to Windows. Check the tool's window.</value>
+  </data>
+  <data name="Win_AcompanheLimpezaDiscoJanela" xml:space="preserve">
+    <value>Follow Disk Cleanup in the Windows window.</value>
+  </data>
+  <data name="Win_AndamentoAcompanheProgressoResponda" xml:space="preserve">
+    <value>In progress. Follow the progress and answer the questions in the tool's console.</value>
+  </data>
+  <data name="Win_ProcessoEncerradoCodigo" xml:space="preserve">
+    <value>Process ended · code {0}.</value>
+  </data>
+  <data name="Win_WindowsInformouNecessarioReiniciar" xml:space="preserve">
+    <value> Windows reported that a restart is required.</value>
+  </data>
+  <data name="Win_SolicitacaoWindowsFoiCancelada" xml:space="preserve">
+    <value>The Windows request was canceled.</value>
+  </data>
+  <data name="Win_FerramentaFoiIniciadaNao" xml:space="preserve">
+    <value>The tool started. Could not read the exit code.</value>
+  </data>
+  <data name="Win_WindowsNaoAbriuFerramenta" xml:space="preserve">
+    <value>Windows did not open the tool. Code {0}.</value>
+  </data>
+  <data name="Win_NaoFoiPossivelAbrir2" xml:space="preserve">
+    <value>Could not open the tool. Try again.</value>
+  </data>
+  <data name="Win_TempoDesdeInicializacao" xml:space="preserve">
+    <value>Time since startup</value>
+  </data>
+  <data name="Win_InicioEstimado" xml:space="preserve">
+    <value>Estimated start · {0:g}</value>
+  </data>
+  <data name="Win_ReinicioPeloWindowsUpdate" xml:space="preserve">
+    <value>Restart by Windows Update</value>
+  </data>
+  <data name="Win_Necessario" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="Win_SemPendencia" xml:space="preserve">
+    <value>None pending</value>
+  </data>
+  <data name="Win_Indisponivel" xml:space="preserve">
+    <value>Unavailable</value>
+  </data>
+  <data name="Win_EstadoReinicioWindowsUpdate" xml:space="preserve">
+    <value>The Windows Update restart state was unavailable.</value>
+  </data>
+  <data name="Win_Volume" xml:space="preserve">
+    <value>Volume {0}</value>
+  </data>
+  <data name="Win_Sistema" xml:space="preserve">
+    <value> · System</value>
+  </data>
+  <data name="Win_GiBLivresGiB" xml:space="preserve">
+    <value>{0:N1} GiB free of {1:N1} GiB</value>
+  </data>
+  <data name="Win_Ocupado" xml:space="preserve">
+    <value>{0:0}% used · {1}</value>
+  </data>
+  <data name="Win_ParteLeituraEspacoDisco" xml:space="preserve">
+    <value>Part of the disk space reading was unavailable.</value>
+  </data>
+  <data name="Win_VolumesFixos" xml:space="preserve">
+    <value>Fixed volumes</value>
+  </data>
+  <data name="Win_NenhumVolumeFixoEncontrado" xml:space="preserve">
+    <value>No fixed volume found.</value>
+  </data>
+  <data name="Win_Consultado" xml:space="preserve">
+    <value>Queried at {0:t}.</value>
+  </data>
+  <data name="Win_NenhumRegistroHistoricoLocal" xml:space="preserve">
+    <value>No entries in the local Windows Update history.</value>
+  </data>
+  <data name="Win_Instalacao" xml:space="preserve">
+    <value>Installation</value>
+  </data>
+  <data name="Win_Desinstalacao" xml:space="preserve">
+    <value>Uninstallation</value>
+  </data>
+  <data name="Win_NaoIniciada" xml:space="preserve">
+    <value>Not started</value>
+  </data>
+  <data name="Win_Andamento" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="Win_Concluida" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Win_ConcluidaErros" xml:space="preserve">
+    <value>Completed with errors</value>
+  </data>
+  <data name="Win_Falha" xml:space="preserve">
+    <value>Failed</value>
+  </data>
+  <data name="Win_Cancelada" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+  <data name="Win_ResultadoDesconhecido" xml:space="preserve">
+    <value>Unknown result</value>
+  </data>
+  <data name="Win_AtualizacaoSemTitulo" xml:space="preserve">
+    <value>Untitled update</value>
+  </data>
+  <data name="Win_NenhumRegistroPodeSer" xml:space="preserve">
+    <value>No entry could be shown.</value>
+  </data>
+  <data name="Win_1RegistroRecenteHistorico" xml:space="preserve">
+    <value>1 recent entry from the local history.</value>
+  </data>
+  <data name="Win_RegistrosRecentesHistoricoLocal" xml:space="preserve">
+    <value>{0} recent entries from the local history.</value>
+  </data>
+  <data name="Win_AlgunsRegistrosWindowsUpdate" xml:space="preserve">
+    <value>Some Windows Update entries were unavailable.</value>
+  </data>
+  <data name="Win_Erro" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Win_Aviso" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Win_EventSource" xml:space="preserve">
+    <value>{0} · Event {1}</value>
+  </data>
+  <data name="Win_LeituraEventosFoiInterrompida" xml:space="preserve">
+    <value>Reading the events was interrupted. The entries already read are available.</value>
+  </data>
+  <data name="Win_NenhumEventoCorrespondenteUltimos" xml:space="preserve">
+    <value>No matching event in the last {0} days.</value>
+  </data>
+  <data name="Win_1EventoUltimosDias" xml:space="preserve">
+    <value>1 event in the last {0} days.</value>
+  </data>
+  <data name="Win_EventosMaisRecentesUltimos" xml:space="preserve">
+    <value>{0} most recent events from the last {1} days.</value>
+  </data>
+  <data name="Win_ReservaAbaixoLimite" xml:space="preserve">
+    <value>spare below threshold</value>
+  </data>
+  <data name="Win_TemperaturaForaFaixa" xml:space="preserve">
+    <value>temperature out of range</value>
+  </data>
+  <data name="Win_ConfiabilidadeDegradada" xml:space="preserve">
+    <value>reliability degraded</value>
+  </data>
+  <data name="Win_MidiaModoSomenteLeitura" xml:space="preserve">
+    <value>media in read-only mode</value>
+  </data>
+  <data name="Win_ProtecaoMemoriaVolatilFalha" xml:space="preserve">
+    <value>volatile memory backup failed</value>
+  </data>
+  <data name="Win_RegiaoMemoriaPersistenteProblema" xml:space="preserve">
+    <value>persistent memory region has a problem</value>
+  </data>
+  <data name="Win_Disco" xml:space="preserve">
+    <value>Disk</value>
+  </data>
+  <data name="Win_BarramentoIndisponivel" xml:space="preserve">
+    <value>Bus unavailable</value>
+  </data>
+  <data name="Win_Saudavel" xml:space="preserve">
+    <value>Healthy</value>
+  </data>
+  <data name="Win_Atencao" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Win_Falha2" xml:space="preserve">
+    <value>Failing</value>
+  </data>
+  <data name="Win_Disco2" xml:space="preserve">
+    <value>Disk {0} · {1}</value>
+  </data>
+  <data name="Win_Indisponivel2" xml:space="preserve">
+    <value>S.M.A.R.T. unavailable</value>
+  </data>
+  <data name="Win_SaudeWindows" xml:space="preserve">
+    <value>{0} · Windows health · {1}</value>
+  </data>
+  <data name="Win_NenhumDiscoFoiEncontrado" xml:space="preserve">
+    <value>Windows found no disk.</value>
+  </data>
+  <data name="Win_LeituraDisponivelDiscos" xml:space="preserve">
+    <value>S.M.A.R.T. reading available on {0} of {1} disks.</value>
+  </data>
+  <data name="Win_DadosDisponiveisVariamConforme" xml:space="preserve">
+    <value>The available data varies with the controller, the driver and the account's permissions.</value>
+  </data>
+  <data name="Win_VidaUtilEstimadaUsada" xml:space="preserve">
+    <value>{0}% of estimated life used</value>
+  </data>
+  <data name="Win_ReservaDisponivel" xml:space="preserve">
+    <value>Available spare {0}%</value>
+  </data>
+  <data name="Win_Operacao2" xml:space="preserve">
+    <value>{0:N0} power-on hours</value>
+  </data>
+  <data name="Win_ErrosMidia" xml:space="preserve">
+    <value>{0:N0} media errors</value>
+  </data>
+  <data name="Win_Aviso0x" xml:space="preserve">
+    <value>Warning 0x{0:X2}</value>
+  </data>
+  <data name="Win_NVMeSemAvisoCritico" xml:space="preserve">
+    <value>NVMe S.M.A.R.T. · No critical warning</value>
+  </data>
+  <data name="Win_NVMeAlertaControlador" xml:space="preserve">
+    <value>NVMe S.M.A.R.T. · Controller alert</value>
+  </data>
+  <data name="Win_FalhaPrevista" xml:space="preserve">
+    <value>S.M.A.R.T. · Failure predicted</value>
+  </data>
+  <data name="Win_SemPrevisaoFalha" xml:space="preserve">
+    <value>S.M.A.R.T. · No failure predicted</value>
+  </data>
+  <data name="Win_PrevisaoReportadaPeloDispositivo" xml:space="preserve">
+    <value>Prediction reported by the device.</value>
+  </data>
+  <data name="Win_Sistema2" xml:space="preserve">
+    <value>{0} · System</value>
+  </data>
+  <data name="Win_VerificarArquivos" xml:space="preserve">
+    <value>Verify files</value>
+  </data>
+  <data name="Win_ConsultaIntegridadeArquivosProtegidos" xml:space="preserve">
+    <value>Checks the integrity of the protected Windows files.</value>
+  </data>
+  <data name="Win_RepararArquivos" xml:space="preserve">
+    <value>Repair files</value>
+  </data>
+  <data name="Win_VerificaTentaRestaurarArquivos" xml:space="preserve">
+    <value>Checks and tries to restore the protected Windows files.</value>
+  </data>
+  <data name="Win_ConsultarEstadoImagem" xml:space="preserve">
+    <value>Check image state</value>
+  </data>
+  <data name="Win_LeEstadoCorrupcaoJa" xml:space="preserve">
+    <value>Reads the corruption state already recorded in the Windows image.</value>
+  </data>
+  <data name="Win_ExaminarImagem" xml:space="preserve">
+    <value>Scan image</value>
+  </data>
+  <data name="Win_ExaminaArmazenamentoComponentesWindows" xml:space="preserve">
+    <value>Scans the Windows component store. The check may take a while.</value>
+  </data>
+  <data name="Win_RepararImagem" xml:space="preserve">
+    <value>Repair image</value>
+  </data>
+  <data name="Win_TentaRestaurarImagemWindows" xml:space="preserve">
+    <value>Tries to restore the Windows image. DISM may fetch repair files from Windows Update.</value>
+  </data>
+  <data name="Win_VerificarVolume" xml:space="preserve">
+    <value>Check volume</value>
+  </data>
+  <data name="Win_VerificaEstruturaSistemaArquivos" xml:space="preserve">
+    <value>Checks the file system structure of the selected volume.</value>
+  </data>
+  <data name="Win_CorrigirErrosVolume" xml:space="preserve">
+    <value>Fix volume errors</value>
+  </data>
+  <data name="Win_TentaCorrigirErrosSistema" xml:space="preserve">
+    <value>Tries to fix file system errors. If the volume is in use, Windows may ask to dismount it or schedule the fix.</value>
+  </data>
+  <data name="Win_EscolhaItensConfirmeRemocao" xml:space="preserve">
+    <value>Choose the items and confirm the removal in the Windows Disk Cleanup window.</value>
+  </data>
+  <data name="Win_ArquivosWindowsSFC" xml:space="preserve">
+    <value>Windows files (SFC)</value>
+  </data>
+  <data name="Win_ImagemWindowsDISM" xml:space="preserve">
+    <value>Windows image (DISM)</value>
+  </data>
+  <data name="Win_VerificacaoDiscoCHKDSK" xml:space="preserve">
+    <value>Disk check (CHKDSK)</value>
+  </data>
+  <data name="Win_LimpezaDisco" xml:space="preserve">
+    <value>Disk Cleanup</value>
+  </data>
+  <data name="Win_SfcLog" xml:space="preserve">
+    <value>SFC log at {0}</value>
+  </data>
+  <data name="Win_DismLog" xml:space="preserve">
+    <value>DISM log at {0}</value>
+  </data>
+  <data name="Win_ResultadosVisualizadorEventosLogs" xml:space="preserve">
+    <value>Results in Event Viewer, under Windows Logs → Application, from the Chkdsk and Wininit sources.</value>
+  </data>
+  <data name="Win_VolumeSelecionadoNaoEsta" xml:space="preserve">
+    <value>The selected volume is no longer available. Refresh the volume list.</value>
+  </data>
+  <data name="Win_EstaFerramentaNaoEsta" xml:space="preserve">
+    <value>This tool is not available in this Windows installation.</value>
+  </data>
+  <data name="Win_PlanoAtivoMudouLeia" xml:space="preserve">
+    <value>The active plan changed. Read the settings again.</value>
+  </data>
+  <data name="Win_WindowsNaoConfirmouTroca" xml:space="preserve">
+    <value>Windows did not confirm the plan change.</value>
+  </data>
+  <data name="Win_TempoInatividadeMudouLeia" xml:space="preserve">
+    <value>The idle timeout changed. Read the settings again.</value>
+  </data>
+  <data name="Win_WindowsNaoConfirmouTempo" xml:space="preserve">
+    <value>Windows did not confirm the idle timeout.</value>
+  </data>
+  <data name="Win_WindowsNaoConseguiuAplicar" xml:space="preserve">
+    <value>Windows could not apply the timeout. Read the settings again.</value>
+  </data>
+  <data name="Win_WindowsNaoConseguiuAplicar2" xml:space="preserve">
+    <value>Windows could not apply the timeout or restore the value saved in the plan.</value>
+  </data>
+  <data name="Win_AnimacoesForamAlteradasWindows" xml:space="preserve">
+    <value>The animations were changed in Windows. Read the settings again.</value>
+  </data>
+  <data name="Win_WindowsManteveConfiguracaoAnimacoes" xml:space="preserve">
+    <value>Windows kept the previous animation setting.</value>
+  </data>
+  <data name="Win_SemRespostaPing" xml:space="preserve">
+    <value>{0} · No ping response.</value>
+  </data>
+  <data name="Win_Respostas" xml:space="preserve">
+    <value>{0} · {1} of {2} replies</value>
+  </data>
+  <data name="Win_ServidorConfirmouVolumeUpload" xml:space="preserve">
+    <value>The server confirmed an upload amount different from what was sent.</value>
+  </data>
+  <data name="Win_ServidorRetornouTamanhoDownload" xml:space="preserve">
+    <value>The server returned a download size different from what was requested.</value>
+  </data>
+  <data name="Win_ServidorEncerrouBlocoDownload" xml:space="preserve">
+    <value>The server closed the download block before the end.</value>
+  </data>
+  <data name="Win_NenhumBlocoUploadFoi" xml:space="preserve">
+    <value>No upload block was confirmed in time.</value>
+  </data>
+  <data name="Win_NenhumDadoDownloadRecebido" xml:space="preserve">
+    <value>No download data received in time.</value>
+  </data>
+  <data name="Win_LimiteDadosAtingidoMenos" xml:space="preserve">
+    <value> · Data limit reached in under 1 s.</value>
+  </data>
+  <data name="Win_LimiteDadosAtingido" xml:space="preserve">
+    <value> · Data limit reached.</value>
+  </data>
+  <data name="Win_ServidorRespondeuHTTP" xml:space="preserve">
+    <value>Server answered HTTP {0}.</value>
+  </data>
+  <data name="Win_TempoLimiteAtingido" xml:space="preserve">
+    <value>Timed out.</value>
+  </data>
+  <data name="Win_ComunicacaoServidorFalhou" xml:space="preserve">
+    <value>Communication with the server failed.</value>
+  </data>
+  <data name="Win_DicasWindows" xml:space="preserve">
+    <value>Windows Tips</value>
+  </data>
+  <data name="Win_HubComentarios" xml:space="preserve">
+    <value>Feedback Hub</value>
+  </data>
+  <data name="Win_Noticias" xml:space="preserve">
+    <value>News</value>
+  </data>
+  <data name="Win_ObterAjuda" xml:space="preserve">
+    <value>Get Help</value>
+  </data>
+  <data name="Win_Pessoas" xml:space="preserve">
+    <value>People</value>
+  </data>
+  <data name="Win_Clima" xml:space="preserve">
+    <value>Weather</value>
+  </data>
+  <data name="Win_VincularCelular" xml:space="preserve">
+    <value>Phone Link</value>
+  </data>
+  <data name="Win_MapasWindows" xml:space="preserve">
+    <value>Windows Maps</value>
+  </data>
+  <data name="Win_WindowsNaoConseguiuListar" xml:space="preserve">
+    <value>Windows could not list this account's apps.</value>
+  </data>
+  <data name="Win_WindowsNaoConcluiuRemocao" xml:space="preserve">
+    <value>Windows did not finish removing {0}. Check the LinkFlow log.</value>
+  </data>
+  <data name="Win_NaoFoiPossivelIniciar" xml:space="preserve">
+    <value>Could not start Windows PowerShell.</value>
+  </data>
 </root>

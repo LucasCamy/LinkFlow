@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
+using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
@@ -61,17 +62,17 @@ internal static class WindowsPower
     public static void Activate(Guid id, Guid expectedActive)
     {
         if (GetActivePlan() != expectedActive)
-            throw new InvalidOperationException("O plano ativo mudou. Leia os ajustes novamente.");
+            throw new InvalidOperationException(Strings.Win_PlanoAtivoMudouLeia);
         Check(PowerSetActiveScheme(0, in id));
-        if (GetActivePlan() != id) throw new InvalidOperationException("O Windows não confirmou a troca do plano.");
+        if (GetActivePlan() != id) throw new InvalidOperationException(Strings.Win_WindowsNaoConfirmouTroca);
     }
 
     public static void SetIdleTimeout(Guid plan, PowerIdleAction action, bool onBattery, uint expected, uint seconds)
     {
         if (GetActivePlan() != plan)
-            throw new InvalidOperationException("O plano ativo mudou. Leia os ajustes novamente.");
+            throw new InvalidOperationException(Strings.Win_PlanoAtivoMudouLeia);
         if (ReadIdleTimeout(plan, action, onBattery) != expected)
-            throw new InvalidOperationException("O tempo de inatividade mudou. Leia os ajustes novamente.");
+            throw new InvalidOperationException(Strings.Win_TempoInatividadeMudouLeia);
 
         Check(WriteIdleTimeout(plan, action, onBattery, seconds));
         try
@@ -79,13 +80,13 @@ internal static class WindowsPower
             // O plano precisa ser reaplicado para o Windows usar o novo tempo.
             Activate(plan, plan);
             if (ReadIdleTimeout(plan, action, onBattery) != seconds)
-                throw new InvalidOperationException("O Windows não confirmou o tempo de inatividade.");
+                throw new InvalidOperationException(Strings.Win_WindowsNaoConfirmouTempo);
         }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
         {
             uint rollback = ReadIdleTimeout(plan, action, onBattery) == seconds ? WriteIdleTimeout(plan, action, onBattery, expected) : 0;
-            string message = rollback == 0 ? "O Windows não conseguiu aplicar o tempo. Leia os ajustes novamente." :
-                "O Windows não conseguiu aplicar o tempo nem restaurar o valor salvo no plano.";
+            string message = rollback == 0 ? Strings.Win_WindowsNaoConseguiuAplicar :
+                Strings.Win_WindowsNaoConseguiuAplicar2;
             throw new InvalidOperationException(message, ex);
         }
     }
@@ -93,11 +94,11 @@ internal static class WindowsPower
     public static void SetAnimations(bool enabled, bool expected)
     {
         if (ReadAnimations() != expected)
-            throw new InvalidOperationException("As animações foram alteradas no Windows. Leia os ajustes novamente.");
+            throw new InvalidOperationException(Strings.Win_AnimacoesForamAlteradasWindows);
         if (!WriteSystemParameter(SetClientAreaAnimation, 0, enabled ? 1 : 0, PersistAndBroadcast))
             throw new Win32Exception(Marshal.GetLastWin32Error());
         if (ReadAnimations() != enabled)
-            throw new InvalidOperationException("O Windows manteve a configuração de animações anterior.");
+            throw new InvalidOperationException(Strings.Win_WindowsManteveConfiguracaoAnimacoes);
     }
 
     private static bool ReadAnimations()

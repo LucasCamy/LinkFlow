@@ -205,13 +205,12 @@ public sealed class XamlHardcodedTextTests
     private static readonly Regex Format = new(@"\{\d*(?:[,:][^}]*)?\}", RegexOptions.Compiled);
 
     /// <summary>Iguais em qualquer idioma: unidades e nomes de produto.</summary>
-    private static readonly HashSet<string> Universal = ["RPM", "°C", "GB", "MB", "MHz", "GHz", "min", "LinkFlow", "iCUE LINK", "LCD", "RGB", "CPU", "GPU", "RAM"];
+    private static readonly HashSet<string> Universal = ["RPM", "°C", "GB", "MB", "MHz", "GHz", "Mbps", "ms", "min", "LinkFlow", "iCUE LINK", "LCD", "RGB", "CPU", "GPU", "RAM"];
 
     /// <summary>Telas que ainda não foram traduzidas (v3.0, fases 1 a 4).</summary>
     private static readonly HashSet<string> NotYetTranslated =
     [
-        "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml", "Views/WindowsMaintenancePage.xaml", "Views/WindowsNetworkPage.xaml",
-        "Views/WindowsPage.xaml",
+        "Views/DriverInstallDialog.xaml", "Views/DriversPage.xaml",
     ];
 
     private static IEnumerable<string> XamlFiles(string root) =>
