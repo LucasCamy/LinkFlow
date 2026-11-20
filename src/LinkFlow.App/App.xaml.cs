@@ -579,6 +579,12 @@ public partial class App : Application
             if (Options.ScreenshotPage == 1) w.ShowFanDevices();
             foreach (var f in w.ViewModel.Fans.Take(Options.ScreenshotSelect)) f.IsSelected = true;
         }
+        if (Options.ScreenshotHardwareDetail != null &&
+            Enum.TryParse<Services.HardwareKind>(Options.ScreenshotHardwareDetail, ignoreCase: true, out var hardwareKind))
+        {
+            await w.OpenHardwareDetailAsync(hardwareKind);
+            await Task.Delay(1500);
+        }
         if (Options.ScreenshotDetail != null)
         {
             w.ViewModel.OpenDetail(Options.ScreenshotDetail);

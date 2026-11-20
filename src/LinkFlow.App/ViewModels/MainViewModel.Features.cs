@@ -156,6 +156,7 @@ public partial class MainViewModel
             if (value == DriversPageIndex && !_advancedToolsEnabled) return;   // Ctrl+9 com as ferramentas desligadas
             if (!SetProperty(ref _selectedPage, value)) return;
             CloseDetail();
+            CloseHardwareDetail();
             OnPropertyChanged(nameof(PageTitle));
             UpdateSensorDemand();
             PageChanged?.Invoke(value);

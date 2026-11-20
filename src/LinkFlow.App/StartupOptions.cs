@@ -18,6 +18,9 @@ public sealed class StartupOptions
     /// <summary>Teste visual: abre o painel de detalhes (cpu, gpu, coolant, fans, ram).</summary>
     public string? ScreenshotDetail { get; private set; }
 
+    /// <summary>Teste visual: abre a ficha de um componente na tela Hardware (processor, graphics, storage…).</summary>
+    public string? ScreenshotHardwareDetail { get; private set; }
+
     /// <summary>Idioma da interface só nesta execução ("pt-BR", "en"), sem alterar o salvo (testes e revisão da tradução).</summary>
     public string? Language { get; private set; }
 
@@ -73,6 +76,9 @@ public sealed class StartupOptions
                     break;
                 case "--detail":
                     o.ScreenshotDetail = Next();
+                    break;
+                case "--hw-detail":
+                    o.ScreenshotHardwareDetail = Next();
                     break;
                 case "--lang":
                     o.Language = Next();

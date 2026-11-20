@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using LinkFlow.App.Services;
@@ -10,8 +9,12 @@ namespace LinkFlow.App.Views;
 
 public partial class HardwarePage : UserControl
 {
-    private IReadOnlyList<HardwarePart>? _parts;
+    private IReadOnlyList<HardwareComponent>? _inventory;
+    private IReadOnlyList<HardwareCard>? _cards;
     private string _inventoryNote = string.Empty;
+    private string _linkState = string.Empty;
+    private MainViewModel? _vm;
+    private Task? _scan;
 
     private sealed record PartGroup(string Category, IReadOnlyList<HardwarePart> Parts)
     {
@@ -39,15 +42,10 @@ public partial class HardwarePage : UserControl
 
         public string Icon => Category switch
         {
-            "Windows" => "\uECAA",
-            "Processador" or "Placa-mãe" or "BIOS" or "Memória" => "\uE950",
-            "Placa de vídeo" or "Monitor" or "Display LCD" => "\uE7F4",
-            "Armazenamento" => "\uE8B7",
-            "Rede" => "\uE701",
-            "Áudio" => "\uE767",
-            "Ventoinhas" => "\uEC4A",
-            "RGB" => "\uE790",
-            _ => "\uE7F8"
+            "Ventoinhas" => "",
+            "RGB" => "",
+            "Display LCD" => "",
+            _ => ""
         };
     }
 
@@ -55,91 +53,122 @@ public partial class HardwarePage : UserControl
     {
         InitializeComponent();
         var families = LinkDeviceCatalog.Families.ToArray();
-        SupportedParts.ItemsSource = GroupParts(
-        [
-            new("Ventoinhas", "Corsair iCUE LINK System Hub",
-                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Fan).Select(f => f.Name)) + Strings.Hw_RPMCurvasVelocidade),
-            new("Bombas", "Corsair iCUE LINK System Hub",
-                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Pump).Select(f => f.Name)) + Strings.Hw_RPMControleVelocidade),
-            new("Módulos LINK", Strings.Hw_IdentificacaoPeloHub,
-                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Module).Select(f => f.Name))),
-            new("RGB", Strings.Hw_ICUELINKASUSAura,
-                Strings.Hw_DisponibilidadeDependeControladorMemoria),
-            new("Sensores", Strings.Hw_CPUsGPUsDiscosCompativeis,
-                Strings.Hw_MetricasDisponiveisVariamModelo),
-            new("Display LCD", "Corsair iCUE LINK LCD", Strings.Hw_MetricasFotosGIFs)
-        ]);
+        SupportedParts.ItemsSource = new PartGroup[]
+        {
+            new("Ventoinhas", [new("Ventoinhas", "Corsair iCUE LINK System Hub",
+                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Fan).Select(f => f.Name)) + Strings.Hw_RPMCurvasVelocidade)]),
+            new("Bombas", [new("Bombas", "Corsair iCUE LINK System Hub",
+                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Pump).Select(f => f.Name)) + Strings.Hw_RPMControleVelocidade)]),
+            new("Módulos LINK", [new("Módulos LINK", Strings.Hw_IdentificacaoPeloHub,
+                string.Join(", ", families.Where(f => f.Role == LinkDeviceRole.Module).Select(f => f.Name)))]),
+            new("RGB", [new("RGB", Strings.Hw_ICUELINKASUSAura, Strings.Hw_DisponibilidadeDependeControladorMemoria)]),
+            new("Sensores", [new("Sensores", Strings.Hw_CPUsGPUsDiscosCompativeis, Strings.Hw_MetricasDisponiveisVariamModelo)]),
+            new("Display LCD", [new("Display LCD", "Corsair iCUE LINK LCD", Strings.Hw_MetricasFotosGIFs)])
+        };
+
+        // O inventário é lido na primeira vez que a tela aparece (em segundo plano; não trava a interface)
+        IsVisibleChanged += (_, e) =>
+        {
+            if (e.NewValue is true && _cards == null && _scan == null) _scan = ScanAsync();
+        };
+
+        // O cartão do iCUE LINK acompanha o hub (conectar, trocar dispositivos) sem precisar detectar de novo
+        DataContextChanged += (_, _) =>
+        {
+            if (_vm != null) _vm.SnapshotApplied -= OnSnapshotApplied;
+            _vm = DataContext as MainViewModel;
+            if (_vm != null) _vm.SnapshotApplied += OnSnapshotApplied;
+        };
     }
+
+    private void OnSnapshotApplied()
+    {
+        if (_inventory == null || _vm == null || !IsVisible || LinkState(_vm.Snapshot) == _linkState) return;
+        ShowInventory(_inventory, _inventoryNote);
+    }
+
+    private static string LinkState(EngineSnapshot s) =>
+        s.HubConnected ? $"{s.HubFirmware}|{s.LcdConnected}|{string.Join(",", s.Fans.Select(f => f.Key))}" : string.Empty;
 
     private async void Scan_Click(object sender, RoutedEventArgs e)
     {
+        if (_scan is { IsCompleted: false }) return;
+        _scan = ScanAsync();
+        await _scan;
+    }
+
+    private async Task ScanAsync()
+    {
         if (DataContext is not MainViewModel vm) return;
         ScanButton.IsEnabled = false;
-        InventoryFilterPanel.IsEnabled = false;
+        InventoryFilter.IsEnabled = false;
         InventoryStatus.Text = Strings.Hw_LendoPecasDestePC;
         try
         {
             var snapshot = vm.Snapshot;
-            var parts = new List<HardwarePart>();
-            if (snapshot.HubConnected)
-            {
-                parts.Add(new("Hub", "Corsair iCUE LINK System Hub", string.Format(Strings.Hw_Firmware, snapshot.HubFirmware)));
-                parts.AddRange(snapshot.Fans.Select(f => new HardwarePart("iCUE LINK",
-                    vm.Fans.FirstOrDefault(fan => fan.Key == f.Key)?.Name ?? f.DefaultName,
-                    string.Format(Strings.Hw_Canal, f.Channel))));
-            }
-            if (snapshot.LcdConnected) parts.Add(new("Display LCD", "Corsair iCUE LINK LCD", Strings.Hw_Conectado));
-
+            HardwareInventoryResult inventory;
+            string note;
             if (App.Current.Options.Simulate)
             {
-                if (snapshot.CpuName is { } cpu) parts.Insert(0, new("Processador", cpu, Strings.Hw_Simulado));
-                if (snapshot.GpuName is { } gpu) parts.Insert(0, new("Placa de vídeo", gpu, Strings.Hw_SimulatedF));
-                parts.Insert(0, new("Memória", Strings.Hw_ModuloDDR5Simulado, Strings.Hw_32GiB6000MT));
-                parts.Insert(0, new("Armazenamento", Strings.Hw_SSD1TBSimulado, "SSD · NVMe · 1000 GB"));
-                AddGpuMemory(parts, snapshot);
-                ShowInventory(parts, Strings.Hw_InventarioSimulado);
-                return;
+                inventory = HardwareInventory.Simulated(snapshot, DateTime.Now);
+                note = Strings.Hw_InventarioSimulado;
+            }
+            else
+            {
+                string? gpuName = snapshot.GpuName;
+                float? vram = snapshot.GpuVramTotalGb;
+                inventory = await Task.Run(() => HardwareInventory.Read(gpuName, vram));
+                note = inventory.Unavailable.Count == 0 ? string.Empty : string.Format(UiLanguage.Culture, Strings.Hw_ReadUnavailable,
+                    string.Join(", ", inventory.Unavailable.Select(HardwareVisuals.Title)));
             }
 
-            var inventory = await Task.Run(HardwareInventory.Read);
-            parts.InsertRange(0, inventory.Parts);
-            AddGpuMemory(parts, vm.Snapshot);
-            ShowInventory(parts, inventory.Unavailable.Count == 0 ? string.Empty :
-                string.Format(Strings.Hw_ReadUnavailable, string.Join(", ", inventory.Unavailable.Select(PartGroup.LabelFor))));
+            ShowInventory(inventory.Components, note);
         }
         catch (Exception ex)
         {
             Log.Error("Falha ao detectar peças", ex);
-            _parts = null;
+            _inventory = null;
+            _cards = null;
             DetectedParts.ItemsSource = null;
-            InventoryFilterPanel.Visibility = Visibility.Collapsed;
+            InventoryFilter.Visibility = Visibility.Collapsed;
             InventoryStatus.Text = Strings.Hw_NaoFoiPossivelLer;
         }
         finally
         {
             ScanButton.IsEnabled = true;
-            InventoryFilterPanel.IsEnabled = true;
+            InventoryFilter.IsEnabled = true;
         }
     }
 
-    private static void AddGpuMemory(List<HardwarePart> parts, EngineSnapshot snapshot)
+    /// <summary>Hub e dispositivos do iCUE LINK, a partir do estado do engine.</summary>
+    private static HardwareComponent? IcueLink(MainViewModel vm, EngineSnapshot snapshot)
     {
-        if (snapshot.GpuVramTotalGb is not > 0 || string.IsNullOrWhiteSpace(snapshot.GpuName)) return;
-        bool Matches(HardwarePart part) => part.Category == "Placa de vídeo" &&
-            part.Name.Equals(snapshot.GpuName, StringComparison.OrdinalIgnoreCase);
-        if (parts.Count(Matches) != 1) return;
-
-        int index = parts.FindIndex(Matches);
-        var gpu = parts[index];
-        string vram = string.Format(Strings.Hw_GiBVRAM, snapshot.GpuVramTotalGb);
-        parts[index] = gpu with { Details = gpu.Details.Length == 0 ? vram : $"{gpu.Details} · {vram}" };
+        if (!snapshot.HubConnected) return null;
+        var devices = snapshot.Fans.Select(f => new SpecRow(vm.Fans.FirstOrDefault(fan => fan.Key == f.Key)?.Name ?? f.DefaultName,
+            string.Join(" · ", new[] { string.Format(UiLanguage.Culture, Strings.Hw_Canal, f.Channel),
+                    LinkDeviceCatalog.Families.FirstOrDefault(family => family.Model.ToString() == f.Model)?.Name }
+                .Where(s => !string.IsNullOrWhiteSpace(s))))).ToArray();
+        var hub = new List<SpecRow>();
+        if (!string.IsNullOrWhiteSpace(snapshot.HubFirmware)) hub.Add(new("Firmware", snapshot.HubFirmware));
+        hub.Add(new(Strings.Hwi_Devices, devices.Length.ToString(UiLanguage.Culture)));
+        hub.Add(new(Strings.Hw_CatLcd, snapshot.LcdConnected ? Strings.Hw_Conectado : Strings.Hwi_StateDisconnected));
+        var sections = new List<SpecSection> { new("Corsair iCUE LINK System Hub", hub) };
+        if (devices.Length > 0) sections.Add(new(Strings.Hwi_Devices, devices));
+        return new HardwareComponent(HardwareKind.IcueLink, "Corsair iCUE LINK System Hub", hub, sections);
     }
 
-    private void ShowInventory(IReadOnlyList<HardwarePart> parts, string note)
+    private void ShowInventory(IReadOnlyList<HardwareComponent> inventory, string note)
     {
-        _parts = parts;
+        _inventory = inventory;
         _inventoryNote = note;
-        InventoryFilterPanel.Visibility = parts.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        var components = inventory.ToList();
+        if (_vm != null)
+        {
+            _linkState = LinkState(_vm.Snapshot);
+            if (IcueLink(_vm, _vm.Snapshot) is { } link) components.Insert(Math.Min(components.Count, 9), link);
+        }
+        _cards = components.Select(c => new HardwareCard(c)).ToArray();
+        InventoryFilter.Visibility = _cards.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         ScanButton.Content = Strings.Hw_DetectarNovamente;
         ApplyFilter();
     }
@@ -148,26 +177,26 @@ public partial class HardwarePage : UserControl
 
     private void ApplyFilter()
     {
-        if (_parts == null) return;
+        if (_cards == null) return;
         string filter = InventoryFilter.Text.Trim();
-        var compare = CultureInfo.CurrentCulture.CompareInfo;
-        bool Contains(string value) => compare.IndexOf(value, filter, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
-        var results = filter.Length == 0 ? _parts : _parts.Where(part =>
-            Contains(part.Name) || Contains(part.Category) || Contains(PartGroup.LabelFor(part.Category)) || Contains(part.Details)).ToArray();
-        DetectedParts.ItemsSource = GroupParts(results);
-        InventoryStatus.Text = (filter.Length == 0 ? string.Format(Strings.Hw_ItensInventario, results.Count) :
-            string.Format(Strings.Hw_Itens, results.Count, _parts.Count)) + _inventoryNote;
+        var results = filter.Length == 0 ? _cards : _cards.Where(card => card.Matches(filter)).ToArray();
+        DetectedParts.ItemsSource = results;
+        InventoryStatus.Text = (filter.Length == 0 ? string.Format(UiLanguage.Culture, Strings.Hw_ItensInventario, results.Count) :
+            string.Format(UiLanguage.Culture, Strings.Hw_Itens, results.Count, _cards.Count)) + _inventoryNote;
     }
 
-    private static IReadOnlyList<PartGroup> GroupParts(IEnumerable<HardwarePart> parts) =>
-        parts.GroupBy(part => part.Category)
-            .OrderBy(group => group.Key switch
-            {
-                "Processador" => 0,
-                "Placa de vídeo" => 1,
-                "Memória" => 2,
-                "Armazenamento" => 3,
-                _ => 4
-            })
-            .Select(group => new PartGroup(group.Key, group.ToArray())).ToArray();
+    private void Card_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: HardwareCard card } && DataContext is MainViewModel vm)
+            vm.OpenHardwareDetail(card.Component);
+    }
+
+    /// <summary>Teste visual (--hw-detail): espera o inventário e abre a ficha de um componente.</summary>
+    public async Task OpenDetailAsync(HardwareKind kind)
+    {
+        _scan ??= ScanAsync();
+        await _scan;
+        if (_cards?.FirstOrDefault(c => c.Component.Kind == kind) is { } card && DataContext is MainViewModel vm)
+            vm.OpenHardwareDetail(card.Component);
+    }
 }

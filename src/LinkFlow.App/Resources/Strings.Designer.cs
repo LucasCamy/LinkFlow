@@ -4337,15 +4337,6 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 32 GiB · 6000 MT/s configurados · DIMMA2.
-        /// </summary>
-        public static string Hw_32GiB6000MT {
-            get {
-                return ResourceManager.GetString("Hw_32GiB6000MT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Canal {0}.
         /// </summary>
         public static string Hw_Canal {
@@ -4517,24 +4508,6 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Firmware {0}.
-        /// </summary>
-        public static string Hw_Firmware {
-            get {
-                return ResourceManager.GetString("Hw_Firmware", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0:0.#} GiB de VRAM.
-        /// </summary>
-        public static string Hw_GiBVRAM {
-            get {
-                return ResourceManager.GetString("Hw_GiBVRAM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to iCUE LINK, ASUS Aura, MSI Mystic Light, Corsair DDR5 RGB e Logitech G.
         /// </summary>
         public static string Hw_ICUELINKASUSAura {
@@ -4634,47 +4607,11 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Módulo DDR5 (simulado).
-        /// </summary>
-        public static string Hw_ModuloDDR5Simulado {
-            get {
-                return ResourceManager.GetString("Hw_ModuloDDR5Simulado", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Módulo de memória.
-        /// </summary>
-        public static string Hw_ModuloMemoria {
-            get {
-                return ResourceManager.GetString("Hw_ModuloMemoria", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Monitor conectado.
         /// </summary>
         public static string Hw_MonitorConectado {
             get {
                 return ResourceManager.GetString("Hw_MonitorConectado", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} MT/s configurados.
-        /// </summary>
-        public static string Hw_MTConfigurados {
-            get {
-                return ResourceManager.GetString("Hw_MTConfigurados", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} MT/s nominais.
-        /// </summary>
-        public static string Hw_MTNominais {
-            get {
-                return ResourceManager.GetString("Hw_MTNominais", resourceCulture);
             }
         }
         
@@ -4688,29 +4625,11 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  núcleos.
-        /// </summary>
-        public static string Hw_Nucleos {
-            get {
-                return ResourceManager.GetString("Hw_Nucleos", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to  Leitura indisponível para {0}..
         /// </summary>
         public static string Hw_ReadUnavailable {
             get {
                 return ResourceManager.GetString("Hw_ReadUnavailable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Revisão {0}.
-        /// </summary>
-        public static string Hw_Revisao {
-            get {
-                return ResourceManager.GetString("Hw_Revisao", resourceCulture);
             }
         }
         
@@ -4733,38 +4652,1388 @@ namespace LinkFlow.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Simulado.
-        /// </summary>
-        public static string Hw_Simulado {
-            get {
-                return ResourceManager.GetString("Hw_Simulado", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Simulada.
-        /// </summary>
-        public static string Hw_SimulatedF {
-            get {
-                return ResourceManager.GetString("Hw_SimulatedF", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SSD de 1 TB (simulado).
-        /// </summary>
-        public static string Hw_SSD1TBSimulado {
-            get {
-                return ResourceManager.GetString("Hw_SSD1TBSimulado", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Teclado.
         /// </summary>
         public static string Hw_Teclado {
             get {
                 return ResourceManager.GetString("Hw_Teclado", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} adaptadores.
+        /// </summary>
+        public static string Hwi_AdapterCount {
+            get {
+                return ResourceManager.GetString("Hwi_AdapterCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arquitetura.
+        /// </summary>
+        public static string Hwi_Architecture {
+            get {
+                return ResourceManager.GetString("Hwi_Architecture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reserva disponível.
+        /// </summary>
+        public static string Hwi_AvailableSpare {
+            get {
+                return ResourceManager.GetString("Hwi_AvailableSpare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Banco.
+        /// </summary>
+        public static string Hwi_Bank {
+            get {
+                return ResourceManager.GetString("Hwi_Bank", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clock base.
+        /// </summary>
+        public static string Hwi_BaseClock {
+            get {
+                return ResourceManager.GetString("Hwi_BaseClock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fabricante da placa.
+        /// </summary>
+        public static string Hwi_BoardVendor {
+            get {
+                return ResourceManager.GetString("Hwi_BoardVendor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Build.
+        /// </summary>
+        public static string Hwi_Build {
+            get {
+                return ResourceManager.GetString("Hwi_Build", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Barramento.
+        /// </summary>
+        public static string Hwi_Bus {
+            get {
+                return ResourceManager.GetString("Hwi_Bus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Núcleo mais ocupado.
+        /// </summary>
+        public static string Hwi_BusiestCore {
+            get {
+                return ResourceManager.GetString("Hwi_BusiestCore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to L1 de dados.
+        /// </summary>
+        public static string Hwi_CacheL1Data {
+            get {
+                return ResourceManager.GetString("Hwi_CacheL1Data", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to L1 de instruções.
+        /// </summary>
+        public static string Hwi_CacheL1Instruction {
+            get {
+                return ResourceManager.GetString("Hwi_CacheL1Instruction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cache L3.
+        /// </summary>
+        public static string Hwi_CacheL3Label {
+            get {
+                return ResourceManager.GetString("Hwi_CacheL3Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} vias.
+        /// </summary>
+        public static string Hwi_CacheWays {
+            get {
+                return ResourceManager.GetString("Hwi_CacheWays", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Capacidade.
+        /// </summary>
+        public static string Hwi_Capacity {
+            get {
+                return ResourceManager.GetString("Hwi_Capacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Áudio.
+        /// </summary>
+        public static string Hwi_CardAudio {
+            get {
+                return ResourceManager.GetString("Hwi_CardAudio", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa-mãe e BIOS.
+        /// </summary>
+        public static string Hwi_CardBoard {
+            get {
+                return ResourceManager.GetString("Hwi_CardBoard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa de vídeo.
+        /// </summary>
+        public static string Hwi_CardGraphics {
+            get {
+                return ResourceManager.GetString("Hwi_CardGraphics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memória.
+        /// </summary>
+        public static string Hwi_CardMemory {
+            get {
+                return ResourceManager.GetString("Hwi_CardMemory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monitores.
+        /// </summary>
+        public static string Hwi_CardMonitors {
+            get {
+                return ResourceManager.GetString("Hwi_CardMonitors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rede.
+        /// </summary>
+        public static string Hwi_CardNetwork {
+            get {
+                return ResourceManager.GetString("Hwi_CardNetwork", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sistema operacional.
+        /// </summary>
+        public static string Hwi_CardOs {
+            get {
+                return ResourceManager.GetString("Hwi_CardOs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Periféricos.
+        /// </summary>
+        public static string Hwi_CardPeripherals {
+            get {
+                return ResourceManager.GetString("Hwi_CardPeripherals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processador.
+        /// </summary>
+        public static string Hwi_CardProcessor {
+            get {
+                return ResourceManager.GetString("Hwi_CardProcessor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Armazenamento.
+        /// </summary>
+        public static string Hwi_CardStorage {
+            get {
+                return ResourceManager.GetString("Hwi_CardStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} canais.
+        /// </summary>
+        public static string Hwi_ChannelCount {
+            get {
+                return ResourceManager.GetString("Hwi_ChannelCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dual channel.
+        /// </summary>
+        public static string Hwi_ChannelDual {
+            get {
+                return ResourceManager.GetString("Hwi_ChannelDual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canais.
+        /// </summary>
+        public static string Hwi_Channels {
+            get {
+                return ResourceManager.GetString("Hwi_Channels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canal único.
+        /// </summary>
+        public static string Hwi_ChannelSingle {
+            get {
+                return ResourceManager.GetString("Hwi_ChannelSingle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mín. {0} · máx. {1} · média {2} (últimos 5 min).
+        /// </summary>
+        public static string Hwi_ChartStats {
+            get {
+                return ResourceManager.GetString("Hwi_ChartStats", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chipset.
+        /// </summary>
+        public static string Hwi_Chipset {
+            get {
+                return ResourceManager.GetString("Hwi_Chipset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fabricante do chip.
+        /// </summary>
+        public static string Hwi_ChipVendor {
+            get {
+                return ResourceManager.GetString("Hwi_ChipVendor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profundidade de cor.
+        /// </summary>
+        public static string Hwi_ColorDepth {
+            get {
+                return ResourceManager.GetString("Hwi_ColorDepth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} bits por cor.
+        /// </summary>
+        public static string Hwi_ColorDepthValue {
+            get {
+                return ResourceManager.GetString("Hwi_ColorDepthValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade configurada.
+        /// </summary>
+        public static string Hwi_ConfiguredSpeed {
+            get {
+                return ResourceManager.GetString("Hwi_ConfiguredSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conexão.
+        /// </summary>
+        public static string Hwi_Connection {
+            get {
+                return ResourceManager.GetString("Hwi_Connection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tela interna.
+        /// </summary>
+        public static string Hwi_ConnectionInternal {
+            get {
+                return ResourceManager.GetString("Hwi_ConnectionInternal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Especificações copiadas..
+        /// </summary>
+        public static string Hwi_Copied {
+            get {
+                return ResourceManager.GetString("Hwi_Copied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copiar ficha.
+        /// </summary>
+        public static string Hwi_Copy {
+            get {
+                return ResourceManager.GetString("Hwi_Copy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copiar todas as especificações como texto.
+        /// </summary>
+        public static string Hwi_CopyTip {
+            get {
+                return ResourceManager.GetString("Hwi_CopyTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Núcleos / threads.
+        /// </summary>
+        public static string Hwi_CoresThreads {
+            get {
+                return ResourceManager.GetString("Hwi_CoresThreads", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aviso crítico.
+        /// </summary>
+        public static string Hwi_CriticalWarning {
+            get {
+                return ResourceManager.GetString("Hwi_CriticalWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo atual.
+        /// </summary>
+        public static string Hwi_CurrentMode {
+            get {
+                return ResourceManager.GetString("Hwi_CurrentMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total lido.
+        /// </summary>
+        public static string Hwi_DataRead {
+            get {
+                return ResourceManager.GetString("Hwi_DataRead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Largura de dados.
+        /// </summary>
+        public static string Hwi_DataWidth {
+            get {
+                return ResourceManager.GetString("Hwi_DataWidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total escrito.
+        /// </summary>
+        public static string Hwi_DataWritten {
+            get {
+                return ResourceManager.GetString("Hwi_DataWritten", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data.
+        /// </summary>
+        public static string Hwi_Date {
+            get {
+                return ResourceManager.GetString("Hwi_Date", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} dispositivos.
+        /// </summary>
+        public static string Hwi_DeviceCount {
+            get {
+                return ResourceManager.GetString("Hwi_DeviceCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dispositivos.
+        /// </summary>
+        public static string Hwi_Devices {
+            get {
+                return ResourceManager.GetString("Hwi_Devices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desativado.
+        /// </summary>
+        public static string Hwi_Disabled {
+            get {
+                return ResourceManager.GetString("Hwi_Disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} discos · {1}.
+        /// </summary>
+        public static string Hwi_DiskCount {
+            get {
+                return ResourceManager.GetString("Hwi_DiskCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 disco · {0}.
+        /// </summary>
+        public static string Hwi_DiskCountOne {
+            get {
+                return ResourceManager.GetString("Hwi_DiskCountOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data do driver.
+        /// </summary>
+        public static string Hwi_DriverDate {
+            get {
+                return ResourceManager.GetString("Hwi_DriverDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fornecedor do driver.
+        /// </summary>
+        public static string Hwi_DriverProvider {
+            get {
+                return ResourceManager.GetString("Hwi_DriverProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão do EDID.
+        /// </summary>
+        public static string Hwi_EdidVersion {
+            get {
+                return ResourceManager.GetString("Hwi_EdidVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edição.
+        /// </summary>
+        public static string Hwi_Edition {
+            get {
+                return ResourceManager.GetString("Hwi_Edition", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ativado.
+        /// </summary>
+        public static string Hwi_Enabled {
+            get {
+                return ResourceManager.GetString("Hwi_Enabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Firmware.
+        /// </summary>
+        public static string Hwi_Firmware {
+            get {
+                return ResourceManager.GetString("Hwi_Firmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to BIOS legado.
+        /// </summary>
+        public static string Hwi_FirmwareLegacy {
+            get {
+                return ResourceManager.GetString("Hwi_FirmwareLegacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de inicialização.
+        /// </summary>
+        public static string Hwi_FirmwareMode {
+            get {
+                return ResourceManager.GetString("Hwi_FirmwareMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gama.
+        /// </summary>
+        public static string Hwi_Gamma {
+            get {
+                return ResourceManager.GetString("Hwi_Gamma", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gateway padrão.
+        /// </summary>
+        public static string Hwi_Gateway {
+            get {
+                return ResourceManager.GetString("Hwi_Gateway", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa de vídeo.
+        /// </summary>
+        public static string Hwi_GraphicsAdapter {
+            get {
+                return ResourceManager.GetString("Hwi_GraphicsAdapter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saúde (Windows).
+        /// </summary>
+        public static string Hwi_HealthWindows {
+            get {
+                return ResourceManager.GetString("Hwi_HealthWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Instalado em.
+        /// </summary>
+        public static string Hwi_Installed {
+            get {
+                return ResourceManager.GetString("Hwi_Installed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Base.
+        /// </summary>
+        public static string Hwi_InstrBase {
+            get {
+                return ResourceManager.GetString("Hwi_InstrBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Criptografia e números aleatórios.
+        /// </summary>
+        public static string Hwi_InstrCrypto {
+            get {
+                return ResourceManager.GetString("Hwi_InstrCrypto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manipulação de bits.
+        /// </summary>
+        public static string Hwi_InstrOther {
+            get {
+                return ResourceManager.GetString("Hwi_InstrOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vetoriais (SIMD).
+        /// </summary>
+        public static string Hwi_InstrVector {
+            get {
+                return ResourceManager.GetString("Hwi_InstrVector", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Virtualização.
+        /// </summary>
+        public static string Hwi_InstrVirtualization {
+            get {
+                return ResourceManager.GetString("Hwi_InstrVirtualization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Interface.
+        /// </summary>
+        public static string Hwi_Interface {
+            get {
+                return ResourceManager.GetString("Hwi_Interface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão do kernel.
+        /// </summary>
+        public static string Hwi_Kernel {
+            get {
+                return ResourceManager.GetString("Hwi_Kernel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Último início.
+        /// </summary>
+        public static string Hwi_LastBoot {
+            get {
+                return ResourceManager.GetString("Hwi_LastBoot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vida útil usada.
+        /// </summary>
+        public static string Hwi_LifeUsed {
+            get {
+                return ResourceManager.GetString("Hwi_LifeUsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Telemetria ao vivo.
+        /// </summary>
+        public static string Hwi_LiveTitle {
+            get {
+                return ResourceManager.GetString("Hwi_LiveTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Endereço MAC.
+        /// </summary>
+        public static string Hwi_Mac {
+            get {
+                return ResourceManager.GetString("Hwi_Mac", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fabricação.
+        /// </summary>
+        public static string Hwi_Manufactured {
+            get {
+                return ResourceManager.GetString("Hwi_Manufactured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to semana {0} de {1}.
+        /// </summary>
+        public static string Hwi_ManufacturedValue {
+            get {
+                return ResourceManager.GetString("Hwi_ManufacturedValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fabricante.
+        /// </summary>
+        public static string Hwi_Manufacturer {
+            get {
+                return ResourceManager.GetString("Hwi_Manufacturer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Capacidade máxima da placa.
+        /// </summary>
+        public static string Hwi_MaxCapacity {
+            get {
+                return ResourceManager.GetString("Hwi_MaxCapacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Erros de mídia.
+        /// </summary>
+        public static string Hwi_MediaErrors {
+            get {
+                return ResourceManager.GetString("Hwi_MediaErrors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tipo de mídia.
+        /// </summary>
+        public static string Hwi_MediaType {
+            get {
+                return ResourceManager.GetString("Hwi_MediaType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modelo.
+        /// </summary>
+        public static string Hwi_Model {
+            get {
+                return ResourceManager.GetString("Hwi_Model", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Módulos.
+        /// </summary>
+        public static string Hwi_Modules {
+            get {
+                return ResourceManager.GetString("Hwi_Modules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Módulo {0}.
+        /// </summary>
+        public static string Hwi_ModuleTitle {
+            get {
+                return ResourceManager.GetString("Hwi_ModuleTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} monitores.
+        /// </summary>
+        public static string Hwi_MonitorCount {
+            get {
+                return ResourceManager.GetString("Hwi_MonitorCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1 monitor.
+        /// </summary>
+        public static string Hwi_MonitorCountOne {
+            get {
+                return ResourceManager.GetString("Hwi_MonitorCountOne", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to +{0} na ficha completa.
+        /// </summary>
+        public static string Hwi_MoreItems {
+            get {
+                return ResourceManager.GetString("Hwi_MoreItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nome.
+        /// </summary>
+        public static string Hwi_Name {
+            get {
+                return ResourceManager.GetString("Hwi_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resolução nativa.
+        /// </summary>
+        public static string Hwi_NativeResolution {
+            get {
+                return ResourceManager.GetString("Hwi_NativeResolution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não.
+        /// </summary>
+        public static string Hwi_No {
+            get {
+                return ResourceManager.GetString("Hwi_No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abrir a ficha de {0}.
+        /// </summary>
+        public static string Hwi_OpenDetails {
+            get {
+                return ResourceManager.GetString("Hwi_OpenDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Outros adaptadores.
+        /// </summary>
+        public static string Hwi_OtherAdapters {
+            get {
+                return ResourceManager.GetString("Hwi_OtherAdapters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tabela de partições.
+        /// </summary>
+        public static string Hwi_PartitionStyle {
+            get {
+                return ResourceManager.GetString("Hwi_PartitionStyle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Part number.
+        /// </summary>
+        public static string Hwi_PartNumber {
+            get {
+                return ResourceManager.GetString("Hwi_PartNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (agora {1}).
+        /// </summary>
+        public static string Hwi_PcieNow {
+            get {
+                return ResourceManager.GetString("Hwi_PcieNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IDs PCI.
+        /// </summary>
+        public static string Hwi_PciIds {
+            get {
+                return ResourceManager.GetString("Hwi_PciIds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to rev. {0}.
+        /// </summary>
+        public static string Hwi_PciRevision {
+            get {
+                return ResourceManager.GetString("Hwi_PciRevision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to subsistema {0}.
+        /// </summary>
+        public static string Hwi_PciSubsystem {
+            get {
+                return ResourceManager.GetString("Hwi_PciSubsystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ciclos de energia.
+        /// </summary>
+        public static string Hwi_PowerCycles {
+            get {
+                return ResourceManager.GetString("Hwi_PowerCycles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tempo ligado.
+        /// </summary>
+        public static string Hwi_PowerOnHours {
+            get {
+                return ResourceManager.GetString("Hwi_PowerOnHours", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · principal.
+        /// </summary>
+        public static string Hwi_PrimaryValue {
+            get {
+                return ResourceManager.GetString("Hwi_PrimaryValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Código do produto.
+        /// </summary>
+        public static string Hwi_ProductCode {
+            get {
+                return ResourceManager.GetString("Hwi_ProductCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ranks.
+        /// </summary>
+        public static string Hwi_Ranks {
+            get {
+                return ResourceManager.GetString("Hwi_Ranks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade nominal.
+        /// </summary>
+        public static string Hwi_RatedSpeed {
+            get {
+                return ResourceManager.GetString("Hwi_RatedSpeed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to O Windows não informou estes dados para um usuário comum..
+        /// </summary>
+        public static string Hwi_ReadFailed {
+            get {
+                return ResourceManager.GetString("Hwi_ReadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Faixa de atualização.
+        /// </summary>
+        public static string Hwi_RefreshRange {
+            get {
+                return ResourceManager.GetString("Hwi_RefreshRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Revisão.
+        /// </summary>
+        public static string Hwi_Revision {
+            get {
+                return ResourceManager.GetString("Hwi_Revision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rotação.
+        /// </summary>
+        public static string Hwi_Rotation {
+            get {
+                return ResourceManager.GetString("Hwi_Rotation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tamanho da tela.
+        /// </summary>
+        public static string Hwi_ScreenSize {
+            get {
+                return ResourceManager.GetString("Hwi_ScreenSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to BIOS / UEFI.
+        /// </summary>
+        public static string Hwi_SectionBios {
+            get {
+                return ResourceManager.GetString("Hwi_SectionBios", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Placa-mãe.
+        /// </summary>
+        public static string Hwi_SectionBoard {
+            get {
+                return ResourceManager.GetString("Hwi_SectionBoard", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Caches.
+        /// </summary>
+        public static string Hwi_SectionCaches {
+            get {
+                return ResourceManager.GetString("Hwi_SectionCaches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conjuntos de instruções.
+        /// </summary>
+        public static string Hwi_SectionInstructions {
+            get {
+                return ResourceManager.GetString("Hwi_SectionInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visão geral.
+        /// </summary>
+        public static string Hwi_SectionOverview {
+            get {
+                return ResourceManager.GetString("Hwi_SectionOverview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setor lógico / físico.
+        /// </summary>
+        public static string Hwi_SectorSize {
+            get {
+                return ResourceManager.GetString("Hwi_SectorSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secure Boot desativado.
+        /// </summary>
+        public static string Hwi_SecureBootOff {
+            get {
+                return ResourceManager.GetString("Hwi_SecureBootOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secure Boot ativado.
+        /// </summary>
+        public static string Hwi_SecureBootOn {
+            get {
+                return ResourceManager.GetString("Hwi_SecureBootOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Número de série.
+        /// </summary>
+        public static string Hwi_SerialNumber {
+            get {
+                return ResourceManager.GetString("Hwi_SerialNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Família / modelo / stepping.
+        /// </summary>
+        public static string Hwi_Signature {
+            get {
+                return ResourceManager.GetString("Hwi_Signature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Slot.
+        /// </summary>
+        public static string Hwi_Slot {
+            get {
+                return ResourceManager.GetString("Hwi_Slot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Slots.
+        /// </summary>
+        public static string Hwi_Slots {
+            get {
+                return ResourceManager.GetString("Hwi_Slots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} de {1} em uso.
+        /// </summary>
+        public static string Hwi_SlotsValue {
+            get {
+                return ResourceManager.GetString("Hwi_SlotsValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alerta do controlador.
+        /// </summary>
+        public static string Hwi_SmartAlert {
+            get {
+                return ResourceManager.GetString("Hwi_SmartAlert", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem previsão de falha.
+        /// </summary>
+        public static string Hwi_SmartNoPrediction {
+            get {
+                return ResourceManager.GetString("Hwi_SmartNoPrediction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sem aviso crítico.
+        /// </summary>
+        public static string Hwi_SmartOk {
+            get {
+                return ResourceManager.GetString("Hwi_SmartOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Falha prevista.
+        /// </summary>
+        public static string Hwi_SmartPredicted {
+            get {
+                return ResourceManager.GetString("Hwi_SmartPredicted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão SMBIOS.
+        /// </summary>
+        public static string Hwi_SmbiosVersion {
+            get {
+                return ResourceManager.GetString("Hwi_SmbiosVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Soquete.
+        /// </summary>
+        public static string Hwi_Socket {
+            get {
+                return ResourceManager.GetString("Hwi_Socket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}% (limite {1}%).
+        /// </summary>
+        public static string Hwi_SpareValue {
+            get {
+                return ResourceManager.GetString("Hwi_SpareValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Velocidade.
+        /// </summary>
+        public static string Hwi_Speed {
+            get {
+                return ResourceManager.GetString("Hwi_Speed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Conectado.
+        /// </summary>
+        public static string Hwi_StateConnected {
+            get {
+                return ResourceManager.GetString("Hwi_StateConnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desconectado.
+        /// </summary>
+        public static string Hwi_StateDisconnected {
+            get {
+                return ResourceManager.GetString("Hwi_StateDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Estado.
+        /// </summary>
+        public static string Hwi_Status {
+            get {
+                return ResourceManager.GetString("Hwi_Status", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Funcionando.
+        /// </summary>
+        public static string Hwi_StatusOk {
+            get {
+                return ResourceManager.GetString("Hwi_StatusOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Com problema ({0}).
+        /// </summary>
+        public static string Hwi_StatusProblem {
+            get {
+                return ResourceManager.GetString("Hwi_StatusProblem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disco do Windows.
+        /// </summary>
+        public static string Hwi_SystemDisk {
+            get {
+                return ResourceManager.GetString("Hwi_SystemDisk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modelo do sistema.
+        /// </summary>
+        public static string Hwi_SystemModel {
+            get {
+                return ResourceManager.GetString("Hwi_SystemModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total.
+        /// </summary>
+        public static string Hwi_Total {
+            get {
+                return ResourceManager.GetString("Hwi_Total", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tipo.
+        /// </summary>
+        public static string Hwi_Type {
+            get {
+                return ResourceManager.GetString("Hwi_Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Indisponível.
+        /// </summary>
+        public static string Hwi_Unavailable {
+            get {
+                return ResourceManager.GetString("Hwi_Unavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Desligamentos inesperados.
+        /// </summary>
+        public static string Hwi_UnsafeShutdowns {
+            get {
+                return ResourceManager.GetString("Hwi_UnsafeShutdowns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ligado há.
+        /// </summary>
+        public static string Hwi_Uptime {
+            get {
+                return ResourceManager.GetString("Hwi_Uptime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} d {1} h {2} min.
+        /// </summary>
+        public static string Hwi_UptimeValue {
+            get {
+                return ResourceManager.GetString("Hwi_UptimeValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ID USB.
+        /// </summary>
+        public static string Hwi_UsbId {
+            get {
+                return ResourceManager.GetString("Hwi_UsbId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Versão.
+        /// </summary>
+        public static string Hwi_Version {
+            get {
+                return ResourceManager.GetString("Hwi_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Memória de vídeo.
+        /// </summary>
+        public static string Hwi_VideoMemory {
+            get {
+                return ResourceManager.GetString("Hwi_VideoMemory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Modo de vídeo.
+        /// </summary>
+        public static string Hwi_VideoMode {
+            get {
+                return ResourceManager.GetString("Hwi_VideoMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Virtual.
+        /// </summary>
+        public static string Hwi_Virtual {
+            get {
+                return ResourceManager.GetString("Hwi_Virtual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Virtualização (firmware).
+        /// </summary>
+        public static string Hwi_Virtualization {
+            get {
+                return ResourceManager.GetString("Hwi_Virtualization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visível ao Windows.
+        /// </summary>
+        public static string Hwi_Visible {
+            get {
+                return ResourceManager.GetString("Hwi_Visible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tensão.
+        /// </summary>
+        public static string Hwi_Voltage {
+            get {
+                return ResourceManager.GetString("Hwi_Voltage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Volumes.
+        /// </summary>
+        public static string Hwi_Volumes {
+            get {
+                return ResourceManager.GetString("Hwi_Volumes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sim.
+        /// </summary>
+        public static string Hwi_Yes {
+            get {
+                return ResourceManager.GetString("Hwi_Yes", resourceCulture);
             }
         }
         

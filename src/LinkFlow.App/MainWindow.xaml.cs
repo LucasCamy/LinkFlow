@@ -146,7 +146,7 @@ public partial class MainWindow : Window
         else if (e.Key == Key.Escape && !inText)
         {
             // Esc: primeiro fecha detalhes/aviso/limpa seleção; depois esconde na bandeja
-            if (ViewModel.CloseDetail()) { }
+            if (ViewModel.CloseDetail() || ViewModel.CloseHardwareDetail()) { }
             else if (ViewModel.ToastVisible) ViewModel.ToastVisible = false;
             else if (ViewModel.SelectedPage == 1 && ViewModel.HasSelection) ViewModel.ClearSelectionCommand.Execute(null);
             else Close();
@@ -219,6 +219,9 @@ public partial class MainWindow : Window
     }
 
     public void SelectPage(int index) => ViewModel.SelectedPage = index;
+
+    /// <summary>Modo de captura: abre a ficha de um componente da tela Hardware.</summary>
+    public Task OpenHardwareDetailAsync(Services.HardwareKind kind) => HardwareView.OpenDetailAsync(kind);
 
     private bool ConfirmDisableFailSafe() => MessageBox.Show(this, Strings.Main_DisableFailSafeMessage,
         Strings.Main_DisableFailSafeTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
