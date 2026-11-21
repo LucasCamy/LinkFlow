@@ -11,10 +11,15 @@ public sealed partial class LinkFlowEngine
     private async Task HubLoopAsync(CancellationToken ct)
     {
         var rgbClock = new RgbFrameClock();
+        var hubRgbHealth = new RgbDeviceHealth("RGB do hub", _opt.RgbSync, periodicRefresh: false);
         int rgbInterval = RgbFrameClock.IntervalMs(_opt.HubRgbMinInterval);
         long nextRead = 0, nextReconnect = 0, lastSpeedApply = 0, lastRgbApply = 0;
         long nextDeviceCheck = Stopwatch.GetTimestamp() + Ticks(_opt.SubDeviceCheckInterval);
         long appliedRgbVersion = -1;
+        long attemptedRgbVersion = -1;
+        long reportedSpeedRevision = -1;
+        bool? reportedSpeedProtection = null;
+        bool? appliedSpeedProtection = null;
         int failures = 0;
         Dictionary<int, byte>? lastSent = null;
         var zeroReads = new Dictionary<string, int>();
@@ -25,8 +30,9 @@ public sealed partial class LinkFlowEngine
 
         while (!ct.IsCancellationRequested)
         {
-            Beat(HubLane);
             long now = Stopwatch.GetTimestamp();
+            bool progressed = false;
+            TimeSpan? pendingSpeedWait = null;
             try
             {
                 if (conflictProbe != null && now >= nextConflictCheck)
@@ -58,6 +64,8 @@ public sealed partial class LinkFlowEngine
                         zeroReads.Clear();
                         lastSent = null;
                         appliedRgbVersion = -1;
+                        attemptedRgbVersion = -1;
+                        hubRgbHealth.Reset();
                         nextRead = 0;
                         bool reconnected;
                         lock (_stateLock) reconnected = _hubEverConnected;
@@ -89,8 +97,12 @@ public sealed partial class LinkFlowEngine
                     if (now >= nextRead)
                     {
                         nextRead = now + Ticks(_opt.TelemetryInterval);
-                        var speeds = _hub.ReadSpeeds();
-                        var temps = _hub.ReadTemperatures();
+                        long telemetryStarted = Stopwatch.GetTimestamp();
+                        IReadOnlyDictionary<int, int>? speeds;
+                        IReadOnlyDictionary<int, float>? temps;
+                        try { speeds = _hub.ReadSpeeds(); temps = _hub.ReadTemperatures(); }
+                        finally { History.Metrics.Duration("hub.telemetry", Stopwatch.GetElapsedTime(telemetryStarted)); }
+                        ct.ThrowIfCancellationRequested();
 
                         if (speeds == null && temps == null) failures++;
                         else failures = 0;
@@ -101,6 +113,7 @@ public sealed partial class LinkFlowEngine
                             _hub.Disconnect(restoreHardwareMode: false);
                             OnHubDisconnected(raiseAlert: !inResumeGrace);
                             nextReconnect = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(1));
+                            Beat(HubLane); // The disconnect/retry policy completed; an absent device is not a stuck lane.
                             continue;
                         }
 
@@ -120,13 +133,26 @@ public sealed partial class LinkFlowEngine
                     }
 
                     // 2. Velocidades (somente quando mudam, ou reafirmação periódica)
-                    var desired = ComputeDesiredSpeeds(cfg);
+                    bool requestedProtection = _failSafe;
+                    var desired = ComputeDesiredSpeeds(cfg, requestedProtection);
                     bool reassert = Stopwatch.GetElapsedTime(lastSpeedApply) >= _opt.SpeedReassertInterval;
-                    if (desired.Count > 0 && (lastSent == null || reassert || !SameSpeeds(desired, lastSent)))
+                    bool speedChanged = desired.Count > 0 && (lastSent == null || reassert || !SameSpeeds(desired, lastSent));
+                    bool speedDue = lastSent == null || appliedSpeedProtection != requestedProtection ||
+                        Stopwatch.GetElapsedTime(lastSpeedApply) >= _opt.SpeedApplyMinInterval;
+                    if (speedChanged && !speedDue)
+                        pendingSpeedWait = _opt.SpeedApplyMinInterval - Stopwatch.GetElapsedTime(lastSpeedApply);
+                    if (speedChanged && speedDue)
                     {
-                        if (_hub.SetSpeedsPercent(desired))
+                        bool applied = _hub.SetSpeedsPercent(desired);
+                        bool protectionOverride = requestedProtection;
+                        ReportDeviceCommandResult("fans", cfg.Revision, applied && !protectionOverride,
+                            protectionOverride ? "deferred-by-safety" : applied ? "hub-accepted;rpm-settling" : "hub-rejected");
+                        reportedSpeedRevision = cfg.Revision;
+                        reportedSpeedProtection = protectionOverride;
+                        if (applied)
                         {
                             lastSent = desired;
+                            appliedSpeedProtection = requestedProtection;
                             lastSpeedApply = Stopwatch.GetTimestamp();
                             lock (_stateLock)
                             {
@@ -139,37 +165,61 @@ public sealed partial class LinkFlowEngine
                             }
                         }
                     }
+                    else if (desired.Count > 0 && lastSent != null && SameSpeeds(desired, lastSent) &&
+                        (reportedSpeedRevision != cfg.Revision || reportedSpeedProtection != requestedProtection))
+                    {
+                        bool protectionOverride = requestedProtection;
+                        ReportDeviceCommandResult("fans", cfg.Revision, !protectionOverride, protectionOverride ? "deferred-by-safety" : "unchanged-confirmed-output");
+                        reportedSpeedRevision = cfg.Revision;
+                        reportedSpeedProtection = protectionOverride;
+                    }
 
                     // 3. RGB do hub (limitado a ~16 atualizações/s durante arrastes e efeitos)
                     bool hubAnimated = cfg.Rgb.SyncHub && cfg.Rgb.IsAnimated;
                     long frame = rgbClock.FrameTime(RgbEffects.Now, rgbInterval);
                     bool nextRgbFrame = hubAnimated && rgbClock.IsDue(frame, rgbInterval);
-                    if ((appliedRgbVersion != rgbVersion || nextRgbFrame) && Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
+                    bool rgbRetry = hubRgbHealth.Failing && hubRgbHealth.ResendDue(now, hubAnimated);
+                    bool rgbNormal = !hubRgbHealth.Failing && (attemptedRgbVersion != rgbVersion || nextRgbFrame);
+                    if ((!cfg.Rgb.SyncHub && appliedRgbVersion != rgbVersion || cfg.Rgb.SyncHub && (rgbNormal || rgbRetry)) &&
+                        Stopwatch.GetElapsedTime(lastRgbApply) >= _opt.HubRgbMinInterval)
                     {
                         bool changed = appliedRgbVersion != rgbVersion;
-                        appliedRgbVersion = rgbVersion;
+                        attemptedRgbVersion = rgbVersion;
                         lastRgbApply = Stopwatch.GetTimestamp();
                         if (cfg.Rgb.SyncHub)
                         {
+                            if (rgbRetry) hubRgbHealth.Resent(lastRgbApply);
                             bool ok;
                             if (hubAnimated)
                             {
-                                ok = ApplyHubFrame(cfg.Rgb, frame);
+                                ok = SafeCall(() => ApplyHubFrame(cfg.Rgb, frame));
                                 rgbClock.RecordFrame(frame, rgbInterval, ok ? Stopwatch.GetElapsedTime(lastRgbApply) : null);
                             }
                             else
                             {
                                 var o = cfg.Rgb.OutputFor(RgbTargets.Hub);
-                                ok = _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness);
+                                ok = SafeCall(() => _hub.SetGlobalRgb(o.R, o.G, o.B, o.Brightness));
                             }
+                            long confirmedAt = Stopwatch.GetTimestamp();
+                            if (ok)
+                            {
+                                appliedRgbVersion = rgbVersion;
+                                hubRgbHealth.Succeeded(confirmedAt, cfg.Rgb.OutputFor(RgbTargets.Hub, frame, 0));
+                            }
+                            else if (hubRgbHealth.Failed(confirmedAt) is { } line) Log.Warn(line);
                             if (changed || _rgbHubOk != ok) lock (_stateLock) _rgbHubOk = ok;
+                            ReportDeviceCommandResult("rgb.hub", cfg.Revision, ok, ok ? "controller-accepted" : "hub-rejected");
                         }
                         else
                         {
+                            appliedRgbVersion = rgbVersion;
+                            hubRgbHealth.Reset();
                             lock (_stateLock) _rgbHubOk = null;
                         }
                     }
+                    if (hubRgbHealth.Poll(Stopwatch.GetTimestamp()) is { } recoveredRgb) Log.Info(recoveredRgb);
                 }
+                progressed = true;
             }
             catch (OperationCanceledException) { break; }
             catch (Exception ex)
@@ -177,15 +227,19 @@ public sealed partial class LinkFlowEngine
                 Log.Error("Erro na fila do hub", ex);
                 await Task.Delay(1000, ct).ConfigureAwait(false);
             }
+            if (progressed) Beat(HubLane);
 
             // Espera até a próxima leitura, ou acorda antes se a configuração mudar
             var wait = _hub.IsConnected
                 ? Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextRead)
                 : Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextReconnect);
-            if (Interlocked.Read(ref _rgbVersion) != appliedRgbVersion && _hub.IsConnected)
+            if (pendingSpeedWait is { } speedWait) wait = Min(wait, speedWait);
+            if (Interlocked.Read(ref _rgbVersion) != attemptedRgbVersion && _hub.IsConnected && !hubRgbHealth.Failing)
                 wait = Min(wait, _opt.HubRgbMinInterval);
-            if (_hub.IsConnected && CurrentRgb is { SyncHub: true, IsAnimated: true })
+            if (_hub.IsConnected && !hubRgbHealth.Failing && CurrentRgb is { SyncHub: true, IsAnimated: true })
                 wait = Min(wait, RgbFrameWait(rgbClock, rgbInterval, lastRgbApply, _opt.HubRgbMinInterval));
+            if (_hub.IsConnected && hubRgbHealth.UntilNextAction(Stopwatch.GetTimestamp(), CurrentRgb.IsAnimated) is { } retryWait)
+                wait = Min(wait, retryWait);
             await WaitAsync(_hubSignal, Clamp(wait), ct).ConfigureAwait(false);
         }
     }
@@ -226,7 +280,9 @@ public sealed partial class LinkFlowEngine
                 DefaultName = d.Name,
                 Model = d.Model.ToString(),
                 IsPump = d.IsPump,
-                Rpm = d.CurrentRpm
+                Rpm = d.CurrentRpm,
+                RpmAvailable = false,
+                RpmValidity = LinkDeviceCatalog.HasTachometer(d.Model.ToString()) ? ReadingValidity.Unavailable : ReadingValidity.NotSupported
             }).ToList();
             foreach (var key in _alerts.Keys.Where(k => k.StartsWith("pump:", StringComparison.Ordinal) &&
                          !_fans.Any(f => f.IsPump && $"pump:{f.Key}" == k)).ToArray())
@@ -247,9 +303,15 @@ public sealed partial class LinkFlowEngine
             _coolantChannel = null;
             _hubTemperatures = null;
             _hasHubSpeeds = false;
+            var disconnectedAt = Stopwatch.GetTimestamp();
+            var disconnectedUtc = DateTimeOffset.UtcNow;
+            Acquisition("hub.rpm", "iCUE LINK").Record(false, false, "hub-disconnected", disconnectedAt, disconnectedUtc);
+            Acquisition("coolant.temp", "iCUE LINK").Record(false, false, "hub-disconnected", disconnectedAt, disconnectedUtc);
             foreach (var fan in _fans)
             {
                 fan.Rpm = 0;
+                fan.RpmAvailable = false;
+                if (fan.HasTachometer) Acquisition($"fan:{fan.Key}", "iCUE LINK").Record(false, false, "hub-disconnected", disconnectedAt, disconnectedUtc);
                 fan.Temperature = null;
             }
             _failSafeRecoveryStarted = null;
@@ -274,35 +336,34 @@ public sealed partial class LinkFlowEngine
             _hubTemperatures = temps;
             _coolant = null;
             _coolantChannel = null;
-            if (temps != null)
+            if (pump != null && temps != null)
             {
-                if (pump != null && temps.TryGetValue(pump.Channel, out var pt) && pt > 0 && float.IsFinite(pt))
+                if (temps.TryGetValue(pump.Channel, out var pt) && pt > 0 && float.IsFinite(pt))
                 {
                     _coolant = pt;
                     _coolantChannel = pump.Channel;
                 }
-                else
-                {
-                    // Reserva: bomba sem leitura própria. (O caso "líquido em outro canal" vinha de um erro de
-                    // leitura que deslocava as temperaturas um canal, corrigido em LinkHubProtocol.)
-                    foreach (var (channel, temperature) in temps)
-                    {
-                        if (temperature is not (> 15 and < 80) || temperature <= _coolant) continue;
-                        _coolant = temperature;
-                        _coolantChannel = channel;
-                    }
-                }
+                // A fan PCB/air sensor is not a coolant sensor. Channel numbering is now exact in the parser;
+                // a missing pump temperature remains unknown rather than borrowing another device's reading.
             }
             foreach (var f in _fans)
                 f.Temperature = temps != null && temps.TryGetValue(f.Channel, out var t) ? t : null;
 
-            _hasHubSpeeds = speeds != null;
-            if (speeds != null) _hubSpeedReads++;
+            RecordHubAcquisition(speeds, temps);
+            _hasHubSpeeds = speeds != null && _fans.Where(fan => fan.HasTachometer).All(fan => IsFresh($"fan:{fan.Key}"));
+            if (_hasHubSpeeds) _hubSpeedReads++;
             if (speeds == null) return;
 
             foreach (var f in _fans)
             {
-                f.Rpm = speeds.TryGetValue(f.Channel, out var rpm) ? rpm : 0;
+                f.RpmAvailable = f.HasTachometer && IsFresh($"fan:{f.Key}");
+                f.Rpm = f.RpmAvailable && speeds.TryGetValue(f.Channel, out var rpm) ? rpm : 0;
+                if (!f.RpmAvailable)
+                {
+                    zeroReads.Remove(f.Key);
+                    wearReads.Remove(f.Key);
+                    continue;
+                }
 
                 string name = cfg.GetFan(f.Key).Name ?? f.DefaultName;
                 if (f.IsPump)
@@ -346,35 +407,37 @@ public sealed partial class LinkFlowEngine
         }
     }
 
-    private byte EffectiveGlobal(ControlConfig cfg)
+    private byte EffectiveGlobal(ControlConfig cfg, bool? protection = null)
     {
-        if (_failSafe) return 100;
+        if (protection ?? _failSafe) return 100;
         if (cfg.Mode == FanControlMode.Curve && _curveOutput >= 0) return (byte)_curveOutput;
         return cfg.GlobalPercent;
     }
 
     /// <summary>Velocidade desejada por canal, considerando vínculo global, ajustes manuais, bomba e modo de segurança.</summary>
-    public Dictionary<int, byte> ComputeDesiredSpeeds(ControlConfig cfg)
+    public Dictionary<int, byte> ComputeDesiredSpeeds(ControlConfig cfg) => ComputeDesiredSpeeds(cfg, _failSafe);
+
+    private Dictionary<int, byte> ComputeDesiredSpeeds(ControlConfig cfg, bool protection)
     {
         var result = new Dictionary<int, byte>();
-        byte global = EffectiveGlobal(cfg);
-        bool failSafe = _failSafe;
-        var groupOutputs = _groupOutputs;
-        var calibration = _calibrationOverride;
         foreach (var dev in _hub.SubDevices)
         {
-            var ov = cfg.GetFan(FanState.KeyFor(dev));
-            // Vinculada: segue a curva do seu grupo (se houver) ou a potência global/curva global
-            byte linked = ov.Group != null && groupOutputs.TryGetValue(ov.Group, out var go) ? (byte)go : global;
-            byte p = failSafe ? (byte)100 : ov.Linked ? linked : ov.Percent;
-            // Calibração em andamento: a potência do degrau sendo medido (o modo de segurança continua mandando)
-            if (!failSafe && calibration != null && calibration.TryGetValue(dev.Channel, out var measuring)) p = measuring;
-            // Piso calibrado: abaixo dele a ventoinha para ou fica sem força para voltar a girar
-            else if (!dev.IsPump && ov.Calibration is { } cal && p < cal.MinPercent) p = cal.MinPercent;
-            if (dev.IsPump) p = Math.Max((byte)FanLimits.PumpMinPercent, p);
-            result[dev.Channel] = Math.Clamp(p, (byte)FanLimits.MinPercent, (byte)100);
+            if (!LinkDeviceCatalog.HasTachometer(dev.Model.ToString())) continue;
+            result[dev.Channel] = DesiredPercent(cfg, FanState.KeyFor(dev), dev.IsPump, dev.Channel, protection);
         }
         return result;
+    }
+
+    private byte DesiredPercent(ControlConfig cfg, string key, bool isPump, int channel, bool? protection = null)
+    {
+        bool failSafe = protection ?? _failSafe;
+        var ov = cfg.GetFan(key);
+        byte linked = ov.Group != null && _groupOutputs.TryGetValue(ov.Group, out var output) ? (byte)output : EffectiveGlobal(cfg, failSafe);
+        byte percent = failSafe ? (byte)100 : ov.Linked ? linked : ov.Percent;
+        if (!failSafe && _calibrationOverride is { } calibration && calibration.TryGetValue(channel, out var measuring)) percent = measuring;
+        else if (!isPump && ov.Calibration is { } cal && percent < cal.MinPercent) percent = cal.MinPercent;
+        if (isPump) percent = Math.Max((byte)FanLimits.PumpMinPercent, percent);
+        return Math.Clamp(percent, (byte)FanLimits.MinPercent, (byte)100);
     }
 
     private static bool SameSpeeds(Dictionary<int, byte> a, Dictionary<int, byte> b) =>

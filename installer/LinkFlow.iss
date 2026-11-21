@@ -10,13 +10,22 @@
 #ifndef OutputDir
   #define OutputDir "..\artifacts\release"
 #endif
+#ifndef OfficialSigning
+  #ifndef DevelopmentBuild
+    #define DevelopmentBuild 1
+  #endif
+#endif
 #define AppGuid "6F1A3C2E-8B4D-4E7A-9C51-2D7F0B9E4A13"
 
 [Setup]
 AppId={{{#AppGuid}}
 AppName=LinkFlow
 AppVersion={#AppVersion}
+#ifdef DevelopmentBuild
+AppVerName=LinkFlow {#AppVersion} (Development - unsigned)
+#else
 AppVerName=LinkFlow {#AppVersion}
+#endif
 AppPublisher=LucasCamy
 AppPublisherURL=https://github.com/LucasCamy/LinkFlow
 AppSupportURL=https://github.com/LucasCamy/LinkFlow/issues
@@ -29,7 +38,15 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.17763
 OutputDir={#OutputDir}
+#ifdef DevelopmentBuild
+OutputBaseFilename=LinkFlow-Dev-Setup-{#AppVersion}
+#else
 OutputBaseFilename=LinkFlow-Setup-{#AppVersion}
+#endif
+#ifdef OfficialSigning
+SignTool=linkflow
+SignedUninstaller=yes
+#endif
 SetupIconFile=..\src\LinkFlow.App\Assets\linkflow.ico
 UninstallDisplayIcon={app}\LinkFlow.App.exe
 UninstallDisplayName=LinkFlow

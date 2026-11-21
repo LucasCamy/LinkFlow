@@ -23,6 +23,7 @@ public partial class App : Application
     private bool _handoffToService;
     private DispatcherTimer? _serviceWatch;
     private DateTime _lastTrayUpdate;
+    private TextWriterTraceListener? _screenshotBindingTrace;
 
     public StartupOptions Options { get; private set; } = new();
     public MainWindow? MainView { get; private set; }
@@ -32,6 +33,9 @@ public partial class App : Application
     public bool IsServiceMode => _engine?.IsRemote == true;
     private PeripheralRgbBridge? _peripheralBridge;
     private AutomationService? _automation;
+
+    internal PeripheralRgbDiagnosticSnapshot? PeripheralsRgbDiagnostics => _peripheralBridge?.DiagnosticSnapshot;
+    internal PeripheralRgbDiagnosticExportStatus? PeripheralsRgbDiagnosticExportStatus => _peripheralBridge?.DiagnosticExportStatus;
 
     public static new App Current => (App)Application.Current;
 
@@ -49,6 +53,15 @@ public partial class App : Application
         // da thread da interface voltavam para a cultura do Windows (com a interface em inglês, números com vírgula).
         UiLanguage.Apply(UiLanguage.Resolve(Options.Language, UiLanguage.ReadSavedLanguage(AppPaths.UiSettingsFile),
             CultureInfo.CurrentUICulture));
+
+        if (Options.ScreenshotPath is { } screenshot)
+        {
+            var bindingLog = Path.GetFullPath(screenshot + ".bindings.log");
+            Directory.CreateDirectory(Path.GetDirectoryName(bindingLog)!);
+            _screenshotBindingTrace = new TextWriterTraceListener(new StreamWriter(bindingLog, append: false));
+            PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning;
+            PresentationTraceSources.DataBindingSource.Listeners.Add(_screenshotBindingTrace);
+        }
     }
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -166,13 +179,22 @@ public partial class App : Application
         if (!_engine.IsRemote && !Options.Simulate && !testRun) WatchForService();
         if (_engine.IsRemote && !Options.Simulate && !testRun) _ = Task.Run(LeaveElevatedAutoStart);
         SettingsVm.AttachEngine(_engine);
+        Updates.AttachEngine(_engine);
 
         _vm = new MainViewModel(_engine, alertHistoryPath: testRun || Options.Simulate
             ? null : Path.Combine(AppPaths.UserDir, "alerts.json"));
+        if (!testRun && !Options.Simulate)
+        {
+            SystemOperationJournal.Shared.Changed += operation => _engine.ReportExternalOperation(operation);
+            foreach (var operation in SystemOperationJournal.Shared.Read().Where(o => o.State == WindowsOperationState.Unconfirmed).Take(10))
+                _engine.ReportExternalOperation(operation);
+        }
         // O SDK Logitech fica na sessão do usuário, em uma fila independente.
         if (!_engine.IsSimulated && !testRun)
         {
             var bridge = _peripheralBridge = new PeripheralRgbBridge(_engine);
+            if (Options.PeripheralRgbDiagnosticsEnabled)
+                bridge.StartDiagnostics(Path.Combine(AppPaths.UserDir, "diagnostics", $"peripheral-rgb-{Environment.ProcessId}.json"));
             void UpdateStatus() => _vm.SetExternalPeripheralsStatus(bridge.Status, bridge.HasIssue);
             bridge.StatusChanged += () => Dispatcher.BeginInvoke(UpdateStatus);
             _vm.RgbRefreshRequested += bridge.RequestResend;
@@ -255,7 +277,11 @@ public partial class App : Application
                     }
                     cancel.WaitHandle.WaitOne(1000);
                 }
-                Log.Warn("Serviço instalado mas sem resposta; usando modo local até ele aparecer.");
+                // A indisponibilidade do pipe não transfere a posse do hardware. O serviço pode estar
+                // controlando normalmente, ou abrir o hardware antes de publicar seu endpoint.
+                if (cancel.IsCancellationRequested) throw new OperationCanceledException(cancel);
+                Log.Warn("Serviço instalado sem resposta: abrindo interface em modo de espera, sem assumir o hardware.");
+                return new WaitingServiceClient();
             }
         }
 
@@ -571,6 +597,7 @@ public partial class App : Application
         if (Options.ScreenshotHeight is { } height) w.Height = height;
         w.Show();
         w.SelectPage(Options.ScreenshotPage);
+        if (Options.ScreenshotPage == 1 && Options.ScreenshotDetail == "devices") w.ShowFanDevices();
         if (Options.ScreenshotPage == 3) w.ForceLcdPreview();
 
         await Task.Delay(3500);
@@ -579,6 +606,8 @@ public partial class App : Application
             if (Options.ScreenshotPage == 1) w.ShowFanDevices();
             foreach (var f in w.ViewModel.Fans.Take(Options.ScreenshotSelect)) f.IsSelected = true;
         }
+        if (Options.ScreenshotPage == 1 && Options.ScreenshotGroupName is { } group)
+            w.ViewModel.GroupNameInput = group;
         if (Options.ScreenshotHardwareDetail != null &&
             Enum.TryParse<Services.HardwareKind>(Options.ScreenshotHardwareDetail, ignoreCase: true, out var hardwareKind))
         {
@@ -594,6 +623,8 @@ public partial class App : Application
         w.UpdateLayout();
 
         var root = (FrameworkElement)w.Content;
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        await File.WriteAllTextAsync(path + ".layout.json", CaptureScreenshotLayout(root));
         var dpi = VisualTreeHelper.GetDpi(w);
         var bmp = new RenderTargetBitmap(
             (int)Math.Ceiling(root.ActualWidth * dpi.DpiScaleX),
@@ -603,10 +634,61 @@ public partial class App : Application
 
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bmp));
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
         await using (var fs = File.Create(path)) encoder.Save(fs);
 
         Log.Info($"Screenshot salvo em {path}");
+        _screenshotBindingTrace?.Flush();
+        if (_screenshotBindingTrace is { } bindingTrace)
+        {
+            PresentationTraceSources.DataBindingSource.Listeners.Remove(bindingTrace);
+            bindingTrace.Dispose();
+            _screenshotBindingTrace = null;
+        }
         ExitApplication();
+    }
+
+    private static string CaptureScreenshotLayout(FrameworkElement root)
+    {
+        var pending = new Stack<DependencyObject>();
+        var controls = new List<object>();
+        pending.Push(root);
+        while (pending.TryPop(out var node) && controls.Count < 512)
+        {
+            if (node is FrameworkElement element && element.IsVisible &&
+                (node is System.Windows.Controls.Button or System.Windows.Controls.TextBox or System.Windows.Controls.ComboBox ||
+                    element.Name.StartsWith("Batch", StringComparison.Ordinal)))
+            {
+                var origin = element.TransformToAncestor(root).Transform(new Point());
+                var padding = node switch
+                {
+                    System.Windows.Controls.Control control => control.Padding,
+                    System.Windows.Controls.Border border => border.Padding,
+                    _ => new Thickness()
+                };
+                controls.Add(new
+                {
+                    element.Name, Type = element.GetType().Name,
+                    X = origin.X, Y = origin.Y, Width = element.ActualWidth, Height = element.ActualHeight,
+                    DesiredWidth = element.DesiredSize.Width, DesiredHeight = element.DesiredSize.Height,
+                    element.MinWidth, element.MinHeight, element.IsEnabled,
+                    FontSize = node is System.Windows.Controls.Control fontControl ? (double?)fontControl.FontSize : null,
+                    MaxWidth = double.IsFinite(element.MaxWidth) ? (double?)element.MaxWidth : null,
+                    MarginLeft = element.Margin.Left, MarginTop = element.Margin.Top,
+                    MarginRight = element.Margin.Right, MarginBottom = element.Margin.Bottom,
+                    PaddingLeft = padding.Left, PaddingTop = padding.Top,
+                    PaddingRight = padding.Right, PaddingBottom = padding.Bottom,
+                    BoundsInsideRoot = origin.X >= 0 && origin.Y >= 0 &&
+                        origin.X + element.ActualWidth <= root.ActualWidth && origin.Y + element.ActualHeight <= root.ActualHeight
+                });
+            }
+            for (int i = VisualTreeHelper.GetChildrenCount(node) - 1; i >= 0; i--)
+                pending.Push(VisualTreeHelper.GetChild(node, i));
+        }
+        return System.Text.Json.JsonSerializer.Serialize(new
+        {
+            ViewportWidth = root.ActualWidth, ViewportHeight = root.ActualHeight,
+            DpiScale = VisualTreeHelper.GetDpi(root).DpiScaleX, Controls = controls,
+            Scope = "Layout measurements only; no input values, device output or hardware confirmation"
+        }, Json.Options);
     }
 }

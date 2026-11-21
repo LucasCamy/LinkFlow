@@ -14,6 +14,9 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     private readonly UiSettingsService _settings;
     private readonly string? _installedDirectory;
     private readonly CancellationTokenSource _lifetime = new();
+    private readonly UpdateRecoveryStore _recovery = new(Path.Combine(AppPaths.UserDir, "updates"));
+    private IEngineClient? _engine;
+    private UpdateRecoveryRecord? _recoveryRecord;
 
     private AppRelease? _release;
     private DownloadedInstaller? _installer;
@@ -22,7 +25,11 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     private bool _busy;
     private string _status = "";
     private int _progress;
-    private string ReadyStatus => string.Format(Strings.Set_LinkFlowBaixadoVerificadoAplicativo, _release!.Version);
+    private string ReadyStatus => _installer?.Trust.PublisherVerified == true
+        ? string.Format(Strings.Set_LinkFlowBaixadoVerificadoAplicativo, _release!.Version)
+        : Text($"LinkFlow {_release!.Version}: integridade do download conferida. Distribuição de desenvolvimento sem confirmação de publicador.",
+            $"LinkFlow {_release!.Version}: download integrity checked. Development distribution without publisher verification.");
+    private static string Text(string pt, string en) => UiLanguage.Culture.TwoLetterISOLanguageName == "en" ? en : pt;
 
     public AppUpdateViewModel(UiSettingsService settings, bool allowInstall)
     {
@@ -34,6 +41,21 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     }
 
     public event Action<Version>? UpdateFound;
+    public void AttachEngine(IEngineClient engine) => _engine = engine;
+    public string DistributionStatus => AppUpdateClient.Official.Channel == DistributionChannel.Official
+        ? Text("Distribuição oficial: assinatura e publicador são obrigatórios para instalar atualizações.", "Official distribution: update installation requires a verified signature and publisher.")
+        : Text("Distribuição de desenvolvimento sem assinatura oficial. A verificação de SHA-256 confirma apenas a integridade do download.",
+            "Development distribution without an official signature. SHA-256 verification confirms download integrity only.");
+    public bool CanRestoreConfiguration => !_busy && _recoveryRecord?.State == UpdateRecoveryState.Failed && _engine is { IsConnected: true, CanWrite: true };
+    public string RecoveryStatus => _recoveryRecord?.State switch
+    {
+        UpdateRecoveryState.Pending or UpdateRecoveryState.Validating => Text("Atualização aguardando validação da interface e do controle.", "Update awaiting application and control health validation."),
+        UpdateRecoveryState.Healthy => Text("Última atualização validada: versão, comunicação e monitoramento disponíveis.", "Last update validated: version, communication and monitoring available."),
+        UpdateRecoveryState.Failed => Text("A última atualização não passou pela validação de saúde. A configuração anterior foi preservada para recuperação.",
+            "The last update did not pass health validation. The previous configuration is retained for recovery."),
+        UpdateRecoveryState.ConfigurationRestored => Text("Configuração anterior restaurada. A versão do aplicativo permanece instalada.", "Previous configuration restored. The installed application version is unchanged."),
+        _ => string.Empty
+    };
 
     public string VersionText => string.Format(Strings.Set_VersaoAtual, CurrentVersion.ToString(3));
 
@@ -65,6 +87,21 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
         _ = Task.Run(() => DownloadedInstaller.CleanOldDownloads(Cache), cancellationToken);
         try
         {
+            if (_engine is { } engine)
+            {
+                try
+                {
+                    _recoveryRecord = await _recovery.ValidatePendingAsync(() => new(CurrentVersion, engine.IsRemote, engine.IsConnected,
+                        engine.ServiceVersion, engine.NegotiatedProtocolVersion, engine.Snapshot), TimeSpan.FromSeconds(30), cancellationToken);
+                    OnPropertiesChanged(nameof(RecoveryStatus), nameof(CanRestoreConfiguration));
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    Log.Warn($"Validação da atualização não concluída: {ex.Message}");
+                    Status = Text("Não foi possível validar a última atualização. Consulte o diagnóstico antes de iniciar outra atualização.",
+                        "Could not validate the last update. Review diagnostics before starting another update.");
+                }
+            }
             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
             using var timer = new PeriodicTimer(TimeSpan.FromHours(6));
             do
@@ -137,6 +174,21 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
 
     public void CancelDownload() => _download?.Cancel();
 
+    public async Task RestorePreviousConfigurationAsync()
+    {
+        if (!CanRestoreConfiguration || _engine == null) return;
+        SetBusy(true);
+        try
+        {
+            var result = await _recovery.RestoreConfigurationAsync(_engine, _lifetime.Token);
+            _recoveryRecord = _recovery.Load();
+            Status = _recoveryRecord?.State == UpdateRecoveryState.ConfigurationRestored ? RecoveryStatus : result.Message;
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception ex) { Log.Warn($"Recuperação de configuração: {ex.Message}"); Status = ex.Message; }
+        finally { OnPropertyChanged(nameof(RecoveryStatus)); SetBusy(false); }
+    }
+
     private async Task DownloadAsync(AppRelease release)
     {
         using var download = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
@@ -192,6 +244,10 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
                 Status = Strings.Set_InstalacaoLinkFlowMudouReabra;
                 return;
             }
+            if (_engine == null) throw new InvalidOperationException(Text("O controle ainda não está disponível para preparar a recuperação da atualização.",
+                "Control is not available yet to prepare update recovery."));
+            _recoveryRecord = _recovery.Prepare(CurrentVersion, _release!.Version, _engine);
+            OnPropertyChanged(nameof(RecoveryStatus));
 
             // O próprio carregador do Inno solicita UAC e conserva a sessão de origem para reabrir a interface.
             var start = new ProcessStartInfo(installer.Path) { UseShellExecute = false, WorkingDirectory = Environment.SystemDirectory };
@@ -202,6 +258,8 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
             if (!cancellationToken.IsCancellationRequested)
             {
                 Log.Info($"Instalador do LinkFlow encerrado com código {process.ExitCode}.");
+                _recoveryRecord = _recovery.MarkFailed($"installer-exit-{process.ExitCode}");
+                OnPropertyChanged(nameof(RecoveryStatus));
                 Status = Strings.Set_AtualizacaoNaoFoiConcluida;
             }
         }
@@ -217,7 +275,7 @@ public sealed class AppUpdateViewModel : ObservableObject, IDisposable
     private void SetBusy(bool value)
     {
         _busy = value;
-        OnPropertiesChanged(nameof(CanCheck), nameof(HasUpdate), nameof(IsDownloading), nameof(ShowDownloadsLink), nameof(ActionText));
+        OnPropertiesChanged(nameof(CanCheck), nameof(HasUpdate), nameof(IsDownloading), nameof(ShowDownloadsLink), nameof(ActionText), nameof(CanRestoreConfiguration));
     }
 
     public void Dispose()

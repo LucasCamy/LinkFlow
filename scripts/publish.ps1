@@ -20,12 +20,12 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 try {
     # Os assemblies genérico e win-x64 de um pacote podem ter a mesma data no NuGet.
     # Publicar numa pasta vazia garante que o SDK copie o assembly certo para o Windows.
-    foreach ($proj in 'src\LinkFlow.App\LinkFlow.App.csproj', 'src\LinkFlow.Service\LinkFlow.Service.csproj') {
+    foreach ($proj in 'src\LinkFlow.App\LinkFlow.App.csproj', 'src\LinkFlow.Service\LinkFlow.Service.csproj', 'src\LinkFlow.Cli\LinkFlow.Cli.csproj') {
         dotnet publish (Join-Path $root $proj) -c $Configuration -r win-x64 --self-contained false -o $staging -nologo -v q
         if ($LASTEXITCODE -ne 0) { throw "Falha ao publicar $proj" }
     }
 
-    foreach ($exe in 'LinkFlow.App.exe', 'LinkFlow.Service.exe') {
+    foreach ($exe in 'LinkFlow.App.exe', 'LinkFlow.Service.exe', 'LinkFlow.Cli.exe') {
         if (-not (Test-Path -LiteralPath (Join-Path $staging $exe))) { throw "$exe não foi gerado" }
     }
     New-Item -ItemType Directory -Path $Output -Force | Out-Null

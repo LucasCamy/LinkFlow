@@ -33,7 +33,10 @@ public sealed class SimulatedHub : IFanHub
 
     public bool Present { get; set; } = true;
     public bool FailReads { get; set; }
+    public bool FailSpeedReads { get; set; }
+    public bool FailTemperatureReads { get; set; }
     public HashSet<int> StoppedChannels { get; } = new();
+    public HashSet<int> UnavailableRpmChannels { get; } = new();
 
     /// <summary>Ventoinha que para abaixo desta potência (calibração). Sem entrada: gira em qualquer potência.</summary>
     public Dictionary<int, byte> StallBelowPercent { get; } = new();
@@ -54,7 +57,11 @@ public sealed class SimulatedHub : IFanHub
 
     private readonly HashSet<int> _stalled = new();
     public int SetSpeedsCalls { get; private set; }
+    public int SpeedFailuresRemaining { get; set; }
     public int SetRgbCalls { get; private set; }
+    public int RgbFailuresRemaining { get; set; }
+    public long LastRgbAttemptTimestamp { get; private set; }
+    public long PreviousRgbAttemptTimestamp { get; private set; }
     public int ConnectCalls { get; private set; }
     public IReadOnlyDictionary<int, byte> LastSpeeds { get; private set; } = new Dictionary<int, byte>();
     public (byte R, byte G, byte B, byte Brightness)? LastRgb { get; private set; }
@@ -141,7 +148,7 @@ public sealed class SimulatedHub : IFanHub
         ReadGate.Wait();
         lock (_lock)
         {
-            if (!IsConnected || FailReads) return null;
+            if (!IsConnected || FailReads || FailSpeedReads) return null;
             var result = new Dictionary<int, int>();
             foreach (var d in _devices)
             {
@@ -167,7 +174,7 @@ public sealed class SimulatedHub : IFanHub
                 _rpm[d.Channel] = cur;
                 _rpmAt[d.Channel] = now;
                 int rpm = target == 0 ? 0 : (int)(cur + _rnd.Next(-12, 12));
-                if (rpm > 0) result[d.Channel] = rpm;
+                if (!UnavailableRpmChannels.Contains(d.Channel)) result[d.Channel] = Math.Max(0, rpm);
             }
             return result;
         }
@@ -177,7 +184,7 @@ public sealed class SimulatedHub : IFanHub
     {
         lock (_lock)
         {
-            if (!IsConnected || FailReads) return null;
+            if (!IsConnected || FailReads || FailTemperatureReads) return null;
             return new Dictionary<int, float> { [CoolantSensorChannel] = CoolantTemp + (float)(_rnd.NextDouble() * 0.2) };
         }
     }
@@ -188,6 +195,7 @@ public sealed class SimulatedHub : IFanHub
         {
             if (!IsConnected) return false;
             SetSpeedsCalls++;
+            if (SpeedFailuresRemaining > 0) { SpeedFailuresRemaining--; return false; }
             var merged = new Dictionary<int, byte>(LastSpeeds);
             foreach (var kv in channelSpeeds) merged[kv.Key] = kv.Value;
             LastSpeeds = merged;
@@ -203,6 +211,13 @@ public sealed class SimulatedHub : IFanHub
     public void PlugDevice(ConnectedSubDevice device)
     {
         lock (_lock) _devices.Add(device);
+        _pendingChange = true;
+    }
+
+    /// <summary>Teste: simula remover um dispositivo da corrente sem desconectar o hub USB.</summary>
+    public void UnplugDevice(int channel)
+    {
+        lock (_lock) _devices.RemoveAll(device => device.Channel == channel);
         _pendingChange = true;
     }
 
@@ -223,6 +238,9 @@ public sealed class SimulatedHub : IFanHub
         {
             if (!IsConnected) return false;
             SetRgbCalls++;
+            PreviousRgbAttemptTimestamp = LastRgbAttemptTimestamp;
+            LastRgbAttemptTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();
+            if (RgbFailuresRemaining > 0) { RgbFailuresRemaining--; return false; }
             LastRgb = (r, g, b, brightnessPercent);
             Thread.Sleep(5);
             return true;
@@ -259,6 +277,12 @@ public sealed class SimulatedSensors : ISensorSource
 
     /// <summary>Teste: o LibreHardwareMonitor parou de entregar temperaturas (ex.: após suspender).</summary>
     public bool TemperaturesLost { get; set; }
+    public bool ThrowOnRead { get; set; }
+    public ManualResetEventSlim OpenGate { get; } = new(initialState: true);
+    public ManualResetEventSlim ReadGate { get; } = new(initialState: true);
+    public ManualResetEventSlim DiskReadGate { get; } = new(initialState: true);
+    private int _readWaiters;
+    public bool IsReadWaiting => Volatile.Read(ref _readWaiters) != 0;
 
     public int OpenCalls { get; private set; }
 
@@ -267,6 +291,7 @@ public sealed class SimulatedSensors : ISensorSource
 
     public void Open()
     {
+        OpenGate.Wait();
         Thread.Sleep(OpenDelay);
         if (OpenCalls++ > 0 && ReopenRestoresTemperatures) TemperaturesLost = false;
         IsOpen = true;
@@ -274,6 +299,10 @@ public sealed class SimulatedSensors : ISensorSource
 
     public HardwareTelemetry Read()
     {
+        Interlocked.Increment(ref _readWaiters);
+        try { ReadGate.Wait(); }
+        finally { Interlocked.Decrement(ref _readWaiters); }
+        if (ThrowOnRead) throw new IOException("Falha simulada na aquisição dos sensores.");
         if (TemperaturesLost) return new HardwareTelemetry { CpuName = "AMD Ryzen 9 7900X3D (simulado)", CpuSensorAvailable = false };
         double s = (DateTime.Now - _start).TotalSeconds;
         float load = (float)(25 + 20 * Math.Sin(s / 9));
@@ -313,12 +342,13 @@ public sealed class SimulatedSensors : ISensorSource
 
     public List<DiskIoState>? ReadDisks()
     {
+        DiskReadGate.Wait();
         if (!StorageEnabled) return null;
         double s = (DateTime.Now - _start).TotalSeconds;
         return new()
         {
-            new DiskIoState { Index = 0, Name = "Samsung SSD 990 PRO 2TB (simulado)", Temperature = 41, ActivityPercent = (float)(8 + 6 * Math.Sin(s / 3)), ReadBytesPerSec = 52e6f, WriteBytesPerSec = 8e6f },
-            new DiskIoState { Index = 1, Name = "WD Black SN850X 4TB (simulado)", Temperature = 38, ActivityPercent = 1, ReadBytesPerSec = 1e6f, WriteBytesPerSec = 0 }
+            new DiskIoState { Index = 0, Name = "Samsung SSD 990 PRO 2TB (simulado)", SampledAtUtc = DateTimeOffset.UtcNow, SampledAtTimestamp = System.Diagnostics.Stopwatch.GetTimestamp(), Temperature = 41, ActivityPercent = (float)(8 + 6 * Math.Sin(s / 3)), ReadBytesPerSec = 52e6f, WriteBytesPerSec = 8e6f },
+            new DiskIoState { Index = 1, Name = "WD Black SN850X 4TB (simulado)", SampledAtUtc = DateTimeOffset.UtcNow, SampledAtTimestamp = System.Diagnostics.Stopwatch.GetTimestamp(), Temperature = 38, ActivityPercent = 1, ReadBytesPerSec = 1e6f, WriteBytesPerSec = 0 }
         };
     }
     public void Dispose() => IsOpen = false;

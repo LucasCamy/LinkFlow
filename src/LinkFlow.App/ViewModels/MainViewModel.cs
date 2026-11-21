@@ -97,6 +97,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         bool wasFailSafeActive = Snapshot.FailSafeActive;
         Snapshot = s;
+        RefreshOperations(s);
         AlertCenter.Update(s, IsEngineDisconnected);
         FailSafeBanner.Update(s);
         if (!_isViewActive)
@@ -109,6 +110,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         OnPropertiesChanged(
             nameof(Snapshot),
+            nameof(CanControl), nameof(CanImportBackup),
             nameof(IsConnected), nameof(ConnectionStatus), nameof(HubStatusColor),
             nameof(CpuName), nameof(GpuName),
             nameof(CpuTempFormatted), nameof(CpuLoadFormatted), nameof(CpuPowerDetail),
@@ -140,7 +142,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private void OnEngineConnectionChanged(bool connected) => _dispatcher.BeginInvoke(() =>
     {
-        OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected));
+        OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected), nameof(CanControl), nameof(CanImportBackup));
         AlertCenter.Update(Snapshot, IsEngineDisconnected);
         NotifyLightingStatus();
         if (!connected) return;
@@ -191,10 +193,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string ConnectionStatus => EngineTextUi.Localize(Snapshot.HubStatusText, Snapshot.HubStatus);
     public string HubStatusColor => Snapshot.HubConnected ? "#10B981" : "#F59E0B";
     public string EngineModeLabel => _engine.IsRemote
-        ? (_engine.IsConnected ? Strings.Main_EngineService : Strings.Main_EngineServiceDisconnected)
+        ? (_engine.IsConnected ? _engine.CanWrite ? Strings.Main_EngineService : ReliabilityUiText.ReadOnlyEngine : Strings.Main_EngineServiceDisconnected)
         : _engine.IsSimulated ? Strings.Main_EngineSimulation : Strings.Main_EngineLocal;
 
     public bool IsEngineDisconnected => _engine.IsRemote && !_engine.IsConnected;
+    public bool CanControl => _engine.CanWrite;
 
     public string CpuName => Snapshot.CpuName ?? Strings.Dash_Cpu;
     public string GpuName => Snapshot.GpuName ?? Strings.Dash_Gpu;
@@ -524,6 +527,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        DisposeUiWork();
+        DisposeOperations();
+        DisposeFleet();
         _engine.SnapshotUpdated -= OnSnapshot;
         _engine.AlertRaised -= OnEngineAlert;
         _engine.ConnectionChanged -= OnEngineConnectionChanged;

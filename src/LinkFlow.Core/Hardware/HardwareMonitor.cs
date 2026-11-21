@@ -192,6 +192,8 @@ public sealed class HardwareMonitor : ISensorSource
                     {
                         Index = index++,
                         Name = hw.Name,
+                        SampledAtUtc = DateTimeOffset.UtcNow,
+                        SampledAtTimestamp = System.Diagnostics.Stopwatch.GetTimestamp(),
                         Temperature = Find(hw, SensorType.Temperature, "Temperature")?.Value,
                         ActivityPercent = Find(hw, SensorType.Load, "Total Activity")?.Value,
                         ReadBytesPerSec = Find(hw, SensorType.Throughput, "Read")?.Value,
@@ -215,7 +217,9 @@ public sealed class HardwareMonitor : ISensorSource
             try
             {
                 float target = Math.Clamp(percent, (byte)30, (byte)100);
-                foreach (var s in _discreteGpu.Sensors.Where(s => s.SensorType == SensorType.Control))
+                var controls = _discreteGpu.Sensors.Where(s => s.SensorType == SensorType.Control && s.Control != null).ToArray();
+                if (controls.Length == 0) return false;
+                foreach (var s in controls)
                 {
                     s.Control?.SetSoftware(target);
                 }
@@ -236,7 +240,9 @@ public sealed class HardwareMonitor : ISensorSource
             if (_discreteGpu == null) return false;
             try
             {
-                foreach (var s in _discreteGpu.Sensors.Where(s => s.SensorType == SensorType.Control))
+                var controls = _discreteGpu.Sensors.Where(s => s.SensorType == SensorType.Control && s.Control != null).ToArray();
+                if (controls.Length == 0) return false;
+                foreach (var s in controls)
                 {
                     s.Control?.SetDefault();
                 }

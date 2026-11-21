@@ -49,14 +49,15 @@ public sealed class UiSettings
 
 public sealed class UiSettingsService
 {
-    private readonly JsonFileStore<UiSettings> _store = new(AppPaths.UiSettingsFile);
+    private readonly JsonFileStore<UiSettings> _store;
     private readonly Timer _saveTimer;
 
-    public UiSettingsService()
+    public UiSettingsService(string? filePath = null)
     {
+        _store = new(filePath ?? AppPaths.UiSettingsFile);
         // Quem já usava o app (ui.json existente) mantém as ferramentas avançadas visíveis na
         // atualização; instalação nova começa sem elas
-        bool upgrading = System.IO.File.Exists(AppPaths.UiSettingsFile);
+        bool upgrading = System.IO.File.Exists(_store.FilePath);
         Current = _store.Load();
         Current.AdvancedSystemTools ??= upgrading;
         _saveTimer = new Timer(_ => _store.Save(Current), null, Timeout.Infinite, Timeout.Infinite);

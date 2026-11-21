@@ -146,20 +146,21 @@ public static class LinkHubProtocol
         rawPacket.Length > DataTypeOffset + 1 && rawPacket[StatusOffset] == StatusOk &&
         rawPacket.Slice(DataTypeOffset, 2).SequenceEqual(dataType);
 
-    /// <summary>RPM por canal; null se o pacote não for uma resposta de velocidades válida.</summary>
+    /// <summary>RPM por canal; zero é uma medida válida. Canal indisponível não entra no mapa; null = pacote inválido.</summary>
     public static Dictionary<int, int>? ParseSpeeds(ReadOnlySpan<byte> rawPacket)
     {
-        if (rawPacket.Length < 20 || !IsResponse(rawPacket, DataTypeSpeeds)) return null;
+        int count = TelemetryRecordCount(rawPacket, DataTypeSpeeds, out _);
+        if (count == 0) return null;
         var speeds = new Dictionary<int, int>();
 
         // Canal N: valor em [12 + 3(N-1)], status no byte anterior
         int startOffset = 12;
 
-        for (int ch = 0; ch < 24 && startOffset + 2 <= rawPacket.Length; ch++, startOffset += 3)
+        for (int ch = 0; ch < count - 1; ch++, startOffset += 3)
         {
             if (rawPacket[startOffset - 1] != StatusOk) continue;
             short rpm = BinaryPrimitives.ReadInt16LittleEndian(rawPacket.Slice(startOffset, 2));
-            if (rpm > 0)
+            if (rpm >= 0)
             {
                 speeds[ch + 1] = rpm;
             }
@@ -171,7 +172,8 @@ public static class LinkHubProtocol
     /// <summary>Temperatura por canal; null se o pacote não for uma resposta de temperaturas válida.</summary>
     public static Dictionary<int, float>? ParseTemperatures(ReadOnlySpan<byte> rawPacket)
     {
-        if (rawPacket.Length < 16 || !IsResponse(rawPacket, DataTypeTemperatures)) return null;
+        int count = TelemetryRecordCount(rawPacket, DataTypeTemperatures, out _);
+        if (count == 0) return null;
         var temps = new Dictionary<int, float>();
 
         // Mesmo layout das velocidades: o registro 0 é o próprio hub e o canal N é o registro N, valor em
@@ -179,7 +181,7 @@ public static class LinkHubProtocol
         // temperatura do líquido (bomba no canal 13) aparecia no canal 14 e a do hub no canal 1.
         int startOffset = 12;
 
-        for (int ch = 0; ch < 24 && startOffset + 2 <= rawPacket.Length; ch++, startOffset += 3)
+        for (int ch = 0; ch < count - 1; ch++, startOffset += 3)
         {
             if (rawPacket[startOffset - 1] != StatusOk) continue;
             short rawTemp = BinaryPrimitives.ReadInt16LittleEndian(rawPacket.Slice(startOffset, 2));
@@ -190,5 +192,16 @@ public static class LinkHubProtocol
         }
 
         return temps;
+    }
+
+    /// <summary>Validate declared telemetry records against actual received bytes, not connected-device limits.</summary>
+    internal static int TelemetryRecordCount(ReadOnlySpan<byte> packet, ReadOnlySpan<byte> type, out string? rejection)
+    {
+        rejection = packet.Length < 8 ? "header-too-short" :
+            !IsResponse(packet, type) ? "wrong-status-or-data-type" :
+            packet[7] == 0 ? "empty-sensor-count" :
+            8 + packet[7] * 3 > PacketSizeOut ? "sensor-count-exceeds-report" :
+            8 + packet[7] * 3 > packet.Length ? "truncated-sensor-records" : null;
+        return rejection == null ? packet[7] : 0;
     }
 }

@@ -67,6 +67,12 @@
   <data name="TempWarn" xml:space="preserve">
     <value>{0} a {1:0.#} °C (alerta em {2:0.#} °C).</value>
   </data>
+  <data name="TempWarnRecoveringTitle" xml:space="preserve">
+    <value>{0}: aviso em recuperação</value>
+  </data>
+  <data name="TempWarnRecovering" xml:space="preserve">
+    <value>{0} a {1:0.#} °C. Aviso em {2:0.#} °C; permanece ativo até ficar abaixo de {3:0.#} °C, para evitar oscilações.</value>
+  </data>
   <data name="SensorCpu" xml:space="preserve">
     <value>CPU</value>
   </data>
@@ -333,6 +339,9 @@
   <data name="GpuNvapiAccess" xml:space="preserve">
     <value>Não foi possível acessar o controlador Aura via NVAPI. {0}</value>
   </data>
+  <data name="GpuRgbWorkerFailed" xml:space="preserve">
+    <value>O processo auxiliar de RGB da GPU falhou. {0}</value>
+  </data>
   <data name="GpuNoSignature" xml:space="preserve">
     <value>A GPU ASUS não respondeu com a assinatura esperada do controlador Aura.</value>
   </data>
@@ -554,5 +563,17 @@
   </data>
   <data name="SensorDiskTemp" xml:space="preserve">
     <value>Temperatura • {0}</value>
+  </data>
+  <data name="TelemetryLostTitle" xml:space="preserve">
+    <value>Monitoramento indisponível</value>
+  </data>
+  <data name="TelemetrySourceLost" xml:space="preserve">
+    <value>{0}: não há uma aquisição válida recente. O valor anterior não comprova o estado atual.</value>
+  </data>
+  <data name="CurveFallbackTitle" xml:space="preserve">
+    <value>Curva usando sensor substituto</value>
+  </data>
+  <data name="CurveFallback" xml:space="preserve">
+    <value>Sensor configurado: {0}. Sensor substituto autorizado: {1}. O piso de segurança da substituição está ativo.</value>
   </data>
 </root>

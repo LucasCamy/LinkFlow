@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels"
+             xmlns:views="clr-namespace:LinkFlow.App.Views"
+             xmlns:t="clr-namespace:LinkFlow.App.Services"
              xmlns:r="clr-namespace:LinkFlow.App.Resources">
     <UserControl.Resources>
         <Style x:Key="TelemetryMeter" TargetType="ProgressBar">
@@ -382,6 +384,12 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+            <TabItem Header="{x:Static t:OperationalText.Tab}" Style="{StaticResource SystemTab}">
+                <views:OperationalPage DataContext="{Binding Operations}"/>
+            </TabItem>
+            <TabItem Header="{x:Static vm:FleetText.Tab}" Style="{StaticResource SystemTab}">
+                <views:FleetPage DataContext="{Binding Fleet}"/>
             </TabItem>
         </TabControl>
     </Grid>

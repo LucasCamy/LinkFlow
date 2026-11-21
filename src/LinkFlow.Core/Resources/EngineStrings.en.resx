@@ -67,6 +67,12 @@
   <data name="TempWarn" xml:space="preserve">
     <value>{0} at {1:0.#} °C (alert at {2:0.#} °C).</value>
   </data>
+  <data name="TempWarnRecoveringTitle" xml:space="preserve">
+    <value>{0}: warning recovery</value>
+  </data>
+  <data name="TempWarnRecovering" xml:space="preserve">
+    <value>{0} at {1:0.#} °C. Warning at {2:0.#} °C; remains active until below {3:0.#} °C to avoid repeated switching.</value>
+  </data>
   <data name="SensorCpu" xml:space="preserve">
     <value>CPU</value>
   </data>
@@ -325,6 +331,9 @@
   <data name="GpuNvapiAccess" xml:space="preserve">
     <value>Could not reach the Aura controller through NVAPI. {0}</value>
   </data>
+  <data name="GpuRgbWorkerFailed" xml:space="preserve">
+    <value>The GPU RGB worker failed. {0}</value>
+  </data>
   <data name="GpuNoSignature" xml:space="preserve">
     <value>The ASUS GPU did not answer with the expected Aura controller signature.</value>
   </data>
@@ -546,5 +555,17 @@
   </data>
   <data name="SensorDiskTemp" xml:space="preserve">
     <value>Temperature • {0}</value>
+  </data>
+  <data name="TelemetryLostTitle" xml:space="preserve">
+    <value>Monitoring unavailable</value>
+  </data>
+  <data name="TelemetrySourceLost" xml:space="preserve">
+    <value>{0}: no recent valid acquisition. The previous value does not confirm the current state.</value>
+  </data>
+  <data name="CurveFallbackTitle" xml:space="preserve">
+    <value>Curve using a fallback sensor</value>
+  </data>
+  <data name="CurveFallback" xml:space="preserve">
+    <value>Configured sensor: {0}. Authorized fallback: {1}. The fallback safety floor is active.</value>
   </data>
 </root>

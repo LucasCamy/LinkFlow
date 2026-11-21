@@ -692,7 +692,8 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="1" CornerRadius="{StaticResource ControlRadius}">
-                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                        <!-- TextBoxBase already forwards Padding to this host; a matching Margin doubles it. -->
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocused" Value="True">
@@ -710,6 +711,8 @@
 
     <Style x:Key="SystemSearch" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="MinHeight" Value="36"/>
+        <!-- The template reserves the icon/text insets explicitly, including the placeholder. -->
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">

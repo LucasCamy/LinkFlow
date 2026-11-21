@@ -13,8 +13,13 @@ public sealed partial class LinkFlowEngine
     private readonly long[] _laneBeats = new long[2];
     private int _stallReported;
 
-    /// <summary>Marca que a fila completou mais um ciclo. Zero = ainda não começou (ex.: sensores abrindo).</summary>
+    /// <summary>Marca que a fila completou mais um ciclo; tentativas que lançam exceção não renovam o progresso.</summary>
     private void Beat(int lane) => Volatile.Write(ref _laneBeats[lane], Stopwatch.GetTimestamp());
+
+    private void InitializeLaneBeats(long now)
+    {
+        for (int i = 0; i < _laneBeats.Length; i++) Volatile.Write(ref _laneBeats[i], now);
+    }
 
     private long _lastLaneCheck;
 
@@ -87,7 +92,11 @@ public sealed partial class LinkFlowEngine
 
         // Modo hardware: o hub segue a curva interna dele em vez de ficar parado na última velocidade
         var release = Task.Run(() => _hub.Disconnect(restoreHardwareMode: true));
-        if (!release.Wait(TimeSpan.FromSeconds(2))) Log.Error("WATCHDOG: o hub não liberou a tempo.");
+        try
+        {
+            if (!release.Wait(TimeSpan.FromSeconds(2))) Log.Error("WATCHDOG: o hub não liberou a tempo.");
+        }
+        catch (Exception ex) { Log.Error("WATCHDOG: não foi possível confirmar a devolução ao modo hardware", ex); }
 
         try { _opt.LaneStalled?.Invoke(problem.ToPortuguese()); }
         catch (Exception ex) { Log.Error("WATCHDOG: falha no tratamento de travamento", ex); }

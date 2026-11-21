@@ -1,178 +1,106 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Threading;
+using LinkFlow.App.Resources;
 using LinkFlow.App.ViewModels;
 using LinkFlow.Core;
-using LinkFlow.App.Resources;
 
 namespace LinkFlow.App.Services;
 
-/// <summary>
-/// Perfil automático: por jogo/app em primeiro plano e por horário (silencioso à noite).
-/// Prioridade: regra de app > horário silencioso > perfil escolhido pelo usuário.
-/// Custo: sem nenhuma regra, nada é observado. Com regras, o Windows avisa quando a janela em
-/// primeiro plano muda (sem varredura); a checagem periódica é a cada 30 s.
-/// Se o usuário trocar o perfil à mão, a automação respeita até o motivo mudar.
-/// </summary>
+/// <summary>Observa a sessão; o engine decide os perfis e horários, inclusive sem interface.</summary>
 public sealed class AutomationService : IDisposable
 {
-    private const uint EventSystemForeground = 3, WinEventOutOfContext = 0;
-
     private readonly MainViewModel _vm;
-    private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(30) };
+    private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(15) };
     private readonly WinEventDelegate _callback;
     private IntPtr _hook;
     private string? _foreground;
-    private string? _activeRuleProcess;
-    private string? _applied;       // perfil aplicado pela automação
-    private string? _reasonKey;     // motivo atual (regra/horário)
-    private string? _suppressed;    // motivo ignorado porque o usuário mudou à mão
-    private string _base = FanPresets.Balanced;
-
+    private bool _disposed;
     public AutomationService(MainViewModel vm)
     {
         _vm = vm;
         _callback = OnForeground;
         _timer.Tick += (_, _) => Evaluate();
         _vm.AutomationChanged += Reconfigure;
+        _vm.SnapshotApplied += RefreshStatus;
         Reconfigure();
     }
-
     public string Status { get; private set; } = string.Empty;
     public event Action? StatusChanged;
-
     private void Reconfigure()
     {
-        var a = _vm.Engine.Config.Automation;
-        bool rules = a.Rules.Any(r => r.Enabled);
+        bool rules = _vm.Engine.Config.Automation.Rules.Any(r => r.Enabled);
         if (rules && _hook == IntPtr.Zero)
-            _hook = SetWinEventHook(EventSystemForeground, EventSystemForeground, IntPtr.Zero, _callback, 0, 0, WinEventOutOfContext);
-        else if (!rules && _hook != IntPtr.Zero)
         {
-            UnhookWinEvent(_hook);
-            _hook = IntPtr.Zero;
+            _hook = SetWinEventHook(3, 3, IntPtr.Zero, _callback, 0, 0, 0);
+            _foreground = ForegroundProcess(GetForegroundWindow());
         }
-        if (rules || a.Quiet.Enabled) _timer.Start(); else _timer.Stop();
+        else if (!rules && _hook != IntPtr.Zero) { UnhookWinEvent(_hook); _hook = IntPtr.Zero; }
+        if (rules) _timer.Start(); else _timer.Stop();
         Evaluate();
     }
-
-    private void OnForeground(IntPtr hook, uint evt, IntPtr hwnd, int idObject, int idChild, uint thread, uint time)
+    private static string? ForegroundProcess(IntPtr hwnd)
     {
         try
         {
             GetWindowThreadProcessId(hwnd, out uint pid);
-            using var p = Process.GetProcessById((int)pid);
-            _foreground = p.ProcessName;
+            using var process = Process.GetProcessById((int)pid);
+            return process.ProcessName;
         }
-        catch { _foreground = null; }
-        Evaluate();
+        catch { return null; }
     }
-
-    private static bool IsRunning(string process)
+    private void OnForeground(IntPtr hook, uint evt, IntPtr hwnd, int idObject, int idChild, uint thread, uint time)
+    { _foreground = ForegroundProcess(hwnd); Evaluate(); }
+    private static bool IsRunning(string name)
     {
         try
         {
-            var list = Process.GetProcessesByName(process);
-            foreach (var p in list) p.Dispose();
-            return list.Length > 0;
+            var processes = Process.GetProcessesByName(name);
+            int session = Process.GetCurrentProcess().SessionId;
+            bool running = processes.Any(p => { try { return p.SessionId == session; } catch { return false; } });
+            foreach (var process in processes) process.Dispose();
+            return running;
         }
         catch { return false; }
     }
-
     public void Evaluate()
     {
-        var cfg = _vm.Engine.Config;
-        var a = cfg.Automation;
-        string current = cfg.ActivePreset;
-
-        // Usuário trocou o perfil enquanto a automação estava ativa: respeita
-        if (_applied != null && current != _applied)
+        if (_disposed) return;
+        var running = _vm.Engine.Config.Automation.Rules.Where(r => r.Enabled).Select(r => r.Process)
+            .Where(IsRunning).Distinct(StringComparer.OrdinalIgnoreCase).Take(255).ToList();
+        if (_foreground != null && !running.Contains(_foreground, StringComparer.OrdinalIgnoreCase)) running.Add(_foreground);
+        _vm.Engine.SetSessionContext(new AutomationSessionContext
         {
-            _suppressed = _reasonKey;
-            _applied = null;
-            _base = current;
-        }
-        if (_applied == null) _base = current;
-
-        // 1) Regra de app: começa quando o programa vem para frente e vale enquanto estiver aberto
-        AppRule? rule = a.Rules.FirstOrDefault(r => r.Enabled && string.Equals(r.Process, _foreground, StringComparison.OrdinalIgnoreCase));
-        if (rule != null) _activeRuleProcess = rule.Process;
-        else if (_activeRuleProcess != null)
-        {
-            rule = a.Rules.FirstOrDefault(r => r.Enabled && string.Equals(r.Process, _activeRuleProcess, StringComparison.OrdinalIgnoreCase));
-            if (rule == null || !IsRunning(_activeRuleProcess))
-            {
-                _activeRuleProcess = null;
-                rule = null;
-            }
-        }
-
-        string? desired = null, reason = null, label = null;
-        if (rule != null) { desired = rule.Profile; reason = $"app:{rule.Process}"; label = string.Format(Strings.Fan_Aberto, rule.Process); }
-        else if (a.Quiet.Enabled && a.Quiet.Contains(DateTime.Now)) { desired = a.Quiet.Profile; reason = "quiet"; label = string.Format(Strings.Fan_HorarioSilenciosoAte, a.Quiet.EndHour); }
-
-        if (reason != _reasonKey && reason != _suppressed) _suppressed = null; // motivo novo: volta a valer
-        _reasonKey = reason;
-
-        if (desired != null && reason != _suppressed && !ProfileExists(cfg, desired)) desired = null;
-
-        if (desired != null && reason != _suppressed)
-        {
-            if (current != desired)
-            {
-                if (_applied == null) _base = current;
-                _vm.ApplyAutomationProfile(desired, label!);
-            }
-            _applied = desired;
-            SetStatus(string.Format(Strings.Fan_Ativo2, Label(desired), label));
-        }
-        else if (_applied != null)
-        {
-            // Motivo acabou: volta ao perfil que o usuário tinha
-            _applied = null;
-            if (ProfileExists(cfg, _base) && current != _base) _vm.ApplyAutomationProfile(_base, Strings.Fan_AutomacaoTerminou);
-            SetStatus(string.Empty);
-        }
-        else
-        {
-            SetStatus(reason != null && reason == _suppressed ? Strings.Fan_PausadaVoceEscolheuOutro : string.Empty);
-        }
+            ForegroundProcess = _foreground, RunningProcesses = running, ObservedAtUtc = DateTimeOffset.UtcNow,
+            SessionId = Process.GetCurrentProcess().SessionId
+        });
+        RefreshStatus();
     }
-
-    private static bool ProfileExists(ControlConfig c, string key) =>
-        FanPresets.Find(key) != null || c.Profiles.Any(p => p.Name == key);
-
-    private static string Label(string key) => PresetNames.Label(key);
-
-    private void SetStatus(string s)
+    private void RefreshStatus()
     {
-        if (Status == s) return;
-        Status = s;
+        var state = _vm.Engine.Automation;
+        string next = state.Suppressed ? Strings.Fan_PausadaVoceEscolheuOutro : state.ActiveProfile is not { } profile ? string.Empty :
+            string.Format(Strings.Fan_Ativo2, PresetNames.Label(profile), state.Reason == "quiet"
+                ? string.Format(Strings.Fan_HorarioSilenciosoAte, _vm.Engine.Config.Automation.Quiet.EndHour)
+                : string.Format(Strings.Fan_Aberto, state.Reason?.StartsWith("app:", StringComparison.Ordinal) == true ? state.Reason[4..] : state.Reason));
+        if (next == Status) return;
+        Status = next;
         StatusChanged?.Invoke();
     }
-
+    public void SimulateForeground(string? process) { _foreground = process; Evaluate(); }
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
         _timer.Stop();
+        _vm.AutomationChanged -= Reconfigure;
+        _vm.SnapshotApplied -= RefreshStatus;
         if (_hook != IntPtr.Zero) UnhookWinEvent(_hook);
         _hook = IntPtr.Zero;
     }
-
-    private delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
-
-    [DllImport("user32.dll")]
-    private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-
-    [DllImport("user32.dll")]
-    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-    /// <summary>Teste: simula o programa em primeiro plano.</summary>
-    public void SimulateForeground(string? process)
-    {
-        _foreground = process;
-        Evaluate();
-    }
+    private delegate void WinEventDelegate(IntPtr hook, uint evt, IntPtr hwnd, int idObject, int idChild, uint thread, uint time);
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern IntPtr SetWinEventHook(uint min, uint max, IntPtr module, WinEventDelegate callback, uint process, uint thread, uint flags);
+    [DllImport("user32.dll")] private static extern bool UnhookWinEvent(IntPtr hook);
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint pid);
 }

@@ -14,6 +14,8 @@ public enum SensorDemand
 
 public sealed class NetworkState
 {
+    public DateTimeOffset? SampledAtUtc { get; set; }
+    internal long SampledAtTimestamp { get; set; }
     public string Adapter { get; set; } = string.Empty;
     public double DownBytesPerSec { get; set; }
     public double UpBytesPerSec { get; set; }
@@ -25,6 +27,8 @@ public sealed class NetworkState
 
 public sealed class VolumeState
 {
+    public DateTimeOffset? SampledAtUtc { get; set; }
+    internal long SampledAtTimestamp { get; set; }
     public string Letter { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
     public double TotalGb { get; set; }
@@ -34,6 +38,8 @@ public sealed class VolumeState
 
 public sealed class DiskIoState
 {
+    public DateTimeOffset? SampledAtUtc { get; set; }
+    internal long SampledAtTimestamp { get; set; }
     public int Index { get; set; }
     public string Name { get; set; } = string.Empty;
     public float? Temperature { get; set; }
@@ -90,6 +96,8 @@ public sealed class SystemStats
                 }
                 _last[nic.Id] = (rx, tx);
             }
+            state.SampledAtUtc = DateTimeOffset.UtcNow;
+            state.SampledAtTimestamp = Stopwatch.GetTimestamp();
         }
         catch (Exception ex)
         {
@@ -117,7 +125,9 @@ public sealed class SystemStats
                     Letter = d.Name.TrimEnd('\\'),
                     Label = d.VolumeLabel,
                     TotalGb = d.TotalSize / 1e9,
-                    FreeGb = d.AvailableFreeSpace / 1e9
+                    FreeGb = d.AvailableFreeSpace / 1e9,
+                    SampledAtUtc = DateTimeOffset.UtcNow,
+                    SampledAtTimestamp = Stopwatch.GetTimestamp()
                 });
             }
         }

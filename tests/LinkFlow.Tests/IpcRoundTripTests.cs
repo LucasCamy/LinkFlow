@@ -240,6 +240,12 @@ public class IpcRoundTripTests
         };
         foreach (var line in garbage) await writer.WriteLineAsync(line);
 
+        // O protocolo antigo continua legível, mas alterações sem revisão e prazo são bloqueadas.
+        var partial = PipeProtocol.Read<ControlConfig>(System.Text.Json.Nodes.JsonNode.Parse(
+            "{\"globalPercent\":70,\"safety\":null,\"profiles\":[null],\"fans\":{\"x\":null},\"groupCurves\":{\"g\":null}}"))!;
+        await writer.WriteLineAsync(PipeProtocol.Encode(PipeProtocol.Command, new EngineCommandRequest
+        { Kind = PipeProtocol.SetConfig, ExpectedRevision = f.Engine.GetConfig().Revision, Config = partial }));
+
         // A configuração com campos nulos vale (com os padrões) e não deixa itens nulos para trás
         EngineFixture.WaitUntil(() => f.Engine.GetConfig().GlobalPercent == 70, because: "configuração parcial aceita");
         var cfg = f.Engine.GetConfig();
@@ -250,7 +256,8 @@ public class IpcRoundTripTests
         Assert.Empty(cfg.GroupCurves);
         Assert.Null(f.Engine.GetSnapshot().CurveTestTemp);
 
-        await writer.WriteLineAsync(PipeProtocol.Encode(PipeProtocol.SetConfig, new ControlConfig { GlobalPercent = 77 }));
+        await writer.WriteLineAsync(PipeProtocol.Encode(PipeProtocol.Command, new EngineCommandRequest
+        { Kind = PipeProtocol.SetConfig, ExpectedRevision = f.Engine.GetConfig().Revision, Config = new ControlConfig { GlobalPercent = 77 } }));
         EngineFixture.WaitUntil(() => f.Engine.GetConfig().GlobalPercent == 77, because: "mensagem válida depois do lixo funciona");
         EngineFixture.WaitUntil(() => Speed(f, 1) == 77, because: "hub aplicou");
         Assert.Equal(1, server.ClientCount);

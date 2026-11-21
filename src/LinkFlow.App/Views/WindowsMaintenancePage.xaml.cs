@@ -115,16 +115,19 @@ public partial class WindowsMaintenancePage : UserControl
         ResultsLocation.Visibility = Visibility.Collapsed;
         RunStatus.Text = Strings.Win_AguardandoAberturaFerramentaPelo;
         bool started = false;
+        string operationId = SystemOperationJournal.Shared.Start("maintenance", operation.Title);
         try
         {
             using var process = await Task.Run(() => operation.Start(volume));
             if (process == null)
             {
+                SystemOperationJournal.Shared.Complete(operationId, WindowsOperationState.Unconfirmed);
                 RunStatus.Text = Strings.Win_SolicitacaoEncaminhadaWindowsConfira;
                 return;
             }
 
             started = true;
+            SystemOperationJournal.Shared.AttachProcess(operationId, process);
             string? resultsLocation = operation.ResultsLocation;
             ResultsLocation.Text = resultsLocation ?? string.Empty;
             ResultsLocation.Visibility = resultsLocation == null ? Visibility.Collapsed : Visibility.Visible;
@@ -132,16 +135,20 @@ public partial class WindowsMaintenancePage : UserControl
                 Strings.Win_AndamentoAcompanheProgressoResponda;
             await process.WaitForExitAsync();
             int code = process.ExitCode;
+            SystemOperationJournal.Shared.Complete(operationId, code == 3010 ? WindowsOperationState.RequiresRestart : WindowsOperationState.ProcessExited,
+                code, operation.ResultsLocation);
             string displayCode = code < 0 ? $"0x{unchecked((uint)code):X8}" : code.ToString();
             RunStatus.Text = string.Format(Strings.Win_ProcessoEncerradoCodigo, displayCode);
             if (code == 3010) RunStatus.Text += Strings.Win_WindowsInformouNecessarioReiniciar;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
+            SystemOperationJournal.Shared.Complete(operationId, WindowsOperationState.Canceled, ex.NativeErrorCode);
             RunStatus.Text = Strings.Win_SolicitacaoWindowsFoiCancelada;
         }
         catch (Exception ex)
         {
+            SystemOperationJournal.Shared.Complete(operationId, started ? WindowsOperationState.Unconfirmed : WindowsOperationState.Failed, detail: ex.Message);
             Log.Error($"Falha na manutenção do Windows ({operation.Title})", ex);
             RunStatus.Text = started ? Strings.Win_FerramentaFoiIniciadaNao :
                 ex is FileNotFoundException or InvalidOperationException ? ex.Message :

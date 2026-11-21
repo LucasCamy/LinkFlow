@@ -42,11 +42,35 @@ public static class DiagnosticService
             string mode = vm.EngineModeLabel;
             string version = typeof(App).Assembly.GetName().Version!.ToString(3);
             string path = dlg.FileName;
+            var operational = new Dictionary<string, string>
+            {
+                ["snapshot.json"] = System.Text.Json.JsonSerializer.Serialize(snapshot, Json.Options),
+                ["windows-operations.json"] = System.Text.Json.JsonSerializer.Serialize(SystemOperationJournal.Shared.Read(), Json.Options)
+            };
+            if (Application.Current is App app && app.PeripheralsRgbDiagnostics is { } peripherals)
+            {
+                operational["peripheral-rgb.json"] = System.Text.Json.JsonSerializer.Serialize(peripherals, Json.Options);
+                operational["peripheral-rgb-export-status.json"] = System.Text.Json.JsonSerializer.Serialize(app.PeripheralsRgbDiagnosticExportStatus, Json.Options);
+            }
+            try
+            {
+                using var historyTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                var events = await vm.Engine.QueryEventsAsync(new EventQuery { MaxItems = 200 }, historyTimeout.Token);
+                operational["events.json"] = System.Text.Json.JsonSerializer.Serialize(events, Json.Options);
+                var series = await Task.WhenAll(new[] { "cpu.temp", "gpu.temp", "coolant.temp" }.Select(key =>
+                    vm.Engine.QueryHistoryAsync(new HistoryQuery { MetricKey = key, FromUtc = DateTimeOffset.UtcNow.AddDays(-1),
+                        ToUtc = DateTimeOffset.UtcNow, BucketSeconds = 60, MaxPoints = 300 }, historyTimeout.Token)));
+                operational["thermal-history.json"] = System.Text.Json.JsonSerializer.Serialize(series, Json.Options);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                operational["history-unavailable.txt"] = ex.Message;
+            }
             var result = await Task.Run(() =>
             {
                 var inventory = HardwareInventory.Read().Parts.Select(p => (p.Category, p.Name, p.Details));
                 string summary = DiagnosticBundle.DescribeHardware(snapshot, version, mode, inventory);
-                return DiagnosticBundle.Create(path, LogSources(), config, summary);
+                return DiagnosticBundle.Create(path, LogSources(), config, summary, operationalFiles: operational);
             });
             Log.Info($"Pacote de diagnóstico gerado: {result.Path} ({result.LogFiles} logs, {result.Bytes / 1024} KB).");
             vm.ToastVisible = false;

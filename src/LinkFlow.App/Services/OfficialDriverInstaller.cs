@@ -45,6 +45,7 @@ internal static class OfficialDriverInstaller
             : throw new InvalidOperationException(Strings.Drv_FabricanteNaoForneceuLink));
         string directory = Directory.CreateTempSubdirectory("LinkFlow-driver-").FullName;
         string path = Path.Combine(directory, package.Publisher == DriverPublisher.Nvidia ? "NVIDIA-driver.exe" : "AMD-driver.exe");
+        string operationId = SystemOperationJournal.Shared.Start("manufacturer-driver", package.Title);
         try
         {
             await DownloadAsync(package.Publisher, url, path, progress, cancellationToken).ConfigureAwait(false);
@@ -60,10 +61,12 @@ internal static class OfficialDriverInstaller
                 process = Process.Start(new ProcessStartInfo(path) { UseShellExecute = true, WorkingDirectory = directory })
                     ?? throw new InvalidOperationException(Strings.Drv_WindowsNaoConseguiuAbrir);
             }
-            _ = CleanAfterExitAsync(process, directory, path);
+            SystemOperationJournal.Shared.AttachProcess(operationId, process);
+            _ = CleanAfterExitAsync(process, directory, path, operationId);
         }
         catch
         {
+            SystemOperationJournal.Shared.Complete(operationId, cancellationToken.IsCancellationRequested ? WindowsOperationState.Canceled : WindowsOperationState.Failed);
             CleanDownload(directory, path);
             throw;
         }
@@ -158,7 +161,7 @@ internal static class OfficialDriverInstaller
         }
     }
 
-    private static async Task CleanAfterExitAsync(Process process, string directory, string path)
+    private static async Task CleanAfterExitAsync(Process process, string directory, string path, string operationId)
     {
         using (process)
         {
@@ -166,8 +169,11 @@ internal static class OfficialDriverInstaller
             catch (Exception ex)
             {
                 Log.Debug($"Aguardando instalador: {ex.Message}");
+                SystemOperationJournal.Shared.Complete(operationId, WindowsOperationState.Unconfirmed, detail: ex.Message);
                 return;
             }
+            SystemOperationJournal.Shared.Complete(operationId, process.ExitCode == 3010 ? WindowsOperationState.RequiresRestart : WindowsOperationState.ProcessExited,
+                process.ExitCode, "O instalador encerrou. Releia os drivers instalados para verificar a versão; o encerramento pode ser apenas de um lançador.");
         }
         CleanDownload(directory, path);
     }

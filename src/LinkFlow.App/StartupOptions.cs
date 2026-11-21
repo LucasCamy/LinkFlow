@@ -11,6 +11,9 @@ public sealed class StartupOptions
     /// <summary>Usa hardware simulado (testes/demonstração).</summary>
     public bool Simulate { get; private set; }
 
+    /// <summary>Exporta diagnóstico limitado do envio Logitech, sem confirmar a luz física.</summary>
+    internal bool PeripheralRgbDiagnosticsEnabled { get; private set; }
+
     /// <summary>Renderiza a janela num PNG e encerra (teste visual automatizado).</summary>
     public string? ScreenshotPath { get; private set; }
     public int ScreenshotPage { get; private set; }
@@ -26,6 +29,7 @@ public sealed class StartupOptions
 
     /// <summary>Teste visual: seleciona as N primeiras ventoinhas.</summary>
     public int ScreenshotSelect { get; private set; }
+    public string? ScreenshotGroupName { get; private set; }
     public int? ScreenshotWidth { get; private set; }
     public int? ScreenshotHeight { get; private set; }
 
@@ -68,6 +72,9 @@ public sealed class StartupOptions
                 case "--simulate":
                     o.Simulate = true;
                     break;
+                case "--peripheral-rgb-diagnostics":
+                    o.PeripheralRgbDiagnosticsEnabled = true;
+                    break;
                 case "--screenshot":
                     o.ScreenshotPath = Next();
                     break;
@@ -85,6 +92,10 @@ public sealed class StartupOptions
                     break;
                 case "--select":
                     o.ScreenshotSelect = int.TryParse(Next(), out var sel) ? sel : 0;
+                    break;
+                case "--screenshot-group":
+                    var group = Next();
+                    o.ScreenshotGroupName = group == null ? null : group[..Math.Min(group.Length, 80)];
                     break;
                 case "--install-driver":
                     o.InstallDriverRequested = true;

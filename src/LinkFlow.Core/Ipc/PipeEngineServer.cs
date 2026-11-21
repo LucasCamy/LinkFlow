@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Channels;
 
 namespace LinkFlow.Core.Ipc;
@@ -19,14 +21,20 @@ public sealed class PipeEngineServer : IAsyncDisposable
     private readonly object _lock = new();
     private CancellationTokenSource? _cts;
     private Task? _acceptLoop;
+    private int _disposed;
+    private readonly Action<EngineSnapshot> _snapshotHandler;
+    private readonly Action<EngineAlert> _alertHandler;
+    private readonly Action<ControlConfig, object?> _configHandler;
+    private readonly Action<CommandReceipt> _commandHandler;
 
     public PipeEngineServer(LinkFlowEngine engine, string? pipeName = null)
     {
         _engine = engine;
         _pipeName = pipeName ?? PipeProtocol.PipeName;
-        _engine.SnapshotUpdated += s => Broadcast(PipeProtocol.Encode(PipeProtocol.Snapshot, s), null, isSnapshot: true);
-        _engine.AlertRaised += a => Broadcast(PipeProtocol.Encode(PipeProtocol.Alert, a), null, isSnapshot: false);
-        _engine.ConfigChanged += (c, origin) => Broadcast(PipeProtocol.Encode(PipeProtocol.Config, c), origin as Connection, isSnapshot: false);
+        _engine.SnapshotUpdated += _snapshotHandler = s => Broadcast(PipeProtocol.Encode(PipeProtocol.Snapshot, s), null, isSnapshot: true);
+        _engine.AlertRaised += _alertHandler = a => Broadcast(PipeProtocol.Encode(PipeProtocol.Alert, a), null, isSnapshot: false);
+        _engine.ConfigChanged += _configHandler = (c, origin) => Broadcast(PipeProtocol.Encode(PipeProtocol.Config, c), origin as Connection, isSnapshot: false);
+        _engine.CommandUpdated += _commandHandler = r => Broadcast(PipeProtocol.Encode(PipeProtocol.Receipt, r), null, false);
     }
 
     public int ClientCount
@@ -134,6 +142,7 @@ public sealed class PipeEngineServer : IAsyncDisposable
         {
             lock (_lock) _clients.Remove(conn);
             _engine.SetSensorDemand(conn, SensorDemand.None);
+            _engine.RemoveSessionContext(conn);
             conn.Dispose();
             try { await writer.ConfigureAwait(false); } catch { }
             Log.Info($"Interface desconectada ({ClientCount} cliente(s)).");
@@ -144,56 +153,73 @@ public sealed class PipeEngineServer : IAsyncDisposable
     {
         switch (type)
         {
+            case PipeProtocol.Command:
+                if (!PipeProtocol.TryRead<EngineCommandRequest>(payload, out var request) || request == null)
+                { conn.Reject("solicitação ilegível"); return; }
+                var receipt = _engine.ExecuteCommand(request, conn);
+                conn.Enqueue(PipeProtocol.Encode(PipeProtocol.Receipt, receipt));
+                if (receipt.State == CommandState.Conflict) conn.Enqueue(PipeProtocol.Encode(PipeProtocol.Config, _engine.GetConfig()));
+                break;
+            case PipeProtocol.ReadRequest:
+                if (!PipeProtocol.TryRead<PipeProtocol.ReadRequestInfo>(payload, out var read) || read == null)
+                { conn.Reject("consulta ilegível"); return; }
+                HandleRead(conn, read);
+                break;
             case PipeProtocol.SetConfig:
-                if (!PipeProtocol.TryRead<ControlConfig>(payload, out var cfg) || cfg == null)
-                {
-                    conn.Reject("configuração ilegível");
-                    return;
-                }
-                // Campos ausentes ou nulos ganham o padrão antes de qualquer leitura (ex.: "safety": null)
-                cfg.Normalize();
-                // Qualquer processo da sessão pode mandar configuração: desligar a proteção fica registrado
-                if (!cfg.Safety.FailSafeEnabled && _engine.FailSafeEnabled)
-                {
-                    var pid = PipeIdentity.ClientProcessId(conn.Pipe);
-                    Log.Warn($"Modo de segurança DESLIGADO pelo processo {(pid is { } p ? PipeIdentity.Describe(p) : "desconhecido")}.");
-                }
-                _engine.ReplaceConfig(cfg, conn);
-                break;
             case PipeProtocol.LcdFrame:
-                _engine.RequestLcdFrame();
-                break;
             case PipeProtocol.Resume:
-                _engine.NotifyResume();
-                break;
             case PipeProtocol.RefreshRgb:
-                _engine.RefreshRgb();
+            case PipeProtocol.Rescan:
+            case PipeProtocol.CurveTest:
+            case PipeProtocol.CalibrationStart:
+            case PipeProtocol.CalibrationCancel:
+                conn.Enqueue(PipeProtocol.Encode(PipeProtocol.Receipt, new CommandReceipt
+                {
+                    Id = Guid.NewGuid().ToString("N"), Kind = type, State = CommandState.Rejected,
+                    UpdatedAtUtc = DateTimeOffset.UtcNow, Message = "Interface antiga: comandos sem ID, revisão e prazo estão bloqueados. Atualize a interface."
+                }));
+                conn.Reject("comando de protocolo antigo bloqueado");
                 break;
             case PipeProtocol.Demand:
-                if (PipeProtocol.TryRead<int>(payload, out var d)) _engine.SetSensorDemand(conn, (SensorDemand)d);
+                if (PipeProtocol.TryRead<int>(payload, out var d) && d >= 0 && (d & ~(int)SensorDemand.DiskIo) == 0)
+                    _engine.SetSensorDemand(conn, (SensorDemand)d);
                 else conn.Reject("pedido de sensores ilegível");
-                break;
-            case PipeProtocol.Rescan:
-                _engine.RescanDevices();
-                break;
-            case PipeProtocol.CurveTest:
-                if (PipeProtocol.TryRead<float?>(payload, out var temperature)) _engine.SetCurveTest(temperature);
-                else conn.Reject("temperatura do teste de curva ilegível");
-                break;
-            case PipeProtocol.CalibrationStart:
-                // Mexe nas ventoinhas por cerca de um minuto: fica registrado quem pediu
-                var starter = PipeIdentity.ClientProcessId(conn.Pipe);
-                Log.Info($"Calibração pedida pelo processo {(starter is { } sp ? PipeIdentity.Describe(sp) : "desconhecido")}.");
-                _engine.StartCalibration();
-                break;
-            case PipeProtocol.CalibrationCancel:
-                _engine.CancelCalibration();
                 break;
             default:
                 // Tipo desconhecido (ex.: interface mais nova que o serviço): ignorado sem derrubar a conexão
                 Log.Debug($"Pipe: mensagem de tipo desconhecido '{type}' ignorada.");
                 break;
         }
+    }
+
+    private void HandleRead(Connection conn, PipeProtocol.ReadRequestInfo request)
+    {
+        var response = new PipeProtocol.ReadResponseInfo { Id = request.Id };
+        try
+        {
+            if (request.Id is not { Length: > 0 and <= 80 }) throw new ArgumentException("Identificador de consulta inválido.");
+            var query = request.History ?? new HistoryQuery();
+            query.MaxPoints = Math.Clamp(query.MaxPoints, 1, 1200);
+            var events = request.Events ?? new EventQuery();
+            events.MaxItems = Math.Clamp(events.MaxItems, 1, 200);
+            object data = request.Kind switch
+            {
+                "hubTelemetry" => _engine.GetHubTelemetryDiagnostics(),
+                "history" => _engine.History.Query(query),
+                "events" => _engine.History.QueryEvents(events),
+                "sessions" => _engine.History.QuerySessions(),
+                "compare" => _engine.History.CompareSessions(query, request.BaselineSession ?? string.Empty, request.CandidateSession ?? string.Empty),
+                "csv" => _engine.History.ExportCsv(query),
+                "json" => _engine.History.ExportJson(query, events),
+                _ => throw new ArgumentException("Consulta não suportada.")
+            };
+            response.Data = JsonSerializer.SerializeToNode(data, data.GetType(), Json.Compact);
+            if (Encoding.UTF8.GetByteCount(PipeProtocol.Encode(PipeProtocol.ReadResponse, response)) > PipeProtocol.MaxMessageBytes - 1024)
+            { response.Data = null; response.Error = "Resultado grande demais. Reduza o período ou a quantidade de pontos."; }
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or IOException)
+        { response.Error = ex.Message; }
+        conn.Enqueue(PipeProtocol.Encode(PipeProtocol.ReadResponse, response));
     }
 
     private void Broadcast(string message, Connection? except, bool isSnapshot)
@@ -208,6 +234,11 @@ public sealed class PipeEngineServer : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+        _engine.SnapshotUpdated -= _snapshotHandler;
+        _engine.AlertRaised -= _alertHandler;
+        _engine.ConfigChanged -= _configHandler;
+        _engine.CommandUpdated -= _commandHandler;
         _cts?.Cancel();
         if (_acceptLoop != null)
         {
@@ -222,20 +253,17 @@ public sealed class PipeEngineServer : IAsyncDisposable
     /// <summary>Uma interface conectada. Escritas passam por uma fila; snapshots antigos são descartados se o cliente estiver lento.</summary>
     private sealed class Connection : IDisposable
     {
-        private readonly Channel<(string Msg, bool Snapshot)> _queue;
-        private int _pendingSnapshots;
+        private readonly Channel<string> _reliable = Channel.CreateBounded<string>(new BoundedChannelOptions(128)
+        { SingleReader = true, FullMode = BoundedChannelFullMode.Wait });
+        private readonly SemaphoreSlim _signal = new(0, 1);
+        private string? _latestConfig, _latestSnapshot;
 
         public Connection(NamedPipeServerStream pipe)
         {
             Pipe = pipe;
-            // Fila cheia descarta a mensagem mais antiga; se for um snapshot, o contador precisa acompanhar,
-            // senão ele nunca volta a zero e o cliente deixa de receber snapshots para sempre.
-            _queue = Channel.CreateBounded<(string Msg, bool Snapshot)>(
-                new BoundedChannelOptions(64) { FullMode = BoundedChannelFullMode.DropOldest, SingleReader = true },
-                dropped => { if (dropped.Snapshot) Interlocked.Decrement(ref _pendingSnapshots); });
         }
 
-        internal int PendingSnapshots => Volatile.Read(ref _pendingSnapshots);
+        internal int PendingSnapshots => Volatile.Read(ref _latestSnapshot) == null ? 0 : 1;
         public NamedPipeServerStream Pipe { get; }
         private int _rejected;
 
@@ -249,29 +277,43 @@ public sealed class PipeEngineServer : IAsyncDisposable
 
         public void Enqueue(string message, bool isSnapshot = false)
         {
-            if (isSnapshot && Volatile.Read(ref _pendingSnapshots) > 2) return; // cliente lento: pula quadros
-            if (isSnapshot) Interlocked.Increment(ref _pendingSnapshots);
-            _queue.Writer.TryWrite((message, isSnapshot));
+            if (isSnapshot) Interlocked.Exchange(ref _latestSnapshot, message);
+            else if (PipeProtocol.TryDecode(message, out var type, out _) && type == PipeProtocol.Config)
+                Interlocked.Exchange(ref _latestConfig, message);
+            else if (!_reliable.Writer.TryWrite(message))
+            {
+                // Recibos nunca são descartados em silêncio: a desconexão força ressincronização e replay idempotente.
+                Dispose();
+                return;
+            }
+            try { _signal.Release(); } catch (SemaphoreFullException) { }
         }
 
         public async Task RunWriterAsync(CancellationToken ct)
         {
             try
             {
-                await foreach (var (msg, snap) in _queue.Reader.ReadAllAsync(ct).ConfigureAwait(false))
+                while (!ct.IsCancellationRequested)
                 {
-                    if (snap) Interlocked.Decrement(ref _pendingSnapshots);
-                    var bytes = Encoding.UTF8.GetBytes(msg + "\n");
-                    await Pipe.WriteAsync(bytes, ct).ConfigureAwait(false);
-                    await Pipe.FlushAsync(ct).ConfigureAwait(false);
+                    await _signal.WaitAsync(ct).ConfigureAwait(false);
+                    while (_reliable.Reader.TryRead(out var msg)) await WriteAsync(msg, ct).ConfigureAwait(false);
+                    if (Interlocked.Exchange(ref _latestConfig, null) is { } config) await WriteAsync(config, ct).ConfigureAwait(false);
+                    if (Interlocked.Exchange(ref _latestSnapshot, null) is { } snapshot) await WriteAsync(snapshot, ct).ConfigureAwait(false);
                 }
             }
             catch { /* cliente saiu */ }
         }
 
+        private async Task WriteAsync(string message, CancellationToken ct)
+        {
+            var bytes = Encoding.UTF8.GetBytes(message + "\n");
+            await Pipe.WriteAsync(bytes, ct).ConfigureAwait(false);
+            await Pipe.FlushAsync(ct).ConfigureAwait(false);
+        }
+
         public void Dispose()
         {
-            _queue.Writer.TryComplete();
+            _reliable.Writer.TryComplete();
             try { Pipe.Dispose(); } catch { }
         }
     }

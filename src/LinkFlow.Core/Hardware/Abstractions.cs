@@ -89,14 +89,19 @@ public interface IHardwareFactory
 public sealed class RealHardwareFactory : IHardwareFactory
 {
     private readonly bool _usePeripheralBridge;
+    private readonly Func<IRgbDevice>? _gpuRgbFactory;
 
-    public RealHardwareFactory(bool usePeripheralBridge = false) => _usePeripheralBridge = usePeripheralBridge;
+    public RealHardwareFactory(bool usePeripheralBridge = false, Func<IRgbDevice>? gpuRgbFactory = null)
+    {
+        _usePeripheralBridge = usePeripheralBridge;
+        _gpuRgbFactory = gpuRgbFactory;
+    }
 
     public bool IsSimulated => false;
     public IFanHub CreateHub() => new CorsairLinkHub();
     public ISensorSource CreateSensors() => new HardwareMonitor();
     public ILcdDisplay CreateLcd() => new CorsairLinkLcd();
-    public IRgbDevice CreateGpuRgb() => new AsusGpuRgb();
+    public IRgbDevice CreateGpuRgb() => _gpuRgbFactory?.Invoke() ?? new AsusGpuRgb();
     public IRgbDevice CreateMotherboardRgb() => new MsiMotherboardRgb();
     public IRgbDevice CreateRamRgb() => new CorsairDramRgb();
     /// <summary>

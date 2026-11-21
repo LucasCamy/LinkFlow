@@ -148,9 +148,29 @@ public sealed class LcdTests : IDisposable
         Assert.Contains("4 quadros", composer.Status.ToPortuguese());
         Assert.InRange(next.TotalMilliseconds, 50, 200);
 
+        int firstPixel = composer.Canvas.GetPixel(LcdComposer.Size / 2, LcdComposer.Size / 2).ToArgb();
+        var clock = Stopwatch.StartNew();
         var first = composer.EncodeJpeg();
-        Thread.Sleep(260);
-        composer.Compose(cfg, Snapshot(), new RgbConfig());
+        double firstEncodeMs = clock.Elapsed.TotalMilliseconds;
+        var deadline = clock.Elapsed + TimeSpan.FromSeconds(3);
+        var observations = new List<string>();
+        bool advanced = false;
+        // Four 100ms frames repeat every 400ms. Encoding + one fixed sleep can land on the same
+        // frame after a whole cycle under load. Observe the rendered pixel at varying phases;
+        // encode again only after a different frame is actually rendered, without changing the clock.
+        for (int sample = 0; sample < 64 && clock.Elapsed < deadline; sample++)
+        {
+            Thread.Sleep(17 + sample % 5 * 7);
+            next = composer.Compose(cfg, Snapshot(), new RgbConfig());
+            int pixel = composer.Canvas.GetPixel(LcdComposer.Size / 2, LcdComposer.Size / 2).ToArgb();
+            observations.Add($"{clock.Elapsed.TotalMilliseconds:F1}ms:#{pixel:X8},next={next.TotalMilliseconds:F1}ms");
+            Assert.InRange(next.TotalMilliseconds, 50, 200);
+            if (pixel == firstPixel) continue;
+            advanced = true;
+            break;
+        }
+        Assert.True(advanced, $"GIF did not render a different frame within the bounded observation window. " +
+            $"Initial pixel=#{firstPixel:X8}; first JPEG encoding={firstEncodeMs:F1}ms; observations: {string.Join("; ", observations)}");
         Assert.NotEqual(first, composer.EncodeJpeg());
     }
 
