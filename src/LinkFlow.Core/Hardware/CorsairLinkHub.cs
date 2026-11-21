@@ -7,18 +7,25 @@ namespace LinkFlow.Core;
 /// Corsair iCUE LINK System Hub (1B1C:0C3F). Todas as operações são síncronas e serializadas
 /// por <c>_syncLock</c>; o engine chama apenas de uma thread dedicada.
 /// </summary>
-public sealed class CorsairLinkHub : IFanHub
+public sealed class CorsairLinkHub : IFanHub, IHubTelemetryDiagnostics
 {
     public const int VendorId = 0x1B1C;
     public const int ProductId = 0x0C3F;
 
     private const int IoTimeoutMs = 500;
 
+    // Bounded per process, including repeated reconnects/new hub instances during recovery.
+    private static int _speedPacketCaptured, _temperaturePacketCaptured;
+    private static int _speedRejectionLogged, _temperatureRejectionLogged;
+
     private readonly object _syncLock = new();
     private HidDevice? _device;
     private HidStream? _stream;
     private List<ConnectedSubDevice> _subDevices = new();
     private readonly byte[] _readBuf = new byte[LinkHubProtocol.PacketSizeOut];
+    private readonly HubTelemetryDiagnosticsCache _telemetryDiagnostics = new();
+
+    public HubTelemetryDiagnostics GetTelemetryDiagnostics() => _telemetryDiagnostics.Snapshot();
 
     public bool IsConnected => _stream != null;
     public string FirmwareVersion { get; private set; } = "Unknown";
@@ -111,8 +118,15 @@ public sealed class CorsairLinkHub : IFanHub
             var resp = ReadResponse(LinkHubProtocol.DataTypeSpeeds);
             if (resp == null) return null;
 
+            _telemetryDiagnostics.Capture(resp, LinkHubProtocol.DataTypeSpeeds, FirmwareVersion);
+            CaptureTelemetryPacket(resp, LinkHubProtocol.DataTypeSpeeds, ref _speedPacketCaptured);
+
             var speeds = LinkHubProtocol.ParseSpeeds(resp);
-            if (speeds == null) return null;
+            if (speeds == null)
+            {
+                LogTelemetryRejection(resp, LinkHubProtocol.DataTypeSpeeds, ref _speedRejectionLogged);
+                return null;
+            }
             foreach (var dev in _subDevices)
             {
                 dev.CurrentRpm = speeds.TryGetValue(dev.Channel, out int rpm) ? rpm : 0;
@@ -132,14 +146,36 @@ public sealed class CorsairLinkHub : IFanHub
             var resp = ReadResponse(LinkHubProtocol.DataTypeTemperatures);
             if (resp == null) return null;
 
+            _telemetryDiagnostics.Capture(resp, LinkHubProtocol.DataTypeTemperatures, FirmwareVersion);
+            CaptureTelemetryPacket(resp, LinkHubProtocol.DataTypeTemperatures, ref _temperaturePacketCaptured);
+
             var temps = LinkHubProtocol.ParseTemperatures(resp);
-            if (temps == null) return null;
+            if (temps == null)
+            {
+                LogTelemetryRejection(resp, LinkHubProtocol.DataTypeTemperatures, ref _temperatureRejectionLogged);
+                return null;
+            }
             foreach (var dev in _subDevices)
             {
                 if (temps.TryGetValue(dev.Channel, out float t)) dev.CurrentTemperature = t;
             }
             return temps;
         }
+    }
+
+    private void CaptureTelemetryPacket(ReadOnlySpan<byte> response, ReadOnlySpan<byte> type, ref int captured)
+    {
+        if (Interlocked.Exchange(ref captured, 1) != 0) return;
+        string count = response.Length > 7 ? response[7].ToString(System.Globalization.CultureInfo.InvariantCulture) : "missing";
+        Log.Info($"Hub telemetria bruta: FW={FirmwareVersion}, tipo={Convert.ToHexString(type)}, bytes={response.Length}, count[7]={count}, HEX[0..95]={Convert.ToHexString(response[..Math.Min(response.Length, 96)])}.");
+    }
+
+    private void LogTelemetryRejection(ReadOnlySpan<byte> response, ReadOnlySpan<byte> type, ref int logged)
+    {
+        if (Interlocked.Exchange(ref logged, 1) != 0) return;
+        LinkHubProtocol.TelemetryRecordCount(response, type, out var rejection);
+        string count = response.Length > 7 ? response[7].ToString(System.Globalization.CultureInfo.InvariantCulture) : "missing";
+        Log.Warn($"Hub rejeitou telemetria: FW={FirmwareVersion}, tipo={Convert.ToHexString(type)}, bytes={response.Length}, count[7]={count}, causa={rejection ?? "unknown"}.");
     }
 
     public bool SetSpeedsPercent(IReadOnlyDictionary<int, byte> channelSpeeds)
@@ -263,7 +299,7 @@ public sealed class CorsairLinkHub : IFanHub
             int bytesRead = _stream.Read(_readBuf);
             if (bytesRead <= LinkHubProtocol.StatusOffset) return null;
             if (checkStatus && !StatusOk(_readBuf)) return null;
-            return (byte[])_readBuf.Clone();
+            return _readBuf.AsSpan(0, bytesRead).ToArray();
         }
         catch (TimeoutException)
         {
@@ -300,8 +336,9 @@ public sealed class CorsairLinkHub : IFanHub
         {
             while (Environment.TickCount64 < deadline)
             {
-                if (_stream.Read(_readBuf) <= LinkHubProtocol.DataTypeOffset + 1) continue;
-                if (LinkHubProtocol.IsResponse(_readBuf, dataType)) return (byte[])_readBuf.Clone();
+                int received = _stream.Read(_readBuf);
+                if (received <= LinkHubProtocol.DataTypeOffset + 1) continue;
+                if (LinkHubProtocol.IsResponse(_readBuf.AsSpan(0, received), dataType)) return _readBuf.AsSpan(0, received).ToArray();
             }
         }
         catch (TimeoutException) { }

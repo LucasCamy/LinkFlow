@@ -36,6 +36,108 @@ public class HubResponseTests
         Assert.Equal(1200, speeds![1]);
         Assert.False(speeds.ContainsKey(2), "registro marcado como indisponível não pode virar RPM");
         Assert.Equal(2400, speeds[3]);
+        Assert.Equal(2, speeds.Count);
+    }
+
+    [Fact]
+    public void Zero_rpm_is_available_but_unavailable_channels_and_packet_padding_are_not_measurements()
+    {
+        var packet = Response(LinkHubProtocol.DataTypeSpeeds, 0x00, (0x01, 0), (0x00, 0), (0x01, 900), (0x00, 1200));
+        var speeds = LinkHubProtocol.ParseSpeeds(packet)!;
+        Assert.Equal(0, speeds[1]);
+        Assert.False(speeds.ContainsKey(2));
+        Assert.Equal(1200, speeds[3]);
+        Assert.Equal(2, speeds.Count);
+    }
+
+    [Fact]
+    public void Declared_sensor_count_must_fit_the_received_packet_for_both_reading_types()
+    {
+        var speeds = Response(LinkHubProtocol.DataTypeSpeeds, 0x00, (0x01, 0), (0x00, 1000), (0x00, 1200));
+        Assert.Null(LinkHubProtocol.ParseSpeeds(speeds.AsSpan(0, 14)));
+        Assert.Equal(0, LinkHubProtocol.TelemetryRecordCount(speeds.AsSpan(0, 14), LinkHubProtocol.DataTypeSpeeds, out var truncatedReason));
+        Assert.Equal("truncated-sensor-records", truncatedReason);
+        var temperatures = Response(LinkHubProtocol.DataTypeTemperatures, 0x00, (0x01, 0), (0x00, 350), (0x00, 360));
+        Assert.Null(LinkHubProtocol.ParseTemperatures(temperatures.AsSpan(0, 14)));
+        speeds[7] = 0;
+        Assert.Null(LinkHubProtocol.ParseSpeeds(speeds));
+        Assert.Equal(0, LinkHubProtocol.TelemetryRecordCount(speeds, LinkHubProtocol.DataTypeSpeeds, out var emptyReason));
+        Assert.Equal("empty-sensor-count", emptyReason);
+        speeds[7] = 169;
+        Assert.Null(LinkHubProtocol.ParseSpeeds(speeds));
+        Assert.Equal(0, LinkHubProtocol.TelemetryRecordCount(speeds, LinkHubProtocol.DataTypeSpeeds, out var oversizedReason));
+        Assert.Equal("sensor-count-exceeds-report", oversizedReason);
+    }
+
+    [Theory]
+    [InlineData(26)]
+    [InlineData(49)]
+    [InlineData(168)]
+    public void Telemetry_slot_count_is_bounded_by_the_report_size_instead_of_the_connected_device_limit(int count)
+    {
+        // A controller can report unused sensor slots beyond the currently connected LINK device count.
+        // Preserve their channel numbering, but do not invent available readings from report padding.
+        var records = Enumerable.Repeat(((byte)0x01, (short)0), count).ToArray();
+        records[1] = (0x00, 0);
+        records[13] = (0x00, 2956);
+        var speeds = LinkHubProtocol.ParseSpeeds(Response(LinkHubProtocol.DataTypeSpeeds, 0x00, records));
+        Assert.NotNull(speeds);
+        Assert.Equal(2, speeds.Count);
+        Assert.Equal(0, speeds[1]);
+        Assert.Equal(2956, speeds[13]);
+
+        records[1] = (0x01, 0);
+        records[13] = (0x00, 480);
+        var temperatures = LinkHubProtocol.ParseTemperatures(Response(LinkHubProtocol.DataTypeTemperatures, 0x00, records));
+        Assert.NotNull(temperatures);
+        Assert.Single(temperatures);
+        Assert.Equal(48f, temperatures[13]);
+    }
+
+    // Partial capture: these are exactly the first 96 bytes logged from actual 513-byte HID reports on
+    // FW 4.1.656 (2026-11-20 15:08:41). The unobserved tail is synthetic unavailable records, not captured data.
+    private static byte[] Firmware4656Fixture(string capturedPrefix)
+    {
+        var packet = new byte[LinkHubProtocol.PacketSizeOut];
+        for (int status = 8; status + 2 < packet.Length; status += 3) packet[status] = 0x01;
+        Convert.FromHexString(capturedPrefix).CopyTo(packet, 0);
+        return packet;
+    }
+
+    [Fact]
+    public void Firmware_4_1_656_captured_rpm_prefix_with_26_slots_preserves_real_fan_and_pump_channels()
+    {
+        const string prefix = "000000080025001A010000007B06007706007506008106007C06008006007F0600770600810600760601000001000000800B01000001000001000001000001000001000001000001000001000001000001000001000000000000000000000000";
+        Assert.Equal(96, Convert.FromHexString(prefix).Length);
+        var packet = Firmware4656Fixture(prefix);
+        Assert.Equal(26, packet[7]);
+        var speeds = LinkHubProtocol.ParseSpeeds(packet);
+        Assert.NotNull(speeds);
+        Assert.Equal(11, speeds.Count);
+        Assert.Equal(1659, speeds[1]);
+        Assert.Equal(2944, speeds[13]);
+        Assert.DoesNotContain(11, speeds.Keys);
+        Assert.DoesNotContain(12, speeds.Keys);
+        Assert.DoesNotContain(14, speeds.Keys);
+        Assert.DoesNotContain(26, speeds.Keys);
+        Assert.Null(LinkHubProtocol.ParseSpeeds(packet.AsSpan(0, 85)));
+    }
+
+    [Fact]
+    public void Firmware_4_1_656_captured_temperature_prefix_with_52_slots_preserves_pump_liquid_temperature()
+    {
+        const string prefix = "000000080010003400BD0101000001000001000001000001000001000001000001000001000001000001000001000000D70101000001000001000001000001000001000001000001000001000001000001000001000001000001000001000001";
+        Assert.Equal(96, Convert.FromHexString(prefix).Length);
+        var packet = Firmware4656Fixture(prefix);
+        Assert.Equal(52, packet[7]);
+        var temperatures = LinkHubProtocol.ParseTemperatures(packet);
+        Assert.NotNull(temperatures);
+        Assert.Single(temperatures);
+        Assert.Equal(47.1f, temperatures[13], 3);
+        Assert.DoesNotContain(14, temperatures.Keys);
+        // The captured prefix alone does not contain all 52 declared records; never fabricate its tail.
+        Assert.Null(LinkHubProtocol.ParseTemperatures(Convert.FromHexString(prefix)));
+        Assert.Null(LinkHubProtocol.ParseTemperatures(packet.AsSpan(0, 163)));
     }
 
     [Fact]

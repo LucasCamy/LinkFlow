@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows.Input;
 using LinkFlow.Core;
 using LinkFlow.App.Resources;
@@ -48,6 +47,8 @@ public partial class MainViewModel
     private string _newRuleProcess = string.Empty;
     private string _automationStatus = string.Empty;
     private ICommand? _addRuleCommand, _removeRuleCommand, _refreshAppsCommand;
+    private bool _isRefreshingApps;
+    private string _appRefreshStatus = string.Empty;
 
     public ObservableCollection<AppRuleItem> AppRules { get; } = new();
     public ObservableCollection<string> RunningApps { get; } = new();
@@ -93,20 +94,60 @@ public partial class MainViewModel
     });
 
     /// <summary>Lista os programas com janela aberta (para escolher sem digitar o nome do .exe).</summary>
-    public ICommand RefreshAppsCommand => _refreshAppsCommand ??= new RelayCommand(() =>
+    public bool IsRefreshingApps
     {
-        var names = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-        int session = Process.GetCurrentProcess().SessionId;
-        foreach (var p in Process.GetProcesses())
+        get => _isRefreshingApps;
+        private set
         {
-            try { if (p.SessionId == session && p.MainWindowHandle != IntPtr.Zero) names.Add(p.ProcessName); }
-            catch { }
-            finally { p.Dispose(); }
+            if (SetProperty(ref _isRefreshingApps, value))
+            {
+                OnPropertyChanged(nameof(CanRefreshApps));
+                CommandManager.InvalidateRequerySuggested();
+            }
         }
-        names.Remove("LinkFlow.App");
-        RunningApps.Clear();
-        foreach (var n in names) RunningApps.Add(n);
-    });
+    }
+    public bool CanRefreshApps => !_uiWorkStopped && !IsRefreshingApps;
+    public string AppRefreshStatus { get => _appRefreshStatus; private set => SetProperty(ref _appRefreshStatus, value); }
+    public ICommand RefreshAppsCommand => _refreshAppsCommand ??= new RelayCommand(async () => await RefreshAppsAsync(), () => CanRefreshApps);
+
+    internal async Task RefreshAppsAsync(Func<CancellationToken, IReadOnlyList<string>>? read = null)
+    {
+        _dispatcher.VerifyAccess();
+        if (!CanRefreshApps) return;
+        IsRefreshingApps = true;
+        AppRefreshStatus = OperationalText.Pick("Lendo programas abertos…", "Reading open applications…");
+        var cancellation = UiWorkToken;
+        try
+        {
+            var result = await Task.Run(() =>
+            {
+                var names = (read ?? RunningApplications.Read)(cancellation).Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(name => name, StringComparer.OrdinalIgnoreCase).Take(513).ToArray();
+                cancellation.ThrowIfCancellationRequested();
+                return names;
+            }, cancellation).ConfigureAwait(false);
+            await PublishUiWorkAsync(() =>
+            {
+                if (_uiWorkStopped || cancellation.IsCancellationRequested) return;
+                string currentInput = NewRuleProcess;
+                RunningApps.Clear();
+                foreach (var name in result.Take(512)) RunningApps.Add(name);
+                NewRuleProcess = currentInput;
+                OnPropertyChanged(nameof(NewRuleProcess)); // Preserve edits made while the editable ComboBox was loading.
+                AppRefreshStatus = result.Length > 512 ? OperationalText.Pick("Exibindo os primeiros 512 programas.", "Showing the first 512 applications.")
+                    : result.Length == 0 ? OperationalText.Pick("Nenhum programa com janela aberta foi encontrado.", "No applications with an open window were found.") : string.Empty;
+            }).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            await PublishUiWorkAsync(() =>
+            {
+                if (!_uiWorkStopped) AppRefreshStatus = OperationalText.Pick("Não foi possível atualizar os programas: ", "Could not refresh applications: ") + ex.Message;
+            }).ConfigureAwait(false);
+        }
+        finally { await PublishUiWorkAsync(() => IsRefreshingApps = false).ConfigureAwait(false); }
+    }
 
     public bool QuietEnabled
     {

@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using LinkFlow.Core;
 using LinkFlow.App.Services;
 using LinkFlow.App.Resources;
@@ -43,6 +43,9 @@ public sealed class LcdMediaItemViewModel : ObservableObject
     private int _duration;
     private ImageSource? _thumbnail;
     private bool _isCurrent;
+    private bool? _exists;
+    private bool _thumbnailDemanded, _thumbnailQueued, _thumbnailResolved, _retired;
+    private string? _thumbnailError;
 
     public LcdMediaItemViewModel(MainViewModel owner, LcdMediaItem item, int index)
     {
@@ -52,15 +55,20 @@ public sealed class LcdMediaItemViewModel : ObservableObject
         _duration = item.DurationSeconds;
         Index = index;
         IsGif = string.Equals(System.IO.Path.GetExtension(item.Path), ".gif", StringComparison.OrdinalIgnoreCase);
-        Exists = File.Exists(item.Path);
     }
 
     public string Path { get; }
     public string Name { get; }
     public int Index { get; }
     public bool IsGif { get; }
-    public bool Exists { get; }
-    public string Kind => !Exists ? Strings.Lcd_ArquivoNaoEncontrado : IsGif ? Strings.Lcd_GIFAnimado : Strings.Lcd_Imagem;
+    public bool? Exists => _exists;
+    public string Kind => _exists == false ? Strings.Lcd_ArquivoNaoEncontrado : _thumbnailResolved && _thumbnail == null
+        ? OperationalText.Pick("Miniatura indisponível", "Thumbnail unavailable") : _exists == null ? OperationalText.Pick("Verificando arquivo…", "Checking file…")
+        : IsGif ? Strings.Lcd_GIFAnimado : Strings.Lcd_Imagem;
+    public bool IsThumbnailLoading => _thumbnailDemanded && !_thumbnailResolved && !_retired;
+    public string? ThumbnailError => _thumbnailError;
+    internal bool NeedsThumbnail => _thumbnailDemanded && !_thumbnailQueued && !_thumbnailResolved && !_retired;
+    internal bool IsRetired => _retired;
     public string Position => $"{Index + 1}";
 
     public int DurationSeconds
@@ -88,28 +96,24 @@ public sealed class LcdMediaItemViewModel : ObservableObject
     {
         get
         {
-            if (_thumbnail == null && Exists)
+            if (!_thumbnailDemanded && !_retired)
             {
-                try
-                {
-                    var bmp = new BitmapImage();
-                    bmp.BeginInit();
-                    bmp.CacheOption = BitmapCacheOption.OnLoad;
-                    bmp.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                    bmp.DecodePixelWidth = 96;
-                    bmp.UriSource = new Uri(Path);
-                    bmp.EndInit();
-                    bmp.Freeze();
-                    _thumbnail = bmp;
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug($"Miniatura indisponível para {Path}: {ex.Message}");
-                }
+                _thumbnailDemanded = true;
+                _owner.DemandLcdThumbnail();
             }
             return _thumbnail;
         }
     }
+
+    internal void ThumbnailQueued() => _thumbnailQueued = true;
+    internal void ApplyThumbnail(LcdThumbnailResult result)
+    {
+        if (_retired) return;
+        _thumbnail = result.Image; _exists = result.Exists; _thumbnailError = result.Error;
+        _thumbnailResolved = true; _thumbnailQueued = false;
+        OnPropertiesChanged(nameof(Thumbnail), nameof(Exists), nameof(Kind), nameof(IsThumbnailLoading), nameof(ThumbnailError));
+    }
+    internal void Retire() { _retired = true; _thumbnail = null; }
 }
 
 public partial class MainViewModel
@@ -125,6 +129,40 @@ public partial class MainViewModel
     private bool _lcdMediaOverlay;
     private LcdMetric _lcdOverlayMetric;
     private ImageSource? _lcdPreview;
+    private LcdThumbnailLoader? _lcdThumbnailLoader;
+    private int _thumbnailPumpQueued;
+
+    internal void DemandLcdThumbnail()
+    {
+        if (_uiWorkStopped || _dispatcher.HasShutdownStarted || _dispatcher.HasShutdownFinished ||
+            Interlocked.Exchange(ref _thumbnailPumpQueued, 1) != 0) return;
+        _dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
+        {
+            Interlocked.Exchange(ref _thumbnailPumpQueued, 0);
+            if (_uiWorkStopped) return;
+            if (_lcdThumbnailLoader == null)
+            {
+                _lcdThumbnailLoader = new();
+                _lcdThumbnailLoader.CapacityAvailable += DemandLcdThumbnail;
+            }
+            // Pending demand is a flag on existing rows, not an unbounded queue of waiting Tasks.
+            // Completion frees capacity and coalesces another dispatcher pass for the remaining rows.
+            foreach (var item in LcdMedia.Where(item => item.NeedsThumbnail))
+            {
+                if (!_lcdThumbnailLoader.TryQueue(item.Path, result => PublishThumbnail(item, result))) break;
+                item.ThumbnailQueued();
+            }
+        });
+    }
+
+    private void PublishThumbnail(LcdMediaItemViewModel item, LcdThumbnailResult result)
+    {
+        if (_uiWorkStopped || _dispatcher.HasShutdownStarted || _dispatcher.HasShutdownFinished) return;
+        _dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
+        {
+            if (!_uiWorkStopped && !item.IsRetired) item.ApplyThumbnail(result);
+        });
+    }
 
     private ICommand? _setLcdModeCommand, _setLcdRotationCommand, _toggleSecondaryCommand, _setLcdFitCommand,
         _removeMediaCommand, _moveMediaUpCommand, _moveMediaDownCommand, _removeBackgroundCommand, _clearMediaCommand;
@@ -382,6 +420,7 @@ public partial class MainViewModel
             var paths = l.Media.Select(m => (m.Path, m.DurationSeconds)).ToList();
             if (!paths.SequenceEqual(LcdMedia.Select(m => (m.Path, m.DurationSeconds))))
             {
+                foreach (var item in LcdMedia) item.Retire();
                 LcdMedia.Clear();
                 for (int i = 0; i < l.Media.Count; i++) LcdMedia.Add(new LcdMediaItemViewModel(this, l.Media[i], i));
             }

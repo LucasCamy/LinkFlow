@@ -8,20 +8,23 @@ using Microsoft.Win32;
 
 namespace LinkFlow.App.Services;
 
-internal sealed record AppRelease(Version Version, UpdateAsset? Installer)
+internal sealed record AppRelease(Version Version, UpdateAsset? Installer, UpdateAsset? Portable = null)
 {
     public string Page => $"{AppUpdateClient.ReleasesPage}/tag/v{Version.ToString(3)}";
 }
 
 internal sealed record UpdateAsset(string Name, Uri Url, long Size, byte[] Hash);
 
-internal sealed class AppUpdateClient(HttpClient http)
+internal sealed class AppUpdateClient(HttpClient http, UpdateTrustPolicy? trustPolicy = null, IUpdateSignatureVerifier? signatureVerifier = null)
 {
     internal const string ReleasesPage = "https://github.com/LucasCamy/LinkFlow/releases";
     private const string ReleasesApi = "https://api.github.com/repos/LucasCamy/LinkFlow/releases/latest";
     private const long MaxInstallerSize = 256 * 1024 * 1024;
 
+    private readonly UpdateTrustPolicy _trustPolicy = trustPolicy ?? UpdateTrustPolicy.ForAssembly(typeof(AppUpdateClient).Assembly);
+    private readonly IUpdateSignatureVerifier _signatureVerifier = signatureVerifier ?? new AuthenticodeUpdateSignatureVerifier();
     public static AppUpdateClient Official { get; } = new(CreateHttpClient());
+    public DistributionChannel Channel => _trustPolicy.Channel;
 
     private static HttpClient CreateHttpClient()
     {
@@ -49,20 +52,58 @@ internal sealed class AppUpdateClient(HttpClient http)
         var current = new Version(currentVersion.Major, currentVersion.Minor, Math.Max(0, currentVersion.Build));
         if (version <= current) return null;
 
-        var name = $"LinkFlow-Setup-{version.ToString(3)}.exe";
-        var url = $"{ReleasesPage}/download/{tag}/{name}";
-        var asset = release.Assets?.FirstOrDefault(item => item?.Name == name);
-        if (asset is not { State: "uploaded", Size: > 0 and <= MaxInstallerSize, Digest: { Length: 71 } digest } ||
-            asset.Url != url || !digest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase) ||
-            digest.AsSpan(7).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
-            return new AppRelease(version, null);
+        return new AppRelease(version, SelectAsset(release, tag, version, portable: false),
+            SelectAsset(release, tag, version, portable: true));
+    }
 
-        return new AppRelease(version, new UpdateAsset(name, new Uri(url), asset.Size, Convert.FromHexString(digest[7..])));
+    private UpdateAsset? SelectAsset(GitHubRelease release, string tag, Version version, bool portable)
+    {
+        string triplet = version.ToString(3);
+        string official = portable ? $"LinkFlow-{triplet}-portable.zip" : $"LinkFlow-Setup-{triplet}.exe";
+        string development = portable ? $"LinkFlow-{triplet}-dev-portable.zip" : $"LinkFlow-Dev-Setup-{triplet}.exe";
+        string[] names = _trustPolicy.Channel == DistributionChannel.Development ? [development, official] : [official];
+        foreach (string name in names)
+        {
+            string url = $"{ReleasesPage}/download/{tag}/{name}";
+            var matches = release.Assets?.Where(item => item?.Name == name).Take(2).ToArray() ?? [];
+            if (matches.Length == 0) continue;
+            // A present but invalid preferred asset must not silently switch to
+            // another filename. The browser remains available for manual review.
+            if (matches.Length != 1) return null;
+            var asset = matches[0];
+            if (asset is not { State: "uploaded", Size: > 0 and <= MaxInstallerSize, Digest: { Length: 71 } digest } ||
+                asset.Url != url ||
+                !digest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase) ||
+                digest.AsSpan(7).IndexOfAnyExcept("0123456789abcdefABCDEF") >= 0)
+                return null;
+            return new UpdateAsset(name, new Uri(url), asset.Size, Convert.FromHexString(digest[7..]));
+        }
+        return null;
+    }
+
+    private bool TryInstallerVersion(string name, out Version? version)
+    {
+        version = null;
+        const string official = "LinkFlow-Setup-";
+        const string development = "LinkFlow-Dev-Setup-";
+        string prefix = _trustPolicy.Channel == DistributionChannel.Development &&
+            name.StartsWith(development, StringComparison.Ordinal) ? development : official;
+        return name.StartsWith(prefix, StringComparison.Ordinal) && name.EndsWith(".exe", StringComparison.Ordinal) &&
+            Version.TryParse(name[prefix.Length..^4], out version) && version.Build >= 0 && version.Revision < 0 &&
+            name == $"{prefix}{version.ToString(3)}.exe";
     }
 
     public async Task<DownloadedInstaller> DownloadAsync(UpdateAsset asset, string cache, IProgress<int> progress,
         CancellationToken cancellationToken)
     {
+        if (asset.Size is <= 0 or > MaxInstallerSize || asset.Hash.Length != 32 || asset.Name != Path.GetFileName(asset.Name) || !asset.Url.IsAbsoluteUri ||
+            !TryInstallerVersion(asset.Name, out var installerVersion) ||
+            asset.Url.Scheme != Uri.UriSchemeHttps || asset.Url.Host != "github.com" || !asset.Url.IsDefaultPort || asset.Url.UserInfo.Length != 0 ||
+            asset.Url.Query.Length != 0 || asset.Url.Fragment.Length != 0 ||
+            !asset.Url.AbsolutePath.StartsWith("/LucasCamy/LinkFlow/releases/download/v", StringComparison.Ordinal) ||
+            !asset.Url.AbsolutePath.EndsWith("/" + asset.Name, StringComparison.Ordinal) ||
+            asset.Url.AbsoluteUri != $"{ReleasesPage}/download/v{installerVersion!.ToString(3)}/{asset.Name}")
+            throw new InvalidDataException("Os metadados do instalador não pertencem a uma versão válida do LinkFlow.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromMinutes(15));
         using var response = await OpenDownloadAsync(asset.Url, timeout.Token).ConfigureAwait(false);
@@ -105,7 +146,8 @@ internal sealed class AppUpdateClient(HttpClient http)
                 if (file.Length != asset.Size ||
                     !(await SHA256.HashDataAsync(file, timeout.Token).ConfigureAwait(false)).AsSpan().SequenceEqual(asset.Hash))
                     throw new InvalidDataException("O SHA-256 do instalador não corresponde ao publicado no GitHub.");
-                return new DownloadedInstaller(path, file);
+                var trust = _trustPolicy.Verify(path, file.SafeFileHandle, _signatureVerifier);
+                return new DownloadedInstaller(path, file, trust);
             }
             catch
             {
@@ -149,9 +191,10 @@ internal sealed class AppUpdateClient(HttpClient http)
         [property: JsonPropertyName("browser_download_url")] string? Url, string? Digest);
 }
 
-internal sealed class DownloadedInstaller(string path, FileStream file) : IDisposable
+internal sealed class DownloadedInstaller(string path, FileStream file, UpdateTrustResult? trust = null) : IDisposable
 {
     public string Path { get; } = path;
+    public UpdateTrustResult Trust { get; } = trust ?? new(DistributionChannel.Development, false);
 
     public void Dispose()
     {
@@ -185,7 +228,11 @@ internal sealed class DownloadedInstaller(string path, FileStream file) : IDispo
             {
                 if (!Guid.TryParseExact(directory.Name, "N", out _) || directory.LastWriteTimeUtc >= cutoff ||
                     directory.Attributes.HasFlag(FileAttributes.ReparsePoint)) continue;
-                foreach (var candidate in directory.EnumerateFiles("LinkFlow-Setup-*.exe"))
+                // Materialize both names before TryRemove can delete this
+                // directory, so one removed legacy file cannot abort dev cleanup.
+                var candidates = directory.EnumerateFiles("LinkFlow-Setup-*.exe")
+                    .Concat(directory.EnumerateFiles("LinkFlow-Dev-Setup-*.exe")).ToArray();
+                foreach (var candidate in candidates)
                 {
                     if (candidate.LastWriteTimeUtc < cutoff && !candidate.Attributes.HasFlag(FileAttributes.ReparsePoint))
                         TryRemove(candidate.FullName);

@@ -17,6 +17,13 @@ public partial class SettingsPage : UserControl
     private async void UpdateAction_Click(object sender, RoutedEventArgs e) => await App.Current.Updates.RunActionAsync();
     private void CancelUpdateDownload_Click(object sender, RoutedEventArgs e) => App.Current.Updates.CancelDownload();
     private void OpenUpdateDownloads_Click(object sender, RoutedEventArgs e) => App.Current.Updates.OpenDownloads();
+    private async void RestoreUpdateConfiguration_Click(object sender, RoutedEventArgs e)
+    {
+        if (MessageBox.Show(Window.GetWindow(this), ViewModels.ReliabilityUiText.RestoreReview,
+                ViewModels.ReliabilityUiText.RestoreConfiguration, MessageBoxButton.YesNo, MessageBoxImage.Question,
+                MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        await App.Current.Updates.RestorePreviousConfigurationAsync();
+    }
 
     private static void OpenFolder(string path)
     {
@@ -39,23 +46,23 @@ public partial class SettingsPage : UserControl
 
     private MainWindow Owner => (MainWindow)Window.GetWindow(this);
 
-    private void ExportBackup_Click(object sender, RoutedEventArgs e) => BackupService.Export(Owner, Owner.ViewModel);
-    private void ImportBackup_Click(object sender, RoutedEventArgs e) => BackupService.Import(Owner, Owner.ViewModel);
+    private async void ExportBackup_Click(object sender, RoutedEventArgs e) => await BackupService.ExportAsync(Owner, Owner.ViewModel);
+    private async void ImportBackup_Click(object sender, RoutedEventArgs e) => await BackupService.ImportAsync(Owner, Owner.ViewModel);
 
     private void Backup_DragOver(object sender, DragEventArgs e)
     {
-        e.Effects = e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } f &&
+        e.Effects = Owner.ViewModel.CanImportBackup && e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } f &&
                     (f[0].EndsWith(ConfigBackup.Extension, StringComparison.OrdinalIgnoreCase) || f[0].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             ? DragDropEffects.Copy : DragDropEffects.None;
         e.Handled = true;
     }
 
-    private void Backup_Drop(object sender, DragEventArgs e)
+    private async void Backup_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: 1 } f)
         {
             e.Handled = true;
-            BackupService.Import(Owner, Owner.ViewModel, f[0]);
+            await BackupService.ImportAsync(Owner, Owner.ViewModel, f[0]);
         }
     }
 

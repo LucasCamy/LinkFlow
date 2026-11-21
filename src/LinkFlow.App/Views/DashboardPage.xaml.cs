@@ -6,7 +6,14 @@ namespace LinkFlow.App.Views;
 
 public partial class DashboardPage : UserControl
 {
-    public DashboardPage() => InitializeComponent();
+    public DashboardPage()
+    {
+        InitializeComponent();
+        if (Application.Current is App { Options.ScreenshotDetail: "operations" }) DashboardTabs.SelectedIndex = 2;
+        if (Application.Current is App { Options.ScreenshotDetail: "fleet" }) DashboardTabs.SelectedIndex = 3;
+    }
+
+    internal void ShowOperations() => DashboardTabs.SelectedIndex = 2;
 
     internal void ShowAlertHistory()
     {

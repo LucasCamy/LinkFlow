@@ -114,22 +114,28 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,8,14" Padding="18,14">
-                            <DockPanel>
-                                <Button x:Name="ScanButton" DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}"
-                                        Content="{x:Static r:Strings.Hw_DetectarHardware}" Click="Scan_Click" VerticalAlignment="Center" Margin="12,0,0,0"/>
-                                <TextBox x:Name="InventoryFilter" DockPanel.Dock="Right" Style="{StaticResource SystemSearch}" Width="260"
-                                         VerticalAlignment="Center" Visibility="Collapsed"
-                                         TextChanged="Filter_Changed" Tag="{x:Static r:Strings.Hw_FiltrarPecaOuEspecificacao}"
-                                         AutomationProperties.Name="{x:Static r:Strings.Hw_FiltrarPecas}"/>
-                                <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
-                                    <TextBlock Text="&#xE7F8;" Style="{StaticResource SystemIcon}"/>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static r:Strings.Hw_InventarioPC}" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock x:Name="InventoryStatus" Text="{x:Static r:Strings.Hw_LeiaComponentesSuasEspecificacoes}"
-                                               Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
-                                </StackPanel>
-                            </DockPanel>
+                            <StackPanel>
+                                <c:AdaptiveUniformGrid MinItemWidth="320" MaxColumns="2" StackColumns="True">
+                                    <DockPanel Margin="0,0,12,0">
+                                        <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE7F8;" Style="{StaticResource SystemIcon}"/>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Static r:Strings.Hw_InventarioPC}" Style="{StaticResource SystemSectionTitle}"/>
+                                            <TextBlock x:Name="InventoryStatus" Text="{x:Static r:Strings.Hw_LeiaComponentesSuasEspecificacoes}"
+                                                       Style="{StaticResource SystemDetail}" AutomationProperties.LiveSetting="Polite"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <Button x:Name="ScanButton" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Right"
+                                            Content="{x:Static r:Strings.Hw_DetectarHardware}" Click="Scan_Click" VerticalAlignment="Top" Margin="0,6,0,0"/>
+                                </c:AdaptiveUniformGrid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" MaxWidth="480"/></Grid.ColumnDefinitions>
+                                    <TextBox x:Name="InventoryFilter" Style="{StaticResource SystemSearch}" Margin="0,12,0,0"
+                                             Visibility="Collapsed" TextChanged="Filter_Changed" Tag="{x:Static r:Strings.Hw_FiltrarPecaOuEspecificacao}"
+                                             AutomationProperties.Name="{x:Static r:Strings.Hw_FiltrarPecas}"/>
+                                </Grid>
+                            </StackPanel>
                         </Border>
 
                         <ScrollViewer Grid.Row="1" Style="{StaticResource SystemScroll}">

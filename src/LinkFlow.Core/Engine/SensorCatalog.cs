@@ -127,12 +127,12 @@ public static class SensorCatalog
     public static IReadOnlyList<SensorDef> All(EngineSnapshot s)
     {
         var list = new List<SensorDef>(Static);
-        foreach (var f in s.Fans.Where(f => !f.IsPump))
+        foreach (var f in s.Fans.Where(f => !f.IsPump && f.HasTachometer))
         {
             string key = f.Key;
             list.Add(new($"fan:{key}", Cooling, f.DefaultName, f.DefaultName.Replace(" Fan", ""), "#00E5FF", true, true, (snap, d) =>
                 snap.Fans.FirstOrDefault(x => x.Key == key) is { } x
-                    ? d == SensorDisplay.Percent ? Pct(x.AppliedPercent) : Val(x.Rpm, "RPM", 2400)
+                    ? d == SensorDisplay.Percent ? Pct(x.AppliedPercent) : x.RpmAvailable ? Val(x.Rpm, "RPM", 2400) : SensorReading.Missing
                     : SensorReading.Missing));
         }
         foreach (var v in s.Volumes)

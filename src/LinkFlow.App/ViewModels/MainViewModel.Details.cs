@@ -86,7 +86,7 @@ public partial class MainViewModel
         "cpu" => CpuName,
         "gpu" => GpuName,
         "coolant" => Fans.FirstOrDefault(f => f.IsPump)?.Name ?? Strings.Det_PumpFallback,
-        "fans" => string.Format(Strings.Det_FansSubtitle, Fans.Count(f => !f.IsPump), ActivePresetLabel),
+        "fans" => string.Format(Strings.Det_FansSubtitle, Fans.Count(f => !f.IsPump && f.HasTachometer), ActivePresetLabel),
         "ram" => RamDetail,
         "net" => NetAdapter,
         "disk" => string.Format(Strings.Det_DisksSubtitle, Snapshot.Volumes.Count, Snapshot.Disks?.Count ?? 0),
@@ -296,7 +296,7 @@ public partial class MainViewModel
                 rows.Add(new(Strings.Det_AvgRpm, AverageFanRpmFormatted));
                 rows.Add(new(Strings.Det_ManualControl, string.Format(Strings.Det_OfTotal, Fans.Count(f => !f.IsLinked), Fans.Count)));
                 rows.Add(new(Strings.Det_Stopped, stopped == 0 ? Strings.Det_NoneStopped : $"{stopped}", stopped > 0 ? Strings.Det_CheckCables : null));
-                foreach (var f in Fans.Where(f => !f.IsPump)) fanRows.Add(FanRow(f));
+                foreach (var f in Fans.Where(f => !f.IsPump && f.HasTachometer)) fanRows.Add(FanRow(f));
                 break;
             case "ram":
                 rows.Add(new(Strings.Det_Usage, RamUsageFormatted));

@@ -86,10 +86,16 @@ public static class EngineTexts
     public const string SensorLostTitle = nameof(SensorLostTitle);
     public const string SensorLost = nameof(SensorLost);
     public const string SensorLostNoFailSafe = nameof(SensorLostNoFailSafe);
+    public const string TelemetryLostTitle = nameof(TelemetryLostTitle);
+    public const string TelemetrySourceLost = nameof(TelemetrySourceLost);
+    public const string CurveFallbackTitle = nameof(CurveFallbackTitle);
+    public const string CurveFallback = nameof(CurveFallback);
     public const string TempCriticalTitle = nameof(TempCriticalTitle);
     public const string TempCritical = nameof(TempCritical);
     public const string TempWarnTitle = nameof(TempWarnTitle);
     public const string TempWarn = nameof(TempWarn);
+    public const string TempWarnRecoveringTitle = nameof(TempWarnRecoveringTitle);
+    public const string TempWarnRecovering = nameof(TempWarnRecovering);
     public const string SensorCpu = nameof(SensorCpu);
     public const string SensorGpu = nameof(SensorGpu);
     public const string SensorCoolant = nameof(SensorCoolant);
@@ -178,6 +184,7 @@ public static class EngineTexts
     public const string GpuNotFound = nameof(GpuNotFound);
     public const string GpuNvapiMissing = nameof(GpuNvapiMissing);
     public const string GpuNvapiAccess = nameof(GpuNvapiAccess);
+    public const string GpuRgbWorkerFailed = nameof(GpuRgbWorkerFailed);
     public const string GpuNoSignature = nameof(GpuNoSignature);
     public const string GpuIdUnreadable = nameof(GpuIdUnreadable);
     public const string GpuFirmwareUnknown = nameof(GpuFirmwareUnknown);

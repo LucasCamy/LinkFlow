@@ -10,7 +10,7 @@ namespace LinkFlow.Core.Ipc;
 /// </summary>
 public static class PipeProtocol
 {
-    public const int Version = 1;
+    public const int Version = 2;
     public const int MaxMessageBytes = 1024 * 1024;
 
     /// <summary>LINKFLOW_PIPE permite isolar testes do serviço real.</summary>
@@ -23,6 +23,10 @@ public static class PipeProtocol
     public const string Snapshot = "snapshot";
     public const string Config = "config";
     public const string Alert = "alert";
+    public const string Receipt = "receipt";
+    public const string Command = "command";
+    public const string ReadRequest = "readRequest";
+    public const string ReadResponse = "readResponse";
 
     // Cliente → servidor
     public const string SetConfig = "setConfig";
@@ -34,6 +38,26 @@ public static class PipeProtocol
     public const string CurveTest = "curveTest";
     public const string CalibrationStart = "calibrationStart";
     public const string CalibrationCancel = "calibrationCancel";
+    public const string SessionContext = "sessionContext";
+    public const string AutomationOverride = "automationOverride";
+    public const string ReportOperation = "reportOperation";
+
+    public sealed class ReadRequestInfo
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public string Kind { get; set; } = string.Empty;
+        public HistoryQuery? History { get; set; }
+        public EventQuery? Events { get; set; }
+        public string? BaselineSession { get; set; }
+        public string? CandidateSession { get; set; }
+    }
+
+    public sealed class ReadResponseInfo
+    {
+        public string Id { get; set; } = string.Empty;
+        public JsonNode? Data { get; set; }
+        public string? Error { get; set; }
+    }
 
     public sealed class HelloInfo
     {
@@ -100,6 +124,7 @@ public static class PipeProtocol
             int nl = Array.IndexOf(data, (byte)'\n', 0, len);
             if (nl >= 0)
             {
+                if (nl > MaxMessageBytes) throw new InvalidDataException("Mensagem muito grande no pipe.");
                 var line = Encoding.UTF8.GetString(data, 0, nl).TrimEnd('\r');
                 var rest = len - nl - 1;
                 Buffer.BlockCopy(data, nl + 1, data, 0, rest);

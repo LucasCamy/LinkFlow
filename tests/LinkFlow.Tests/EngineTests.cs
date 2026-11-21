@@ -121,15 +121,20 @@ public class EngineTests
     [Fact]
     public void Critical_temperature_triggers_fail_safe()
     {
-        using var f = new EngineFixture(new ControlConfig { GlobalPercent = 30 });
+        using var f = new EngineFixture(new ControlConfig { GlobalPercent = 30 },
+            options => options.SpeedApplyMinInterval = TimeSpan.FromMinutes(1));
         var alerts = new List<EngineAlert>();
         f.Engine.AlertRaised += a => { lock (alerts) alerts.Add(a); };
         EngineFixture.WaitUntil(() => Speed(f, 1) == 30);
 
+        int writesBeforeProtection = f.Hw.Hub.SetSpeedsCalls;
+        f.Hw.Hub.SpeedFailuresRemaining = 1;
         f.Hw.Sensors.ForcedCpuTemp = 97;
         EngineFixture.WaitUntil(() => Speed(f, 1) == 100 && f.Hw.Sensors.GpuFanManual == 100,
             because: "hub e GPU em 100% no modo de segurança");
         Assert.True(f.Engine.GetSnapshot().FailSafeActive);
+        Assert.True(f.Hw.Hub.SetSpeedsCalls >= writesBeforeProtection + 2,
+            "A falha do primeiro envio de segurança deve ser repetida sem aguardar a limitação normal de velocidade.");
         EngineFixture.WaitUntil(() => { lock (alerts) return alerts.Any(a => a.Key == "failsafe"); });
 
         f.Hw.Sensors.ForcedCpuTemp = 60;
@@ -144,6 +149,17 @@ public class EngineTests
     {
         using var f = new EngineFixture(new ControlConfig { GlobalPercent = 35 },
             options => options.FailSafeRecoveryDelay = TimeSpan.FromMilliseconds(400));
+        if (sensorChannel != 11)
+        {
+            f.Hw.Hub.UnplugDevice(11);
+            f.Hw.Hub.PlugDevice(new ConnectedSubDevice
+            {
+                Channel = sensorChannel, DeviceId = "SIM-TITAN-MOVED", Model = LinkDeviceModel.LiquidCoolerTitanSeries,
+                Name = "Titan AIO Pump", IsPump = true
+            });
+            f.Engine.RescanDevices();
+            EngineFixture.WaitUntil(() => f.Engine.GetSnapshot().Fans.Any(fan => fan.IsPump && fan.Channel == sensorChannel));
+        }
         f.Hw.Hub.CoolantSensorChannel = sensorChannel;
         EngineFixture.WaitUntil(() => Speed(f, 1) == 35);
         f.Hw.Hub.CoolantTemp = 51;

@@ -73,20 +73,12 @@ public sealed class UiLanguageTests : IDisposable
     [Fact]
     public void Ui_settings_round_trip_the_language()
     {
-        string old = AppPaths.UserDir;
-        AppPaths.UserDir = _dir;
-        try
-        {
-            var service = new UiSettingsService();
-            Assert.Null(service.Current.Language);
-            service.Update(s => s.Language = UiLanguage.English);
-            service.Flush();
-            Assert.Equal(UiLanguage.English, UiLanguage.ReadSavedLanguage(AppPaths.UiSettingsFile));
-        }
-        finally
-        {
-            AppPaths.UserDir = old;
-        }
+        string path = Path.Combine(_dir, "ui.json");
+        var service = new UiSettingsService(path);
+        Assert.Null(service.Current.Language);
+        service.Update(s => s.Language = UiLanguage.English);
+        service.Flush();
+        Assert.Equal(UiLanguage.English, UiLanguage.ReadSavedLanguage(path));
     }
 
     [Fact]

@@ -124,7 +124,19 @@ public static class SharedDataSecurity
 
             if (isDirectory)
             {
-                new DirectoryInfo(path).SetAccessControl(InheritedOnly(new DirectorySecurity()));
+                // Certificados TLS e hashes de pareamento do agente nunca herdam a leitura pública
+                // do inventário/configuração. A proteção precisa sobreviver a cada início do serviço.
+                if (depth == 0 && Path.GetFileName(path).Equals("fleet", StringComparison.OrdinalIgnoreCase))
+                {
+                    var privateSecurity = new DirectorySecurity();
+                    privateSecurity.SetOwner(Admins);
+                    privateSecurity.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+                    const InheritanceFlags privateInherit = InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit;
+                    privateSecurity.AddAccessRule(new FileSystemAccessRule(System, FileSystemRights.FullControl, privateInherit, PropagationFlags.None, AccessControlType.Allow));
+                    privateSecurity.AddAccessRule(new FileSystemAccessRule(Admins, FileSystemRights.FullControl, privateInherit, PropagationFlags.None, AccessControlType.Allow));
+                    new DirectoryInfo(path).SetAccessControl(privateSecurity);
+                }
+                else new DirectoryInfo(path).SetAccessControl(InheritedOnly(new DirectorySecurity()));
                 if (depth + 1 >= MaxDepth) throw new InvalidOperationException($"Pastas aninhadas demais em {path}.");
                 SanitizeChildren(path, depth + 1, ref entries, notes);
             }

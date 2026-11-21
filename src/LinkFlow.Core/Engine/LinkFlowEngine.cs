@@ -24,6 +24,8 @@ public sealed class EngineOptions
     public TimeSpan ResumeCoalesceWindow { get; set; } = TimeSpan.FromSeconds(3);
     public TimeSpan SubDeviceCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
     public TimeSpan SpeedReassertInterval { get; set; } = TimeSpan.FromSeconds(30);
+    /// <summary>Coalesce normal speed changes; safety transitions bypass this limit.</summary>
+    public TimeSpan SpeedApplyMinInterval { get; set; } = TimeSpan.FromMilliseconds(50);
     public TimeSpan HubRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(60);
     public TimeSpan AuxRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(100);
     public TimeSpan RamRgbMinInterval { get; set; } = TimeSpan.FromMilliseconds(200);
@@ -36,6 +38,9 @@ public sealed class EngineOptions
 
     /// <summary>Curva sem nenhuma temperatura (CPU, GPU e líquido) por este tempo → modo de segurança.</summary>
     public TimeSpan SensorLossTimeout { get; set; } = TimeSpan.FromSeconds(10);
+
+    /// <summary>After this age a successfully acquired value is no longer published as current.</summary>
+    public TimeSpan TelemetryFreshnessTimeout { get; set; } = TimeSpan.FromSeconds(3);
 
     /// <summary>"Testar curva" termina sozinho se a interface parar de renovar o pedido (ex.: fechou ou travou).</summary>
     public TimeSpan CurveTestTimeout { get; set; } = TimeSpan.FromSeconds(6);
@@ -76,6 +81,14 @@ public sealed class EngineOptions
     /// </summary>
     public bool MediaLibraryOnly { get; set; }
 
+    /// <summary>Retenção e coleta contínua, independentes da interface. Null usa os padrões do serviço.</summary>
+    public OperationalHistoryOptions? History { get; set; }
+    public Func<InventoryObservation>? InventoryProvider { get; set; }
+    public TimeSpan InventoryInterval { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>Somente testes da assembly amiga; nunca vem de configuração, IPC ou argumentos do produto.</summary>
+    internal string? HardwareLeaseNameForTests { get; set; }
+
     /// <summary>Programas que disputam o hub (iCUE, SignalRGB...). Null = processos reais, exceto na simulação.</summary>
     public Func<IReadOnlyList<string>>? ConflictProbe { get; set; }
     public TimeSpan ConflictCheckInterval { get; set; } = TimeSpan.FromSeconds(30);
@@ -108,6 +121,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     /// <summary>Barramento da GPU ocupado por mais que isto (as rajadas normais duram até ~4 s): vira aviso no log.</summary>
     private static readonly TimeSpan GpuRgbBusyWarnAfter = TimeSpan.FromSeconds(10);
     private readonly IHardwareFactory _factory;
+    private HardwareControlLease? _hardwareOwnership;
     private readonly EngineOptions _opt;
     private readonly JsonFileStore<ControlConfig>? _store;
 
@@ -129,6 +143,7 @@ public sealed partial class LinkFlowEngine : IDisposable
 
     // Configuração (imutável por convenção; substituída a cada alteração)
     private readonly object _configLock = new();
+    private readonly object _configurationSaveGate = new();
     private ControlConfig _config;
     private long _configVersion;
     private long _rgbVersion;
@@ -250,6 +265,11 @@ public sealed partial class LinkFlowEngine : IDisposable
 
         _saveTimer = new Timer(_ => SaveNow(), null, Timeout.Infinite, Timeout.Infinite);
         _watchdog = new Timer(CheckLanes, null, Timeout.Infinite, Timeout.Infinite);
+        _safetySupervisor = new Timer(SuperviseSafety, null, Timeout.Infinite, Timeout.Infinite);
+        InitializeObservability();
+        MarkConfigurationPending(_config.Revision);
+        if (initialConfig == null && _store is { LoadedFromFallback: false } && File.Exists(_store.FilePath))
+            ReportConfigurationPersistence(_config.Revision, true);
     }
 
     private readonly Timer _watchdog;
@@ -258,17 +278,39 @@ public sealed partial class LinkFlowEngine : IDisposable
 
     public void Start()
     {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _stopped) == 1, this);
         if (Interlocked.Exchange(ref _started, 1) == 1) return;
+        try
+        {
+            if (!IsSimulated) _hardwareOwnership = _opt.HardwareLeaseNameForTests is { } testName
+                ? HardwareControlLease.AcquireForTests(testName)
+                : HardwareControlLease.Acquire();
+        }
+        catch { Interlocked.Exchange(ref _started, 0); throw; }
+        if (Volatile.Read(ref _stopped) == 1)
+        {
+            _hardwareOwnership?.Dispose();
+            _hardwareOwnership = null;
+            throw new ObjectDisposedException(nameof(LinkFlowEngine));
+        }
+        _engineStartedAt = Stopwatch.GetTimestamp();
+        InitializeLaneBeats(_engineStartedAt);
         var ct = _cts.Token;
         _lanes.Add(RunLane("hub", () => HubLoopAsync(ct)));
         _lanes.Add(RunLane("sensores", () => SensorLoopAsync(ct)));
         _lanes.Add(RunLane("periféricos", () => AuxLoopAsync(ct)));
         _lanes.Add(RunLane("memórias", () => RamLoopAsync(ct)));
         _lanes.Add(RunLane("snapshot", () => PublishLoopAsync(ct)));
-        if (!IsSimulated) WatchUsb();
+        // The internal Local/GUID ownership fixture uses fake adapters and must not initialize HidSharp either.
+        if (!IsSimulated && _opt.HardwareLeaseNameForTests == null) WatchUsb();
         var period = WatchdogPeriod;
         Interlocked.Exchange(ref _lastLaneCheck, Stopwatch.GetTimestamp()); // suspensão antes da primeira verificação
         _watchdog.Change(period, period);
+        _safetySupervisor.Change(SafetyPeriod, SafetyPeriod);
+        StartAutomation();
+        StartInventory();
+        if (_store != null && Persistence.State != PersistenceState.Saved)
+            _saveTimer.Change(_opt.SaveDebounce, Timeout.InfiniteTimeSpan);
         Log.Info($"Engine iniciado ({(IsSimulated ? "simulação" : "hardware real")}).");
     }
 
@@ -293,6 +335,7 @@ public sealed partial class LinkFlowEngine : IDisposable
     /// <summary>Aplica uma alteração sobre uma cópia da configuração atual (último valor vence).</summary>
     public void UpdateConfig(Action<ControlConfig> mutate, object? origin = null)
     {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _stopped) == 1, this);
         ControlConfig updated;
         lock (_configLock)
         {
@@ -306,6 +349,7 @@ public sealed partial class LinkFlowEngine : IDisposable
 
     public void ReplaceConfig(ControlConfig config, object? origin = null)
     {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _stopped) == 1, this);
         ControlConfig updated;
         lock (_configLock)
         {
@@ -319,6 +363,8 @@ public sealed partial class LinkFlowEngine : IDisposable
     private ControlConfig Commit(ControlConfig next)
     {
         var prev = _config;
+        if (prev.Revision == long.MaxValue) throw new InvalidOperationException("Limite de revisões atingido.");
+        next.Revision = prev.Revision + 1;
         if (!prev.Rgb.SameOutputAs(next.Rgb)) Interlocked.Increment(ref _rgbVersion);
         if (!prev.Rgb.SyncGpu && next.Rgb.SyncGpu) _gpuRgbResendVersion++;
         if (prev.GpuFanAuto != next.GpuFanAuto || prev.GpuFanPercent != next.GpuFanPercent) Interlocked.Increment(ref _gpuFanVersion);
@@ -329,6 +375,7 @@ public sealed partial class LinkFlowEngine : IDisposable
 
     private void AfterConfigChange(ControlConfig updated, object? origin)
     {
+        MarkConfigurationPending(updated.Revision);
         Signal(_hubSignal);
         Signal(_sensorSignal);
         Signal(_auxSignal);
@@ -339,7 +386,8 @@ public sealed partial class LinkFlowEngine : IDisposable
         if (handler != null)
         {
             var copy = updated.Clone();
-            try { handler(copy, origin); } catch (Exception ex) { Log.Warn($"ConfigChanged handler: {ex.Message}"); }
+            foreach (Action<ControlConfig, object?> observer in handler.GetInvocationList())
+                try { observer(copy, origin); } catch (Exception ex) { Log.Warn($"ConfigChanged handler: {ex.Message}"); }
         }
     }
 
@@ -368,6 +416,7 @@ public sealed partial class LinkFlowEngine : IDisposable
         // O processo ficou parado durante a suspensão: a última batida das filas é de antes dela
         ResetLaneBeats(now);
         lock (_stateLock) _failSafeRecoveryStarted = null;
+        InvalidateAcquisitionsForResume();
         Interlocked.Exchange(ref _resumeHub, 1);
         Interlocked.Exchange(ref _forceReconnectHub, 1);
         Interlocked.Exchange(ref _forceReconnectAux, 1);
@@ -466,70 +515,85 @@ public sealed partial class LinkFlowEngine : IDisposable
     {
         ControlConfig cfg;
         lock (_configLock) cfg = _config;
+        var automation = GetAutomationState();
+        var persistence = Persistence;
+        var operations = GetCommandReceipts();
+        var historyStorage = History.Status;
+        var inventory = Volatile.Read(ref _inventorySnapshot);
+        // One immutable cached read, outside engine locks; the provider never calls the native backend here.
+        var gpuControl = CaptureGpuRgbControlStatus();
 
         lock (_stateLock)
         {
             var t = _telemetry;
-            var rgbStatus = BuildRgbStatus(cfg.Rgb);
+            var rgbStatus = BuildRgbStatus(cfg.Rgb, gpuControl);
             return new EngineSnapshot
             {
                 Timestamp = DateTime.Now,
+                ConfigRevision = cfg.Revision,
+                Persistence = persistence,
+                Operations = operations.ToList(),
+                Automation = automation,
+                HistoryStorage = historyStorage,
+                Inventory = inventory,
                 IsSimulated = IsSimulated,
+                TelemetryHealth = SnapshotTelemetryHealth(),
+                CurveRequestedSource = cfg.Curve.Source,
+                CurveEffectiveSource = _curveSelection.EffectiveSource,
+                CurveUsingFallback = _curveSelection.IsFallback,
                 HubConnected = _hubConnected,
                 HubFirmware = _hubFirmware,
                 HubStatus = _hubStatus.ToPortuguese(),
                 HubStatusText = _hubStatus,
                 SensorsReady = _sensorsReady,
-                CpuSensorAvailable = t.CpuSensorAvailable,
+                CpuSensorAvailable = t.CpuSensorAvailable && IsFresh("cpu.temp"),
                 CpuName = t.CpuName,
                 GpuName = t.GpuName,
-                CpuTemp = t.CpuTemperature,
-                CpuLoad = t.CpuLoad,
-                GpuTemp = t.GpuTemperature,
-                GpuHotspot = t.GpuHotspotTemperature,
-                GpuLoad = t.GpuLoad,
-                RamUsage = t.RamUsagePercent,
-                RamUsedGb = t.RamUsedGb,
-                RamTotalGb = t.RamTotalGb,
-                CoolantTemp = _coolant,
-                GpuFanRpm1 = t.GpuFanRpm1,
-                GpuFanRpm2 = t.GpuFanRpm2,
-                GpuFanPercent = t.GpuFanPercent,
-                CpuPower = t.CpuPower,
-                CpuClockMhz = t.CpuClockMhz,
+                CpuTemp = FreshValue("cpu.temp", t.CpuTemperature),
+                CpuLoad = FreshValue("cpu.load", t.CpuLoad),
+                GpuTemp = FreshValue("gpu.temp", t.GpuTemperature),
+                GpuHotspot = FreshValue("gpu.hotspot", t.GpuHotspotTemperature),
+                GpuLoad = FreshValue("gpu.load", t.GpuLoad),
+                RamUsage = FreshValue("ram.usage", t.RamUsagePercent),
+                RamUsedGb = FreshValue("ram.used", t.RamUsedGb),
+                RamTotalGb = FreshValue("ram.total", t.RamTotalGb),
+                CoolantTemp = FreshValue("coolant.temp", _coolant),
+                GpuFanRpm1 = FreshInt("gpu.fan1", t.GpuFanRpm1),
+                GpuFanRpm2 = FreshInt("gpu.fan2", t.GpuFanRpm2),
+                GpuFanPercent = FreshValue("gpu.fan_percent", t.GpuFanPercent),
+                CpuPower = FreshValue("cpu.power", t.CpuPower),
+                CpuClockMhz = FreshValue("cpu.clock", t.CpuClockMhz),
                 CpuCores = t.CpuCores,
-                GpuPower = t.GpuPower,
-                GpuClockMhz = t.GpuClockMhz,
-                GpuMemClockMhz = t.GpuMemClockMhz,
-                GpuVramUsedGb = t.GpuVramUsedGb,
-                GpuVramTotalGb = t.GpuVramTotalGb,
-                CpuCoreLoads = t.CpuCoreLoads,
-                Network = _network,
-                Volumes = _volumes,
-                Disks = _disks,
+                GpuPower = FreshValue("gpu.power", t.GpuPower),
+                GpuClockMhz = FreshValue("gpu.clock", t.GpuClockMhz),
+                GpuMemClockMhz = FreshValue("gpu.memory_clock", t.GpuMemClockMhz),
+                GpuVramUsedGb = FreshValue("gpu.vram_used", t.GpuVramUsedGb),
+                GpuVramTotalGb = FreshValue("gpu.vram_total", t.GpuVramTotalGb),
+                CpuCoreLoads = IsFresh("cpu.load") ? t.CpuCoreLoads : null,
+                Network = IsFresh("network") ? _network : null,
+                Volumes = _volumes.Where(volume => IsFresh($"vol:{volume.Letter}")).ToList(),
+                Disks = _disks?.Where(disk => IsFresh($"disk:{disk.Index}")).ToList(),
                 LcdStatus = _lcdStatus?.ToPortuguese(),
                 LcdStatusText = _lcdStatus,
                 EffectiveGlobalPercent = EffectiveGlobal(cfg),
                 GroupOutputs = new Dictionary<string, int>(_groupOutputs),
-                CurveInputTemp = _curveInputTemp,
+                CurveInputTemp = _curveTestTemp != null || _curveSelection.Temperature != null ? _curveInputTemp : null,
                 FailSafeActive = _failSafe,
                 FailSafeReason = _failSafe ? _failSafeReason?.ToPortuguese() : null,
                 FailSafeReasonText = _failSafe ? _failSafeReason : null,
                 FailSafeRecovering = _failSafe && _failSafeRecoveryStarted != null,
                 CurveTestTemp = _curveTestTemp,
                 Calibration = _calibrationStatus,
-                Fans = _fans.Select(f => new FanState
-                {
-                    Key = f.Key, Channel = f.Channel, DeviceId = f.DeviceId, DefaultName = f.DefaultName,
-                    Model = f.Model, IsPump = f.IsPump, Rpm = f.Rpm, AppliedPercent = f.AppliedPercent, Temperature = f.Temperature
-                }).ToList(),
+                Fans = _fans.Select(f => SnapshotFan(f, cfg)).ToList(),
                 LcdConnected = _lcdConnected,
-                GpuRgbAvailable = _gpuRgb.IsAvailable,
-                GpuRgbRetrying = cfg.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry,
-                GpuRgbName = _gpuRgb.Name,
-                GpuRgbApplied = cfg.Rgb.SyncGpu ? _rgbGpuOk : null,
-                GpuRgbDiagnostic = _gpuRgb.Diagnostic,
-                GpuRgbDiagnosticText = _gpuRgb.DiagnosticText,
+                GpuRgbControl = gpuControl,
+                GpuRgbAvailable = gpuControl?.ControlAvailable ?? _gpuRgb.IsAvailable,
+                GpuRgbRetrying = cfg.Rgb.SyncGpu && (gpuControl?.InitializationRetryNeeded ?? _gpuRgb.NeedsInitializationRetry),
+                GpuRgbName = gpuControl?.ControllerName ?? _gpuRgb.Name,
+                GpuRgbApplied = !cfg.Rgb.SyncGpu ? null : gpuControl == null ? _rgbGpuOk
+                    : gpuControl.ControlAvailable ? gpuControl.LastOutputAccepted : false,
+                GpuRgbDiagnostic = gpuControl == null ? _gpuRgb.Diagnostic : gpuControl.Diagnostic,
+                GpuRgbDiagnosticText = gpuControl == null ? _gpuRgb.DiagnosticText : gpuControl.DiagnosticText,
                 MotherboardRgbAvailable = _mbRgb.IsAvailable,
                 MotherboardRgbName = _mbRgb.Name,
                 RamRgbAvailable = _ramRgb.IsAvailable,
@@ -558,10 +622,13 @@ public sealed partial class LinkFlowEngine : IDisposable
         while (!ct.IsCancellationRequested)
         {
             await Task.Delay(_opt.SnapshotInterval, ct).ConfigureAwait(false);
+            var snapshot = GetSnapshot();
+            PublishObservability(snapshot);
             var handler = SnapshotUpdated;
             if (handler == null) continue;
-            try { handler(GetSnapshot()); }
-            catch (Exception ex) { Log.Warn($"SnapshotUpdated handler: {ex.Message}"); }
+            foreach (Action<EngineSnapshot> observer in handler.GetInvocationList())
+                try { observer(snapshot); }
+                catch (Exception ex) { Log.Warn($"SnapshotUpdated handler: {ex.Message}"); }
         }
     }
 
@@ -596,20 +663,33 @@ public sealed partial class LinkFlowEngine : IDisposable
             Since = existing.Since
         };
         var handler = AlertRaised;
-        if (handler != null) ThreadPool.QueueUserWorkItem(_ => { try { handler(copy); } catch { } });
+        if (handler != null) ThreadPool.QueueUserWorkItem(_ =>
+        {
+            foreach (Action<EngineAlert> observer in handler.GetInvocationList())
+                try { observer(copy); } catch (Exception ex) { Log.Debug($"AlertRaised handler: {ex.Message}"); }
+        });
     }
 
     /// <summary>Chamar com _stateLock adquirido.</summary>
-    private void ClearAlert(string key) => _alerts.Remove(key);
+    private void ClearAlert(string key)
+    {
+        if (_alerts.Remove(key)) RecordAlertResolution(key);
+    }
 
     // ------------------------------------------------------------------ Encerramento e utilidades
 
     private void SaveNow()
     {
         if (_store == null) return;
-        ControlConfig cfg;
-        lock (_configLock) cfg = _config;
-        _store.Save(cfg);
+        if (!IsSimulated && _hardwareOwnership == null) return;
+        // A cópia deve ser capturada dentro do mesmo gate da gravação: callbacks sobrepostos
+        // não podem gravar uma revisão antiga depois da revisão mais recente.
+        lock (_configurationSaveGate)
+        {
+            ControlConfig cfg;
+            lock (_configLock) cfg = _config;
+            ReportConfigurationPersistence(cfg.Revision, _store.Save(cfg));
+        }
     }
 
     /// <param name="restoreHardwareMode">Devolve o hub ao modo hardware (curva interna) e a GPU ao vBIOS.</param>
@@ -617,29 +697,63 @@ public sealed partial class LinkFlowEngine : IDisposable
     {
         if (Interlocked.Exchange(ref _stopped, 1) == 1) return;
         _watchdog.Change(Timeout.Infinite, Timeout.Infinite);
+        _safetySupervisor.Change(Timeout.Infinite, Timeout.Infinite);
         _cts.Cancel();
-        try { await Task.WhenAll(_lanes).WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false); }
-        catch (Exception ex) { Log.Warn($"Filas não encerraram a tempo: {ex.Message}"); }
-
+        if (_automationTimer != null)
+        {
+            try { await _automationTimer.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+            catch (TimeoutException) { Log.Warn("Automação ainda finalizando durante o encerramento."); }
+        }
         _saveTimer.Change(Timeout.Infinite, Timeout.Infinite);
-        SaveNow();
-
-        if (restoreHardwareMode)
+        // Sem adquirir a posse, este engine nunca deve chamar nenhum controle/restauração real.
+        bool ownsHardware = IsSimulated || _hardwareOwnership != null;
+        var cleanup = new List<Task>();
+        if (ownsHardware)
         {
-            SafeCall(() => _sensors.SetGpuFanAuto());
+            cleanup.Add(Task.Run(() => SafeCall(() => { _hub.Disconnect(restoreHardwareMode); return true; })));
+            cleanup.Add(Task.Run(() =>
+            {
+                if (restoreHardwareMode) SafeCall(() => _sensors.SetGpuFanAuto());
+                try { _sensors.Dispose(); } catch (Exception ex) { Log.Debug($"Encerrando sensores: {ex.Message}"); }
+            }));
+            foreach (var device in new IDisposable[] { _lcd, _gpuRgb, _mbRgb, _ramRgb, _peripheralsRgb })
+                cleanup.Add(Task.Run(() =>
+                {
+                    try { device.Dispose(); }
+                    catch (Exception ex)
+                    {
+                        Log.Debug($"Encerrando dispositivo: {ex.Message}");
+                        // A failed termination does not confirm that this controller relinquished hardware.
+                        // Fault the cleanup task so ownership stays held until the process exits.
+                        throw;
+                    }
+                }));
         }
-        SafeCall(() => { _hub.Disconnect(restoreHardwareMode); return true; });
-        foreach (var d in new IDisposable[] { _lcd, _gpuRgb, _mbRgb, _ramRgb, _peripheralsRgb, _sensors })
+        bool cleanupFinished = false;
+        try
         {
-            try { d.Dispose(); } catch { }
+            await Task.WhenAll(_lanes.Concat(cleanup)).WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+            cleanupFinished = true;
         }
-        Log.Info($"Engine parado (hub {(restoreHardwareMode ? "devolvido ao modo hardware" : "mantido")}).");
+        catch (Exception ex) { Log.Warn($"Filas/dispositivos não encerraram a tempo; posse mantida até o processo terminar: {ex.Message}"); }
+        bool saveFinished = false;
+        try { await Task.Run(SaveNow).WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); saveFinished = true; }
+        catch (TimeoutException) { Log.Warn("A gravação final de configuração não confirmou o término no prazo."); }
+        if (cleanupFinished && saveFinished)
+        {
+            _hardwareOwnership?.Dispose();
+            _hardwareOwnership = null;
+        }
+        try { await StopObservabilityAsync().WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false); }
+        catch (TimeoutException) { Log.Warn("O histórico ainda está finalizando suas gravações."); }
+        Log.Info($"Engine encerrado (restauração de hardware {(restoreHardwareMode ? "solicitada" : "dispensada")}; filas e limpeza {(cleanupFinished ? "concluídas" : "pendentes")}).");
     }
 
     public void Dispose()
     {
         try { StopAsync().GetAwaiter().GetResult(); } catch { }
         _watchdog.Dispose();
+        _safetySupervisor.Dispose();
         _saveTimer.Dispose();
         _cts.Dispose();
     }

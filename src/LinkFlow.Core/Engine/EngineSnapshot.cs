@@ -24,6 +24,13 @@ public sealed class FanState
     public string Model { get; set; } = string.Empty;
     public bool IsPump { get; set; }
     public int Rpm { get; set; }
+    public bool RpmAvailable { get; set; } = true;
+    public ReadingValidity RpmValidity { get; set; } = ReadingValidity.Fresh;
+    public DateTimeOffset? RpmLastSuccessUtc { get; set; }
+    public byte? RequestedPercent { get; set; }
+    public string ControlReason { get; set; } = string.Empty;
+    public bool HasTachometer => IsPump || string.IsNullOrEmpty(Model) || LinkDeviceCatalog.HasTachometer(Model);
+    public bool CanControlSpeed => HasTachometer;
     public byte AppliedPercent { get; set; }
     public float? Temperature { get; set; }
 
@@ -36,6 +43,16 @@ public sealed class EngineSnapshot
 {
     public DateTime Timestamp { get; set; } = DateTime.Now;
     public bool IsSimulated { get; set; }
+    public long ConfigRevision { get; set; }
+    public ConfigurationPersistence Persistence { get; set; } = new();
+    public List<CommandReceipt> Operations { get; set; } = [];
+    public AutomationState Automation { get; set; } = new();
+    public HistoryStorageStatus HistoryStorage { get; set; } = new();
+    public InventoryStatus Inventory { get; set; } = new();
+    public List<TelemetryHealth> TelemetryHealth { get; set; } = new();
+    public CurveSource CurveRequestedSource { get; set; }
+    public CurveSource? CurveEffectiveSource { get; set; }
+    public bool CurveUsingFallback { get; set; }
 
     // Hub
     public bool HubConnected { get; set; }
@@ -103,6 +120,8 @@ public sealed class EngineSnapshot
     /// <summary>O que o LCD está exibindo (ex.: "Métricas", "GIF 3/5 • 12 fps").</summary>
     public string? LcdStatus { get; set; }
     public EngineText? LcdStatusText { get; set; }
+    /// <summary>Cached RGB-backend evidence; availability and SDK acceptance do not verify physical connection or emitted light.</summary>
+    public RgbControlStatus? GpuRgbControl { get; set; }
     public bool GpuRgbAvailable { get; set; }
     public bool GpuRgbRetrying { get; set; }
     public string GpuRgbName { get; set; } = string.Empty;
@@ -129,11 +148,11 @@ public sealed class EngineSnapshot
     {
         get
         {
-            var list = Fans.Where(f => !f.IsPump && f.Rpm > 0).ToList();
+            var list = Fans.Where(f => !f.IsPump && f.HasTachometer && f.RpmAvailable).ToList();
             return list.Count > 0 ? (int)list.Average(f => f.Rpm) : null;
         }
     }
 
     [System.Text.Json.Serialization.JsonIgnore]
-    public int? PumpRpm => Fans.FirstOrDefault(f => f.IsPump)?.Rpm;
+    public int? PumpRpm => Fans.FirstOrDefault(f => f.IsPump && f.RpmAvailable)?.Rpm;
 }

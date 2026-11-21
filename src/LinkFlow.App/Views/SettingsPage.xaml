@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:r="clr-namespace:LinkFlow.App.Resources"
+             xmlns:vm="clr-namespace:LinkFlow.App.ViewModels"
              xmlns:c="clr-namespace:LinkFlow.App.Controls">
 
     <Grid Margin="24,20,24,0" MaxWidth="1160">
@@ -84,18 +85,18 @@
                                         </CheckBox>
                                     </Border>
                                     <Border Style="{StaticResource SystemRow}">
-                                        <DockPanel>
-                                            <ComboBox DockPanel.Dock="Right" Width="270" VerticalAlignment="Center" Margin="12,0,0,0"
-                                                      ItemsSource="{Binding LanguageOptions}" SelectedValuePath="Code" DisplayMemberPath="Label"
-                                                      SelectedValue="{Binding LanguageChoice}" AutomationProperties.Name="{x:Static r:Strings.Language_Title}"/>
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock Text="{x:Static r:Strings.Language_Title}" Style="{StaticResource SystemItemTitle}"/>
-                                                <TextBlock Text="{x:Static r:Strings.Language_RestartNotice}" Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
-                                                <Button Content="{x:Static r:Strings.Language_RestartNow}" Style="{StaticResource SystemLinkButton}"
-                                                        HorizontalAlignment="Left" Margin="-6,4,0,0" Click="RestartForLanguage_Click"
-                                                        Visibility="{Binding LanguageChangePending, Converter={StaticResource BoolToVis}}"/>
-                                            </StackPanel>
-                                        </DockPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="{x:Static r:Strings.Language_Title}" Style="{StaticResource SystemItemTitle}"/>
+                                            <TextBlock Text="{x:Static r:Strings.Language_RestartNotice}" Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
+                                            <Grid Margin="0,10,0,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" MaxWidth="270"/></Grid.ColumnDefinitions>
+                                                <ComboBox x:Name="LanguageComboBox" ItemsSource="{Binding LanguageOptions}" SelectedValuePath="Code" DisplayMemberPath="Label"
+                                                          SelectedValue="{Binding LanguageChoice}" AutomationProperties.Name="{x:Static r:Strings.Language_Title}"/>
+                                            </Grid>
+                                            <Button x:Name="RestartLanguageButton" Content="{x:Static r:Strings.Language_RestartNow}" Style="{StaticResource SystemLinkButton}"
+                                                    HorizontalAlignment="Left" Margin="-6,4,0,0" Click="RestartForLanguage_Click"
+                                                    Visibility="{Binding LanguageChangePending, Converter={StaticResource BoolToVis}}"/>
+                                        </StackPanel>
                                     </Border>
                                 </StackPanel>
                             </StackPanel>
@@ -303,7 +304,7 @@
                                     </WrapPanel>
                                 </StackPanel>
                             </Border>
-                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12" AllowDrop="True" Drop="Backup_Drop" DragOver="Backup_DragOver">
+                            <Border Style="{StaticResource SystemPanel}" Margin="0,0,12,12" AllowDrop="{Binding CanImportBackup}" Drop="Backup_Drop" DragOver="Backup_DragOver">
                                 <StackPanel>
                                     <DockPanel>
                                         <Border DockPanel.Dock="Left" Style="{StaticResource SystemIconTile}" Margin="0,0,12,0">
@@ -314,20 +315,25 @@
                                             <TextBlock Text="{x:Static r:Strings.Set_ReunePerfisCurvasIluminacao}" Style="{StaticResource SystemDetail}"/>
                                         </StackPanel>
                                     </DockPanel>
-                                    <WrapPanel Margin="0,14,0,0">
-                                        <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Click="ExportBackup_Click">
+                                    <WrapPanel Margin="0,14,0,0" IsEnabled="{Binding CanBackup}">
+                                        <Button x:Name="ExportBackupButton" Style="{StaticResource SecondaryButton}" VerticalAlignment="Center" Margin="0,0,8,8" Click="ExportBackup_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Style="{StaticResource Icon}" Text="&#xEDE1;" FontSize="13" Margin="0,0,8,0"/>
                                                 <TextBlock Text="{x:Static r:Strings.Set_Exportar}"/>
                                             </StackPanel>
                                         </Button>
-                                        <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8" Click="ImportBackup_Click">
+                                        <Button x:Name="ImportBackupButton" Style="{StaticResource PrimaryButton}" IsEnabled="{Binding CanImportBackup}" VerticalAlignment="Center" Margin="0,0,0,8" Click="ImportBackup_Click">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Style="{StaticResource Icon}" Text="&#xE8B5;" FontSize="13" Margin="0,0,8,0"/>
                                                 <TextBlock Text="{x:Static r:Strings.Set_Importar}"/>
                                             </StackPanel>
                                         </Button>
                                     </WrapPanel>
+                                    <ProgressBar Height="4" IsIndeterminate="True" Margin="0,0,0,8"
+                                                 Visibility="{Binding IsBackupBusy, Converter={StaticResource BoolToVis}}"
+                                                 AutomationProperties.Name="{x:Static r:Strings.Set_BackupConfiguracoes}"/>
+                                    <TextBlock Text="{Binding BackupStatus}" Style="{StaticResource SystemDetail}" Margin="0,0,0,8"
+                                               Visibility="{Binding IsBackupBusy, Converter={StaticResource BoolToVis}}" AutomationProperties.LiveSetting="Polite"/>
                                     <TextBlock Text="{x:Static r:Strings.Set_VoceTambemPodeArrastar}" Style="{StaticResource SystemDetail}"/>
                                 </StackPanel>
                             </Border>
@@ -373,6 +379,7 @@
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="{x:Static r:Strings.Tray_Updates}" Style="{StaticResource SystemSectionTitle}"/>
                                     <TextBlock Text="{Binding VersionText}" Style="{StaticResource SystemDetail}"/>
+                                    <TextBlock Text="{Binding DistributionStatus}" Style="{StaticResource SystemDetail}" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </DockPanel>
                             <Border Style="{StaticResource SystemRow}" Margin="0,16,0,0">
@@ -386,11 +393,15 @@
                             </Border>
                             <TextBlock Text="{Binding Status}" Style="{StaticResource SystemDetail}" Margin="0,12,0,0"
                                        AutomationProperties.LiveSetting="Polite"/>
+                            <TextBlock Text="{Binding RecoveryStatus}" Style="{StaticResource SystemDetail}" Margin="0,8,0,0" TextWrapping="Wrap"
+                                       AutomationProperties.LiveSetting="Polite"/>
                             <ProgressBar Height="5" Maximum="100" Value="{Binding Progress, Mode=OneWay}" Margin="0,8,0,0"
                                          Foreground="{StaticResource AccentBrush}" Background="{StaticResource BgBrush}"
                                          Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}"
                                          AutomationProperties.Name="{x:Static r:Strings.Set_ProgressoDownloadAtualizacao}"/>
                             <WrapPanel Margin="0,14,-8,-8">
+                                <Button Style="{StaticResource SecondaryButton}" Content="{x:Static vm:ReliabilityUiText.RestoreConfiguration}"
+                                        Click="RestoreUpdateConfiguration_Click" Visibility="{Binding CanRestoreConfiguration, Converter={StaticResource BoolToVis}}" Margin="0,0,8,8"/>
                                 <Button Style="{StaticResource PrimaryButton}" Content="{Binding ActionText}" Click="UpdateAction_Click"
                                         Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding CanCheck}"
                                         Margin="0,0,8,8"/>

@@ -1,11 +1,37 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Text.Json;
 
 namespace LinkFlow.Core;
 
 /// <summary>Filas de periféricos e memórias: RGB da GPU, placa-mãe, periféricos, RAM e quadros do LCD.</summary>
 public sealed partial class LinkFlowEngine
 {
+    private sealed record GpuRecoveryView(bool Pending, int Attempts, int Step, long? RetryAt, DateTimeOffset? NextUtc);
+    private GpuRecoveryView _gpuRecoveryView = new(false, 0, 0, null, null);
+
+    internal RgbControlStatus? CaptureGpuRgbControlStatus()
+    {
+        if (_gpuRgb is not IRgbControlStatusProvider provider) return null;
+        var status = provider.ControlStatus; // Immutable cache only; no native lock, SDK call or re-probe.
+        var recovery = Volatile.Read(ref _gpuRecoveryView);
+        return status with
+        {
+            RecoveryPending = recovery.Pending, RecoveryAttemptCount = recovery.Attempts,
+            RecoveryBackoffStep = recovery.Step,
+            NextInitializationAttemptUtc = !status.ControlAvailable && status.InitializationRetryNeeded ? recovery.NextUtc : null
+        };
+    }
+
+    private void PublishGpuRecovery(GpuRgbRecovery recovery, long now)
+    {
+        var previous = Volatile.Read(ref _gpuRecoveryView);
+        if (previous.Pending == recovery.Pending && previous.Attempts == recovery.Attempts &&
+            previous.Step == recovery.BackoffStep && previous.RetryAt == recovery.RetryAt) return;
+        DateTimeOffset? next = recovery.RetryAt is { } at ? DateTimeOffset.UtcNow + Stopwatch.GetElapsedTime(now, at) : null;
+        Volatile.Write(ref _gpuRecoveryView, new(recovery.Pending, recovery.Attempts, recovery.BackoffStep, recovery.RetryAt, next));
+    }
+
     // ------------------------------------------------------------------ Fila de periféricos
 
     private async Task AuxLoopAsync(CancellationToken ct)
@@ -23,12 +49,13 @@ public sealed partial class LinkFlowEngine
         var rgbClock = new RgbFrameClock();
         int rgbInterval = RgbFrameClock.IntervalMs(_opt.AuxRgbMinInterval);
         long appliedRgbVersion = -1, lastRgbApply = 0, nextFrame = 0, nextLcdReconnect = 0;
-        long nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
+        var gpuRecovery = new GpuRgbRecovery(_opt.ReconnectInterval, _opt.RgbSync.ReinitMax, _opt.RgbSync.StableAfter);
         long handledGpuResendVersion = 0, nextGpuResend = 0;
         int gpuResendRemaining = 0;
         var gpuBusy = new GpuBusyEpisode();
         long nextPeripheralRetry = Stopwatch.GetTimestamp() + Ticks(TimeSpan.FromSeconds(30));
         LcdConfig? lastLcd = null;
+        RgbConfig? lastLcdTheme = null;
 
         // Supervisor de sincronismo: um estado de saúde por dispositivo desta fila (a RAM tem o dela)
         var sync = _opt.RgbSync;
@@ -71,7 +98,8 @@ public sealed partial class LinkFlowEngine
                     mbHealth.RequestResync(now);
                     periphHealth.RequestResync(now);
                 }
-                if (!cfg.Rgb.SyncGpu) gpuHealth.Reset();
+                if (!cfg.Rgb.SyncGpu) { gpuHealth.Reset(); gpuRecovery.Reset(); }
+                else if (!_gpuRgb.IsAvailable && _gpuRgb.NeedsInitializationRetry) gpuRecovery.Unavailable(now);
 
                 if (Interlocked.Exchange(ref _forceReconnectAux, 0) == 1)
                 {
@@ -98,16 +126,18 @@ public sealed partial class LinkFlowEngine
                     gpuResendRemaining = GpuRgbResendAttempts;
                     nextGpuResend = now;
                 }
-                bool retryGpu = cfg.Rgb.SyncGpu && gpuResendRemaining == 0 && _gpuRgb.NeedsInitializationRetry && now >= nextGpuRetry;
+                bool retryGpu = cfg.Rgb.SyncGpu && gpuResendRemaining == 0 && !_gpuRgb.IsAvailable &&
+                    _gpuRgb.NeedsInitializationRetry && gpuRecovery.Due(now);
                 if (retryGpu)
                 {
+                    gpuRecovery.InitializationAttempted(now);
+                    PublishGpuRecovery(gpuRecovery, now);
                     bool found = SafeCall(() => { _gpuRgb.Initialize(); return _gpuRgb.IsAvailable; });
-                    nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
                     if (found)
                     {
                         // Num episódio já registrado (ex.: adaptador que some e volta a cada poucos segundos), a linha
                         // de recuperação do supervisor resume tudo
-                        if (!gpuHealth.EpisodeLogged) Log.Info($"RGB GPU: conexão recuperada com {_gpuRgb.Name}.");
+                        if (!gpuHealth.EpisodeLogged) Log.Info($"RGB GPU: canal NVAPI redetectado com {_gpuRgb.Name}; aguardando envio aceito.");
                         appliedRgbVersion = -1;
                     }
                     else if (gpuHealth.EverConfirmed && gpuHealth.Failed(Stopwatch.GetTimestamp()) is { } line) Log.Warn(line);
@@ -126,9 +156,14 @@ public sealed partial class LinkFlowEngine
                 if (!ReferenceEquals(lastLcd, cfg.Lcd))
                 {
                     if (lastLcd != null) composer.Prune(cfg.Lcd);
+                    if (lastLcd == null || JsonSerializer.Serialize(lastLcd, Json.Compact) != JsonSerializer.Serialize(cfg.Lcd, Json.Compact))
+                        Interlocked.Exchange(ref _lcdRequested, 1);
                     lastLcd = cfg.Lcd;
                     nextFrame = 0;
                 }
+                if (lastLcdTheme == null || !lastLcdTheme.SameLcdThemeAs(cfg.Rgb))
+                    Interlocked.Exchange(ref _lcdRequested, 1);
+                lastLcdTheme = cfg.Rgb;
 
                 // RGB da GPU, placa-mãe e periféricos (a RAM, lenta, tem fila própria)
                 var rgb = cfg.Rgb;
@@ -177,20 +212,26 @@ public sealed partial class LinkFlowEngine
                     var previousGpuOk = _rgbGpuOk;
                     var previousGpuDiagnostic = _gpuRgb.Diagnostic;
                     bool? gpuOk = rgb.SyncGpu ? previousGpuOk : null;
-                    bool gpuWritten = false;
+                    bool gpuWritten = false, gpuAttempted = false;
                     if (gpuResendDue)
                     {
+                        if (gpuRecovery.Pending || !_gpuRgb.IsAvailable || gpuHealth.OutOfSync)
+                        {
+                            gpuRecovery.InitializationAttempted(Stopwatch.GetTimestamp());
+                            PublishGpuRecovery(gpuRecovery, Stopwatch.GetTimestamp());
+                        }
+                        gpuAttempted = true;
                         int attempt = GpuRgbResendAttempts - gpuResendRemaining + 1;
                         gpuOk = ResendGpuRgb(rgbClock, rgbInterval, attempt, gpuHealth);
                         gpuResendRemaining = gpuOk == false ? gpuResendRemaining - 1 : 0;
                         nextGpuResend = Stopwatch.GetTimestamp() + Ticks(GpuRgbResendDelay);
-                        nextGpuRetry = Stopwatch.GetTimestamp() + Ticks(_opt.ReconnectInterval);
                         if (gpuOk == true) gpuBusy.Reset();
                     }
                     else if (rgb.SyncGpu && gpuResendRemaining == 0 && _gpuRgb.IsAvailable &&
                              ((frameDue && !gpuHeld) || gpuRetryDue || gpuSupervised))
                     {
                         long sentAt = Stopwatch.GetTimestamp();
+                        gpuAttempted = true;
                         var gpuColor = gpuHealth.Output(rgb.OutputFor(RgbTargets.Gpu, frame, 0), sentAt, rgb.IsAnimated);
                         gpuOk = SafeCall(() => Write(_gpuRgb, gpuColor, rgb.IsAnimated));
                         if (gpuSupervised) gpuHealth.Resent(sentAt);
@@ -201,14 +242,14 @@ public sealed partial class LinkFlowEngine
                             bool quiet = gpuHealth.EpisodeLogged;
                             gpuHealth.Succeeded(writtenAt, gpuColor);
                             if (gpuBusy.Recovered(writtenAt) is { } busy)
-                                Log.Info($"RGB GPU: barramento I²C ocupado por {busy.Duration.TotalSeconds.ToString("0.0", CultureInfo.GetCultureInfo("pt-BR"))} s " +
+                                Log.Info($"RGB GPU: envios recusados durante {busy.Duration.TotalSeconds.ToString("0.0", CultureInfo.GetCultureInfo("pt-BR"))} s " +
                                          $"({busy.Failures} envio(s) recusado(s)); cor reenviada.");
                             else if (previousGpuOk != true && !quiet)
                                 Log.Info($"RGB GPU: cor aceita pelo controlador {_gpuRgb.Name}.");
                         }
                         else if (gpuOk == false && !_gpuRgb.IsAvailable)
                         {
-                            // Adaptador perdido: a redetecção cuida disso
+                            // Acesso RGB/handle indisponível: não é evidência de remoção física da GPU.
                             bool quiet = gpuHealth.EpisodeLogged;
                             if (gpuHealth.Failed(writtenAt) is { } line) Log.Warn(line);
                             else if (!quiet && (previousGpuOk != false || previousGpuDiagnostic != _gpuRgb.Diagnostic))
@@ -228,6 +269,19 @@ public sealed partial class LinkFlowEngine
                             ? Stopwatch.GetElapsedTime(lastRgbApply) : (TimeSpan?)null;
                         rgbClock.RecordFrame(frame, rgbInterval, writeTime);
                     }
+                    if (gpuAttempted)
+                    {
+                        long completedAt = Stopwatch.GetTimestamp();
+                        if (gpuOk == true) gpuRecovery.OutputAccepted(completedAt);
+                        else
+                        {
+                            gpuRecovery.OutputRejected();
+                            if (!_gpuRgb.IsAvailable && _gpuRgb.NeedsInitializationRetry) gpuRecovery.Unavailable(completedAt);
+                        }
+                        ReportDeviceCommandResult("rgb.gpu", cfg.Revision, gpuOk == true);
+                    }
+                    if (mbWritten) ReportDeviceCommandResult("rgb.motherboard", cfg.Revision, mbOk == true);
+                    if (periphWritten) ReportDeviceCommandResult("rgb.peripherals", cfg.Revision, periphOk == true);
                     lock (_stateLock)
                     {
                         _rgbGpuOk = gpuOk;
@@ -237,12 +291,13 @@ public sealed partial class LinkFlowEngine
                         _rgbMbRecovering = mbHealth.OutOfSync;
                         _rgbPeripheralsRecovering = periphHealth.OutOfSync;
                     }
-                    // O anel do LCD segue a cor; durante efeitos ele acompanha no ritmo normal dos quadros
-                    if (rgb.SyncLcd && changed) Interlocked.Exchange(ref _lcdRequested, 1);
+                    // Mudanças do tema são solicitadas acima, inclusive SyncLcd desligado e AutoStream=false.
                 }
 
                 // Episódios encerrados (dispositivo estável de novo): uma linha de recuperação, se a entrada foi registrada
                 long polledAt = Stopwatch.GetTimestamp();
+                gpuRecovery.Poll(polledAt);
+                PublishGpuRecovery(gpuRecovery, polledAt);
                 foreach (var health in new[] { gpuHealth, mbHealth, periphHealth })
                     if (health.Poll(polledAt) is { } recovered) Log.Info(recovered);
 
@@ -250,7 +305,7 @@ public sealed partial class LinkFlowEngine
                 if (Interlocked.Exchange(ref _usbChangedAux, 0) == 1) nextLcdReconnect = 0; // algo foi conectado: tenta já
                 if (!_lcd.IsConnected && now >= nextLcdReconnect)
                 {
-                    SafeCall(() => _lcd.Connect());
+                    if (SafeCall(() => _lcd.Connect())) Interlocked.Exchange(ref _lcdRequested, 1);
                     nextLcdReconnect = now + Ticks(_opt.ReconnectInterval);
                 }
                 lock (_stateLock) _lcdConnected = _lcd.IsConnected;
@@ -264,6 +319,7 @@ public sealed partial class LinkFlowEngine
                     var lcdInterval = fast ? next : _opt.LcdFrameInterval;
                     nextFrame = Stopwatch.GetTimestamp() + Ticks(lcdInterval);
                     bool ok = _lcd.SendJpegFrame(jpeg);
+                    ReportDeviceCommandResult("lcd", cfg.Revision, ok);
                     lock (_stateLock)
                     {
                         _lcdConnected = _lcd.IsConnected;
@@ -293,8 +349,8 @@ public sealed partial class LinkFlowEngine
                 var untilWrite = _opt.AuxRgbMinInterval - Stopwatch.GetElapsedTime(lastRgbApply);
                 wait = Min(wait, untilResend > untilWrite ? untilResend : untilWrite);
             }
-            else if (c2.Rgb.SyncGpu && _gpuRgb.NeedsInitializationRetry)
-                wait = Min(wait, Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), nextGpuRetry));
+            else if (c2.Rgb.SyncGpu && !_gpuRgb.IsAvailable && _gpuRgb.NeedsInitializationRetry && gpuRecovery.RetryAt is { } retryGpuAt)
+                wait = Min(wait, Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), retryGpuAt));
             else if (c2.Rgb.SyncGpu && gpuBusy.RetryAt is { } retryAt)
             {
                 var untilRetry = Stopwatch.GetElapsedTime(Stopwatch.GetTimestamp(), retryAt);
@@ -456,6 +512,7 @@ public sealed partial class LinkFlowEngine
                     {
                         var color = health.Output(rgb.OutputFor(RgbTargets.Ram, frame, 0), lastApply, rgb.IsAnimated);
                         ok = SafeCall(() => Write(_ramRgb, color, rgb.IsAnimated));
+                        ReportDeviceCommandResult("rgb.ram", cfg.Revision, ok == true);
                         long writtenAt = Stopwatch.GetTimestamp();
                         if (supervised) health.Resent(writtenAt);
                         if (ok == true) health.Succeeded(writtenAt, color);
@@ -540,7 +597,7 @@ public sealed partial class LinkFlowEngine
         return new RgbConfig { R = r, G = g, B = b, Brightness = rgb.Brightness, SyncLcd = rgb.SyncLcd };
     }
 
-    private EngineText BuildRgbStatus(RgbConfig rgb)
+    private EngineText BuildRgbStatus(RgbConfig rgb, RgbControlStatus? gpuControl = null)
     {
         if (!_rgbReady) return EngineText.Of(EngineTexts.RgbDetecting);
         var ok = new List<EngineText>();
@@ -553,7 +610,9 @@ public sealed partial class LinkFlowEngine
             else if (r == false) (supervised ? recovering : fail).Add(EngineText.Of(device));
         }
         Add(rgb.SyncHub, _rgbHubOk, EngineTexts.RgbDevHub);
-        Add(rgb.SyncGpu, _rgbGpuOk, EngineTexts.RgbDevGpu, _rgbGpuRecovering);
+        var gpuApplied = gpuControl == null ? _rgbGpuOk : gpuControl.ControlAvailable ? gpuControl.LastOutputAccepted : false;
+        Add(rgb.SyncGpu, gpuApplied, EngineTexts.RgbDevGpu,
+            _rgbGpuRecovering || gpuControl is { ControlAvailable: false, InitializationRetryNeeded: true });
         Add(rgb.SyncMotherboard, _rgbMbOk, EngineTexts.RgbDevMotherboard, _rgbMbRecovering);
         Add(rgb.SyncRam, _rgbRamOk, EngineTexts.RgbDevRam, _rgbRamRecovering);
         Add(rgb.SyncPeripherals, _rgbPeripheralsOk, EngineTexts.RgbDevPeripherals, _rgbPeripheralsRecovering);

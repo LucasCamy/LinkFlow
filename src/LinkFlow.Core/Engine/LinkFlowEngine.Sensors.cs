@@ -28,9 +28,11 @@ public sealed partial class LinkFlowEngine
                 outputs[group] = curveCfg.Evaluate(test);
                 continue;
             }
-            var temp = CurveController.SelectTemp(curveCfg.Source, cpu, gpu, coolant);
+            var selection = CurveController.SelectTemperature(curveCfg, cpu, gpu, coolant);
+            var temp = selection.Temperature;
             if (temp is { } t && (newSample || entry.Controller.Current == null)) outputs[group] = entry.Controller.Evaluate(curveCfg, t);
             else if (entry.Controller.Current is { } cur) outputs[group] = cur;
+            if (selection.IsFallback && outputs.TryGetValue(group, out var output)) outputs[group] = Math.Max(output, curveCfg.FallbackMinPercent);
         }
         foreach (var removed in controllers.Keys.Where(k => !cfg.GroupCurves.ContainsKey(k)).ToList()) controllers.Remove(removed);
 
@@ -46,6 +48,7 @@ public sealed partial class LinkFlowEngine
     private async Task SensorLoopAsync(CancellationToken ct)
     {
         await Task.Yield();
+        ct.ThrowIfCancellationRequested();
         try { _sensors.Open(); }
         catch (Exception ex) { Log.Warn($"Sensores indisponíveis: {ex.Message}"); }
         lock (_stateLock) _sensorsReady = true;
@@ -59,8 +62,6 @@ public sealed partial class LinkFlowEngine
         long nextRead = 0;
         float? lastTemp = null;
         FanCurveConfig? lastCurve = null;
-        long? curveInputMissingSince = null;
-        TimeSpan? curveInputMissingFor = null;
         bool sensorsEverReported = false;
         long? sensorsMissingSince = null;
         long lastSensorReopen = 0;
@@ -68,7 +69,6 @@ public sealed partial class LinkFlowEngine
 
         while (!ct.IsCancellationRequested)
         {
-            Beat(SensorLane);
             try
             {
                 ControlConfig cfg;
@@ -80,11 +80,38 @@ public sealed partial class LinkFlowEngine
                 if (newSample)
                 {
                     nextRead = Stopwatch.GetTimestamp() + Ticks(_opt.TelemetryInterval);
-                    var t = _sensors.Read();
-                    var network = _stats.ReadNetwork();
-                    var volumes = _stats.ReadVolumes();
-                    UpdateStorageDemand();
-                    var disks = _sensors.ReadDisks();
+                    HardwareTelemetry t;
+                    bool readOk;
+                    long readStarted = Stopwatch.GetTimestamp();
+                    try
+                    {
+                        t = _sensors.Read();
+                        ct.ThrowIfCancellationRequested();
+                        lock (_stateLock)
+                        {
+                            _telemetry = t;
+                            RecordSensorAcquisition(t);
+                        }
+                        // Publish critical acquisition before optional Windows/storage providers can block.
+                        SuperviseSafety(null);
+                        readOk = true;
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        RecordSensorFailure(ex);
+                        lock (_stateLock) t = _telemetry;
+                        readOk = false;
+                        Log.Warn($"Aquisição de sensores falhou: {ex.Message}");
+                    }
+                    finally { History.Metrics.Duration("sensors.read", Stopwatch.GetElapsedTime(readStarted)); }
+                    NetworkState? network = null;
+                    List<VolumeState> volumes = new();
+                    List<DiskIoState>? disks = null;
+                    // Optional Windows/storage reads must not prevent temperature safety evaluation.
+                    try { network = _stats.ReadNetwork(); volumes = _stats.ReadVolumes(); }
+                    catch (Exception ex) { Log.Debug($"Estatísticas do Windows: {ex.Message}"); }
+                    try { UpdateStorageDemand(); disks = _sensors.ReadDisks(); }
+                    catch (Exception ex) { Log.Debug($"Leitura de discos: {ex.Message}"); }
                     float? coolant;
                     lock (_stateLock)
                     {
@@ -92,10 +119,11 @@ public sealed partial class LinkFlowEngine
                         _network = network;
                         _volumes = volumes;
                         _disks = disks;
-                        coolant = _coolant;
+                        RecordOptionalAcquisitions(network, volumes, disks);
+                        coolant = FreshValue("coolant.temp", _coolant);
+                        lastCpu = FreshValue("cpu.temp", t.CpuSensorAvailable ? t.CpuTemperature : null);
+                        lastGpu = FreshValue("gpu.temp", t.GpuTemperature);
                     }
-                    lastCpu = t.CpuSensorAvailable ? t.CpuTemperature : null;
-                    lastGpu = t.GpuTemperature;
                     lastCoolant = coolant;
 
                     // O LibreHardwareMonitor às vezes para de responder (ex.: após suspender): CPU e GPU que
@@ -115,24 +143,17 @@ public sealed partial class LinkFlowEngine
                             ReopenSensors();
                         }
                     }
-                    lastTemp = CurveController.SelectTemp(cfg.Curve.Source, lastCpu, lastGpu, coolant);
-
-                    // Curva sem temperatura nenhuma: sem isso ela ficaria parada no último valor para sempre
-                    if (CurveInputMissing(cfg, lastCpu, lastGpu, coolant))
-                    {
-                        long since = curveInputMissingSince ??= Stopwatch.GetTimestamp();
-                        curveInputMissingFor = Stopwatch.GetElapsedTime(since);
-                    }
-                    else
-                    {
-                        curveInputMissingSince = null;
-                        curveInputMissingFor = null;
-                    }
-                    safetyChanged = EvaluateSafety(cfg.Safety, lastCpu, lastGpu, curveInputMissingFor);
+                    var selection = CurveController.SelectTemperature(cfg.Curve, lastCpu, lastGpu, coolant);
+                    lastTemp = selection.Temperature;
+                    bool previousSafety = _failSafe;
+                    SuperviseSafety(null);
+                    safetyChanged = previousSafety != _failSafe;
+                    if (readOk) Beat(SensorLane);
                 }
                 else if (_failSafe && !cfg.Safety.FailSafeEnabled)
                 {
-                    safetyChanged = EvaluateSafety(cfg.Safety, lastCpu, lastGpu, curveInputMissingFor);
+                    SuperviseSafety(null);
+                    safetyChanged = !_failSafe;
                 }
 
                 // Curva automática
@@ -166,6 +187,7 @@ public sealed partial class LinkFlowEngine
                 if (cfg.Mode != FanControlMode.Curve) _curveOutput = -1;
                 else if (testTemp is { } test) _curveOutput = cfg.Curve.Evaluate(test);
                 else if (lastTemp is { } temp && (newSample || curve.Current == null)) _curveOutput = curve.Evaluate(cfg.Curve, temp);
+                if (_curveSelection.IsFallback && _curveOutput >= 0) _curveOutput = Math.Max(_curveOutput, cfg.Curve.FallbackMinPercent);
                 lock (_stateLock) _curveInputTemp = testTemp ?? curve.SmoothedTemp ?? lastTemp;
                 EvaluateGroupCurves(cfg, groupControllers, lastCpu, lastGpu, lastCoolant, newSample, testTemp);
                 if (safetyChanged || previousOutput != _curveOutput) Signal(_hubSignal);
@@ -176,6 +198,8 @@ public sealed partial class LinkFlowEngine
                 {
                     bool applied = failSafe ? _sensors.SetGpuFanSpeed(100) :
                         cfg.GpuFanAuto ? _sensors.SetGpuFanAuto() : _sensors.SetGpuFanSpeed(cfg.GpuFanPercent);
+                    ReportDeviceCommandResult("gpu-fan", cfg.Revision, applied && !failSafe,
+                        failSafe ? "deferred-by-safety" : applied ? "controller-accepted" : "unsupported-or-failed");
                     if (applied)
                     {
                         gpuFailSafeApplied = failSafe;
@@ -187,6 +211,8 @@ public sealed partial class LinkFlowEngine
             catch (OperationCanceledException) { break; }
             catch (Exception ex)
             {
+                RecordSensorFailure(ex);
+                SuperviseSafety(null);
                 Log.Error("Erro na fila de sensores", ex);
                 await Task.Delay(1000, ct).ConfigureAwait(false);
             }
@@ -211,9 +237,9 @@ public sealed partial class LinkFlowEngine
     /// <summary>A curva global (no modo Curva) ou alguma curva de grupo não tem nenhuma temperatura disponível.</summary>
     private static bool CurveInputMissing(ControlConfig cfg, float? cpu, float? gpu, float? coolant)
     {
-        if (cfg.Mode == FanControlMode.Curve && CurveController.SelectTemp(cfg.Curve.Source, cpu, gpu, coolant) == null) return true;
+        if (cfg.Mode == FanControlMode.Curve && CurveController.SelectTemperature(cfg.Curve, cpu, gpu, coolant).Temperature == null) return true;
         foreach (var group in cfg.GroupCurves.Values)
-            if (CurveController.SelectTemp(group.Source, cpu, gpu, coolant) == null) return true;
+            if (CurveController.SelectTemperature(group, cpu, gpu, coolant).Temperature == null) return true;
         return false;
     }
 
@@ -222,7 +248,7 @@ public sealed partial class LinkFlowEngine
     {
         lock (_stateLock)
         {
-            float? coolant = _coolant;
+            float? coolant = FreshValue("coolant.temp", _coolant);
             TempAlert("cpu-temp", EngineTexts.SensorCpu, cpu, s.CpuWarn, s.CpuCritical);
             TempAlert("gpu-temp", EngineTexts.SensorGpu, gpu, s.GpuWarn, s.GpuCritical);
             if (curveInputMissingFor is { } missing && missing >= _opt.SensorLossTimeout)
@@ -240,7 +266,7 @@ public sealed partial class LinkFlowEngine
             bool coolantReadingsValid = true;
             foreach (int source in _failSafeCoolantChannels)
             {
-                if (_hubTemperatures != null && _hubTemperatures.TryGetValue(source, out var temperature) &&
+                if (IsFresh($"hub.temp:{source}") && _hubTemperatures != null && _hubTemperatures.TryGetValue(source, out var temperature) &&
                     temperature > 0 && float.IsFinite(temperature))
                 {
                     if (coolant == null || temperature > coolant) coolant = temperature;
@@ -255,7 +281,7 @@ public sealed partial class LinkFlowEngine
                 foreach (var alert in _alerts.Values)
                 {
                     if (alert.Severity != AlertSeverity.Critical) continue;
-                    bool isTemperature = alert.Key is "cpu-temp" or "gpu-temp" or "coolant-temp" or "sensor-lost";
+                    bool isTemperature = alert.Key is "cpu-temp" or "gpu-temp" or "coolant-temp" or "sensor-lost" or "cooling-telemetry-lost";
                     if (!isTemperature && !(_hubConnected && alert.Key.StartsWith("pump:", StringComparison.Ordinal))) continue;
                     _failSafeCauses.Add(alert.Key);
                     critical ??= alert;
@@ -282,6 +308,7 @@ public sealed partial class LinkFlowEngine
                     "gpu-temp" => gpu is { } gpuTemp && float.IsFinite(gpuTemp),
                     "coolant-temp" => coolantReadingsValid,
                     "sensor-lost" => curveInputMissingFor == null,
+                    "cooling-telemetry-lost" => IsFresh("hub.rpm") && _hubConnected && _hasHubSpeeds,
                     _ => _hubConnected && _hasHubSpeeds && _fans.Any(f => f.IsPump && $"pump:{f.Key}" == cause &&
                                                                           f.Rpm >= s.PumpMinRpm)
                 });
@@ -340,6 +367,14 @@ public sealed partial class LinkFlowEngine
         else if (v < warn - 3 || _alerts.GetValueOrDefault(key)?.Severity == AlertSeverity.Critical)
         {
             ClearAlert(key);
+        }
+        else if (_alerts.GetValueOrDefault(key)?.Severity == AlertSeverity.Warning)
+        {
+            // Mantém a mesma histerese: o aviso só encerra abaixo de warn-3. Atualizar o alerta existente
+            // mostra a leitura atual sem recriar Since, registrar outro log ou emitir outra notificação.
+            var label = EngineText.Of(labelCode);
+            RaiseAlert(key, AlertSeverity.Warning, EngineText.Of(EngineTexts.TempWarnRecoveringTitle, label),
+                EngineText.Of(EngineTexts.TempWarnRecovering, label, v, warn, warn - 3));
         }
     }
 

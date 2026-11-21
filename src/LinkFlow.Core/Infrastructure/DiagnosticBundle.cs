@@ -31,7 +31,7 @@ public static class DiagnosticBundle
     /// continuam gravando neles enquanto isso, e nenhum handle fica aberto depois.
     /// </summary>
     public static DiagnosticBundleResult Create(string zipPath, IEnumerable<DiagnosticLogSource> logSources,
-        ControlConfig? config, string hardwareSummary, DateTime? now = null)
+        ControlConfig? config, string hardwareSummary, DateTime? now = null, IReadOnlyDictionary<string, string>? operationalFiles = null)
     {
         var when = now ?? DateTime.Now;
         string full = Path.GetFullPath(zipPath);
@@ -51,6 +51,15 @@ public static class DiagnosticBundle
                 AddText(zip, "hardware-summary.txt", Sanitize(hardwareSummary), when);
                 if (config != null)
                     AddText(zip, "config.json", Sanitize(JsonSerializer.Serialize(config, Json.Options)), when);
+                long operationalBytes = 0;
+                foreach (var (name, text) in operationalFiles ?? new Dictionary<string, string>())
+                {
+                    if (Path.GetFileName(name) != name || name is "." or ".." || string.IsNullOrWhiteSpace(name) || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                        throw new ArgumentException("Nome inválido para um arquivo operacional do diagnóstico.");
+                    operationalBytes += Encoding.UTF8.GetByteCount(text);
+                    if (operationalBytes > 4L * 1024 * 1024) throw new InvalidDataException("Dados operacionais grandes demais para o pacote de diagnóstico.");
+                    AddText(zip, "operational/" + name, Sanitize(text), when);
+                }
 
                 var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var source in logSources)
@@ -203,7 +212,14 @@ public static class DiagnosticBundle
         b.AppendLine("== Dispositivos no hub ==");
         if (s.Fans.Count == 0) b.AppendLine("(nenhum)");
         foreach (var f in s.Fans.OrderBy(f => f.Channel))
-            b.AppendLine($"Canal {f.Channel,2}: {f.DefaultName} [{f.Model}]{(f.IsPump ? " (bomba)" : string.Empty)} · {f.Rpm} RPM · {f.AppliedPercent}% · {T(f.Temperature)}");
+        {
+            string rpm = !f.HasTachometer ? "sem tacômetro" : !f.RpmAvailable ? "RPM indisponível" : $"{f.Rpm} RPM";
+            b.AppendLine($"Canal {f.Channel,2}: {f.DefaultName} [{f.Model}]{(f.IsPump ? " (bomba)" : string.Empty)} · {rpm} · aceito {f.AppliedPercent}% · {T(f.Temperature)} · validade {f.RpmValidity} · última leitura {f.RpmLastSuccessUtc?.ToString("O") ?? "—"}");
+        }
+        b.AppendLine();
+        b.AppendLine("== Qualidade das aquisições ==");
+        foreach (var health in s.TelemetryHealth)
+            b.AppendLine($"{health.Key}: {health.Validity} · origem {health.Source} · idade {health.AgeSeconds?.ToString("0.0", pt) ?? "—"} s · {health.Reason ?? "sem falha"}");
         b.AppendLine();
         b.AppendLine("== Sensores ==");
         b.AppendLine($"CPU: {s.CpuName ?? "—"} · {T(s.CpuTemp)}{(s.CpuSensorAvailable ? string.Empty : " (sensor indisponível)")}");

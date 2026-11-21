@@ -20,6 +20,7 @@ public sealed class FanViewModel : ObservableObject
     private bool _isSelected;
     private float? _temperature;
     private bool _isEditingName;
+    private bool _rpmAvailable = true;
 
     public FanViewModel(MainViewModel owner, FanState state)
     {
@@ -59,6 +60,8 @@ public sealed class FanViewModel : ObservableObject
 
     /// <summary>Informa rotação (ventoinha ou bomba): sem isso, 0 RPM não é "parada" (ex.: tela LCD da bomba).</summary>
     public bool HasTachometer => LinkDeviceCatalog.HasTachometer(Model);
+    public bool CanControlSpeed => HasTachometer;
+    public bool RpmAvailable => _rpmAvailable;
 
     public string ChannelLabel =>
         string.Format(Strings.Fan_Channel, Channel) + (Group is { Length: > 0 } g ? $" • {g}" : string.Empty) + (IsUnknownModel ? Strings.Fan_UnknownModelSuffix : string.Empty);
@@ -95,11 +98,11 @@ public sealed class FanViewModel : ObservableObject
         }
     }
 
-    public string RpmFormatted => $"{_rpm:N0} RPM";
-    public bool IsStopped => _rpm == 0;
+    public string RpmFormatted => _rpmAvailable && HasTachometer ? $"{_rpm:N0} RPM" : "—";
+    public bool IsStopped => _rpmAvailable && HasTachometer && _rpm == 0;
 
     /// <summary>Borda vermelha só para ventoinhas reais (modelos desconhecidos podem não ter tacômetro).</summary>
-    public bool ShowStoppedWarning => _rpm == 0 && HasTachometer;
+    public bool ShowStoppedWarning => IsStopped;
 
     public float? Temperature
     {
@@ -167,6 +170,7 @@ public sealed class FanViewModel : ObservableObject
     {
         get
         {
+            if (!_rpmAvailable || !HasTachometer) return "#64748B";
             if (_rpm == 0) return HasTachometer ? "#F43F5E" : "#64748B";
             if (IsPump) return "#38BDF8";
             if (_rpm < 1100) return "#10B981";
@@ -177,6 +181,11 @@ public sealed class FanViewModel : ObservableObject
 
     public void UpdateFrom(FanState s)
     {
+        if (_rpmAvailable != s.RpmAvailable)
+        {
+            _rpmAvailable = s.RpmAvailable;
+            OnPropertiesChanged(nameof(RpmAvailable), nameof(RpmFormatted), nameof(IsStopped), nameof(ShowStoppedWarning), nameof(StatusColor));
+        }
         Rpm = s.Rpm;
         AppliedPercent = s.AppliedPercent;
         Temperature = s.Temperature;

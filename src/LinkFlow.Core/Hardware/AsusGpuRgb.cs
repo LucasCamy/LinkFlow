@@ -1,10 +1,11 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace LinkFlow.Core;
 
-public sealed class AsusGpuRgb : IRgbDevice
+public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
 {
     private const ushort NvidiaVendor = 0x10DE;
     private const ushort AsusVendor = 0x1043;
@@ -27,152 +28,135 @@ public sealed class AsusGpuRgb : IRgbDevice
     private const byte WriteBlockCommand = 0x03;
     private const byte ReadByteCommand = 0x81;
 
-    [StructLayout(LayoutKind.Explicit, Size = 64)]
-    private struct NvI2cInfo
-    {
-        [FieldOffset(0)] public uint Version;
-        [FieldOffset(4)] public uint DisplayMask;
-        [FieldOffset(8)] public byte IsDdcPort;
-        [FieldOffset(9)] public byte DeviceAddress;
-        [FieldOffset(16)] public IntPtr RegisterAddress;
-        [FieldOffset(24)] public uint RegisterSize;
-        [FieldOffset(32)] public IntPtr Data;
-        [FieldOffset(40)] public uint DataSize;
-        [FieldOffset(44)] public uint DeprecatedSpeed;
-        [FieldOffset(48)] public uint Speed;
-        [FieldOffset(52)] public byte PortId;
-        [FieldOffset(56)] public uint IsPortIdSet;
-    }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int NvApiCall();
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int NvApiEnumPhysicalGpus([Out] IntPtr[] handles, out int count);
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int NvApiGetPciIdentifiers(IntPtr gpu, out uint device, out uint subsystem, out uint revision, out uint externalDevice);
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate int NvApiI2c(IntPtr gpu, ref NvI2cInfo info, ref uint reserved);
-
-    [DllImport("nvapi64.dll", EntryPoint = "nvapi_QueryInterface", CallingConvention = CallingConvention.Cdecl)]
-    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static extern IntPtr QueryInterface(uint id);
-
     private readonly object _syncLock = new();
-    private readonly byte[] _command = GC.AllocateArray<byte>(1, pinned: true);
     private readonly byte[] _data = GC.AllocateArray<byte>(4, pinned: true);
+    private readonly IAsusGpuRgbBackend _backend;
     private IntPtr _gpu;
-    private NvApiCall? _unload;
-    private NvApiI2c? _read;
-    private NvApiI2c? _write;
+    private string? _gpuHandleContext;
+    private bool _controlAvailable, _needsRetry, _initializing, _disposed;
+    private string _controllerName = string.Empty;
+    private int _ledCount;
+    private EngineText? _diagnostic;
+    private RgbAdapterObservation _adapterObservation;
+    private DateTimeOffset? _lastAdapterEnumeration, _lastAdapterSeen, _lastOutputAttempt, _lastOutputAcceptedAt;
+    private bool? _lastOutputAccepted;
+    private long _initializationAttempts, _nativeFailures, _outputFailures, _consecutiveOutputFailures, _nativeSequence;
+    private long? _lastOutputAcceptedNativeSequence;
+    private RgbNativeOperationResult? _lastNativeOperation, _lastNativeFailure;
+    private RgbControlStatus _published = new();
     private bool _directConfigured;
     private bool _byteWrites;
     private int _blockWriteFailures;
     private const int BlockFailuresBeforeByteWrites = 3;
 
-    // Adaptador que some e volta a cada poucos segundos (NVAPI -6) repetia estas linhas milhares de vezes por dia:
+    // Acesso NVAPI que falha e volta (sem provar remoção física) repetia estas linhas milhares de vezes por dia:
     // só registra quando mudam
     private string? _announced;
     private string? _stateLogged;
 
-    public bool IsAvailable { get; private set; }
-    public string ControllerName { get; private set; } = string.Empty;
-    public int LedCount { get; private set; }
-    public EngineText? DiagnosticText { get; private set; }
+    public AsusGpuRgb() : this(new NativeBackend()) { }
+    internal AsusGpuRgb(IAsusGpuRgbBackend backend) => _backend = backend;
+
+    public RgbControlStatus ControlStatus => Volatile.Read(ref _published);
+    public bool IsAvailable => ControlStatus.ControlAvailable;
+    public string ControllerName => ControlStatus.ControllerName;
+    public int LedCount => ControlStatus.ControllerLedCount;
+    public EngineText? DiagnosticText => ControlStatus.DiagnosticText;
     public string? Diagnostic => DiagnosticText?.ToPortuguese();
-    public bool NeedsInitializationRetry { get; private set; }
+    public bool NeedsInitializationRetry => ControlStatus.InitializationRetryNeeded;
     public string Name => ControllerName;
 
     public void Initialize()
     {
         lock (_syncLock)
         {
+            if (_disposed) return;
+            _initializing = true;
+            Increment(ref _initializationAttempts);
+            Publish(); // The previous completed availability remains visible while probing.
             ResetController();
-            DiagnosticText = null;
-            if (IntPtr.Size != 8)
-            {
-                DiagnosticText = EngineText.Of(EngineTexts.GpuNeedsX64);
-                return;
-            }
-
             try
             {
-                if (_unload is null)
+                if (IntPtr.Size != 8)
                 {
-                    var unload = GetFunction<NvApiCall>(0xD22BDD7E);
-                    int initStatus = GetFunction<NvApiCall>(0x0150E828)();
-                    if (initStatus != 0)
-                    {
-                        NeedsInitializationRetry = IsRetryableStatus(initStatus);
-                        DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiInit, initStatus.ToString(CultureInfo.InvariantCulture));
-                        return;
-                    }
-
-                    _unload = unload;
+                    _diagnostic = EngineText.Of(EngineTexts.GpuNeedsX64);
+                    return;
                 }
-
-                var enumerate = GetFunction<NvApiEnumPhysicalGpus>(0xE5AC921F);
-                var pci = GetFunction<NvApiGetPciIdentifiers>(0x2DDFB66E);
-                _read = GetFunction<NvApiI2c>(0x4D7B0709);
-                _write = GetFunction<NvApiI2c>(0x283AC65A);
-
-                var handles = new IntPtr[64];
-                int status = enumerate(handles, out int count);
-                if (status != 0)
+                int initStatus = _backend.EnsureInitialized(out bool nativeInitializationCalled);
+                if (nativeInitializationCalled) RecordNative(RgbNativeOperation.Initialize, initStatus);
+                if (initStatus != 0)
                 {
-                    NeedsInitializationRetry = IsRetryableStatus(status);
-                    DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiEnum, status.ToString(CultureInfo.InvariantCulture));
+                    _needsRetry = IsRetryableStatus(initStatus);
+                    _diagnostic = EngineText.Of(EngineTexts.GpuNvapiInit, initStatus.ToString(CultureInfo.InvariantCulture));
+                    _adapterObservation = RgbAdapterObservation.EnumerationUnavailable;
                     return;
                 }
 
+                var handles = new IntPtr[64];
+                int status = _backend.EnumeratePhysicalGpus(handles, out int count);
+                RecordNative(RgbNativeOperation.EnumerateAdapters, status);
+                _lastAdapterEnumeration = DateTimeOffset.UtcNow;
+                if (status != 0)
+                {
+                    _needsRetry = IsRetryableStatus(status);
+                    _diagnostic = EngineText.Of(EngineTexts.GpuNvapiEnum, status.ToString(CultureInfo.InvariantCulture));
+                    _adapterObservation = RgbAdapterObservation.EnumerationUnavailable;
+                    return;
+                }
+
+                _adapterObservation = RgbAdapterObservation.NotDetected;
                 EngineText? pciError = null;
                 for (int index = 0; index < Math.Min(count, handles.Length); index++)
                 {
                     var handle = handles[index];
-                    status = pci(handle, out uint device, out uint subsystem, out _, out _);
+                    status = _backend.GetPciIdentifiers(handle, out uint device, out uint subsystem);
+                    RecordNative(RgbNativeOperation.IdentifyAdapter, status);
                     if (status != 0)
                     {
-                        NeedsInitializationRetry |= IsRetryableStatus(status);
+                        _needsRetry |= IsRetryableStatus(status);
                         pciError ??= EngineText.Of(EngineTexts.GpuPci, status.ToString(CultureInfo.InvariantCulture));
+                        if (_adapterObservation != RgbAdapterObservation.Present)
+                            _adapterObservation = RgbAdapterObservation.EnumerationUnavailable;
                         continue;
                     }
 
                     if ((ushort)device != NvidiaVendor || (ushort)subsystem != AsusVendor) continue;
 
+                    _adapterObservation = RgbAdapterObservation.Present;
+                    _lastAdapterSeen = DateTimeOffset.UtcNow;
                     _gpu = handle;
+                    _gpuHandleContext = unchecked((ulong)handle.ToInt64()).ToString("X16", CultureInfo.InvariantCulture);
                     if (!ProbeController()) continue;
 
-                    DiagnosticText = null;
-                    NeedsInitializationRetry = false;
-                    IsAvailable = true;
-                    string announcement = $"Aura da GPU detectado em PCI {device:X8}/{subsystem:X8}: {ControllerName}, {LedCount} LEDs.";
+                    _diagnostic = null;
+                    _needsRetry = false;
+                    _controlAvailable = true;
+                    string announcement = $"Aura da GPU detectado em PCI {device:X8}/{subsystem:X8}: {_controllerName}, {_ledCount} LEDs.";
                     if (announcement != _announced) Log.Info(announcement);
                     _announced = announcement;
                     return;
                 }
 
                 _gpu = IntPtr.Zero;
-                DiagnosticText ??= pciError ?? EngineText.Of(EngineTexts.GpuNotFound);
+                _gpuHandleContext = null;
+                _diagnostic ??= pciError ?? EngineText.Of(EngineTexts.GpuNotFound);
             }
             catch (DllNotFoundException)
             {
-                DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiMissing);
+                _diagnostic = EngineText.Of(EngineTexts.GpuNvapiMissing);
             }
             catch (Exception ex) when (ex is EntryPointNotFoundException or BadImageFormatException or SEHException)
             {
-                DiagnosticText = EngineText.Of(EngineTexts.GpuNvapiAccess, ex.Message);
+                _diagnostic = EngineText.Of(EngineTexts.GpuNvapiAccess, Limit(ex.Message, 256));
                 _gpu = IntPtr.Zero;
+                _gpuHandleContext = null;
+            }
+            finally
+            {
+                _initializing = false;
+                Publish();
             }
         }
-    }
-
-    private static T GetFunction<T>(uint id) where T : Delegate
-    {
-        var address = QueryInterface(id);
-        if (address == IntPtr.Zero) throw new EntryPointNotFoundException($"Interface NVAPI 0x{id:X8} indisponível.");
-        return Marshal.GetDelegateForFunctionPointer<T>(address);
     }
 
     private bool ProbeController()
@@ -180,7 +164,7 @@ public sealed class AsusGpuRgb : IRgbDevice
         for (byte index = 0; index < 16; index++)
         {
             byte command = (byte)(0xA0 + index);
-            if (!Transfer(_read, command, 1, command)) return false;
+            if (!Transfer(true, command, 1, command)) return false;
             if (_data[0] != index) return Fail(EngineText.Of(EngineTexts.GpuNoSignature));
         }
 
@@ -199,10 +183,10 @@ public sealed class AsusGpuRgb : IRgbDevice
             return Fail(EngineText.Of(EngineTexts.GpuFirmwareUnknown, firmware));
         }
 
-        ControllerName = firmware;
+        _controllerName = firmware;
         if (!ReadRegister(LedCountRegister, out byte count)) return false;
         if (count is 0 or > MaxLedCount) return Fail(EngineText.Of(EngineTexts.GpuLedCount, count.ToString(CultureInfo.InvariantCulture)));
-        LedCount = count;
+        _ledCount = count;
         return true;
     }
 
@@ -210,26 +194,54 @@ public sealed class AsusGpuRgb : IRgbDevice
     {
         lock (_syncLock)
         {
-            if (!IsAvailable || !EnsureDirectMode(out bool enteringDirectMode)) return false;
-
-            int brightness = Math.Min((int)brightnessPercent, 100);
-            ReadOnlySpan<byte> color = [(byte)(r * brightness / 100), (byte)(b * brightness / 100), (byte)(g * brightness / 100)];
-            for (int led = 0; led < LedCount; led++)
+            if (_disposed) return false;
+            _lastOutputAttempt = DateTimeOffset.UtcNow;
+            bool accepted = false;
+            try
             {
-                ushort register = (ushort)(DirectColorRegister + led * color.Length);
-                if (!WriteLed(register, color)) return false;
+                accepted = ApplyColor(r, g, b, brightnessPercent);
+                return accepted;
             }
-
-            if (enteringDirectMode)
+            finally
             {
-                // Alguns controladores só exibem a primeira cor após reaplicar o modo direto.
-                if (!ApplyDirectMode() || !ConfirmDirectColor(color)) return false;
-                _directConfigured = true;
+                _lastOutputAccepted = accepted;
+                if (accepted)
+                {
+                    _lastOutputAcceptedAt = DateTimeOffset.UtcNow;
+                    _lastOutputAcceptedNativeSequence = _lastNativeOperation?.Sequence;
+                    _consecutiveOutputFailures = 0;
+                }
+                else
+                {
+                    Increment(ref _outputFailures);
+                    Increment(ref _consecutiveOutputFailures);
+                }
+                Publish();
             }
-
-            DiagnosticText = null;
-            return true;
         }
+    }
+
+    private bool ApplyColor(byte r, byte g, byte b, byte brightnessPercent)
+    {
+        if (!_controlAvailable || !EnsureDirectMode(out bool enteringDirectMode)) return false;
+
+        int brightness = Math.Min((int)brightnessPercent, 100);
+        ReadOnlySpan<byte> color = [(byte)(r * brightness / 100), (byte)(b * brightness / 100), (byte)(g * brightness / 100)];
+        for (int led = 0; led < _ledCount; led++)
+        {
+            ushort register = (ushort)(DirectColorRegister + led * color.Length);
+            if (!WriteLed(register, color)) return false;
+        }
+
+        if (enteringDirectMode)
+        {
+            // Alguns controladores só exibem a primeira cor após reaplicar o modo direto.
+            if (!ApplyDirectMode() || !ConfirmDirectColor(color)) return false;
+            _directConfigured = true;
+        }
+
+        _diagnostic = null;
+        return true;
     }
 
     private bool EnsureDirectMode(out bool enteringDirectMode)
@@ -250,7 +262,7 @@ public sealed class AsusGpuRgb : IRgbDevice
             if (state != _stateLogged) Log.Info(state);
             _stateLogged = state;
         }
-        if (!IsAvailable) return false;
+        if (!_controlAvailable) return false;
 
         // Sai de Off ou de um efeito interno inválido antes de entregar o controle ao software.
         return WriteRegister(EffectModeRegister, 1) && WriteRegister(ApplyRegister, 1) && ApplyDirectMode();
@@ -264,7 +276,7 @@ public sealed class AsusGpuRgb : IRgbDevice
         if (direct != 1) return Fail(EngineText.Of(EngineTexts.GpuDirectModeLost));
 
         ushort first = DirectColorRegister;
-        ushort last = (ushort)(first + (LedCount - 1) * color.Length);
+        ushort last = (ushort)(first + (_ledCount - 1) * color.Length);
         for (int channel = 0; channel < color.Length; channel++)
         {
             if (!ReadRegister((ushort)(first + channel), out byte firstValue) ||
@@ -284,12 +296,12 @@ public sealed class AsusGpuRgb : IRgbDevice
             if (!SelectRegister(register)) return false;
             _data[0] = (byte)color.Length;
             color.CopyTo(_data.AsSpan(1));
-            if (Transfer(_write, WriteBlockCommand, _data.Length, register))
+            if (Transfer(false, WriteBlockCommand, _data.Length, register))
             {
                 _blockWriteFailures = 0;
                 return true;
             }
-            if (!IsAvailable) return false;
+            if (!_controlAvailable) return false;
         }
 
         // Reposiciona cada byte caso a tentativa de bloco tenha avançado o ponteiro.
@@ -310,7 +322,7 @@ public sealed class AsusGpuRgb : IRgbDevice
 
     private bool ReadRegister(ushort register, out byte value)
     {
-        bool ok = SelectRegister(register) && Transfer(_read, ReadByteCommand, 1, register);
+        bool ok = SelectRegister(register) && Transfer(true, ReadByteCommand, 1, register);
         value = ok ? _data[0] : (byte)0;
         return ok;
     }
@@ -319,44 +331,28 @@ public sealed class AsusGpuRgb : IRgbDevice
     {
         if (!SelectRegister(register)) return false;
         _data[0] = value;
-        return Transfer(_write, WriteByteCommand, 1, register);
+        return Transfer(false, WriteByteCommand, 1, register);
     }
 
     private bool SelectRegister(ushort register)
     {
         _data[0] = (byte)(register >> 8);
         _data[1] = (byte)register;
-        return Transfer(_write, SelectCommand, 2, register);
+        return Transfer(false, SelectCommand, 2, register);
     }
 
-    private bool Transfer(NvApiI2c? operation, byte command, int count, ushort register)
+    private bool Transfer(bool read, byte command, int count, ushort register)
     {
-        if (operation is null || _gpu == IntPtr.Zero) return Fail(EngineText.Of(EngineTexts.GpuI2cMissing));
-
-        _command[0] = command;
-        var info = new NvI2cInfo
-        {
-            Version = I2cInfoVersion3,
-            DisplayMask = 0,
-            IsDdcPort = 0,
-            DeviceAddress = AuraAddress,
-            RegisterAddress = Marshal.UnsafeAddrOfPinnedArrayElement(_command, 0),
-            RegisterSize = 1,
-            Data = Marshal.UnsafeAddrOfPinnedArrayElement(_data, 0),
-            DataSize = (uint)count,
-            DeprecatedSpeed = 0xFFFF,
-            Speed = 0, // NVAPI_I2C_SPEED_DEFAULT
-            PortId = GpuI2cPort,
-            IsPortIdSet = 1
-        };
-
-        uint reserved = 0;
-        int status = operation(_gpu, ref info, ref reserved);
-        GC.KeepAlive(_command);
+        if (_gpu == IntPtr.Zero) return Fail(EngineText.Of(EngineTexts.GpuI2cMissing));
+        long transferStarted = Stopwatch.GetTimestamp();
+        int status = _backend.Transfer(_gpu, read, command, _data, count);
+        double duration = Stopwatch.GetElapsedTime(transferStarted).TotalMicroseconds;
+        RecordNative(read ? RgbNativeOperation.Read : RgbNativeOperation.Write, status, register, command,
+            double.IsFinite(duration) && duration >= 0 ? duration : null, _gpuHandleContext);
         GC.KeepAlive(_data);
         if (status == 0) return true;
-        if (status is -6 or -8 or -10) IsAvailable = false; // Requer redetecção do adaptador.
-        if (!IsAvailable) NeedsInitializationRetry |= IsRetryableStatus(status);
+        if (status is -6 or -8 or -10) _controlAvailable = false; // RGB SDK/handle unavailable; not proof of physical removal.
+        if (!_controlAvailable) _needsRetry |= IsRetryableStatus(status);
         return Fail(EngineText.Of(EngineTexts.GpuAuraFailed, $"{register:X4}", $"{command:X2}", status.ToString(CultureInfo.InvariantCulture)));
     }
 
@@ -365,17 +361,20 @@ public sealed class AsusGpuRgb : IRgbDevice
 
     private bool Fail(EngineText diagnostic)
     {
-        DiagnosticText = diagnostic;
+        _diagnostic = diagnostic;
         return false;
     }
 
     private void ResetController()
     {
-        IsAvailable = false;
-        NeedsInitializationRetry = false;
-        ControllerName = string.Empty;
-        LedCount = 0;
+        _controlAvailable = false;
+        _needsRetry = false;
+        _controllerName = string.Empty;
+        _ledCount = 0;
+        _diagnostic = null;
+        _lastOutputAccepted = null;
         _gpu = IntPtr.Zero;
+        _gpuHandleContext = null;
         _directConfigured = false;
         _byteWrites = false;
         _blockWriteFailures = 0;
@@ -385,10 +384,55 @@ public sealed class AsusGpuRgb : IRgbDevice
     {
         lock (_syncLock)
         {
+            if (_disposed) return;
+            _disposed = true;
             ResetController();
-            var unload = _unload;
-            _unload = null;
-            unload?.Invoke();
+            try { _backend.Dispose(); }
+            finally { Publish(); }
         }
     }
+
+    private void RecordNative(RgbNativeOperation operation, int status, ushort? register = null, byte? command = null,
+        double? transferDurationMicroseconds = null, string? gpuHandle = null)
+    {
+        Increment(ref _nativeSequence);
+        var completed = new RgbNativeOperationResult
+        {
+            Sequence = _nativeSequence, AtUtc = DateTimeOffset.UtcNow, Operation = operation, Status = status,
+            Register = register, Command = command, ProcessId = Environment.ProcessId,
+            ThreadId = Environment.CurrentManagedThreadId, GpuHandle = gpuHandle,
+            TransferDurationMicroseconds = transferDurationMicroseconds, LibraryVersion = CachedLibraryVersion()
+        };
+        _lastNativeOperation = completed;
+        if (status == 0) return;
+        _lastNativeFailure = completed;
+        Increment(ref _nativeFailures);
+    }
+
+    private string? CachedLibraryVersion()
+    {
+        try
+        {
+            var version = _backend.LibraryVersion;
+            return !string.IsNullOrWhiteSpace(version) && !version.Any(char.IsControl)
+                ? version[..Math.Min(version.Length, 128)] : null;
+        }
+        catch (Exception) { return null; } // A diagnostic-only getter must never mask a completed native result.
+    }
+
+    private void Publish() => Volatile.Write(ref _published, new RgbControlStatus
+    {
+        ControllerName = _controllerName, ControllerLedCount = _ledCount,
+        ControlAvailable = _controlAvailable, Initializing = _initializing, InitializationRetryNeeded = _needsRetry,
+        AdapterObservation = _adapterObservation, LastAdapterEnumerationUtc = _lastAdapterEnumeration,
+        LastAdapterSeenUtc = _lastAdapterSeen, LastOutputAccepted = _lastOutputAccepted,
+        LastOutputAttemptUtc = _lastOutputAttempt, LastOutputAcceptedUtc = _lastOutputAcceptedAt,
+        LastOutputAcceptedNativeSequence = _lastOutputAcceptedNativeSequence,
+        ConsecutiveOutputFailures = _consecutiveOutputFailures, TotalOutputFailures = _outputFailures,
+        TotalNativeFailures = _nativeFailures, InitializationAttempts = _initializationAttempts,
+        LastNativeOperation = _lastNativeOperation, LastNativeFailure = _lastNativeFailure, DiagnosticText = _diagnostic
+    });
+
+    private static void Increment(ref long value) { if (value < long.MaxValue) value++; }
+    private static string Limit(string value, int maximum) => value.Length <= maximum ? value : value[..maximum];
 }

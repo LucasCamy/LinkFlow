@@ -92,7 +92,7 @@ public partial class MainViewModel
         DismissToastCommand = new RelayCommand(() => ToastVisible = false);
 
         SelectAllCommand = new RelayCommand(() => SelectWhere(_ => true));
-        SelectFansCommand = new RelayCommand(() => SelectWhere(f => !f.IsPump));
+        SelectFansCommand = new RelayCommand(() => SelectWhere(f => !f.IsPump && f.HasTachometer));
         SelectPumpsCommand = new RelayCommand(() => SelectWhere(f => f.IsPump));
         SelectGroupCommand = new RelayCommand(p => { if (p is string g) SelectWhere(f => f.Group == g); });
         InvertSelectionCommand = new RelayCommand(() => BatchSelect(() => { foreach (var f in Fans) f.IsSelected = !f.IsSelected; }));
@@ -331,8 +331,8 @@ public partial class MainViewModel
     {
         get
         {
-            int fans = Fans.Count(f => !f.IsPump), pumps = Fans.Count(f => f.IsPump);
-            int manual = Fans.Count(f => !f.IsLinked);
+            int fans = Fans.Count(f => !f.IsPump && f.HasTachometer), pumps = Fans.Count(f => f.IsPump);
+            int manual = Fans.Count(f => f.CanControlSpeed && !f.IsLinked);
             var parts = new List<string> { fans == 1 ? Strings.Dash_FansOne : string.Format(Strings.Dash_FansMany, fans) };
             if (pumps > 0) parts.Add(pumps == 1 ? Strings.Dash_PumpsOne : string.Format(Strings.Dash_PumpsMany, pumps));
             if (manual > 0) parts.Add(string.Format(Strings.Dash_ManualFans, manual));
@@ -401,7 +401,7 @@ public partial class MainViewModel
         _anchorIndex = index;
     }
 
-    private List<FanViewModel> Selected => Fans.Where(f => f.IsSelected).ToList();
+    private List<FanViewModel> Selected => Fans.Where(f => f.IsSelected && f.CanControlSpeed).ToList();
 
     private void ApplyBatch()
     {
@@ -499,8 +499,38 @@ public partial class MainViewModel
 
     public string CurveHysteresisFormatted => $"{_curveHysteresis:0}°C";
 
+    public IReadOnlyList<CurveFallbackOption> CurveFallbackOptions =>
+    [
+        new(CurveFallbackPolicy.SafeSpeed, ReliabilityUiText.SafeFallback),
+        new(CurveFallbackPolicy.AllowOtherCpuGpu, ReliabilityUiText.CpuGpuFallback),
+        new(CurveFallbackPolicy.AllowAnyAvailable, ReliabilityUiText.AnyFallback)
+    ];
+    public CurveFallbackPolicy CurveFallback
+    {
+        get => ShownCurve(_engine.Config).FallbackPolicy;
+        set
+        {
+            if (IsLoadingConfig || value == CurveFallback) return;
+            _engine.UpdateConfig(c => TargetCurve(c).FallbackPolicy = value);
+            OnPropertyChanged();
+        }
+    }
+    public double CurveFallbackMinimum
+    {
+        get => ShownCurve(_engine.Config).FallbackMinPercent;
+        set
+        {
+            if (IsLoadingConfig) return;
+            byte percent = (byte)Math.Clamp(Math.Round(value), 20, 100);
+            if (percent == CurveFallbackMinimum) return;
+            _engine.UpdateConfig(c => TargetCurve(c).FallbackMinPercent = percent);
+            OnPropertiesChanged(nameof(CurveFallbackMinimum), nameof(CurveFallbackMinimumLabel));
+        }
+    }
+    public string CurveFallbackMinimumLabel => $"{CurveFallbackMinimum:0}%";
+
     public double? CurveCurrentTemp => Snapshot.CurveTestTemp is { } test ? test : _curveTarget != null && _engine.Config.GroupCurves.TryGetValue(_curveTarget, out var gc)
-        ? CurveController.SelectTemp(gc.Source, Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null, Snapshot.GpuTemp, Snapshot.CoolantTemp)
+        ? CurveController.SelectTemperature(gc, Snapshot.CpuSensorAvailable ? Snapshot.CpuTemp : null, Snapshot.GpuTemp, Snapshot.CoolantTemp).Temperature
         : Snapshot.CurveInputTemp;
     public double? CurveCurrentOutput => _curveTarget != null
         ? Snapshot.GroupOutputs.TryGetValue(_curveTarget, out var go) ? go : null
@@ -738,6 +768,7 @@ public partial class MainViewModel
         CurvePoints = shown.Points;
         CurveSourceValue = shown.Source;
         CurveHysteresis = shown.Hysteresis;
+        OnPropertiesChanged(nameof(CurveFallback), nameof(CurveFallbackMinimum), nameof(CurveFallbackMinimumLabel));
         RefreshCurveTargets(c);
 
         FailSafeEnabled = c.Safety.FailSafeEnabled;

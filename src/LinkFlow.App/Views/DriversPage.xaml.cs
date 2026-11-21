@@ -67,17 +67,26 @@ public partial class DriversPage : UserControl
 
         SetBusy(true);
         DriverStatus.Text = string.Format(Strings.Drv_VerificandoBaixandoInstalando, driver.Title);
+        string operationId = SystemOperationJournal.Shared.Start("windows-update-driver", driver.Title);
         try
         {
             if (App.Current.Options.Simulate)
             {
                 RemoveResult(driver);
                 DriverStatus.Text = Strings.Drv_InstalacaoSimuladaConcluida;
+                SystemOperationJournal.Shared.Complete(operationId, WindowsOperationState.Unconfirmed, detail: "simulation");
                 return;
             }
 
             int? code = await WindowsDrivers.InstallAsync(driver.Identity, acceptLicense: driver.LicenseTerms != null);
             var status = (DriverInstallStatus?)code;
+            SystemOperationJournal.Shared.Complete(operationId, status switch
+            {
+                DriverInstallStatus.Installed => WindowsOperationState.Succeeded,
+                DriverInstallStatus.InstalledRequiresRestart or DriverInstallStatus.RestartPending => WindowsOperationState.RequiresRestart,
+                null => WindowsOperationState.Canceled,
+                _ => WindowsOperationState.Unconfirmed
+            }, code);
             if (status is DriverInstallStatus.Installed or DriverInstallStatus.InstalledRequiresRestart or DriverInstallStatus.NoLongerOffered)
                 RemoveResult(driver);
             DriverStatus.Text = status switch
@@ -97,6 +106,7 @@ public partial class DriversPage : UserControl
         catch (Exception ex)
         {
             Log.Error("Falha ao abrir o instalador de driver", ex);
+            SystemOperationJournal.Shared.Complete(operationId, WindowsOperationState.Failed, detail: ex.Message);
             DriverStatus.Text = Strings.Drv_NaoFoiPossivelIniciar;
         }
         finally

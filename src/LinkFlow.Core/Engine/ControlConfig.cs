@@ -48,6 +48,7 @@ public sealed partial class ControlConfig
 
     public void Normalize()
     {
+        ConfigurationSchema.ValidateAndMigrate(this);
         GlobalPercent = Math.Clamp(GlobalPercent, (byte)FanLimits.MinPercent, (byte)100);
         GpuFanPercent = Math.Clamp(GpuFanPercent, (byte)30, (byte)100);
         Curve ??= new FanCurveConfig();
@@ -126,7 +127,8 @@ public sealed partial class FanCurveConfig
     public bool SameAs(FanCurveConfig? other)
     {
         if (ReferenceEquals(this, other)) return true;
-        if (other == null || Source != other.Source || Hysteresis != other.Hysteresis || Smoothing != other.Smoothing) return false;
+        if (other == null || Source != other.Source || Hysteresis != other.Hysteresis || Smoothing != other.Smoothing ||
+            FallbackPolicy != other.FallbackPolicy || FallbackMinPercent != other.FallbackMinPercent) return false;
         if (Points.Count != other.Points.Count) return false;
         for (int i = 0; i < Points.Count; i++)
             if (Points[i].Temp != other.Points[i].Temp || Points[i].Percent != other.Points[i].Percent) return false;
@@ -146,6 +148,8 @@ public sealed partial class FanCurveConfig
         Points = Points.OrderBy(p => p.Temp).ToList();
         Hysteresis = Math.Clamp(Hysteresis, 0f, 15f);
         Smoothing = Math.Clamp(Smoothing, 0.05f, 1f);
+        if (!Enum.IsDefined(FallbackPolicy)) FallbackPolicy = CurveFallbackPolicy.SafeSpeed;
+        FallbackMinPercent = Math.Clamp(FallbackMinPercent, (byte)FanLimits.MinPercent, (byte)100);
     }
 
     public byte Evaluate(float temp)
@@ -212,14 +216,54 @@ public sealed partial class RgbConfig
     [System.Text.Json.Serialization.JsonIgnore]
     public string Hex => $"#{R:X2}{G:X2}{B:X2}";
 
-    public bool SameOutputAs(RgbConfig o) =>
-        R == o.R && G == o.G && B == o.B && Brightness == o.Brightness &&
+    private bool SameColorProgramAs(RgbConfig o) =>
+        R == o.R && G == o.G && B == o.B &&
+        Math.Abs(LedGamma - o.LedGamma) < 0.001f &&
+        Effect == o.Effect && EffectSpeed == o.EffectSpeed &&
+        (Palette ?? new()).SequenceEqual(o.Palette ?? new());
+
+    public bool SameOutputAs(RgbConfig o) => SameColorProgramAs(o) && Brightness == o.Brightness &&
         SyncHub == o.SyncHub && SyncLcd == o.SyncLcd && SyncGpu == o.SyncGpu &&
         SyncMotherboard == o.SyncMotherboard && SyncRam == o.SyncRam && SyncPeripherals == o.SyncPeripherals &&
-        Math.Abs(LedGamma - o.LedGamma) < 0.001f &&
-        Effect == o.Effect && EffectSpeed == o.EffectSpeed && SpreadOnFans == o.SpreadOnFans &&
-        (Palette ?? new()).SequenceEqual(o.Palette ?? new()) &&
+        SpreadOnFans == o.SpreadOnFans &&
         DeviceBrightness.Count == o.DeviceBrightness.Count && DeviceBrightness.All(kv => o.DeviceBrightness.TryGetValue(kv.Key, out var v) && v == kv.Value);
+
+    /// <summary>
+    /// Compara o programa completo de um destino, sem amostrar um quadro animado. Histórico de cores,
+    /// brilho/sync de outros destinos e SyncLcd não alteram esta saída. Ausência de brilho equivale a 100%.
+    /// </summary>
+    public bool SameOutputFor(RgbConfig other, string target)
+    {
+        bool Synced(RgbConfig value) => target switch
+        {
+            RgbTargets.Hub => value.SyncHub,
+            RgbTargets.Gpu => value.SyncGpu,
+            RgbTargets.Motherboard => value.SyncMotherboard,
+            RgbTargets.Ram => value.SyncRam,
+            RgbTargets.Peripherals => value.SyncPeripherals,
+            _ => throw new ArgumentException("Destino RGB desconhecido.", nameof(target))
+        };
+        bool enabled = Synced(this), otherEnabled = Synced(other);
+        if (enabled != otherEnabled) return false;
+        if (!enabled) return true;
+        return SameColorProgramAs(other) && (target != RgbTargets.Hub || SpreadOnFans == other.SpreadOnFans) &&
+            Brightness * DeviceBrightness.GetValueOrDefault(target, (byte)100) ==
+            other.Brightness * other.DeviceBrightness.GetValueOrDefault(target, (byte)100);
+    }
+
+    /// <summary>Programa da cor usado pelo compositor do LCD; brilho, gama e destinos LED não participam.</summary>
+    public bool SameLcdThemeAs(RgbConfig other)
+    {
+        if (SyncLcd != other.SyncLcd) return false;
+        if (!SyncLcd) return true;
+        bool Constant(RgbConfig value) => value.Effect is RgbEffect.Static or RgbEffect.Breathing;
+        (byte R, byte G, byte B) Readable(RgbConfig value) => value.R + value.G + value.B < 60
+            ? ((byte)0, (byte)240, (byte)255) : (value.R, value.G, value.B);
+        // Respirar altera só o nível luminoso, que RgbForLcd/Compose não usam na cor do tema.
+        if (Constant(this) && Constant(other)) return Readable(this) == Readable(other);
+        if (Effect != other.Effect || EffectSpeed != other.EffectSpeed) return false;
+        return Effect != RgbEffect.Palette || (Palette ?? new()).SequenceEqual(other.Palette ?? new());
+    }
 
     /// <summary>Cor final agora (efeito incluído) para um dispositivo de LED.</summary>
     public (byte R, byte G, byte B, byte Brightness) OutputFor(string target) => OutputFor(target, RgbEffects.Now, 0);
@@ -511,6 +555,8 @@ public sealed partial class AutomationConfig
     public void Normalize()
     {
         Rules ??= new();
+        Rules.RemoveAll(r => r == null);
+        foreach (var rule in Rules) rule.Priority = Math.Clamp(rule.Priority, 0, 1000);
         foreach (var r in Rules) r.Process = (r.Process ?? string.Empty).Trim().Replace(".exe", "", StringComparison.OrdinalIgnoreCase);
         Rules.RemoveAll(r => r.Process.Length == 0);
         Quiet ??= new();

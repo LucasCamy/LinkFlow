@@ -5,6 +5,25 @@
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
 
+    <UserControl.Resources>
+        <!-- Only contrast differs while selection is disabled; sizing comes from the shared theme. -->
+        <Style x:Key="SelectionPrimaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.65"/></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SelectionSecondaryButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.65"/></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SelectionSlider" TargetType="Slider" BasedOn="{StaticResource {x:Type Slider}}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.6"/></Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="24,20,24,0" MaxWidth="1160">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -127,14 +146,13 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" MaxWidth="380"/>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*" MaxWidth="9999"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="ProfileNameBox" Text="{Binding NewProfileName, UpdateSourceTrigger=PropertyChanged}" KeyDown="ProfileNameBox_KeyDown"
-                                             AutomationProperties.Name="{x:Static r:Strings.Fan_NomeNovoPerfil}" ToolTip="{x:Static r:Strings.Fan_SalvaConfiguracaoAtualComo}" MinWidth="160"/>
+                                             AutomationProperties.Name="{x:Static r:Strings.Fan_NomeNovoPerfil}" ToolTip="{x:Static r:Strings.Fan_SalvaConfiguracaoAtualComo}" MinWidth="160" MinHeight="34" VerticalAlignment="Center"/>
                                     <TextBlock Text="{x:Static r:Strings.Fan_NomeNovoPerfil}" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
                                                Foreground="{StaticResource TextSubtleBrush}"
                                                Visibility="{Binding NewProfileName, Converter={StaticResource NullToVisInverse}}"/>
-                                    <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding SaveProfileCommand}">
+                                    <Button x:Name="SaveProfileButton" Grid.Column="1" Style="{StaticResource SecondaryButton}" VerticalAlignment="Center" Margin="8,0,0,0" Command="{Binding SaveProfileCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="13" Margin="0,0,8,0"/>
                                             <TextBlock Text="{x:Static r:Strings.Fan_Salvar}"/>
@@ -170,23 +188,23 @@
                         </Border>
 
                         <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12" Visibility="{Binding IsFixedMode, Converter={StaticResource BoolToVis}}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
-                                    <TextBlock Text="{x:Static r:Strings.Dash_GlobalPower}" Style="{StaticResource SystemSectionTitle}"/>
-                                    <TextBlock Text="{x:Static r:Strings.Fan_VentoinhasVinculadasSeguemEste}" Style="{StaticResource SystemDetail}"/>
-                                    <TextBlock Text="{x:Static r:Strings.Fan_ProtecaoAtivaPerfilVolta}"
-                                               Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"
-                                               Visibility="{Binding IsFailSafeActive, Converter={StaticResource BoolToVis}}"/>
-                                </StackPanel>
-                                <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}" AutomationProperties.Name="{x:Static r:Strings.Dash_GlobalPower}" ToolTip="{x:Static r:Strings.Dash_PowerTip}"/>
-                                <TextBlock Grid.Column="2" Text="{Binding GlobalSpeedFormatted}" FontSize="22" FontWeight="SemiBold" Width="70" TextAlignment="Right"
-                                           Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
-                            </Grid>
+                            <StackPanel>
+                                <TextBlock Text="{x:Static r:Strings.Dash_GlobalPower}" Style="{StaticResource SystemSectionTitle}"/>
+                                <TextBlock Text="{x:Static r:Strings.Fan_VentoinhasVinculadasSeguemEste}" Style="{StaticResource SystemDetail}"/>
+                                <TextBlock Text="{x:Static r:Strings.Fan_ProtecaoAtivaPerfilVolta}"
+                                           Style="{StaticResource SystemDetail}" Foreground="{StaticResource WarningBrush}"
+                                           Visibility="{Binding IsFailSafeActive, Converter={StaticResource BoolToVis}}"/>
+                                <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider MinHeight="34" Minimum="25" Maximum="100" Value="{Binding GlobalSpeedPercent}"
+                                            AutomationProperties.Name="{x:Static r:Strings.Dash_GlobalPower}" ToolTip="{x:Static r:Strings.Dash_PowerTip}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding GlobalSpeedFormatted}" FontSize="22" FontWeight="SemiBold" MinWidth="70" Margin="12,0,0,0" TextAlignment="Right"
+                                               Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
                         </Border>
 
                         <Border x:Name="CurvePanel" Style="{StaticResource SystemPanel}" Margin="0,0,0,12" Visibility="{Binding ShowCurveCard, Converter={StaticResource BoolToVis}}">
@@ -255,6 +273,10 @@
                                         <ComboBox AutomationProperties.Name="{x:Static r:Strings.Fan_SensorReferencia}" ItemsSource="{Binding CurveSources}" SelectedValuePath="Value" DisplayMemberPath="Label"
                                                   SelectedValue="{Binding CurveSourceValue}"/>
                                         <TextBlock Text="{x:Static r:Strings.Fan_AIOLiquidoReageDevagar}" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                                        <TextBlock Text="{x:Static vm:ReliabilityUiText.MissingSource}" Style="{StaticResource Label}" Margin="0,12,0,6"/>
+                                        <ComboBox ItemsSource="{Binding CurveFallbackOptions}" SelectedValuePath="Value" DisplayMemberPath="Label"
+                                                  SelectedValue="{Binding CurveFallback}" AutomationProperties.Name="{x:Static vm:ReliabilityUiText.MissingSource}"/>
+                                        <TextBlock Text="{x:Static vm:ReliabilityUiText.FallbackHelp}" Style="{StaticResource Caption}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,8">
                                         <Grid Margin="0,0,0,6">
@@ -263,6 +285,12 @@
                                         </Grid>
                                         <Slider Minimum="0" Maximum="10" Value="{Binding CurveHysteresis}" AutomationProperties.Name="{x:Static r:Strings.Fan_HistereseCurva}" IsSnapToTickEnabled="True" TickFrequency="1"/>
                                         <TextBlock Text="{x:Static r:Strings.Fan_EvitaVentoinhasFiquemAcelerando}" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                                        <DockPanel Margin="0,12,0,6">
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding CurveFallbackMinimumLabel}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{x:Static vm:ReliabilityUiText.FallbackMinimum}" Style="{StaticResource Label}"/>
+                                        </DockPanel>
+                                        <Slider Minimum="20" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="5" Value="{Binding CurveFallbackMinimum}"
+                                                AutomationProperties.Name="{x:Static vm:ReliabilityUiText.FallbackMinimum}"/>
                                     </StackPanel>
                                 </c:AdaptiveUniformGrid>
                             </Grid>
@@ -381,47 +409,57 @@
                                 </WrapPanel>
 
                                 <!-- Ações em lote: sempre visíveis (não empurram os cartões ao selecionar) -->
-                                <Border Background="{StaticResource BgBrush}" CornerRadius="10" Padding="14,10" Margin="0,4,0,0"
-                                        IsEnabled="{Binding HasSelection}" ToolTip="{x:Static r:Strings.Fan_SelecioneOuMaisCartoes}">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Opacity" Value="0.55"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <c:AdaptiveUniformGrid MinItemWidth="330" MaxColumns="2">
-                                        <Grid Margin="0,4,16,4">
+                                <Border x:Name="BatchActionsPanel" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,4,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        IsEnabled="{Binding HasSelection}" ToolTip="{x:Static r:Strings.Fan_SelecioneOuMaisCartoes}"
+                                        ToolTipService.ShowOnDisabled="True">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <!-- Rows use the full width; only the slider/field expand, while action buttons keep their natural size. -->
+                                        <Grid x:Name="BatchPowerRow" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*" MinWidth="160"/>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{x:Static r:Strings.Dash_Power}" Style="{StaticResource Label}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                            <Slider Grid.Column="1" Minimum="25" Maximum="100" Value="{Binding BatchPercent}" AutomationProperties.Name="{x:Static r:Strings.Fan_PotenciaSelecao}"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding BatchPercent, StringFormat={}{0}%}" Width="44" TextAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                            <Button Grid.Column="3" Style="{StaticResource PrimaryButton}" Content="{x:Static r:Strings.Fan_Aplicar}" Margin="10,0,0,0" Command="{Binding ApplyBatchCommand}"/>
+                                            <Slider x:Name="BatchPowerSlider" Grid.Column="1" Style="{StaticResource SelectionSlider}" Minimum="25" Maximum="100" Value="{Binding BatchPercent}"
+                                                    SmallChange="1" LargeChange="5" AutomationProperties.Name="{x:Static r:Strings.Fan_PotenciaSelecao}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding BatchPercent, StringFormat={}{0}%}" MinWidth="44" Margin="12,0,0,0"
+                                                       TextAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <Button x:Name="BatchApplyButton" Grid.Column="3" Style="{StaticResource SelectionPrimaryButton}" Content="{x:Static r:Strings.Fan_Aplicar}"
+                                                    VerticalAlignment="Center" Margin="16,0,0,0" Command="{Binding ApplyBatchCommand}"/>
                                         </Grid>
-                                        <WrapPanel Margin="0,4">
-                                            <Button Style="{StaticResource SecondaryButton}" Margin="0,0,8,6" Command="{Binding LinkSelectedCommand}"
+                                        <Grid x:Name="BatchActionsFlow" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*" MinWidth="228"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button x:Name="BatchLinkButton" Style="{StaticResource SelectionSecondaryButton}" VerticalAlignment="Center" Margin="0,0,8,0" Command="{Binding LinkSelectedCommand}"
                                                     ToolTip="{x:Static r:Strings.Fan_SelecionadasVoltamSeguirPotencia}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE71B;" FontSize="12" Margin="0,0,6,0"/>
                                                     <TextBlock Text="{x:Static r:Strings.Fan_VincularGlobal}"/>
                                                 </StackPanel>
                                             </Button>
-                                            <Grid Margin="0,0,8,6">
-                                                <TextBox Width="130" Text="{Binding GroupNameInput, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static r:Strings.Fan_NomeGrupoExFrontal}"/>
+                                            <Grid x:Name="BatchGroupEditor" Grid.Column="1" Margin="0,0,8,0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox x:Name="BatchGroupBox" MinWidth="140" MinHeight="34" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="{Binding GroupNameInput, UpdateSourceTrigger=PropertyChanged}"
+                                                         ToolTip="{x:Static r:Strings.Fan_NomeGrupoExFrontal}" AutomationProperties.Name="{x:Static r:Strings.Fan_Grupo}"/>
                                                 <TextBlock Text="{x:Static r:Strings.Fan_Grupo}" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource TextSubtleBrush}"
                                                            Visibility="{Binding GroupNameInput, Converter={StaticResource NullToVisInverse}}"/>
+                                                <Button x:Name="BatchGroupButton" Grid.Column="1" Style="{StaticResource SelectionSecondaryButton}" Content="{x:Static r:Strings.Fan_Agrupar}"
+                                                        VerticalAlignment="Center" Margin="8,0,0,0" Command="{Binding SetGroupCommand}"/>
                                             </Grid>
-                                            <Button Style="{StaticResource SecondaryButton}" Content="{x:Static r:Strings.Fan_Agrupar}" Margin="0,0,8,6" Command="{Binding SetGroupCommand}"/>
-                                            <Button Style="{StaticResource SecondaryButton}" Content="{x:Static r:Strings.Fan_SemGrupo}" Margin="0,0,0,6" Command="{Binding ClearGroupCommand}"/>
-                                        </WrapPanel>
-                                    </c:AdaptiveUniformGrid>
+                                            <Button x:Name="BatchClearGroupButton" Grid.Column="2" Style="{StaticResource SelectionSecondaryButton}" Content="{x:Static r:Strings.Fan_SemGrupo}" VerticalAlignment="Center" Command="{Binding ClearGroupCommand}"/>
+                                        </Grid>
+                                    </Grid>
                                 </Border>
                             </StackPanel>
                         </Border>
@@ -495,17 +533,17 @@
                                                 <TextBlock Grid.Column="2" Text="{Binding RpmFormatted}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"
                                                            Foreground="{Binding StatusColor, Converter={StaticResource HexToBrush}}"/>
                                             </Grid>
-                                            <Grid Grid.Row="1" Margin="0,12,0,0">
+                                            <Grid Grid.Row="1" Margin="0,12,0,0" IsEnabled="{Binding CanControlSpeed}">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Button x:Name="LinkButton" Style="{StaticResource IconButton}" Width="30" Height="28" FontSize="13" Margin="-6,0,6,0"
+                                                <Button x:Name="LinkButton" Style="{StaticResource IconButton}" FontSize="13" Margin="-6,0,6,0"
                                                         Content="&#xE71B;" ToolTip="{Binding LinkTooltip}" AutomationProperties.Name="{x:Static r:Strings.Fan_VincularPotenciaGlobal}"
                                                         Command="{Binding DataContext.ToggleLinkCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}" Foreground="{StaticResource AccentBrush}"/>
-                                                <Slider x:Name="FanSlider" Grid.Column="1" Minimum="{Binding SliderMinimum}" Maximum="100" Value="{Binding SliderValue}" AutomationProperties.Name="{Binding Name, StringFormat={x:Static r:Strings.Fan_Potencia}}"/>
+                                                <Slider x:Name="FanSlider" Grid.Column="1" MinHeight="32" Minimum="{Binding SliderMinimum}" Maximum="100" Value="{Binding SliderValue}" AutomationProperties.Name="{Binding Name, StringFormat={x:Static r:Strings.Fan_Potencia}}"/>
                                                 <TextBlock Grid.Column="2" Text="{Binding PowerFormatted}" Width="42" TextAlignment="Right" VerticalAlignment="Center"
                                                            Foreground="{StaticResource TextMutedBrush}"/>
                                             </Grid>
@@ -652,7 +690,7 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="{x:Static r:Strings.Fan_RegraAtiva}"/>
-                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Process}">
                                                         <Run Text="{x:Static r:Strings.Fan_Abrir}"/><Run Text="{Binding Process, Mode=OneWay}" FontWeight="SemiBold"/>
                                                     </TextBlock>
                                                     <ComboBox Grid.Column="2" Width="190" Margin="8,0" VerticalAlignment="Center" SelectedValuePath="Key" DisplayMemberPath="Label"
@@ -669,21 +707,22 @@
 
                                 <Grid Margin="0,2,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" MaxWidth="320"/>
+                                        <ColumnDefinition Width="*" MaxWidth="400"/>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <ComboBox IsEditable="True" Text="{Binding NewRuleProcess, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RunningApps}"
+                                    <ComboBox x:Name="NewRuleProcessBox" IsEditable="True" Text="{Binding NewRuleProcess, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RunningApps}"
                                               DropDownOpened="RunningApps_DropDownOpened" ToolTip="{x:Static r:Strings.Fan_DigiteNomeProcessoOu}" AutomationProperties.Name="{x:Static r:Strings.Fan_JogoOuAplicativo}"/>
                                     <TextBlock Text="{x:Static r:Strings.Fan_JogoOuAplicativo}" IsHitTestVisible="False" Margin="11,0,0,0" VerticalAlignment="Center"
                                                Foreground="{StaticResource TextSubtleBrush}" Visibility="{Binding NewRuleProcess, Converter={StaticResource NullToVisInverse}}"/>
-                                    <Button Grid.Column="1" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Command="{Binding AddRuleCommand}">
+                                    <Button x:Name="AddAppRuleButton" Grid.Column="1" Style="{StaticResource SecondaryButton}" VerticalAlignment="Center" Margin="8,0,0,0" Command="{Binding AddRuleCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
                                             <TextBlock Text="{x:Static r:Strings.Fan_AdicionarRegra}"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
+                                <TextBlock Text="{Binding AppRefreshStatus}" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,6,0,0"
+                                           Visibility="{Binding AppRefreshStatus, Converter={StaticResource NullToVis}}" AutomationProperties.LiveSetting="Polite"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
