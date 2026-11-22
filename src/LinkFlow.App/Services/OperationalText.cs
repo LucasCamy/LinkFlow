@@ -146,6 +146,8 @@ public static class OperationalText
         "rgb.output.accepted" => Pick("Saída RGB aceita pelo controlador", "RGB output accepted by controller"),
         "rgb.output.rejected" => Pick("Saída RGB recusada", "RGB output rejected"),
         "rgb.transport.failed" => Pick("Falha no transporte RGB", "RGB transport failure"),
+        "rgb.native.failure" => Pick("Detalhe de falha na chamada RGB", "RGB call failure detail"),
+        "rgb.native.history" => Pick("Retenção dos detalhes de falhas RGB", "RGB failure detail retention"),
         "inventory.added" => Pick("Componente adicionado", "Component added"),
         "inventory.removed" => Pick("Componente removido", "Component removed"),
         "inventory.changed" => Pick("Componente alterado", "Component changed"),

@@ -247,6 +247,40 @@ internal static class GpuRgbWorkerFraming
     internal static async Task WriteAsync<T>(Stream stream, T value, int maximum, CancellationToken token)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(value, Wire);
+        await WriteBytesAsync(stream, bytes, maximum, token).ConfigureAwait(false);
+    }
+
+    internal static Task WriteReplyAsync(Stream stream, GpuRgbWorkerReply reply, CancellationToken token) =>
+        WriteBytesAsync(stream, EncodeReply(reply, GpuRgbWorkerProtocol.MaximumReplyBytes),
+            GpuRgbWorkerProtocol.MaximumReplyBytes, token);
+
+    /// <summary>Diagnostic context may omit only the oldest prefix, never alter the output acknowledgement.</summary>
+    internal static byte[] EncodeReply(GpuRgbWorkerReply reply, int maximum)
+    {
+        if (reply.NativeFailureBatch is { } initial &&
+            (initial.TransportOmittedCount < 0 || initial.TransportOmittedCount > RgbNativeFailureHistory.MaximumRecords - initial.Records.Count))
+            throw new InvalidDataException("GPU RGB omitted-record count exceeds its bounded window.");
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(reply, Wire);
+        while (bytes.Length > maximum && reply.NativeFailureBatch is { } batch)
+        {
+            // At most eight record removals and one metadata omission. Healthy replies have no batch.
+            reply = batch.Records.Count == 0 ? reply with { NativeFailureBatch = null } : reply with
+            {
+                NativeFailureBatch = batch with
+                {
+                    TransportOmittedCount = batch.TransportOmittedCount + 1,
+                    Records = batch.Records.Skip(1).ToArray()
+                }
+            };
+            bytes = JsonSerializer.SerializeToUtf8Bytes(reply, Wire);
+        }
+        if (bytes.Length is < 1 || bytes.Length > maximum)
+            throw new InvalidDataException("GPU RGB frame exceeds its size limit.");
+        return bytes;
+    }
+
+    private static async Task WriteBytesAsync(Stream stream, byte[] bytes, int maximum, CancellationToken token)
+    {
         if (bytes.Length is < 1 || bytes.Length > maximum)
             throw new InvalidDataException("GPU RGB frame exceeds its size limit.");
         byte[] header = new byte[4];

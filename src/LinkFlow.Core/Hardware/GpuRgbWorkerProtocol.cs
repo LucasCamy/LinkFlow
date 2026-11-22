@@ -29,6 +29,29 @@ internal sealed record GpuRgbWorkerReply
     public long RequestId { get; init; }
     public bool Accepted { get; init; }
     public RgbControlStatus Status { get; init; } = new();
+    /// <summary>Present only for an initial supported history or a newly observed failure window.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public GpuRgbNativeFailureBatch? NativeFailureBatch { get; init; }
+}
+
+internal sealed record GpuRgbNativeFailureBatch
+{
+    // Only a contiguous suffix of the latest eight provider failures is legal. Byte budgeting removes the
+    // oldest prefix, so a known record already evicted by the parent can never reappear as a new detail.
+    private IReadOnlyList<RgbNativeOperationResult> _records = Array.Empty<RgbNativeOperationResult>();
+    public long TotalFailures { get; init; }
+    public long RingEvictedCount { get; init; }
+    public long TransportOmittedCount { get; init; }
+    public IReadOnlyList<RgbNativeOperationResult> Records
+    {
+        get => _records;
+        init
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value.Count > RgbNativeFailureHistory.MaximumRecords) throw new ArgumentOutOfRangeException(nameof(value));
+            _records = Array.AsReadOnly(value.ToArray());
+        }
+    }
 }
 
 /// <summary>

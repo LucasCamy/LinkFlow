@@ -10,6 +10,9 @@ public sealed record RgbNativeOperationResult
 {
     /// <summary>Monotonic per-provider ordering; zero means unavailable from an older provider.</summary>
     public long Sequence { get; init; }
+    /// <summary>Ordered failure count in this provider; zero for success or a legacy provider. The isolated proxy maps it across generations.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long FailureOrdinal { get; init; }
     public DateTimeOffset AtUtc { get; init; }
     public RgbNativeOperation Operation { get; init; }
     public int Status { get; init; }
@@ -25,6 +28,31 @@ public sealed record RgbNativeOperationResult
     public double? TransferDurationMicroseconds { get; init; }
     /// <summary>Cached file-version metadata of the System32 NVAPI library; null when unavailable. No SDK query is performed.</summary>
     public string? LibraryVersion { get; init; }
+}
+
+/// <summary>
+/// A bounded immutable window, not an unlimited journal. Evicted records were received before leaving this window;
+/// MissingCount is a gauge of observed failure ordinals whose context is still not received, and can decrease on backfill.
+/// A worker dying before reporting counters is unknown. Receiving a detail does not prove that a journal persisted it.
+/// </summary>
+public sealed record RgbNativeFailureHistory
+{
+    public const int MaximumRecords = 8;
+    private IReadOnlyList<RgbNativeOperationResult> _records = Array.Empty<RgbNativeOperationResult>();
+    public int Capacity { get; init; } = MaximumRecords;
+    public long TotalFailures { get; init; }
+    public long EvictedCount { get; init; }
+    public long MissingCount { get; init; }
+    public IReadOnlyList<RgbNativeOperationResult> Records
+    {
+        get => _records;
+        init
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            if (value.Count > MaximumRecords) throw new ArgumentOutOfRangeException(nameof(value));
+            _records = Array.AsReadOnly(value.ToArray());
+        }
+    }
 }
 
 /// <summary>
@@ -55,6 +83,9 @@ public sealed record RgbControlStatus
     public RgbNativeOperationResult? LastNativeOperation { get; init; }
     /// <summary>Retained across subsequent successful calls and probes, so recovery never erases the last error.</summary>
     public RgbNativeOperationResult? LastNativeFailure { get; init; }
+    /// <summary>Null for legacy/unavailable history. Cached immutable evidence; inspecting it performs no SDK or I/O call.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public RgbNativeFailureHistory? NativeFailureHistory { get; init; }
     /// <summary>Identity of the currently owned isolated RGB child; null after confirmed exit.</summary>
     public int? WorkerProcessId { get; init; }
     /// <summary>Monotonic reserved generation attempt; a failed launch may not have created a child.</summary>

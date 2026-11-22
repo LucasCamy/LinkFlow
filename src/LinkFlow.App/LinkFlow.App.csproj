@@ -21,7 +21,7 @@
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
     <AssemblyName>LinkFlow.App</AssemblyName>
     <Product>LinkFlow</Product>
-    <Version>3.2.3</Version>
+    <Version>3.2.4</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Company>LinkFlow</Company>
     <!-- Strings.resx é o português; os outros idiomas vão em assemblies satélite (en\LinkFlow.App.resources.dll) -->
