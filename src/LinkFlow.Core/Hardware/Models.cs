@@ -46,8 +46,12 @@ public class HardwareTelemetry
     public bool CpuSensorAvailable { get; set; }
 
     public float? CpuTemperature { get; set; }
+    /// <summary>Why this provider read could not prove a new CPU temperature assignment.</summary>
+    public string? CpuTemperatureUnavailableReason { get; set; }
     public float? CpuLoad { get; set; }
     public float? GpuTemperature { get; set; }
+    /// <summary>Why this provider read could not prove a new GPU temperature assignment.</summary>
+    public string? GpuTemperatureUnavailableReason { get; set; }
     public float? GpuHotspotTemperature { get; set; }
     public float? GpuLoad { get; set; }
     public float? RamUsagePercent { get; set; }

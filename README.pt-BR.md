@@ -4,7 +4,7 @@
 
 Controle de ventoinhas, bomba, RGB e display LCD para **Corsair iCUE LINK**, com monitoramento de CPU/GPU (LibreHardwareMonitor), RGB da placa de vídeo (ASUS Aura) e da placa-mãe (MSI Mystic Light).
 
-Este README descreve a **3.2.2**. Os artefatos de desenvolvimento e a distribuição oficial assinada são canais separados.
+Este README descreve a **3.2.3**. Os artefatos de desenvolvimento e a distribuição oficial assinada são canais separados.
 
 ## Destaques
 
@@ -35,7 +35,9 @@ Este README descreve a **3.2.2**. Os artefatos de desenvolvimento e a distribui�
 
 ## Controle e histórico
 
-**Painel → Controle e histórico** mostra proteção, qualidade das leituras, revisões ativa/salva da configuração, armazenamento e o controle solicitado/aceito pelo controlador/medido em cada ventoinha. Cada sensor informa origem, última aquisição bem-sucedida, idade e validade: válida, vencida, indisponível, inválida ou sem suporte. RPM ausente é desconhecido, não uma ventoinha comprovadamente parada; módulos LCD não oferecem controle de rotação.
+**Painel → Controle e histórico** mostra proteção, qualidade das leituras, revisões ativa/salva da configuração, armazenamento e o controle solicitado/aceito pelo controlador/medido em cada ventoinha. Cada sensor informa origem, última observação bem-sucedida, idade e validade: válida, vencida, indisponível, inválida ou sem suporte. RPM ausente é desconhecido, não uma ventoinha comprovadamente parada; módulos LCD não oferecem controle de rotação.
+
+As temperaturas de CPU/GPU do provedor LibreHardwareMonitor compatível precisam ser atribuídas na atualização atual. Um valor positivo conservado no cache não renova o horário da última observação válida; atribuir novamente a mesma temperatura renova. A verificação usa o estado gerenciado do provedor, sem consultas extras ao hardware. Ela não calibra fisicamente os sensores nem comprova uma aquisição nativa de todas as demais métricas do provedor.
 
 - **Proteção independente** acompanha a idade das aquisições mesmo quando o leitor falha ou trava. A abertura inicial dos sensores também tem watchdog; a perda parcial do RPM do hub é acompanhada separadamente das temperaturas.
 - **Substituição explícita do sensor da curva**, configurada em **Ventoinhas** para a curva global ou do grupo. O padrão mantém velocidade de proteção e informa a ausência da fonte escolhida. As opções de substituição por CPU/GPU ou CPU/GPU/líquido possuem piso de proteção e indicação visível. O modo de segurança tem prioridade.

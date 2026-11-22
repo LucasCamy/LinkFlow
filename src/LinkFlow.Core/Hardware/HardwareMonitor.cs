@@ -14,6 +14,18 @@ public sealed class HardwareMonitor : ISensorSource
     private IHardware? _discreteGpu;
     private IHardware? _monitoredGpu;
     private IHardware? _ram;
+    private readonly Func<ISensor, bool> _supportsTemperatureWitness;
+
+    public HardwareMonitor() => _supportsTemperatureWitness = TemperatureAssignmentWitness.SupportsKnownSensor;
+
+    // In-memory provider seam. Tests never create/open a Computer or call a hardware SDK.
+    internal HardwareMonitor(IHardware? cpu, IHardware? gpu, Func<ISensor, bool>? supportsTemperatureWitness = null)
+    {
+        _cpu = cpu;
+        _discreteGpu = _monitoredGpu = gpu;
+        _supportsTemperatureWitness = supportsTemperatureWitness ?? TemperatureAssignmentWitness.SupportsKnownSensor;
+        IsOpen = true;
+    }
 
     public bool IsOpen { get; private set; }
 
@@ -72,13 +84,13 @@ public sealed class HardwareMonitor : ISensorSource
                 t.CpuName = _cpu.Name;
                 try
                 {
+                    var witness = TemperatureAssignmentWitness.Arm(FindCpuTemperature(_cpu), _supportsTemperatureWitness);
                     _cpu.Update();
-                    var temp = Find(_cpu, SensorType.Temperature, "Tctl")
-                               ?? Find(_cpu, SensorType.Temperature, "Package")
-                               ?? Find(_cpu, SensorType.Temperature, "Core");
-                    if (temp?.Value is > 0 and < 150)
+                    var temperature = witness.Complete(FindCpuTemperature(_cpu));
+                    t.CpuTemperatureUnavailableReason = temperature.Reason;
+                    if (temperature.Value is > 0 and < 150)
                     {
-                        t.CpuTemperature = temp.Value;
+                        t.CpuTemperature = temperature.Value;
                         t.CpuSensorAvailable = true;
                     }
 
@@ -98,7 +110,11 @@ public sealed class HardwareMonitor : ISensorSource
                         t.CpuCores = clocks.Count;
                     }
                 }
-                catch (Exception ex) { Log.Debug($"CPU update: {ex.Message}"); }
+                catch (Exception ex)
+                {
+                    t.CpuTemperatureUnavailableReason = "provider-read-failed";
+                    Log.Debug($"CPU update: {ex.Message}");
+                }
             }
 
             if (_monitoredGpu is { } gpu)
@@ -106,6 +122,7 @@ public sealed class HardwareMonitor : ISensorSource
                 t.GpuName = gpu.Name;
                 try
                 {
+                    var witness = TemperatureAssignmentWitness.Arm(Find(gpu, SensorType.Temperature, "Core"), _supportsTemperatureWitness);
                     gpu.Update();
                     var temp = Find(gpu, SensorType.Temperature, "Core");
                     var hot = Find(gpu, SensorType.Temperature, "Hot Spot");
@@ -113,7 +130,9 @@ public sealed class HardwareMonitor : ISensorSource
                     var fans = gpu.Sensors.Where(s => s.SensorType == SensorType.Fan).OrderBy(s => s.Index).ToList();
                     var ctrl = gpu.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Control);
 
-                    if (temp?.Value is > 0) t.GpuTemperature = temp.Value;
+                    var temperature = witness.Complete(temp);
+                    t.GpuTemperature = temperature.Value;
+                    t.GpuTemperatureUnavailableReason = temperature.Reason;
                     if (hot?.Value is > 0) t.GpuHotspotTemperature = hot.Value;
                     if (load?.Value != null) t.GpuLoad = load.Value;
                     if (fans.Count > 0 && fans[0].Value != null) t.GpuFanRpm1 = (int)fans[0].Value!.Value;
@@ -131,7 +150,11 @@ public sealed class HardwareMonitor : ISensorSource
                     if (memUsed?.Value is > 0) t.GpuVramUsedGb = memUsed.Value / 1024f;
                     if (memTotal?.Value is > 0) t.GpuVramTotalGb = memTotal.Value / 1024f;
                 }
-                catch (Exception ex) { Log.Debug($"GPU update: {ex.Message}"); }
+                catch (Exception ex)
+                {
+                    t.GpuTemperatureUnavailableReason = "provider-read-failed";
+                    Log.Debug($"GPU update: {ex.Message}");
+                }
             }
 
             if (_ram != null)
@@ -208,6 +231,10 @@ public sealed class HardwareMonitor : ISensorSource
 
     private static ISensor? Find(IHardware hw, SensorType type, string nameContains) =>
         hw.Sensors.FirstOrDefault(s => s.SensorType == type && s.Name.Contains(nameContains, StringComparison.OrdinalIgnoreCase));
+
+    private static ISensor? FindCpuTemperature(IHardware cpu) =>
+        Find(cpu, SensorType.Temperature, "Tctl") ?? Find(cpu, SensorType.Temperature, "Package") ??
+        Find(cpu, SensorType.Temperature, "Core");
 
     public bool SetGpuFanSpeed(byte percent)
     {
