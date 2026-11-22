@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
-    <Version>3.2.4</Version>
+    <Version>3.2.5</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- Resources\EngineStrings.resx é o português; o inglês vai em en\LinkFlow.Core.resources.dll -->

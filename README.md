@@ -4,7 +4,7 @@
 
 Fan, pump, RGB and LCD control for **Corsair iCUE LINK**, with CPU/GPU monitoring (LibreHardwareMonitor) and RGB sync for the graphics card (ASUS Aura), the motherboard (MSI Mystic Light), Corsair DDR5 memory and Logitech G peripherals.
 
-This README describes **3.2.4**. Development artifacts and official signed distributions are separate channels.
+This README describes **3.2.5**. Development artifacts and official signed distributions are separate channels.
 
 ## Highlights
 

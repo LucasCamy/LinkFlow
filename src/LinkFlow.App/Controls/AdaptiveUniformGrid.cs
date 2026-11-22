@@ -25,6 +25,10 @@ public sealed class AdaptiveUniformGrid : Panel
         nameof(StackColumns), typeof(bool), typeof(AdaptiveUniformGrid),
         new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
+    public static readonly DependencyProperty StretchLastRowProperty = DependencyProperty.Register(
+        nameof(StretchLastRow), typeof(bool), typeof(AdaptiveUniformGrid),
+        new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure));
+
     /// <summary>Reduz colunas para não deixar um item sozinho na última linha.</summary>
     public bool BalanceRows
     {
@@ -37,6 +41,13 @@ public sealed class AdaptiveUniformGrid : Panel
     {
         get => (bool)GetValue(StackColumnsProperty);
         set => SetValue(StackColumnsProperty, value);
+    }
+
+    /// <summary>Distribui a última linha por toda a largura. Não se aplica a colunas empilhadas.</summary>
+    public bool StretchLastRow
+    {
+        get => (bool)GetValue(StretchLastRowProperty);
+        set => SetValue(StretchLastRowProperty, value);
     }
 
     public double MinItemWidth
@@ -85,7 +96,8 @@ public sealed class AdaptiveUniformGrid : Panel
         foreach (UIElement child in InternalChildren)
         {
             if (child.Visibility == Visibility.Collapsed) continue;
-            child.Measure(new Size(cellW, double.PositiveInfinity));
+            int rowItems = StretchLastRow && !StackColumns ? Math.Min(_columns, count - i / _columns * _columns) : _columns;
+            child.Measure(new Size(StretchLastRow && !StackColumns ? width / rowItems : cellW, double.PositiveInfinity));
             if (columnHeights != null)
             {
                 columnHeights[i++ % _columns] += child.DesiredSize.Height;
@@ -122,9 +134,10 @@ public sealed class AdaptiveUniformGrid : Panel
         {
             var items = visible.Skip(row * _columns).Take(_columns).ToList();
             double h = items.Max(c => c.DesiredSize.Height);
+            double rowCellW = StretchLastRow ? finalSize.Width / items.Count : cellW;
             for (int col = 0; col < items.Count; col++)
             {
-                items[col].Arrange(new Rect(col * cellW, y, cellW, h));
+                items[col].Arrange(new Rect(col * rowCellW, y, rowCellW, h));
             }
             y += h;
         }

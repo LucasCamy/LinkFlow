@@ -5,6 +5,20 @@
              xmlns:c="clr-namespace:LinkFlow.App.Controls"
              xmlns:vm="clr-namespace:LinkFlow.App.ViewModels">
     <UserControl.Resources>
+        <Style x:Key="LcdChoiceChip" TargetType="ToggleButton" BasedOn="{StaticResource Chip}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+        </Style>
+        <Style x:Key="LcdTextChoiceChip" TargetType="ToggleButton" BasedOn="{StaticResource LcdChoiceChip}">
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <DataTemplate x:Key="LcdPreviewPanel">
             <Border Style="{StaticResource SystemPanel}" AllowDrop="True" Drop="Media_Drop" DragOver="Media_DragOver">
                 <StackPanel>
@@ -98,12 +112,12 @@
                                 <Border Style="{StaticResource SystemPanel}" Margin="0,0,0,12">
                                     <StackPanel>
                                         <TextBlock Text="{x:Static r:Strings.Lcd_ModoExibicao}" Style="{StaticResource SystemSectionTitle}" Margin="0,0,0,12"/>
-                                        <WrapPanel Margin="0,0,-8,-8">
-                                            <ToggleButton Style="{StaticResource Chip}" Content="{x:Static r:Strings.Lcd_Telemetria}" Command="{Binding SetLcdModeCommand}" CommandParameter="Metrics"
+                                        <c:AdaptiveUniformGrid MinItemWidth="128" MaxColumns="2" StretchLastRow="True" Margin="0,0,-8,-8">
+                                            <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="{x:Static r:Strings.Lcd_Telemetria}" Command="{Binding SetLcdModeCommand}" CommandParameter="Metrics"
                                                           IsChecked="{Binding IsLcdMetricsMode, Mode=OneWay}" AutomationProperties.Name="{x:Static r:Strings.Lcd_MostrarTelemetria}"/>
-                                            <ToggleButton Style="{StaticResource Chip}" Content="{x:Static r:Strings.Lcd_ImagemOuGIF}" Command="{Binding SetLcdModeCommand}" CommandParameter="Media"
+                                            <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="{x:Static r:Strings.Lcd_ImagemOuGIF}" Command="{Binding SetLcdModeCommand}" CommandParameter="Media"
                                                           IsChecked="{Binding IsLcdMediaMode, Mode=OneWay}" AutomationProperties.Name="{x:Static r:Strings.Lcd_MostrarImagemOuGIF}"/>
-                                        </WrapPanel>
+                                        </c:AdaptiveUniformGrid>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource SystemPanel}" Visibility="{Binding IsLcdMetricsMode, Converter={StaticResource BoolToVis}}">
@@ -130,23 +144,27 @@
                                         </c:AdaptiveUniformGrid>
 
                                         <TextBlock Text="{x:Static r:Strings.Lcd_InformacoesSecundarias}" Style="{StaticResource Label}" Margin="0,4,0,6"/>
-                                        <ItemsControl ItemsSource="{Binding LcdSecondaryChoices}" Focusable="False">
+                                        <ItemsControl ItemsSource="{Binding LcdSecondaryChoices}" Focusable="False" Margin="0,0,-8,0">
                                             <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                <ItemsPanelTemplate><c:AdaptiveUniformGrid MinItemWidth="118" MaxColumns="6" StretchLastRow="True"/></ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                                    <ToggleButton Style="{StaticResource LcdChoiceChip}" IsChecked="{Binding IsSelected, Mode=OneWay}"
                                                                   Command="{Binding DataContext.ToggleSecondaryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                   CommandParameter="{Binding Metric}">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
                                                             <Border Width="17" Height="17" CornerRadius="8.5" Background="{StaticResource AccentBrush}" Margin="0,0,7,0"
                                                                     Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}">
                                                                 <TextBlock Text="{Binding OrderText}" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource OnAccentBrush}"
                                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
-                                                            <TextBlock Text="{Binding Label}"/>
-                                                        </StackPanel>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Label}" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Grid>
                                                     </ToggleButton>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
@@ -291,12 +309,12 @@
                                         </ItemsControl>
 
                                         <TextBlock Text="{x:Static r:Strings.Lcd_AjusteImagem}" Style="{StaticResource Label}" Margin="0,8,0,6"/>
-                                        <WrapPanel>
-                                            <ToggleButton Style="{StaticResource Chip}" Content="{x:Static r:Strings.Lcd_PreencherCirculo}" Command="{Binding SetLcdFitCommand}" CommandParameter="Cover"
+                                        <c:AdaptiveUniformGrid MinItemWidth="140" MaxColumns="2" StretchLastRow="True" Margin="0,0,-8,0">
+                                            <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="{x:Static r:Strings.Lcd_PreencherCirculo}" Command="{Binding SetLcdFitCommand}" CommandParameter="Cover"
                                                           IsChecked="{Binding LcdFitCover, Mode=OneWay}" ToolTip="{x:Static r:Strings.Lcd_CortaBordasOcuparTela}"/>
-                                            <ToggleButton Style="{StaticResource Chip}" Content="{x:Static r:Strings.Lcd_MostrarInteira}" Command="{Binding SetLcdFitCommand}" CommandParameter="Contain"
+                                            <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="{x:Static r:Strings.Lcd_MostrarInteira}" Command="{Binding SetLcdFitCommand}" CommandParameter="Contain"
                                                           IsChecked="{Binding LcdFitContain, Mode=OneWay}" ToolTip="{x:Static r:Strings.Lcd_MostraImagemTodaBordas}"/>
-                                        </WrapPanel>
+                                        </c:AdaptiveUniformGrid>
 
                                         <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding LcdMediaOverlay}" Margin="0,8,0,0">
                                             <StackPanel>
@@ -333,16 +351,16 @@
                                     </DockPanel>
 
                                     <TextBlock Text="{x:Static r:Strings.Lcd_Rotacao}" Style="{StaticResource Label}" Margin="0,16,0,6"/>
-                                    <WrapPanel>
-                                        <ToggleButton Style="{StaticResource Chip}" Content="0°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="0"
+                                    <c:AdaptiveUniformGrid MinItemWidth="64" MaxColumns="4" StretchLastRow="True" Margin="0,0,-8,0">
+                                        <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="0°" Command="{Binding SetLcdRotationCommand}" CommandParameter="0"
                                                       IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=0}"/>
-                                        <ToggleButton Style="{StaticResource Chip}" Content="90°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="90"
+                                        <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="90°" Command="{Binding SetLcdRotationCommand}" CommandParameter="90"
                                                       IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=90}"/>
-                                        <ToggleButton Style="{StaticResource Chip}" Content="180°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="180"
+                                        <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="180°" Command="{Binding SetLcdRotationCommand}" CommandParameter="180"
                                                       IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=180}"/>
-                                        <ToggleButton Style="{StaticResource Chip}" Content="270°" MinWidth="46" Command="{Binding SetLcdRotationCommand}" CommandParameter="270"
+                                        <ToggleButton Style="{StaticResource LcdTextChoiceChip}" Content="270°" Command="{Binding SetLcdRotationCommand}" CommandParameter="270"
                                                       IsChecked="{Binding LcdRotation, Mode=OneWay, Converter={StaticResource EqualsConverter}, ConverterParameter=270}"/>
-                                    </WrapPanel>
+                                    </c:AdaptiveUniformGrid>
                                     <TextBlock Text="{x:Static r:Strings.Lcd_PreviaAcompanhaOrientacaoEscolhida}" Style="{StaticResource Caption}"/>
 
                                     <Border Height="1" Background="{StaticResource BorderBrush}" Margin="0,14"/>

@@ -314,8 +314,8 @@ public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
             if (!WriteRegister((ushort)(register + channel), color[channel])) return false;
         }
 
-        // O barramento I²C da GPU fica ocupado por instantes (NVAPI -1): uma falha do bloco não prova que o
-        // controlador não aceita bloco. Só troca de vez (3x mais transferências) se o bloco falhar seguido.
+        // NVAPI_ERROR (-1) é genérico: sozinho, não comprova barramento ocupado nem falta de suporte a blocos.
+        // Só adota a alternativa byte a byte (3x mais transferências) após falhas consecutivas de bloco.
         if (!_byteWrites && ++_blockWriteFailures >= BlockFailuresBeforeByteWrites)
         {
             _byteWrites = true;
