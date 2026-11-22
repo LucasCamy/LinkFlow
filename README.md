@@ -4,7 +4,7 @@
 
 Fan, pump, RGB and LCD control for **Corsair iCUE LINK**, with CPU/GPU monitoring (LibreHardwareMonitor) and RGB sync for the graphics card (ASUS Aura), the motherboard (MSI Mystic Light), Corsair DDR5 memory and Logitech G peripherals.
 
-This README describes **3.2.3**. Development artifacts and official signed distributions are separate channels.
+This README describes **3.2.4**. Development artifacts and official signed distributions are separate channels.
 
 ## Highlights
 
@@ -33,6 +33,8 @@ This README describes **3.2.3**. Development artifacts and official signed distr
 **Dashboard → Control & history** shows protection status, reading quality, active/saved configuration revisions, storage status, and requested/controller-accepted/measured fan control. Each sensor carries its source, last successful observation, age and validity: valid, stale, unavailable, invalid or unsupported. Missing RPM is unknown, not a measured stopped fan; LCD modules do not offer speed control.
 
 CPU/GPU temperature readings from the supported LibreHardwareMonitor provider must be assigned during the current update. A retained positive value does not renew the successful-observation timestamp; assigning the same temperature again does. This check uses managed provider state without extra hardware queries. It does not independently calibrate physical sensors or prove a native acquisition for every other provider metric.
+
+GPU RGB diagnostics retain up to eight native failure contexts, with explicit counts for contexts not yet received and details evicted from that temporary window. Healthy worker replies do not repeat the history. These records help investigate NVAPI refusals without extra SDK calls; accepted output still does not prove emitted light. See [3.2.4 release notes](docs/releases/3.2.4.md) for retention and evidence limits.
 
 - **Independent protection** checks acquisition freshness even when a sensor reader fails or stalls. Initialization has its own watchdog coverage; partial loss of hub RPM is tracked separately from temperatures.
 - **Explicit curve fallback** is configured in **Fans** for the global or group curve. The default uses protective speed and reports a missing selected source. Optional CPU/GPU or CPU/GPU/coolant substitution has a protective minimum and a visible indication. Safety mode takes priority.

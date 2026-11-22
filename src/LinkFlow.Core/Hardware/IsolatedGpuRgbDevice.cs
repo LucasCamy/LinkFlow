@@ -12,11 +12,12 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
     private readonly Func<IGpuRgbWorkerSession> _start;
     private IGpuRgbWorkerSession? _session;
     private RgbControlStatus? _childStatus;
+    private RgbNativeFailureHistory? _failureHistory;
     private RgbControlStatus _published = new();
     private bool _disposed, _faulted, _hadWorker;
     private int? _processId;
     private long _generation, _requestId, _restarts, _transportFailures;
-    private long _nativeFailures, _outputFailures, _initializations, _consecutiveFailures, _nativeSequence, _sequenceBase;
+    private long _nativeFailures, _outputFailures, _initializations, _consecutiveFailures, _nativeSequence, _sequenceBase, _failureOrdinalBase;
     private string? _restartReason, _replacementReason, _lastWorkerFailure;
     private DateTimeOffset? _lastWorkerFailureUtc;
 
@@ -62,6 +63,7 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
                 }
                 _generation++;
                 _sequenceBase = _nativeSequence;
+                _failureOrdinalBase = _nativeFailures;
                 _childStatus = null;
                 _session = _start() ?? throw new InvalidOperationException("The RGB worker factory returned no session.");
                 _faulted = false;
@@ -141,7 +143,12 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
     {
         var raw = reply.Status;
         var old = ControlStatus;
-        _nativeFailures = Add(_nativeFailures, raw.TotalNativeFailures - (_childStatus?.TotalNativeFailures ?? 0));
+        long nextNativeFailures = Add(_nativeFailures, raw.TotalNativeFailures - (_childStatus?.TotalNativeFailures ?? 0));
+        var nextHistory = GpuRgbNativeFailureHistory.Merge(_failureHistory, _nativeFailures, nextNativeFailures,
+            reply.NativeFailureBatch, _sequenceBase, _failureOrdinalBase, raw.LastNativeFailure, old.LastNativeFailure);
+        // Validation and the complete immutable history merge succeeded before advancing any acknowledgement counters.
+        _nativeFailures = nextNativeFailures;
+        _failureHistory = nextHistory;
         _outputFailures = Add(_outputFailures, raw.TotalOutputFailures - (_childStatus?.TotalOutputFailures ?? 0));
         _nativeSequence = Add(_sequenceBase, raw.LastNativeOperation?.Sequence ?? 0);
         if (isColor)
@@ -220,11 +227,12 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
         TotalOutputFailures = _outputFailures, ConsecutiveOutputFailures = _consecutiveFailures,
         WorkerProcessId = _processId, WorkerGeneration = _generation, WorkerRestartCount = _restarts,
         WorkerTransportFailures = _transportFailures, LastWorkerRestartReason = _restartReason,
-        LastWorkerFailureUtc = _lastWorkerFailureUtc, LastWorkerFailure = _lastWorkerFailure
+        LastWorkerFailureUtc = _lastWorkerFailureUtc, LastWorkerFailure = _lastWorkerFailure,
+        NativeFailureHistory = _failureHistory
     });
 
     private RgbNativeOperationResult? Map(RgbNativeOperationResult? operation) => operation == null ? null
-        : operation with { Sequence = Add(_sequenceBase, operation.Sequence) };
+        : GpuRgbNativeFailureHistory.Map(operation, _sequenceBase, _failureOrdinalBase);
 
     private void Validate(GpuRgbWorkerReply? reply, GpuRgbWorkerRequest request)
     {
@@ -246,8 +254,10 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
             sequence - previousSequence > 8192 ||
             sequence == previousSequence && s.LastNativeOperation != _childStatus?.LastNativeOperation ||
             s.TotalNativeFailures > sequence || (s.TotalNativeFailures > 0) != (s.LastNativeFailure != null) ||
-            s.LastNativeFailure is { } failure && (failure.Status == 0 || failure.Sequence > sequence) ||
+            s.LastNativeFailure is { } failure && (failure.Status == 0 || failure.Sequence > sequence ||
+                failure.FailureOrdinal != 0 && failure.FailureOrdinal != s.TotalNativeFailures) ||
             s.LastNativeFailure is { } lastFailure && lastFailure.Sequence == sequence && lastFailure != s.LastNativeOperation ||
+            s.LastNativeOperation is { Status: not 0 } lastOperation && lastOperation != s.LastNativeFailure ||
             s.LastOutputAcceptedNativeSequence is { } acceptedSequence && (acceptedSequence <= 0 || acceptedSequence > sequence) ||
             s.ControlAvailable && (s.ControllerName.Length == 0 || s.ControllerLedCount == 0 || s.AdapterObservation != RgbAdapterObservation.Present || s.InitializationRetryNeeded) ||
             !ValidDate(s.LastAdapterEnumerationUtc) || !ValidDate(s.LastAdapterSeenUtc) || !ValidDate(s.LastOutputAttemptUtc) || !ValidDate(s.LastOutputAcceptedUtc) ||
@@ -282,6 +292,8 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
             reply.Accepted && (!s.ControlAvailable || s.LastOutputAcceptedUtc == null ||
                 s.LastOutputAcceptedNativeSequence != sequence || sequence <= previousSequence))
             throw new InvalidDataException("The RGB color reply does not confirm this exact output.");
+
+        GpuRgbNativeFailureHistory.Validate(reply.NativeFailureBatch, s, ValidNative, _childStatus);
     }
 
     private static bool ValidText(EngineText? text, int depth, ref int budget)
@@ -302,7 +314,8 @@ public sealed class IsolatedGpuRgbDevice : IRgbDevice, IRgbControlStatusProvider
     private bool ValidNative(RgbNativeOperationResult? operation)
     {
         if (operation == null) return true;
-        if (operation.Sequence <= 0 || operation.AtUtc == default || !Enum.IsDefined(operation.Operation)) return false;
+        if (operation.Sequence <= 0 || operation.FailureOrdinal < 0 || operation.Status == 0 && operation.FailureOrdinal != 0 ||
+            operation.AtUtc == default || !Enum.IsDefined(operation.Operation)) return false;
         if (operation.ProcessId is { } pid && (pid <= 0 || pid != _processId)) return false;
         if (operation.ThreadId is <= 0) return false;
         if (operation.GpuHandle is { } handle && (handle.Length != 16 ||

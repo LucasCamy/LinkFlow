@@ -60,6 +60,7 @@ public static class GpuRgbWorkerHost
     {
         IRgbDevice? device = null;
         long generation = 0, lastRequestId = 0;
+        long? sentFailureTotal = null;
         try
         {
             while (!token.IsCancellationRequested)
@@ -89,10 +90,20 @@ public static class GpuRgbWorkerHost
                     LastOutputAccepted = request.Operation == GpuRgbWorkerProtocol.Color ? accepted : null,
                     DiagnosticText = device.DiagnosticText
                 };
-                await GpuRgbWorkerFraming.WriteAsync(output, new GpuRgbWorkerReply
+                // The provider caches this immutable window on failure, never on a successful native transfer.
+                // Send a supported baseline once, then only a changed failure window. Healthy replies omit it.
+                var history = status.NativeFailureHistory;
+                var batch = history != null && sentFailureTotal != history.TotalFailures ? new GpuRgbNativeFailureBatch
                 {
-                    Generation = generation, RequestId = request.RequestId, Accepted = accepted, Status = status
-                }, GpuRgbWorkerProtocol.MaximumReplyBytes, token).ConfigureAwait(false);
+                    TotalFailures = history.TotalFailures, RingEvictedCount = history.EvictedCount,
+                    Records = history.Records
+                } : null;
+                await GpuRgbWorkerFraming.WriteReplyAsync(output, new GpuRgbWorkerReply
+                {
+                    Generation = generation, RequestId = request.RequestId, Accepted = accepted,
+                    Status = history == null ? status : status with { NativeFailureHistory = null }, NativeFailureBatch = batch
+                }, token).ConfigureAwait(false);
+                if (history != null) sentFailureTotal = history.TotalFailures;
             }
             return 0;
         }

@@ -43,6 +43,10 @@ public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
     private long _initializationAttempts, _nativeFailures, _outputFailures, _consecutiveOutputFailures, _nativeSequence;
     private long? _lastOutputAcceptedNativeSequence;
     private RgbNativeOperationResult? _lastNativeOperation, _lastNativeFailure;
+    private readonly RgbNativeOperationResult?[] _nativeFailureRing = new RgbNativeOperationResult?[RgbNativeFailureHistory.MaximumRecords];
+    private int _nativeFailureHead, _nativeFailureCount;
+    private bool _nativeFailureHistoryDirty;
+    private RgbNativeFailureHistory _nativeFailureHistory = new();
     private RgbControlStatus _published = new();
     private bool _directConfigured;
     private bool _byteWrites;
@@ -396,9 +400,11 @@ public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
         double? transferDurationMicroseconds = null, string? gpuHandle = null)
     {
         Increment(ref _nativeSequence);
+        if (status != 0) Increment(ref _nativeFailures);
         var completed = new RgbNativeOperationResult
         {
             Sequence = _nativeSequence, AtUtc = DateTimeOffset.UtcNow, Operation = operation, Status = status,
+            FailureOrdinal = status == 0 ? 0 : _nativeFailures,
             Register = register, Command = command, ProcessId = Environment.ProcessId,
             ThreadId = Environment.CurrentManagedThreadId, GpuHandle = gpuHandle,
             TransferDurationMicroseconds = transferDurationMicroseconds, LibraryVersion = CachedLibraryVersion()
@@ -406,7 +412,18 @@ public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
         _lastNativeOperation = completed;
         if (status == 0) return;
         _lastNativeFailure = completed;
-        Increment(ref _nativeFailures);
+        // Only failures touch the bounded ring. Successful transfers do not clone or serialize history.
+        if (_nativeFailureCount == 0 || _nativeFailureRing[(_nativeFailureHead + _nativeFailureCount - 1) % _nativeFailureRing.Length]!.FailureOrdinal < completed.FailureOrdinal)
+        {
+            if (_nativeFailureCount < _nativeFailureRing.Length)
+                _nativeFailureRing[(_nativeFailureHead + _nativeFailureCount++) % _nativeFailureRing.Length] = completed;
+            else
+            {
+                _nativeFailureRing[_nativeFailureHead] = completed;
+                _nativeFailureHead = (_nativeFailureHead + 1) % _nativeFailureRing.Length;
+            }
+            _nativeFailureHistoryDirty = true;
+        }
     }
 
     private string? CachedLibraryVersion()
@@ -420,6 +437,19 @@ public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
         catch (Exception) { return null; } // A diagnostic-only getter must never mask a completed native result.
     }
 
+    private RgbNativeFailureHistory FailureHistory()
+    {
+        if (!_nativeFailureHistoryDirty) return _nativeFailureHistory;
+        var records = new RgbNativeOperationResult[_nativeFailureCount];
+        for (int i = 0; i < records.Length; i++) records[i] = _nativeFailureRing[(_nativeFailureHead + i) % _nativeFailureRing.Length]!;
+        _nativeFailureHistory = new RgbNativeFailureHistory
+        {
+            TotalFailures = _nativeFailures, EvictedCount = _nativeFailures - records.Length, Records = records
+        };
+        _nativeFailureHistoryDirty = false;
+        return _nativeFailureHistory;
+    }
+
     private void Publish() => Volatile.Write(ref _published, new RgbControlStatus
     {
         ControllerName = _controllerName, ControllerLedCount = _ledCount,
@@ -430,7 +460,8 @@ public sealed partial class AsusGpuRgb : IRgbDevice, IRgbControlStatusProvider
         LastOutputAcceptedNativeSequence = _lastOutputAcceptedNativeSequence,
         ConsecutiveOutputFailures = _consecutiveOutputFailures, TotalOutputFailures = _outputFailures,
         TotalNativeFailures = _nativeFailures, InitializationAttempts = _initializationAttempts,
-        LastNativeOperation = _lastNativeOperation, LastNativeFailure = _lastNativeFailure, DiagnosticText = _diagnostic
+        LastNativeOperation = _lastNativeOperation, LastNativeFailure = _lastNativeFailure, DiagnosticText = _diagnostic,
+        NativeFailureHistory = FailureHistory()
     });
 
     private static void Increment(ref long value) { if (value < long.MaxValue) value++; }

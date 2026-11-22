@@ -12,10 +12,16 @@ public sealed partial class OperationalHistory
     private long _gpuWorkerGeneration, _gpuWorkerRestarts, _gpuWorkerTransportFailures;
     private RgbAdapterObservation? _gpuAdapterObservation;
     private RgbFailureSignature? _gpuNativeFailureSignature;
+    // The producer exposes the most recent eight received contexts. Its validated suffix contract prevents
+    // a known context from reappearing after eviction, while still allowing an earlier missing ordinal to arrive.
+    private readonly HashSet<long> _gpuNativeJournalWindow = [];
+    private RgbNativeFailureHistory? _gpuNativeHistoryObservation;
+    private readonly Queue<RgbNativeOperationResult> _gpuLegacyFailureEventContexts = new(RgbNativeFailureHistory.MaximumRecords);
 
-    private void ObserveGpuRgbControl(EngineSnapshot snapshot, DateTimeOffset when)
+    internal void ObserveGpuRgbControl(EngineSnapshot snapshot, DateTimeOffset when)
     {
         var status = snapshot.GpuRgbControl;
+        ObserveGpuNativeFailureHistory(status, when);
         // Initialization is a pending attempt, not a completed observation of channel or adapter availability.
         // The cached snapshot still exposes the attempt, counters and retained native error to diagnostics.
         if (status?.Initializing == true) return;
@@ -90,8 +96,18 @@ public sealed partial class OperationalHistory
                 if (newFailure || _gpuNativeFailureSignature != signature)
                 {
                     if (!_gpuNativeFailureEpisode || _gpuNativeFailureSignature != signature)
+                    {
                         changes.Add(("rgb.transport.failed", "GPU RGB native transport call failed; adapter presence and physical output are not verified by this failure",
                             AlertSeverity.Warning, null));
+                        // Retain only the context actually offered to the legacy episode event. The latest
+                        // observed/coalesced fault can be newer and must not be mistaken for journal evidence.
+                        if (status.NativeFailureHistory == null || fault.FailureOrdinal == 0)
+                        {
+                            if (_gpuLegacyFailureEventContexts.Count == RgbNativeFailureHistory.MaximumRecords)
+                                _gpuLegacyFailureEventContexts.Dequeue();
+                            _gpuLegacyFailureEventContexts.Enqueue(fault);
+                        }
+                    }
                     _gpuLastObservedFailureUtc = fault.AtUtc;
                     _gpuLastObservedFailureSequence = fault.Sequence;
                     _gpuNativeFailureSignature = signature;
@@ -121,11 +137,103 @@ public sealed partial class OperationalHistory
         }
     }
 
+    private void ObserveGpuNativeFailureHistory(RgbControlStatus? status, DateTimeOffset when)
+    {
+        if (status?.NativeFailureHistory is not { } history) return; // Preserve the existing legacy episode path.
+        List<RgbNativeOperationResult> offered = [];
+        Dictionary<string, string>? historyData = null;
+        lock (_gate)
+        {
+            var previous = _gpuNativeHistoryObservation;
+            // A delayed snapshot must not rewind the window and make its replacement replay known details.
+            // At a fixed total, received contexts can only increase; MissingCount is a decreasing gauge.
+            if (previous != null && (history.TotalFailures < previous.TotalFailures || history.EvictedCount < previous.EvictedCount ||
+                history.TotalFailures == previous.TotalFailures && history.MissingCount > previous.MissingCount)) return;
+
+            var records = history.Records.Where(f => f.Status != 0 && f.FailureOrdinal > 0)
+                .DistinctBy(f => f.FailureOrdinal).Take(RgbNativeFailureHistory.MaximumRecords).ToList();
+            // A supported provider can still deliver the latest context when the optional batch was omitted.
+            // Never exceed eight offered records, nor turn an out-of-window retained detail into a replay.
+            if (records.Count < RgbNativeFailureHistory.MaximumRecords && status.LastNativeFailure is { Status: not 0, FailureOrdinal: > 0 } latest &&
+                !records.Any(f => f.FailureOrdinal == latest.FailureOrdinal) &&
+                (records.Count == 0 || latest.FailureOrdinal >= records.Max(f => f.FailureOrdinal)))
+                records.Add(latest);
+
+            int legacyContexts = 0;
+            foreach (var record in records.OrderBy(f => f.FailureOrdinal))
+            {
+                if (_gpuNativeJournalWindow.Contains(record.FailureOrdinal)) continue;
+                if (_gpuLegacyFailureEventContexts.Any(legacy => SameGpuFailureContext(legacy, record)))
+                    legacyContexts++;
+                else offered.Add(record);
+            }
+            // Unlike a single high-water mark, the set admits late lower ordinals. It retains only the
+            // current bounded window; a healthy unchanged snapshot therefore cannot replay its contexts.
+            _gpuNativeJournalWindow.Clear();
+            _gpuNativeJournalWindow.UnionWith(records.Select(f => f.FailureOrdinal));
+
+            bool changed = previous == null || history.TotalFailures != previous.TotalFailures ||
+                history.EvictedCount != previous.EvictedCount || history.MissingCount != previous.MissingCount ||
+                history.Records.Count != previous.Records.Count || offered.Count > 0 || legacyContexts > 0;
+            if (changed)
+            {
+                historyData = new(StringComparer.Ordinal)
+                {
+                    ["evidence"] = "cached-native-failure-history",
+                    ["observedAtUtc"] = when.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+                    ["nativeHistoryCapacity"] = history.Capacity.ToString(CultureInfo.InvariantCulture),
+                    ["totalNativeFailures"] = history.TotalFailures.ToString(CultureInfo.InvariantCulture),
+                    ["nativeHistoryRetained"] = history.Records.Count.ToString(CultureInfo.InvariantCulture),
+                    ["nativeHistoryEvicted"] = history.EvictedCount.ToString(CultureInfo.InvariantCulture),
+                    ["nativeHistoryMissing"] = history.MissingCount.ToString(CultureInfo.InvariantCulture),
+                    ["firstObservation"] = previous == null ? "true" : "false",
+                    ["nativeRecordEventsOffered"] = offered.Count.ToString(CultureInfo.InvariantCulture),
+                    ["legacyContextEventsAlreadyOffered"] = legacyContexts.ToString(CultureInfo.InvariantCulture),
+                    ["evictionMeaning"] = "received-context-left-window;not-automatic-loss",
+                    ["missingMeaning"] = "context-not-yet-received-by-parent;gauge",
+                    ["journalDelivery"] = "enqueue-attempt;not-persistence-confirmation",
+                    ["physicalConnection"] = "unverified", ["physicalOutput"] = "unverified"
+                };
+                if (previous != null)
+                {
+                    historyData["nativeFailureTotalChange"] = (history.TotalFailures - previous.TotalFailures).ToString(CultureInfo.InvariantCulture);
+                    historyData["evictedChange"] = (history.EvictedCount - previous.EvictedCount).ToString(CultureInfo.InvariantCulture);
+                    historyData["missingChange"] = (history.MissingCount - previous.MissingCount).ToString(CultureInfo.InvariantCulture);
+                }
+                if (status.WorkerGeneration > 0) historyData["workerGeneration"] = status.WorkerGeneration.ToString(CultureInfo.InvariantCulture);
+                if (status.WorkerProcessId is { } processId) historyData["workerProcessId"] = processId.ToString(CultureInfo.InvariantCulture);
+            }
+            _gpuNativeHistoryObservation = history;
+        }
+
+        foreach (var record in offered)
+        {
+            var data = GpuRgbEventData(status, status.ControlAvailable, status.LastOutputAccepted, record);
+            data["evidence"] = "cached-native-failure-history-record";
+            data["observedAtUtc"] = when.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+            data["journalDelivery"] = "enqueue-attempt;not-persistence-confirmation";
+            // Journal time is observation time. Native UTC remains precise metadata even for late context or
+            // regressing clocks, so an arriving detail does not silently move into an old persisted segment.
+            RecordEvent(new() { TimestampUtc = when, DeviceId = "rgb.gpu", Source = "engine", Kind = "rgb.native.failure",
+                Severity = AlertSeverity.Info, Message = "GPU RGB native failure context received; adapter state and emitted light are separate evidence",
+                Data = BoundedGpuRgbEventData(data, "rgb.native.failure") });
+        }
+        if (historyData != null)
+            RecordEvent(new() { TimestampUtc = when, DeviceId = "rgb.gpu", Source = "engine", Kind = "rgb.native.history",
+                Severity = AlertSeverity.Info, Message = "GPU RGB native context window changed; reception, eviction and journal persistence are distinct",
+                Data = historyData });
+    }
+
+    private static bool SameGpuFailureContext(RgbNativeOperationResult previous, RgbNativeOperationResult current) =>
+        previous.Sequence > 0 && current.Sequence > 0 ? previous.Sequence == current.Sequence :
+        previous.AtUtc == current.AtUtc && previous.Operation == current.Operation && previous.Status == current.Status &&
+        previous.Register == current.Register && previous.Command == current.Command;
+
     // RecordEvent retains24 pairs. Select deliberately rather than losing the tail of the native failure context.
     private static readonly string[] GpuEventBasePriority =
-        ["evidence", "controlAvailable", "outputAccepted", "physicalConnection", "physicalOutput", "recoverySeconds"];
+        ["evidence", "controlAvailable", "outputAccepted", "physicalConnection", "physicalOutput", "recoverySeconds", "observedAtUtc", "journalDelivery"];
     private static readonly string[] GpuEventNativePriority =
-        ["nativeOperation", "nativeStatus", "nativeFailureUtc", "nativeFailureSequence", "nativeRegister", "nativeCommand",
+        ["nativeOperation", "nativeStatus", "nativeFailureUtc", "nativeFailureOrdinal", "nativeFailureSequence", "nativeRegister", "nativeCommand",
          "nativeProcessId", "nativeThreadId", "nativeGpuHandle", "nativeTransferDurationMicroseconds", "nativeLibraryVersion",
          "nativeThreadIdKind", "nativeTransferTimingScope"];
     private static readonly string[] GpuEventWorkerPriority =
@@ -162,7 +270,8 @@ public sealed partial class OperationalHistory
         return selected;
     }
 
-    private static Dictionary<string, string> GpuRgbEventData(RgbControlStatus? status, bool available, bool? accepted)
+    private static Dictionary<string, string> GpuRgbEventData(RgbControlStatus? status, bool available, bool? accepted,
+        RgbNativeOperationResult? nativeFault = null)
     {
         var data = new Dictionary<string, string>
         {
@@ -195,11 +304,12 @@ public sealed partial class OperationalHistory
         if (status.LastOutputAcceptedNativeSequence is > 0)
             data["outputAcceptedNativeSequence"] = status.LastOutputAcceptedNativeSequence.Value.ToString(CultureInfo.InvariantCulture);
         if (status.Diagnostic is { } diagnostic) data["diagnostic"] = Limit(diagnostic, 512);
-        if (status.LastNativeFailure is { } fault)
+        if ((nativeFault ?? status.LastNativeFailure) is { } fault)
         {
             data["nativeOperation"] = fault.Operation.ToString();
             data["nativeStatus"] = fault.Status.ToString(CultureInfo.InvariantCulture);
             data["nativeFailureUtc"] = fault.AtUtc.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+            if (fault.FailureOrdinal > 0) data["nativeFailureOrdinal"] = fault.FailureOrdinal.ToString(CultureInfo.InvariantCulture);
             if (fault.Sequence > 0) data["nativeFailureSequence"] = fault.Sequence.ToString(CultureInfo.InvariantCulture);
             if (fault.Register is { } register) data["nativeRegister"] = "0x" + register.ToString("X4", CultureInfo.InvariantCulture);
             if (fault.Command is { } command) data["nativeCommand"] = "0x" + command.ToString("X2", CultureInfo.InvariantCulture);
