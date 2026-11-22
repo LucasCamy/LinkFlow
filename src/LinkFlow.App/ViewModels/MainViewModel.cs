@@ -17,6 +17,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly Dispatcher _dispatcher;
     private EngineSnapshot? _pendingSnapshot;
     private int _snapshotQueued;
+    private int _disposed;
     private bool _loadingConfig;
 
     // Configuração espelhada
@@ -39,7 +40,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SyncLcdLanguage();
 
         _engine.SnapshotUpdated += OnSnapshot;
-        _engine.ConfigChanged += c => _dispatcher.BeginInvoke(() => LoadConfig(c));
+        _engine.ConfigChanged += OnConfigChanged;
         _engine.AlertRaised += OnEngineAlert;
         _engine.ConnectionChanged += OnEngineConnectionChanged;
 
@@ -64,14 +65,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private void OnSnapshot(EngineSnapshot s)
     {
+        if (Volatile.Read(ref _disposed) != 0) return;
         // Coalescência: se a UI estiver ocupada, só o snapshot mais recente é aplicado
         _pendingSnapshot = s;
         if (Interlocked.Exchange(ref _snapshotQueued, 1) == 1) return;
         _dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
         {
             Interlocked.Exchange(ref _snapshotQueued, 0);
-            if (_pendingSnapshot is { } latest) ApplySnapshot(latest);
+            var latest = Interlocked.Exchange(ref _pendingSnapshot, null);
+            if (Volatile.Read(ref _disposed) == 0 && latest != null) ApplySnapshot(latest);
         });
+    }
+
+    private void OnConfigChanged(ControlConfig config)
+    {
+        if (Volatile.Read(ref _disposed) != 0) return;
+        _dispatcher.BeginInvoke(() => { if (Volatile.Read(ref _disposed) == 0) LoadConfig(config); });
     }
 
     private bool _isViewActive = true;
@@ -136,12 +145,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private void OnEngineAlert(EngineAlert alert) => _dispatcher.BeginInvoke(() =>
     {
+        if (Volatile.Read(ref _disposed) != 0) return;
         AlertCenter.Record(alert);
         AlertRaised?.Invoke(alert);
     });
 
     private void OnEngineConnectionChanged(bool connected) => _dispatcher.BeginInvoke(() =>
     {
+        if (Volatile.Read(ref _disposed) != 0) return;
         OnPropertiesChanged(nameof(EngineModeLabel), nameof(IsEngineDisconnected), nameof(CanControl), nameof(CanImportBackup));
         AlertCenter.Update(Snapshot, IsEngineDisconnected);
         NotifyLightingStatus();
@@ -527,12 +538,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
         DisposeUiWork();
         DisposeOperations();
         DisposeFleet();
         _engine.SnapshotUpdated -= OnSnapshot;
+        _engine.ConfigChanged -= OnConfigChanged;
         _engine.AlertRaised -= OnEngineAlert;
         _engine.ConnectionChanged -= OnEngineConnectionChanged;
+        Interlocked.Exchange(ref _pendingSnapshot, null);
         GC.SuppressFinalize(this);
     }
 }

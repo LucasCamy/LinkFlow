@@ -42,6 +42,10 @@ public partial class MainViewModel
     {
         if (_uiWorkStopped) return;
         _uiWorkStopped = true;
+        _curveTestTimer?.Stop();
+        _toastTimer?.Stop();
+        _recentTimer?.Stop();
+        _rescanTimer?.Stop();
         _uiWorkLifetime.Cancel();
         _lcdThumbnailLoader?.Dispose();
         _uiWorkLifetime.Dispose();

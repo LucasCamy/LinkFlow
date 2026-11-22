@@ -21,6 +21,10 @@ public partial class WindowsNetworkPage : UserControl
             string.Format(Strings.Win_AteOuMiBDirecao, NetworkSpeedTest.SecondsPerDirection, NetworkSpeedTest.LimitMiBPerDirection);
         GaugeTrack.Data = GaugeArc(1);
         ResetGauge();
+        // Views remain mounted when navigation collapses them. Cancel an
+        // explicitly started transfer as soon as its page is no longer visible.
+        IsVisibleChanged += (_, _) => { if (!IsVisible) CancelActiveTest(); };
+        Unloaded += (_, _) => CancelActiveTest();
     }
 
     private async void StartNetwork_Click(object sender, RoutedEventArgs e)
@@ -96,13 +100,17 @@ public partial class WindowsNetworkPage : UserControl
         }
     }
 
-    private void CancelNetwork_Click(object sender, RoutedEventArgs e)
+    private void CancelNetwork_Click(object sender, RoutedEventArgs e) => CancelActiveTest();
+
+    private void CancelActiveTest()
     {
-        if (_activeTest is null || _activeTest.IsCancellationRequested) return;
+        var test = _activeTest;
+        if (test is null || test.IsCancellationRequested) return;
         ResetGauge();
         ClearStageInProgress();
         NetworkStatus.Text = Strings.Win_CancelandoTeste;
-        _activeTest.Cancel();
+        try { test.Cancel(); }
+        catch (ObjectDisposedException) { /* Completion already owns UI/CTS cleanup in finally. */ }
     }
 
     private void ClearStageInProgress()

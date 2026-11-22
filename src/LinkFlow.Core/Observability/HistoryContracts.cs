@@ -47,6 +47,7 @@ public sealed class EventQuery
     public string? Kind { get; set; }
     public string? Source { get; set; }
     public string? DeviceId { get; set; }
+    /// <summary>Newest UTC timestamp first; ordinal Id breaks timestamp ties deterministically, not chronologically.</summary>
     public int MaxItems { get; set; } = 200;
 }
 
@@ -108,7 +109,7 @@ public sealed record HistoryQueryExecution
     public bool Succeeded { get; init; }
 }
 
-/// <summary>Bounded counters for history-series queries; event/session queries are separate.</summary>
+/// <summary>Bounded counters for one query category; series/events use separate instances.</summary>
 public sealed record HistoryQueryStatistics
 {
     public long Queries { get; init; }
@@ -156,6 +157,7 @@ public sealed record HistoryStorageStatus
     public long SessionMetadataBytes { get; init; }
     public int SessionsWithUnknownStart { get; init; }
     public HistoryQueryStatistics Queries { get; init; } = new();
+    public HistoryQueryStatistics EventQueries { get; init; } = new();
 }
 
 /// <summary>A single value with its acquisition time. Missing values remain explicit observations.</summary>

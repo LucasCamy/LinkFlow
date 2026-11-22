@@ -98,7 +98,8 @@ public sealed partial class OperationalHistory : IAsyncDisposable
                 SessionMetadataError = _sessionMetadataError,
                 SessionMetadataBytes = _sessionMetadataBytes,
                 SessionsWithUnknownStart = _sessions.Values.Count(s => s.StartedUtc == null),
-                Queries = QueryStatistics
+                Queries = QueryStatistics,
+                EventQueries = EventQueryStatistics
             };
         }
     }
@@ -362,21 +363,6 @@ public sealed partial class OperationalHistory : IAsyncDisposable
 
     public HistoryStatistics Summarize(HistoryQuery query, double? threshold = null) => Query(CopyQuery(query, query.SessionId, threshold ?? query.Threshold)).Statistics;
 
-    public IReadOnlyList<OperationalEvent> QueryEvents(EventQuery query)
-    {
-        if (query.ToUtc < query.FromUtc || query.ToUtc - query.FromUtc > TimeSpan.FromDays(366)) throw new ArgumentException("Invalid event range.", nameof(query));
-        var all = new Dictionary<string, OperationalEvent>(StringComparer.Ordinal);
-        foreach (var record in ReadDisk(query.FromUtc, query.ToUtc, includeFrames: false))
-            if (record.Event is { } e) all[e.Id] = e;
-        lock (_gate)
-            foreach (var e in _events) all[e.Id] = e;
-        return all.Values.Where(e => e.TimestampUtc >= query.FromUtc && e.TimestampUtc <= query.ToUtc)
-            .Where(e => query.Kind == null || e.Kind == query.Kind)
-            .Where(e => query.Source == null || e.Source == query.Source)
-            .Where(e => query.DeviceId == null || e.DeviceId == query.DeviceId)
-            .OrderByDescending(e => e.TimestampUtc).Take(Math.Clamp(query.MaxItems, 1, 2000)).Select(CloneEvent).ToArray();
-    }
-
     public IReadOnlyList<HistorySession> QuerySessions()
     {
         lock (_gate)
@@ -544,7 +530,7 @@ public sealed partial class OperationalHistory : IAsyncDisposable
         lock (_gate) TrimMemory();
     }
 
-    private IEnumerable<DiskRecord> ReadDisk(DateTimeOffset from, DateTimeOffset to, bool includeFrames = true)
+    private IEnumerable<DiskRecord> ReadDisk(DateTimeOffset from, DateTimeOffset to, bool includeFrames = true, QueryWork? work = null)
     {
         long scanMutation = Volatile.Read(ref _diskMutationVersion);
         foreach (var path in DataFiles())
@@ -552,11 +538,13 @@ public sealed partial class OperationalHistory : IAsyncDisposable
             var date = FileDate(path);
             if (date != null && (date.Value > to.UtcDateTime.Date || date.Value < from.UtcDateTime.Date)) continue;
             List<DiskRecord> records = [];
+            FileStream? stream = null;
             try
             {
-                using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
                 if (stream.Length > _options.MaxDiskBytes) continue;
-                using var reader = new StreamReader(stream, Encoding.UTF8, true);
+                if (work != null) work.FilesRead++;
+                using var reader = new StreamReader(stream, Encoding.UTF8, true, 4096, leaveOpen: true);
                 string? line;
                 int index = 0;
                 while ((line = reader.ReadLine()) != null)
@@ -565,10 +553,15 @@ public sealed partial class OperationalHistory : IAsyncDisposable
                     try
                     {
                         if (line.Length == 0) continue;
+                        if (work != null) work.RecordsScanned++;
                         if (!includeFrames && line.StartsWith("{\"type\":\"frame\"", StringComparison.Ordinal)) continue;
                         if (line.Length > MaxRecordChars) throw new JsonException("History record too large.");
                         var record = JsonSerializer.Deserialize<DiskRecord>(line, Json.Compact);
-                        if (record is { Type: "frame", Frame: { } frame } && ValidFrame(frame)) records.Add(record);
+                        if (record is { Type: "frame", Frame: { } frame } && ValidFrame(frame))
+                        {
+                            if (work != null) work.FramesDeserialized++;
+                            records.Add(record);
+                        }
                         else if (record is { Type: "event", Event: { } entry } && entry.Id is { Length: > 0 and <= 80 } &&
                             entry.Kind is { Length: > 0 and <= 100 } && entry.Source != null && entry.Message != null && entry.Data != null) records.Add(record);
                         else throw new JsonException("Invalid history record.");
@@ -588,6 +581,14 @@ public sealed partial class OperationalHistory : IAsyncDisposable
             {
                 if (ex is not FileNotFoundException || !PrunedDuring(path, scanMutation))
                 { Interlocked.Increment(ref _diskReadFailures); StorageFailure(ex); }
+            }
+            finally
+            {
+                if (stream != null)
+                {
+                    if (work != null) work.BytesRead += stream.Position;
+                    stream.Dispose();
+                }
             }
             foreach (var record in records) yield return record;
         }
@@ -660,14 +661,19 @@ public sealed partial class OperationalHistory : IAsyncDisposable
     {
         var cutoff = Now - _options.Retention;
         _frames.RemoveAll(f => { if (f.TimestampUtc >= cutoff) return false; ObserveEvictedFrame(f); return true; });
-        _events.RemoveAll(e => e.TimestampUtc < cutoff);
+        _events.RemoveAll(e => { if (e.TimestampUtc >= cutoff) return false; ObserveEvictedEvent(e); return true; });
         if (_frames.Count > _options.MaxMemoryFrames)
         {
             int remove = _frames.Count - _options.MaxMemoryFrames;
             for (int i = 0; i < remove; i++) ObserveEvictedFrame(_frames[i]);
             _frames.RemoveRange(0, remove);
         }
-        if (_events.Count > _options.MaxMemoryEvents) _events.RemoveRange(0, _events.Count - _options.MaxMemoryEvents);
+        if (_events.Count > _options.MaxMemoryEvents)
+        {
+            int remove = _events.Count - _options.MaxMemoryEvents;
+            for (int i = 0; i < remove; i++) ObserveEvictedEvent(_events[i]);
+            _events.RemoveRange(0, remove);
+        }
     }
 
     private void StorageFailure(Exception ex)
