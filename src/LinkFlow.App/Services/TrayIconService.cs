@@ -188,7 +188,7 @@ public sealed class TrayIconService : IDisposable
         float fontSize = size * (text.Length > 1 ? 0.52f : 0.62f);
         using var font = new Font("Segoe UI", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
         using var brush = new SolidBrush(fg);
-        var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+        using var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         g.DrawString(text, font, brush, new RectangleF(0, 0.5f, size, size), fmt);
         return bmp.GetHicon();
     }

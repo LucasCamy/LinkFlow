@@ -4,7 +4,7 @@
 
 Controle de ventoinhas, bomba, RGB e display LCD para **Corsair iCUE LINK**, com monitoramento de CPU/GPU (LibreHardwareMonitor), RGB da placa de vídeo (ASUS Aura) e da placa-mãe (MSI Mystic Light).
 
-Este README descreve a **3.2.1**. Os artefatos de desenvolvimento e a distribuição oficial assinada são canais separados.
+Este README descreve a **3.2.2**. Os artefatos de desenvolvimento e a distribuição oficial assinada são canais separados.
 
 ## Destaques
 

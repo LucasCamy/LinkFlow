@@ -251,7 +251,7 @@ public sealed class PipeEngineServer : IAsyncDisposable
     }
 
     /// <summary>Uma interface conectada. Escritas passam por uma fila; snapshots antigos são descartados se o cliente estiver lento.</summary>
-    private sealed class Connection : IDisposable
+    internal sealed class Connection : IDisposable
     {
         private readonly Channel<string> _reliable = Channel.CreateBounded<string>(new BoundedChannelOptions(128)
         { SingleReader = true, FullMode = BoundedChannelFullMode.Wait });
@@ -265,7 +265,7 @@ public sealed class PipeEngineServer : IAsyncDisposable
 
         internal int PendingSnapshots => Volatile.Read(ref _latestSnapshot) == null ? 0 : 1;
         public NamedPipeServerStream Pipe { get; }
-        private int _rejected;
+        private int _rejected, _disposed;
 
         /// <summary>Mensagem descartada. Só as primeiras vão como aviso: um processo insistindo não enche o log.</summary>
         public void Reject(string what)
@@ -277,6 +277,7 @@ public sealed class PipeEngineServer : IAsyncDisposable
 
         public void Enqueue(string message, bool isSnapshot = false)
         {
+            if (Volatile.Read(ref _disposed) != 0) return;
             if (isSnapshot) Interlocked.Exchange(ref _latestSnapshot, message);
             else if (PipeProtocol.TryDecode(message, out var type, out _) && type == PipeProtocol.Config)
                 Interlocked.Exchange(ref _latestConfig, message);
@@ -286,22 +287,40 @@ public sealed class PipeEngineServer : IAsyncDisposable
                 Dispose();
                 return;
             }
-            try { _signal.Release(); } catch (SemaphoreFullException) { }
+            // Dispose can race the coalesced assignment above; never retain a new payload after closure.
+            if (Volatile.Read(ref _disposed) != 0)
+            {
+                Interlocked.Exchange(ref _latestConfig, null);
+                Interlocked.Exchange(ref _latestSnapshot, null);
+                return;
+            }
+            WakeWriter();
         }
 
         public async Task RunWriterAsync(CancellationToken ct)
         {
             try
             {
-                while (!ct.IsCancellationRequested)
+                while (!ct.IsCancellationRequested && Volatile.Read(ref _disposed) == 0)
                 {
                     await _signal.WaitAsync(ct).ConfigureAwait(false);
-                    while (_reliable.Reader.TryRead(out var msg)) await WriteAsync(msg, ct).ConfigureAwait(false);
+                    if (Volatile.Read(ref _disposed) != 0) break;
+                    while (Volatile.Read(ref _disposed) == 0 && _reliable.Reader.TryRead(out var msg))
+                        await WriteAsync(msg, ct).ConfigureAwait(false);
                     if (Interlocked.Exchange(ref _latestConfig, null) is { } config) await WriteAsync(config, ct).ConfigureAwait(false);
                     if (Interlocked.Exchange(ref _latestSnapshot, null) is { } snapshot) await WriteAsync(snapshot, ct).ConfigureAwait(false);
                 }
             }
             catch { /* cliente saiu */ }
+            finally
+            {
+                // Closing an idle client must release this writer/ServeAsync, not wait for service shutdown.
+                Dispose();
+                while (_reliable.Reader.TryRead(out _)) { }
+                Interlocked.Exchange(ref _latestConfig, null);
+                Interlocked.Exchange(ref _latestSnapshot, null);
+                _signal.Dispose();
+            }
         }
 
         private async Task WriteAsync(string message, CancellationToken ct)
@@ -313,8 +332,19 @@ public sealed class PipeEngineServer : IAsyncDisposable
 
         public void Dispose()
         {
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
             _reliable.Writer.TryComplete();
+            Interlocked.Exchange(ref _latestConfig, null);
+            Interlocked.Exchange(ref _latestSnapshot, null);
             try { Pipe.Dispose(); } catch { }
+            // Completing the channel alone cannot wake WaitAsync: the writer waits on this semaphore.
+            WakeWriter();
+        }
+
+        private void WakeWriter()
+        {
+            try { _signal.Release(); }
+            catch (Exception ex) when (ex is SemaphoreFullException or ObjectDisposedException) { }
         }
     }
 }
