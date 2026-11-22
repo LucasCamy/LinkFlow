@@ -19,10 +19,12 @@ public sealed partial class LinkFlowEngine
     private AcquisitionHealth Acquisition(string key, string source) =>
         _acquisitions.TryGetValue(key, out var health) ? health : _acquisitions[key] = new AcquisitionHealth(key, source);
 
-    private void TrackValue(string key, string source, float? value, float min, float max, long now, DateTimeOffset utc)
+    private void TrackValue(string key, string source, float? value, float min, float max, long now, DateTimeOffset utc,
+        string? unavailableReason = null)
     {
         bool valid = value is { } v && float.IsFinite(v) && v >= min && v <= max;
-        Acquisition(key, source).Record(valid, value != null && !valid, value == null ? "not-reported" : "outside-valid-range", now, utc);
+        Acquisition(key, source).Record(valid, value != null && !valid,
+            value == null ? unavailableReason ?? "not-reported" : "outside-valid-range", now, utc);
     }
 
     // Caller holds _stateLock. The individual values can disappear independently within one provider read.
@@ -31,11 +33,13 @@ public sealed partial class LinkFlowEngine
         long now = Stopwatch.GetTimestamp();
         var utc = DateTimeOffset.UtcNow;
         Acquisition("sensors", "LibreHardwareMonitor").Record(true, false, null, now, utc);
-        TrackValue("cpu.temp", "CPU", t.CpuSensorAvailable ? t.CpuTemperature : null, 0.1f, 150, now, utc);
+        TrackValue("cpu.temp", "CPU", t.CpuSensorAvailable ? t.CpuTemperature : null, 0.1f, 150, now, utc,
+            t.CpuTemperatureUnavailableReason);
         TrackValue("cpu.load", "CPU", t.CpuLoad, 0, 100, now, utc);
         TrackValue("cpu.power", "CPU", t.CpuPower, 0, 5000, now, utc);
         TrackValue("cpu.clock", "CPU", t.CpuClockMhz, 0, 20000, now, utc);
-        TrackValue("gpu.temp", "GPU", t.GpuTemperature, 0.1f, 150, now, utc);
+        TrackValue("gpu.temp", "GPU", t.GpuTemperature, 0.1f, 150, now, utc,
+            t.GpuTemperatureUnavailableReason);
         TrackValue("gpu.hotspot", "GPU", t.GpuHotspotTemperature, 0.1f, 200, now, utc);
         TrackValue("gpu.load", "GPU", t.GpuLoad, 0, 100, now, utc);
         TrackValue("gpu.power", "GPU", t.GpuPower, 0, 5000, now, utc);
